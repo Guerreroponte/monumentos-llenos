@@ -1,8 +1,20 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Mapa from "./Mapa";
+import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase";
+
+const Mapa = dynamic(() => import("./Mapa"), {
+  ssr: false,
+}) as React.ComponentType<{
+  monumentos: {
+    id: string;
+    nombre: string;
+    ciudad: string;
+    latitud?: number | null;
+    longitud?: number | null;
+  }[];
+}>;
 
 type MonumentoDB = {
   id: string;
