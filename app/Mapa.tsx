@@ -48,7 +48,7 @@ export default function Mapa({
 
   return (
     <div className="mt-12">
-      <h3 className="mb-4 text-2xl font-bold">🗺️ Mapa de monumentos</h3>
+      <h3 className="mb-4 text-2xl font-bold">🗺️ Mapa de lugares</h3>
 
       <MapContainer
         center={[40.4168, -3.7038]}

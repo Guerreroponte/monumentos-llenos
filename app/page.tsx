@@ -108,7 +108,7 @@ async function resizeImageToDataUrl(file: File): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.8);
 }
 
-function MonumentoGaleriaRotativa({
+function LugarGaleriaRotativa({
   monumento,
 }: {
   monumento: MonumentoUI;
@@ -136,7 +136,7 @@ function MonumentoGaleriaRotativa({
     }, 3500);
 
     return () => clearInterval(interval);
-  }, [imagenes]);
+  }, [imagenes.length]);
 
   if (imagenes.length > 0) {
     return (
@@ -179,7 +179,7 @@ function MonumentoGaleriaRotativa({
           {monumento.nombre}
         </h4>
         <p className="mt-3 text-sm text-slate-600">
-          Monumento guardado por la comunidad
+          Lugar compartido por la comunidad
         </p>
       </div>
     </div>
@@ -231,7 +231,7 @@ export default function Home() {
       .order("created_at", { ascending: false });
 
     if (errorMonumentos) {
-      console.error("Error cargando monumentos:", errorMonumentos);
+      console.error("Error cargando lugares:", errorMonumentos);
       setCargando(false);
       return;
     }
@@ -249,7 +249,7 @@ export default function Home() {
         .order("created_at", { ascending: false });
 
       if (errorResenas) {
-        console.error("Error cargando reseñas:", errorResenas);
+        console.error("Error cargando comentarios:", errorResenas);
       } else {
         resenasData = (dataResenas || []) as ResenaDB[];
       }
@@ -267,12 +267,12 @@ export default function Home() {
 
     const resultado: MonumentoUI[] = monumentosBase.map((m) => ({
       id: m.id,
-      nombre: m.nombre || "Monumento sin nombre",
+      nombre: m.nombre || "Lugar sin nombre",
       ciudad: m.ciudad || "Ciudad no especificada",
       provincia: m.provincia || null,
       comunidad_autonoma: m.comunidad_autonoma || null,
       rating: typeof m.rating === "number" ? m.rating : null,
-      precio: m.precio || "Precio no especificado",
+      precio: m.precio || "No especificado",
       imagen: m.imagen || null,
       descripcion: m.descripcion || null,
       created_at: m.created_at || null,
@@ -314,7 +314,7 @@ export default function Home() {
 
   const añadirMonumento = async () => {
     if (!nombre.trim() || !ciudad.trim() || !rating.trim() || !precio.trim()) {
-      alert("Completa nombre, ciudad, rating y precio.");
+      alert("Completa nombre, ciudad, valoración y acceso o precio.");
       return;
     }
 
@@ -342,8 +342,8 @@ export default function Home() {
     ]);
 
     if (error) {
-      console.error("Error al guardar monumento:", error);
-      alert(`Error al guardar el monumento: ${error.message}`);
+      console.error("Error al guardar lugar:", error);
+      alert(`Error al guardar el lugar: ${error.message}`);
     } else {
       setNombre("");
       setCiudad("");
@@ -371,8 +371,8 @@ export default function Home() {
       const dataUrl = await resizeImageToDataUrl(file);
       setImagenMonumentoArchivo(dataUrl);
     } catch (error) {
-      console.error("Error procesando foto del monumento:", error);
-      alert("No se pudo procesar la foto del monumento.");
+      console.error("Error procesando foto del lugar:", error);
+      alert("No se pudo procesar la foto del lugar.");
     } finally {
       setProcesandoFotoMonumento(false);
     }
@@ -389,7 +389,7 @@ export default function Home() {
       const dataUrl = await resizeImageToDataUrl(file);
       setFotoResenaArchivo(dataUrl);
     } catch (error) {
-      console.error("Error procesando foto de reseña:", error);
+      console.error("Error procesando foto del comentario:", error);
       alert("No se pudo procesar la foto.");
     } finally {
       setProcesandoFotoResena(false);
@@ -421,8 +421,8 @@ export default function Home() {
     ]);
 
     if (error) {
-      console.error("Error al guardar reseña:", error);
-      alert(`Error al guardar la reseña: ${error.message}`);
+      console.error("Error al guardar comentario:", error);
+      alert(`Error al guardar el comentario: ${error.message}`);
     } else {
       limpiarFormularioResena();
       await cargarDatos();
@@ -457,13 +457,13 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-orange-500">
-              Marca española de monumentos
+              Comunidad de lugares reales en España
             </p>
             <h1 className="mt-1 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent">
               Monumentos Llenos
             </h1>
             <p className="text-sm text-slate-600">
-              Descubre, comenta y comparte monumentos de España
+              Descubre, comparte y comenta lugares con fotos y experiencias reales
             </p>
           </div>
 
@@ -474,8 +474,8 @@ export default function Home() {
             <a href="#mapa" className="transition hover:text-orange-600">
               Mapa
             </a>
-            <a href="#monumentos" className="transition hover:text-orange-600">
-              Monumentos
+            <a href="#lugares" className="transition hover:text-orange-600">
+              Lugares
             </a>
             <a href="#buscador" className="transition hover:text-orange-600">
               Buscar
@@ -489,24 +489,21 @@ export default function Home() {
 
         <div className="max-w-4xl">
           <h2 className="text-5xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-7xl">
-            Monumentos reales, opiniones reales y fotos de visitantes
+            Lugares reales, opiniones reales y fotos de visitantes
           </h2>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600 md:text-xl">
-            Consulta monumentos, añade nuevos lugares, comparte comentarios y
-            fotos. Todo lo que ves aquí se guarda en tu base de datos de
-            Supabase.
+            Explora lugares, añade nuevos sitios y comparte tu experiencia con la
+            comunidad. Monumentos, playas, cabos, museos, sendas y mucho más.
           </p>
         </div>
       </section>
 
       <section id="buscador" className="mx-auto max-w-6xl px-6 pb-12">
         <div className="rounded-3xl border border-orange-100 bg-white/90 p-6 shadow-lg shadow-orange-100">
-          <h3 className="text-2xl font-bold text-slate-900">
-            Buscar monumentos
-          </h3>
+          <h3 className="text-2xl font-bold text-slate-900">Buscar lugares</h3>
           <p className="mt-2 text-sm text-slate-600">
-            Filtra por nombre del monumento o por ciudad.
+            Filtra por nombre del lugar o por ciudad.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -514,7 +511,7 @@ export default function Home() {
               type="text"
               value={busquedaNombre}
               onChange={(e) => setBusquedaNombre(e.target.value)}
-              placeholder="Buscar monumento..."
+              placeholder="Buscar lugar..."
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
 
@@ -532,12 +529,11 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-6 pb-12">
         <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
           <h3 className="text-2xl font-bold text-slate-900">
-            Añadir nuevo monumento
+            Añadir nuevo lugar
           </h3>
           <p className="mt-2 text-sm text-slate-600">
-            Puedes añadir los datos básicos, una descripción y subir una foto
-            desde tu dispositivo. Los campos de mascotas, coche y parking son
-            opcionales.
+            Puedes añadir los datos básicos, una descripción y subir una foto desde
+            tu dispositivo. Los campos de mascotas, coche y parking son opcionales.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -545,7 +541,7 @@ export default function Home() {
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              placeholder="Nombre del monumento"
+              placeholder="Nombre del lugar"
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
 
@@ -572,7 +568,7 @@ export default function Home() {
               type="text"
               value={precio}
               onChange={(e) => setPrecio(e.target.value)}
-              placeholder="Precio"
+              placeholder="Precio o acceso"
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
 
@@ -609,14 +605,14 @@ export default function Home() {
             <textarea
               value={descripcionMonumento}
               onChange={(e) => setDescripcionMonumento(e.target.value)}
-              placeholder="Descripción del monumento"
+              placeholder="Descripción del lugar"
               rows={4}
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none md:col-span-2"
             />
 
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Subir foto del monumento
+                Subir foto del lugar
               </label>
 
               <input
@@ -628,14 +624,14 @@ export default function Home() {
 
               {procesandoFotoMonumento && (
                 <p className="mt-2 text-sm text-slate-500">
-                  Procesando foto del monumento...
+                  Procesando foto del lugar...
                 </p>
               )}
 
               {imagenMonumentoArchivo && (
                 <img
                   src={imagenMonumentoArchivo}
-                  alt="Previsualización del monumento"
+                  alt="Previsualización del lugar"
                   className="mt-3 h-32 rounded-2xl object-cover"
                 />
               )}
@@ -648,7 +644,7 @@ export default function Home() {
               disabled={guardandoMonumento}
               className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {guardandoMonumento ? "Guardando..." : "Guardar monumento"}
+              {guardandoMonumento ? "Guardando..." : "Guardar lugar"}
             </button>
           </div>
         </div>
@@ -666,29 +662,29 @@ export default function Home() {
         />
       </section>
 
-      <section id="monumentos" className="mx-auto max-w-6xl px-6 pb-20">
+      <section id="lugares" className="mx-auto max-w-6xl px-6 pb-20">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h3 className="text-3xl font-bold text-slate-900">
-              Monumentos guardados
+              Lugares descubiertos
             </h3>
             <p className="mt-2 text-sm text-slate-500">
-              Monumentos creados y comentarios guardados en tiempo real.
+              Lugares compartidos por la comunidad en tiempo real.
             </p>
           </div>
 
           <div className="rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
-            {monumentosFiltrados.length} resultado(s)
+            {monumentosFiltrados.length} lugar(es)
           </div>
         </div>
 
         {cargando ? (
           <div className="rounded-3xl border border-orange-100 bg-white p-6 text-slate-600 shadow-sm">
-            Cargando monumentos...
+            Cargando lugares...
           </div>
         ) : monumentosFiltrados.length === 0 ? (
           <div className="rounded-3xl border border-orange-100 bg-white p-6 text-slate-600 shadow-sm">
-            No hay monumentos que coincidan con la búsqueda.
+            No hay lugares que coincidan con la búsqueda.
           </div>
         ) : (
           <div className="grid gap-8">
@@ -705,7 +701,7 @@ export default function Home() {
                 >
                   <div className="grid md:grid-cols-2">
                     <div className="relative min-h-[280px]">
-                      <MonumentoGaleriaRotativa monumento={m} />
+                      <LugarGaleriaRotativa monumento={m} />
                     </div>
 
                     <div className="p-6 md:p-8">
@@ -726,12 +722,12 @@ export default function Home() {
 
                       <p className="mt-4 text-base leading-7 text-slate-600">
                         {m.descripcion ||
-                          "Monumento añadido por la comunidad. Aquí irán creciendo sus comentarios y fotos."}
+                          "Lugar añadido por la comunidad. Aquí irán creciendo sus comentarios, fotos y experiencias reales."}
                       </p>
 
                       <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                         <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
-                          <p className="text-slate-500">Precio</p>
+                          <p className="text-slate-500">Acceso o precio</p>
                           <p className="mt-1 font-semibold text-slate-900">
                             💶 {m.precio}
                           </p>
@@ -819,7 +815,7 @@ export default function Home() {
                                 onChange={(e) =>
                                   setComentarioResena(e.target.value)
                                 }
-                                placeholder="Escribe tu comentario o reseña"
+                                placeholder="Escribe tu comentario o experiencia"
                                 rows={4}
                                 className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
                               />
@@ -865,7 +861,7 @@ export default function Home() {
                       <div className="mt-6 grid gap-4">
                         {m.resenas.length === 0 ? (
                           <div className="rounded-2xl border border-dashed border-orange-200 p-4 text-sm text-slate-500">
-                            Todavía no hay comentarios para este monumento.
+                            Todavía no hay comentarios para este lugar.
                           </div>
                         ) : (
                           m.resenas.map((r) => (
