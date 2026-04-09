@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Mapa from "./Mapa";
 import { supabase } from "@/lib/supabase";
 
 type MonumentoDB = {
@@ -8,6 +9,8 @@ type MonumentoDB = {
   created_at?: string | null;
   nombre?: string | null;
   ciudad?: string | null;
+  provincia?: string | null;
+  comunidad_autonoma?: string | null;
   rating?: number | null;
   precio?: string | null;
   imagen?: string | null;
@@ -15,6 +18,11 @@ type MonumentoDB = {
   acepta_mascotas?: boolean | null;
   acceso_coche?: boolean | null;
   parking_cerca?: boolean | null;
+  latitud?: number | null;
+  longitud?: number | null;
+  slug?: string | null;
+  fuente?: string | null;
+  es_seed?: boolean | null;
 };
 
 type ResenaDB = {
@@ -30,6 +38,8 @@ type MonumentoUI = {
   id: string;
   nombre: string;
   ciudad: string;
+  provincia?: string | null;
+  comunidad_autonoma?: string | null;
   rating: number | null;
   precio: string;
   imagen?: string | null;
@@ -38,6 +48,11 @@ type MonumentoUI = {
   acepta_mascotas?: boolean | null;
   acceso_coche?: boolean | null;
   parking_cerca?: boolean | null;
+  latitud?: number | null;
+  longitud?: number | null;
+  slug?: string | null;
+  fuente?: string | null;
+  es_seed?: boolean | null;
   resenas: ResenaDB[];
 };
 
@@ -174,7 +189,8 @@ export default function Home() {
   const [precio, setPrecio] = useState("");
   const [descripcionMonumento, setDescripcionMonumento] = useState("");
   const [imagenMonumentoArchivo, setImagenMonumentoArchivo] = useState("");
-  const [procesandoFotoMonumento, setProcesandoFotoMonumento] = useState(false);
+  const [procesandoFotoMonumento, setProcesandoFotoMonumento] =
+    useState(false);
 
   const [aceptaMascotas, setAceptaMascotas] = useState("");
   const [accesoCoche, setAccesoCoche] = useState("");
@@ -241,6 +257,8 @@ export default function Home() {
       id: m.id,
       nombre: m.nombre || "Monumento sin nombre",
       ciudad: m.ciudad || "Ciudad no especificada",
+      provincia: m.provincia || null,
+      comunidad_autonoma: m.comunidad_autonoma || null,
       rating: typeof m.rating === "number" ? m.rating : null,
       precio: m.precio || "Precio no especificado",
       imagen: m.imagen || null,
@@ -252,6 +270,11 @@ export default function Home() {
         typeof m.acceso_coche === "boolean" ? m.acceso_coche : null,
       parking_cerca:
         typeof m.parking_cerca === "boolean" ? m.parking_cerca : null,
+      latitud: typeof m.latitud === "number" ? m.latitud : null,
+      longitud: typeof m.longitud === "number" ? m.longitud : null,
+      slug: m.slug || null,
+      fuente: m.fuente || null,
+      es_seed: typeof m.es_seed === "boolean" ? m.es_seed : null,
       resenas: resenasPorMonumento.get(m.id) || [],
     }));
 
@@ -308,7 +331,7 @@ export default function Home() {
 
     if (error) {
       console.error("Error al guardar monumento:", error);
-      alert("Error al guardar el monumento");
+      alert(`Error al guardar el monumento: ${error.message}`);
     } else {
       setNombre("");
       setCiudad("");
@@ -387,7 +410,7 @@ export default function Home() {
 
     if (error) {
       console.error("Error al guardar reseña:", error);
-      alert("Error al guardar la reseña");
+      alert(`Error al guardar la reseña: ${error.message}`);
     } else {
       limpiarFormularioResena();
       await cargarDatos();
@@ -435,6 +458,9 @@ export default function Home() {
           <nav className="hidden gap-4 text-sm font-medium text-slate-700 md:flex">
             <a href="#" className="transition hover:text-orange-600">
               Inicio
+            </a>
+            <a href="#mapa" className="transition hover:text-orange-600">
+              Mapa
             </a>
             <a href="#monumentos" className="transition hover:text-orange-600">
               Monumentos
@@ -614,6 +640,18 @@ export default function Home() {
             </button>
           </div>
         </div>
+      </section>
+
+      <section id="mapa" className="mx-auto max-w-6xl px-6 pb-12">
+        <Mapa
+          monumentos={monumentos.map((m) => ({
+            id: m.id,
+            nombre: m.nombre,
+            ciudad: m.ciudad,
+            latitud: m.latitud,
+            longitud: m.longitud,
+          }))}
+        />
       </section>
 
       <section id="monumentos" className="mx-auto max-w-6xl px-6 pb-20">
@@ -849,6 +887,12 @@ export default function Home() {
                           ))
                         )}
                       </div>
+
+                      {m.fuente && (
+                        <p className="mt-4 text-xs text-slate-400">
+                          Fuente: {m.fuente}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
