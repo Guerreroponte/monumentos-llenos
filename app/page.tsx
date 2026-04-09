@@ -1,182 +1,169 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
-type Reseña = {
-  usuario: string;
-  comentario: string;
-  observaciones: string;
-  foto?: string;
+type MonumentoDB = {
+  id: string;
+  created_at?: string | null;
+  nombre?: string | null;
+  ciudad?: string | null;
+  rating?: number | null;
+  precio?: string | null;
+  imagen?: string | null;
+  descripcion?: string | null;
+  acepta_mascotas?: boolean | null;
+  acceso_coche?: boolean | null;
+  parking_cerca?: boolean | null;
 };
 
-type Monumento = {
+type ResenaDB = {
+  id: string;
+  monumento_id?: string | null;
+  usuario?: string | null;
+  comentario?: string | null;
+  foto?: string | null;
+  created_at?: string | null;
+};
+
+type MonumentoUI = {
+  id: string;
   nombre: string;
   ciudad: string;
-  rating: number;
+  rating: number | null;
   precio: string;
-  mascotas: string;
-  aparcamiento: string;
-  imagen: string;
-  imagenFallback: string;
-  descripcion: string;
-  reseñas: Reseña[];
+  imagen?: string | null;
+  descripcion?: string | null;
+  created_at?: string | null;
+  acepta_mascotas?: boolean | null;
+  acceso_coche?: boolean | null;
+  parking_cerca?: boolean | null;
+  resenas: ResenaDB[];
 };
 
-const monumentosIniciales: Monumento[] = [
-  {
-    nombre: "Alhambra",
-    ciudad: "Granada",
-    rating: 4.8,
-    precio: "Desde 19€",
-    mascotas: "No mascotas",
-    aparcamiento: "Sí aparcamiento cerca",
-    imagen:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Alhambra%20-%20Granada.jpg",
-    imagenFallback:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Alhambra%20Granada%20Spain.jpg",
-    descripcion:
-      "Un conjunto monumental único con palacios, jardines y vistas espectaculares.",
-    reseñas: [
-      {
-        usuario: "Lucía",
-        comentario:
-          "Impresionante. Merece muchísimo la pena ir con tiempo para verlo bien.",
-        observaciones: "Conviene reservar entrada con antelación.",
-      },
-      {
-        usuario: "Carlos",
-        comentario:
-          "Muy bonito y muy cuidado. Las vistas al atardecer son increíbles.",
-        observaciones: "Hay bastantes cuestas, mejor ir con calzado cómodo.",
-      },
-    ],
-  },
-  {
-    nombre: "Sagrada Familia",
-    ciudad: "Barcelona",
-    rating: 4.9,
-    precio: "Desde 26€",
-    mascotas: "No mascotas",
-    aparcamiento: "No aparcamiento cerca",
-    imagen:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Sagrada%20familia.jpg",
-    imagenFallback:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Sagrada%20Fam%C3%ADlia.jpg",
-    descripcion:
-      "Una basílica icónica con una arquitectura espectacular y una luz interior increíble.",
-    reseñas: [
-      {
-        usuario: "Marina",
-        comentario:
-          "Por dentro es todavía más impresionante que por fuera. Una pasada.",
-        observaciones: "Hay bastante gente casi siempre.",
-      },
-    ],
-  },
-  {
-    nombre: "Acueducto de Segovia",
-    ciudad: "Segovia",
-    rating: 4.7,
-    precio: "Gratis",
-    mascotas: "Sí mascotas",
-    aparcamiento: "Sí aparcamiento cerca",
-    imagen:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Acueducto%20de%20Segovia%2001.jpg",
-    imagenFallback:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Acueducto%20de%20Segovia%20-%2021.jpg",
-    descripcion:
-      "Uno de los monumentos romanos mejor conservados y más emblemáticos de España.",
-    reseñas: [
-      {
-        usuario: "Javier",
-        comentario: "Muy recomendable, sobre todo al atardecer.",
-        observaciones: "Se visita rápido y luego puedes pasear por la ciudad.",
-      },
-    ],
-  },
-  {
-    nombre: "Teatro Romano de Mérida",
-    ciudad: "Mérida",
-    rating: 4.6,
-    precio: "Gratis o desde 12€",
-    mascotas: "No mascotas",
-    aparcamiento: "Sí aparcamiento cerca",
-    imagen:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Teatro%20romano%20de%20M%C3%A9rida.%20Espa%C3%B1a.jpg",
-    imagenFallback:
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Merida-Teatro%20Romano.jpg",
-    descripcion:
-      "Un espacio histórico espectacular donde todavía se celebran eventos culturales.",
-    reseñas: [
-      {
-        usuario: "Ana",
-        comentario:
-          "Precioso y con muchísima historia. Se siente muy especial estar allí.",
-        observaciones: "Muy buena visita si te gusta la historia.",
-      },
-    ],
-  },
-];
+async function resizeImageToDataUrl(file: File): Promise<string> {
+  const fileDataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 
-function AvatarReseña({
-  usuario,
-  foto,
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = fileDataUrl;
+  });
+
+  const maxSize = 1200;
+  let { width, height } = image;
+
+  if (width > height && width > maxSize) {
+    height = Math.round((height * maxSize) / width);
+    width = maxSize;
+  } else if (height >= width && height > maxSize) {
+    width = Math.round((width * maxSize) / height);
+    height = maxSize;
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("No se pudo procesar la imagen.");
+  }
+
+  ctx.drawImage(image, 0, 0, width, height);
+
+  return canvas.toDataURL("image/jpeg", 0.8);
+}
+
+function MonumentoGaleriaRotativa({
+  monumento,
 }: {
-  usuario: string;
-  foto?: string;
+  monumento: MonumentoUI;
 }) {
-  const [errorFoto, setErrorFoto] = useState(false);
+  const imagenes = useMemo(() => {
+    const lista = [
+      monumento.imagen,
+      ...monumento.resenas.map((r) => r.foto || null),
+    ].filter(Boolean) as string[];
 
-  const inicial = usuario.trim().charAt(0).toUpperCase() || "U";
+    return [...new Set(lista)];
+  }, [monumento]);
 
-  if (!foto || errorFoto) {
+  const [indiceActual, setIndiceActual] = useState(0);
+
+  useEffect(() => {
+    setIndiceActual(0);
+  }, [imagenes.length, monumento.id]);
+
+  useEffect(() => {
+    if (imagenes.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setIndiceActual((prev) => (prev + 1) % imagenes.length);
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [imagenes]);
+
+  if (imagenes.length > 0) {
     return (
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-bold text-white shadow-sm">
-        {inicial}
+      <div className="relative h-full min-h-[280px] w-full overflow-hidden">
+        <img
+          src={imagenes[indiceActual]}
+          alt={monumento.nombre}
+          className="h-full w-full object-cover transition-opacity duration-700"
+        />
+
+        {imagenes.length > 1 && (
+          <div className="absolute bottom-4 left-4 flex gap-2 rounded-full bg-black/30 px-3 py-2 backdrop-blur">
+            {imagenes.map((_, index) => (
+              <span
+                key={`${monumento.id}-dot-${index}`}
+                className={`h-2.5 w-2.5 rounded-full ${
+                  index === indiceActual ? "bg-white" : "bg-white/40"
+                }`}
+              />
+            ))}
+          </div>
+        )}
+
+        {imagenes.length > 1 && (
+          <div className="absolute right-4 top-4 rounded-full bg-black/40 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+            {indiceActual + 1} / {imagenes.length}
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <img
-      src={foto}
-      alt={usuario}
-      className="h-14 w-14 rounded-2xl object-cover"
-      onError={() => setErrorFoto(true)}
-    />
-  );
-}
-
-function ImagenMonumento({
-  src,
-  fallback,
-  alt,
-}: {
-  src: string;
-  fallback: string;
-  alt: string;
-}) {
-  const [fuenteActual, setFuenteActual] = useState(src);
-  const [falloPrincipal, setFalloPrincipal] = useState(false);
-
-  return (
-    <img
-      src={fuenteActual}
-      alt={alt}
-      className="h-full w-full object-cover"
-      onError={() => {
-        if (!falloPrincipal) {
-          setFuenteActual(fallback);
-          setFalloPrincipal(true);
-        }
-      }}
-    />
+    <div className="flex h-full min-h-[280px] w-full items-end bg-gradient-to-br from-orange-200 via-amber-100 to-rose-100 p-6">
+      <div className="rounded-3xl bg-white/70 p-5 backdrop-blur">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
+          {monumento.ciudad}
+        </p>
+        <h4 className="mt-2 text-3xl font-bold text-slate-900">
+          {monumento.nombre}
+        </h4>
+        <p className="mt-3 text-sm text-slate-600">
+          Monumento guardado por la comunidad
+        </p>
+      </div>
+    </div>
   );
 }
 
 export default function Home() {
-  const [lista, setLista] = useState<Monumento[]>(monumentosIniciales);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [monumentos, setMonumentos] = useState<MonumentoUI[]>([]);
+  const [cargando, setCargando] = useState(true);
+  const [guardandoMonumento, setGuardandoMonumento] = useState(false);
+  const [guardandoResena, setGuardandoResena] = useState(false);
 
   const [busquedaNombre, setBusquedaNombre] = useState("");
   const [busquedaCiudad, setBusquedaCiudad] = useState("");
@@ -185,20 +172,99 @@ export default function Home() {
   const [ciudad, setCiudad] = useState("");
   const [rating, setRating] = useState("");
   const [precio, setPrecio] = useState("");
-  const [mascotas, setMascotas] = useState("Sí mascotas");
-  const [aparcamiento, setAparcamiento] = useState("Sí aparcamiento cerca");
-  const [imagen, setImagen] = useState("");
-  const [imagenFallback, setImagenFallback] = useState("");
-  const [descripcion, setDescripcion] = useState("");
+  const [descripcionMonumento, setDescripcionMonumento] = useState("");
+  const [imagenMonumentoArchivo, setImagenMonumentoArchivo] = useState("");
+  const [procesandoFotoMonumento, setProcesandoFotoMonumento] = useState(false);
 
-  const [reseñaAbierta, setReseñaAbierta] = useState<string | null>(null);
-  const [usuarioReseña, setUsuarioReseña] = useState("");
-  const [comentarioReseña, setComentarioReseña] = useState("");
-  const [observacionesReseña, setObservacionesReseña] = useState("");
-  const [fotoReseña, setFotoReseña] = useState("");
+  const [aceptaMascotas, setAceptaMascotas] = useState("");
+  const [accesoCoche, setAccesoCoche] = useState("");
+  const [parkingCerca, setParkingCerca] = useState("");
+
+  const [monumentoActivoResena, setMonumentoActivoResena] = useState<
+    string | null
+  >(null);
+  const [usuarioResena, setUsuarioResena] = useState("");
+  const [comentarioResena, setComentarioResena] = useState("");
+  const [fotoResenaArchivo, setFotoResenaArchivo] = useState("");
+  const [procesandoFotoResena, setProcesandoFotoResena] = useState(false);
+
+  const convertirOpcionalABooleano = (valor: string): boolean | null => {
+    if (valor === "si") return true;
+    if (valor === "no") return false;
+    return null;
+  };
+
+  const cargarDatos = async () => {
+    setCargando(true);
+
+    const { data: monumentosData, error: errorMonumentos } = await supabase
+      .from("Monumentos")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (errorMonumentos) {
+      console.error("Error cargando monumentos:", errorMonumentos);
+      setCargando(false);
+      return;
+    }
+
+    const monumentosBase = (monumentosData || []) as MonumentoDB[];
+    const ids = monumentosBase.map((m) => m.id).filter(Boolean);
+
+    let resenasData: ResenaDB[] = [];
+
+    if (ids.length > 0) {
+      const { data: dataResenas, error: errorResenas } = await supabase
+        .from("resenas")
+        .select("id, monumento_id, usuario, comentario, foto, created_at")
+        .in("monumento_id", ids)
+        .order("created_at", { ascending: false });
+
+      if (errorResenas) {
+        console.error("Error cargando reseñas:", errorResenas);
+      } else {
+        resenasData = (dataResenas || []) as ResenaDB[];
+      }
+    }
+
+    const resenasPorMonumento = new Map<string, ResenaDB[]>();
+
+    for (const r of resenasData) {
+      const monumentoId = r.monumento_id || "";
+      if (!resenasPorMonumento.has(monumentoId)) {
+        resenasPorMonumento.set(monumentoId, []);
+      }
+      resenasPorMonumento.get(monumentoId)!.push(r);
+    }
+
+    const resultado: MonumentoUI[] = monumentosBase.map((m) => ({
+      id: m.id,
+      nombre: m.nombre || "Monumento sin nombre",
+      ciudad: m.ciudad || "Ciudad no especificada",
+      rating: typeof m.rating === "number" ? m.rating : null,
+      precio: m.precio || "Precio no especificado",
+      imagen: m.imagen || null,
+      descripcion: m.descripcion || null,
+      created_at: m.created_at || null,
+      acepta_mascotas:
+        typeof m.acepta_mascotas === "boolean" ? m.acepta_mascotas : null,
+      acceso_coche:
+        typeof m.acceso_coche === "boolean" ? m.acceso_coche : null,
+      parking_cerca:
+        typeof m.parking_cerca === "boolean" ? m.parking_cerca : null,
+      resenas: resenasPorMonumento.get(m.id) || [],
+    }));
+
+    setMonumentos(resultado);
+    setCargando(false);
+  };
+
+  useEffect(() => {
+    cargarDatos();
+  }, []);
 
   const monumentosFiltrados = useMemo(() => {
-    return lista.filter((m) => {
+    return monumentos.filter((m) => {
       const coincideNombre = m.nombre
         .toLowerCase()
         .includes(busquedaNombre.toLowerCase());
@@ -209,11 +275,11 @@ export default function Home() {
 
       return coincideNombre && coincideCiudad;
     });
-  }, [lista, busquedaNombre, busquedaCiudad]);
+  }, [monumentos, busquedaNombre, busquedaCiudad]);
 
-  const añadirMonumento = () => {
+  const añadirMonumento = async () => {
     if (!nombre.trim() || !ciudad.trim() || !rating.trim() || !precio.trim()) {
-      alert("Por favor, completa nombre, ciudad, valoración y precio.");
+      alert("Completa nombre, ciudad, rating y precio.");
       return;
     }
 
@@ -224,69 +290,130 @@ export default function Home() {
       return;
     }
 
-    const nuevaImagen =
-      imagen.trim() ||
-      "https://commons.wikimedia.org/wiki/Special:FilePath/Alhambra%20-%20Granada.jpg";
+    setGuardandoMonumento(true);
 
-    const nuevaImagenFallback =
-      imagenFallback.trim() ||
-      nuevaImagen;
+    const { error } = await supabase.from("Monumentos").insert([
+      {
+        nombre: nombre.trim(),
+        ciudad: ciudad.trim(),
+        rating: ratingNumero,
+        precio: precio.trim(),
+        imagen: imagenMonumentoArchivo || null,
+        descripcion: descripcionMonumento.trim() || null,
+        acepta_mascotas: convertirOpcionalABooleano(aceptaMascotas),
+        acceso_coche: convertirOpcionalABooleano(accesoCoche),
+        parking_cerca: convertirOpcionalABooleano(parkingCerca),
+      },
+    ]);
 
-    const nuevo: Monumento = {
-      nombre: nombre.trim(),
-      ciudad: ciudad.trim(),
-      rating: ratingNumero,
-      precio: precio.trim(),
-      mascotas,
-      aparcamiento,
-      imagen: nuevaImagen,
-      imagenFallback: nuevaImagenFallback,
-      descripcion:
-        descripcion.trim() ||
-        "Un lugar muy interesante para descubrir y compartir con la comunidad.",
-      reseñas: [],
-    };
+    if (error) {
+      console.error("Error al guardar monumento:", error);
+      alert("Error al guardar el monumento");
+    } else {
+      setNombre("");
+      setCiudad("");
+      setRating("");
+      setPrecio("");
+      setDescripcionMonumento("");
+      setImagenMonumentoArchivo("");
+      setAceptaMascotas("");
+      setAccesoCoche("");
+      setParkingCerca("");
+      await cargarDatos();
+    }
 
-    setLista([nuevo, ...lista]);
-
-    setNombre("");
-    setCiudad("");
-    setRating("");
-    setPrecio("");
-    setMascotas("Sí mascotas");
-    setAparcamiento("Sí aparcamiento cerca");
-    setImagen("");
-    setImagenFallback("");
-    setDescripcion("");
-    setMostrarFormulario(false);
+    setGuardandoMonumento(false);
   };
 
-  const añadirReseña = (nombreMonumento: string) => {
-    if (!usuarioReseña.trim() || !comentarioReseña.trim()) {
-      alert("Por favor, escribe tu nombre y tu comentario.");
+  const manejarArchivoMonumento = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setProcesandoFotoMonumento(true);
+      const dataUrl = await resizeImageToDataUrl(file);
+      setImagenMonumentoArchivo(dataUrl);
+    } catch (error) {
+      console.error("Error procesando foto del monumento:", error);
+      alert("No se pudo procesar la foto del monumento.");
+    } finally {
+      setProcesandoFotoMonumento(false);
+    }
+  };
+
+  const manejarArchivoResena = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setProcesandoFotoResena(true);
+      const dataUrl = await resizeImageToDataUrl(file);
+      setFotoResenaArchivo(dataUrl);
+    } catch (error) {
+      console.error("Error procesando foto de reseña:", error);
+      alert("No se pudo procesar la foto.");
+    } finally {
+      setProcesandoFotoResena(false);
+    }
+  };
+
+  const limpiarFormularioResena = () => {
+    setUsuarioResena("");
+    setComentarioResena("");
+    setFotoResenaArchivo("");
+    setMonumentoActivoResena(null);
+  };
+
+  const añadirResena = async (monumentoId: string) => {
+    if (!comentarioResena.trim()) {
+      alert("Escribe al menos un comentario.");
       return;
     }
 
-    const nuevaReseña: Reseña = {
-      usuario: usuarioReseña.trim(),
-      comentario: comentarioReseña.trim(),
-      observaciones: observacionesReseña.trim() || "Sin observaciones añadidas.",
-      foto: fotoReseña.trim() || undefined,
-    };
+    setGuardandoResena(true);
 
-    setLista((prev) =>
-      prev.map((m) =>
-        m.nombre === nombreMonumento
-          ? { ...m, reseñas: [nuevaReseña, ...m.reseñas] }
-          : m
-      )
+    const { error } = await supabase.from("resenas").insert([
+      {
+        monumento_id: monumentoId,
+        usuario: usuarioResena.trim() || "Visitante",
+        comentario: comentarioResena.trim(),
+        foto: fotoResenaArchivo || null,
+      },
+    ]);
+
+    if (error) {
+      console.error("Error al guardar reseña:", error);
+      alert("Error al guardar la reseña");
+    } else {
+      limpiarFormularioResena();
+      await cargarDatos();
+    }
+
+    setGuardandoResena(false);
+  };
+
+  const renderEstadoOpcional = (
+    titulo: string,
+    valor: boolean | null | undefined,
+    emoji: string
+  ) => {
+    let texto = "Prefirió no indicarlo";
+
+    if (valor === true) texto = "Sí";
+    if (valor === false) texto = "No";
+
+    return (
+      <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
+        <p className="text-slate-500">{titulo}</p>
+        <p className="mt-1 font-semibold text-slate-900">
+          {emoji} {texto}
+        </p>
+      </div>
     );
-
-    setUsuarioReseña("");
-    setComentarioReseña("");
-    setObservacionesReseña("");
-    setFotoReseña("");
-    setReseñaAbierta(null);
   };
 
   return (
@@ -301,11 +428,11 @@ export default function Home() {
               Monumentos Llenos
             </h1>
             <p className="text-sm text-slate-600">
-              Descubre, valora y comparte monumentos de España
+              Descubre, comenta y comparte monumentos de España
             </p>
           </div>
 
-          <nav className="flex gap-4 text-sm font-medium text-slate-700">
+          <nav className="hidden gap-4 text-sm font-medium text-slate-700 md:flex">
             <a href="#" className="transition hover:text-orange-600">
               Inicio
             </a>
@@ -319,35 +446,19 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="relative mx-auto max-w-6xl px-6 py-20 md:py-28">
+      <section className="relative mx-auto max-w-6xl px-6 py-20 md:py-24">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.25),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(249,115,22,0.18),transparent_30%)]" />
 
         <div className="max-w-4xl">
           <h2 className="text-5xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-7xl">
-            Descubre monumentos increíbles de forma fácil, clara y bonita
+            Monumentos reales, opiniones reales y fotos de visitantes
           </h2>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600 md:text-xl">
-            Consulta precios, valoraciones, acceso con mascotas, aparcamiento y
-            opiniones de visitantes. Explora lugares, comparte reseñas y añade
-            nuevas fotos e impresiones.
+            Consulta monumentos, añade nuevos lugares, comparte comentarios y
+            fotos. Todo lo que ves aquí se guarda en tu base de datos de
+            Supabase.
           </p>
-
-          <div className="mt-10 flex flex-wrap gap-4">
-            <a
-              href="#monumentos"
-              className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
-            >
-              Explorar monumentos
-            </a>
-
-            <button
-              onClick={() => setMostrarFormulario((prev) => !prev)}
-              className="rounded-full border border-orange-200 bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm transition hover:border-orange-300 hover:bg-orange-50"
-            >
-              {mostrarFormulario ? "Cerrar formulario" : "Añadir monumento"}
-            </button>
-          </div>
         </div>
       </section>
 
@@ -366,7 +477,7 @@ export default function Home() {
               value={busquedaNombre}
               onChange={(e) => setBusquedaNombre(e.target.value)}
               placeholder="Buscar monumento..."
-              className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
 
             <input
@@ -374,133 +485,145 @@ export default function Home() {
               value={busquedaCiudad}
               onChange={(e) => setBusquedaCiudad(e.target.value)}
               placeholder="Buscar ciudad..."
-              className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
           </div>
         </div>
       </section>
 
-      {mostrarFormulario && (
-        <section className="mx-auto max-w-6xl px-6 pb-12">
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <h3 className="text-2xl font-bold text-slate-900">
-              Añadir nuevo monumento
-            </h3>
-            <p className="mt-2 text-sm text-slate-600">
-              Puedes añadir nombre, ciudad, imagen principal, imagen de respaldo
-              y una pequeña descripción.
-            </p>
+      <section className="mx-auto max-w-6xl px-6 pb-12">
+        <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+          <h3 className="text-2xl font-bold text-slate-900">
+            Añadir nuevo monumento
+          </h3>
+          <p className="mt-2 text-sm text-slate-600">
+            Puedes añadir los datos básicos, una descripción y subir una foto
+            desde tu dispositivo. Los campos de mascotas, coche y parking son
+            opcionales.
+          </p>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Nombre del monumento"
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+            />
+
+            <input
+              type="text"
+              value={ciudad}
+              onChange={(e) => setCiudad(e.target.value)}
+              placeholder="Ciudad"
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+            />
+
+            <input
+              type="number"
+              min="0"
+              max="5"
+              step="0.1"
+              value={rating}
+              onChange={(e) => setRating(e.target.value)}
+              placeholder="Valoración de 0 a 5"
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+            />
+
+            <input
+              type="text"
+              value={precio}
+              onChange={(e) => setPrecio(e.target.value)}
+              placeholder="Precio"
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+            />
+
+            <select
+              value={aceptaMascotas}
+              onChange={(e) => setAceptaMascotas(e.target.value)}
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
+            >
+              <option value="">Acepta mascotas — Prefiero no indicarlo</option>
+              <option value="si">Sí</option>
+              <option value="no">No</option>
+            </select>
+
+            <select
+              value={parkingCerca}
+              onChange={(e) => setParkingCerca(e.target.value)}
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
+            >
+              <option value="">Parking cerca — Prefiero no indicarlo</option>
+              <option value="si">Sí</option>
+              <option value="no">No</option>
+            </select>
+
+            <select
+              value={accesoCoche}
+              onChange={(e) => setAccesoCoche(e.target.value)}
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none md:col-span-2"
+            >
+              <option value="">Acceso en coche — Prefiero no indicarlo</option>
+              <option value="si">Sí</option>
+              <option value="no">No</option>
+            </select>
+
+            <textarea
+              value={descripcionMonumento}
+              onChange={(e) => setDescripcionMonumento(e.target.value)}
+              placeholder="Descripción del monumento"
+              rows={4}
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none md:col-span-2"
+            />
+
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm font-medium text-slate-700">
+                Subir foto del monumento
+              </label>
+
               <input
-                type="text"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                placeholder="Nombre del monumento"
-                className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                type="file"
+                accept="image/*"
+                onChange={manejarArchivoMonumento}
+                className="block w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm outline-none"
               />
 
-              <input
-                type="text"
-                value={ciudad}
-                onChange={(e) => setCiudad(e.target.value)}
-                placeholder="Ciudad"
-                className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-              />
+              {procesandoFotoMonumento && (
+                <p className="mt-2 text-sm text-slate-500">
+                  Procesando foto del monumento...
+                </p>
+              )}
 
-              <input
-                type="number"
-                min="0"
-                max="5"
-                step="0.1"
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
-                placeholder="Valoración de 0 a 5"
-                className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-              />
-
-              <input
-                type="text"
-                value={precio}
-                onChange={(e) => setPrecio(e.target.value)}
-                placeholder="Precio"
-                className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-              />
-
-              <select
-                value={mascotas}
-                onChange={(e) => setMascotas(e.target.value)}
-                className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-              >
-                <option value="Sí mascotas">Sí mascotas</option>
-                <option value="No mascotas">No mascotas</option>
-              </select>
-
-              <select
-                value={aparcamiento}
-                onChange={(e) => setAparcamiento(e.target.value)}
-                className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-              >
-                <option value="Sí aparcamiento cerca">
-                  Sí aparcamiento cerca
-                </option>
-                <option value="No aparcamiento cerca">
-                  No aparcamiento cerca
-                </option>
-              </select>
-
-              <input
-                type="text"
-                value={imagen}
-                onChange={(e) => setImagen(e.target.value)}
-                placeholder="URL imagen principal (Wikimedia)"
-                className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100 md:col-span-2"
-              />
-
-              <input
-                type="text"
-                value={imagenFallback}
-                onChange={(e) => setImagenFallback(e.target.value)}
-                placeholder="URL imagen alternativa del mismo monumento"
-                className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100 md:col-span-2"
-              />
-
-              <textarea
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                placeholder="Descripción del monumento"
-                rows={4}
-                className="w-full rounded-2xl border border-orange-100 px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100 md:col-span-2"
-              />
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-4">
-              <button
-                onClick={añadirMonumento}
-                className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
-              >
-                Guardar monumento
-              </button>
-
-              <button
-                onClick={() => setMostrarFormulario(false)}
-                className="rounded-full border border-orange-200 bg-white px-6 py-3.5 font-semibold text-slate-800 transition hover:bg-orange-50"
-              >
-                Cancelar
-              </button>
+              {imagenMonumentoArchivo && (
+                <img
+                  src={imagenMonumentoArchivo}
+                  alt="Previsualización del monumento"
+                  className="mt-3 h-32 rounded-2xl object-cover"
+                />
+              )}
             </div>
           </div>
-        </section>
-      )}
+
+          <div className="mt-6">
+            <button
+              onClick={añadirMonumento}
+              disabled={guardandoMonumento}
+              className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {guardandoMonumento ? "Guardando..." : "Guardar monumento"}
+            </button>
+          </div>
+        </div>
+      </section>
 
       <section id="monumentos" className="mx-auto max-w-6xl px-6 pb-20">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h3 className="text-3xl font-bold text-slate-900">
-              Monumentos destacados
+              Monumentos guardados
             </h3>
             <p className="mt-2 text-sm text-slate-500">
-              Explora lugares recomendados por la comunidad.
+              Monumentos creados y comentarios guardados en tiempo real.
             </p>
           </div>
 
@@ -509,174 +632,228 @@ export default function Home() {
           </div>
         </div>
 
-        {monumentosFiltrados.length === 0 ? (
+        {cargando ? (
           <div className="rounded-3xl border border-orange-100 bg-white p-6 text-slate-600 shadow-sm">
-            No se han encontrado monumentos con esa búsqueda.
+            Cargando monumentos...
+          </div>
+        ) : monumentosFiltrados.length === 0 ? (
+          <div className="rounded-3xl border border-orange-100 bg-white p-6 text-slate-600 shadow-sm">
+            No hay monumentos que coincidan con la búsqueda.
           </div>
         ) : (
           <div className="grid gap-8">
-            {monumentosFiltrados.map((m, index) => (
-              <div
-                key={`${m.nombre}-${index}`}
-                className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100"
-              >
-                <div className="grid md:grid-cols-2">
-                  <div className="relative min-h-[280px]">
-                    <ImagenMonumento
-                      src={m.imagen}
-                      fallback={m.imagenFallback}
-                      alt={m.nombre}
-                    />
-                  </div>
+            {monumentosFiltrados.map((m) => {
+              const fotosValidas = m.resenas
+                .map((r) => r.foto)
+                .filter(Boolean)
+                .slice(0, 4) as string[];
 
-                  <div className="p-6 md:p-8">
-                    <div className="flex flex-wrap items-start justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
-                          {m.ciudad}
-                        </p>
-                        <h4 className="mt-2 text-3xl font-bold text-slate-900">
-                          {m.nombre}
-                        </h4>
-                      </div>
-
-                      <div className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
-                        ⭐ {m.rating}
-                      </div>
+              return (
+                <div
+                  key={m.id}
+                  className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100"
+                >
+                  <div className="grid md:grid-cols-2">
+                    <div className="relative min-h-[280px]">
+                      <MonumentoGaleriaRotativa monumento={m} />
                     </div>
 
-                    <p className="mt-4 text-base leading-7 text-slate-600">
-                      {m.descripcion}
-                    </p>
-
-                    <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
-                        <p className="text-slate-500">Precio</p>
-                        <p className="mt-1 font-semibold text-slate-900">
-                          💶 {m.precio}
-                        </p>
-                      </div>
-
-                      <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
-                        <p className="text-slate-500">Mascotas</p>
-                        <p className="mt-1 font-semibold text-slate-900">
-                          🐶 {m.mascotas}
-                        </p>
-                      </div>
-
-                      <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
-                        <p className="text-slate-500">Aparcamiento</p>
-                        <p className="mt-1 font-semibold text-slate-900">
-                          🚗 {m.aparcamiento}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-                      <h5 className="text-xl font-bold text-slate-900">
-                        Reseñas de visitantes
-                      </h5>
-
-                      <button
-                        onClick={() =>
-                          setReseñaAbierta(
-                            reseñaAbierta === m.nombre ? null : m.nombre
-                          )
-                        }
-                        className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                      >
-                        {reseñaAbierta === m.nombre
-                          ? "Cerrar reseña"
-                          : "Añadir reseña"}
-                      </button>
-                    </div>
-
-                    {reseñaAbierta === m.nombre && (
-                      <div className="mt-5 rounded-3xl border border-orange-100 bg-orange-50/50 p-5">
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <input
-                            type="text"
-                            value={usuarioReseña}
-                            onChange={(e) => setUsuarioReseña(e.target.value)}
-                            placeholder="Tu nombre"
-                            className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
-                          />
-
-                          <input
-                            type="text"
-                            value={fotoReseña}
-                            onChange={(e) => setFotoReseña(e.target.value)}
-                            placeholder="URL de tu foto (opcional)"
-                            className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
-                          />
-
-                          <textarea
-                            value={comentarioReseña}
-                            onChange={(e) =>
-                              setComentarioReseña(e.target.value)
-                            }
-                            placeholder="¿Qué te ha parecido el monumento?"
-                            rows={4}
-                            className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none md:col-span-2"
-                          />
-
-                          <textarea
-                            value={observacionesReseña}
-                            onChange={(e) =>
-                              setObservacionesReseña(e.target.value)
-                            }
-                            placeholder="Observaciones útiles para otros visitantes"
-                            rows={3}
-                            className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none md:col-span-2"
-                          />
+                    <div className="p-6 md:p-8">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
+                            {m.ciudad}
+                          </p>
+                          <h4 className="mt-2 text-3xl font-bold text-slate-900">
+                            {m.nombre}
+                          </h4>
                         </div>
+
+                        <div className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
+                          ⭐ {m.rating ?? "Sin nota"}
+                        </div>
+                      </div>
+
+                      <p className="mt-4 text-base leading-7 text-slate-600">
+                        {m.descripcion ||
+                          "Monumento añadido por la comunidad. Aquí irán creciendo sus comentarios y fotos."}
+                      </p>
+
+                      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                        <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
+                          <p className="text-slate-500">Precio</p>
+                          <p className="mt-1 font-semibold text-slate-900">
+                            💶 {m.precio}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
+                          <p className="text-slate-500">Comentarios</p>
+                          <p className="mt-1 font-semibold text-slate-900">
+                            💬 {m.resenas.length}
+                          </p>
+                        </div>
+
+                        {renderEstadoOpcional(
+                          "Acepta mascotas",
+                          m.acepta_mascotas,
+                          "🐾"
+                        )}
+
+                        {renderEstadoOpcional(
+                          "Parking cerca",
+                          m.parking_cerca,
+                          "🅿️"
+                        )}
+
+                        {renderEstadoOpcional(
+                          "Acceso en coche",
+                          m.acceso_coche,
+                          "🚗"
+                        )}
+                      </div>
+
+                      {fotosValidas.length > 0 && (
+                        <div className="mt-6">
+                          <p className="mb-3 text-sm font-semibold text-slate-700">
+                            Fotos compartidas
+                          </p>
+                          <div className="grid grid-cols-4 gap-3">
+                            {fotosValidas.map((foto, index) => (
+                              <img
+                                key={`${m.id}-foto-${index}`}
+                                src={foto}
+                                alt={`Foto de ${m.nombre}`}
+                                className="h-20 w-full rounded-2xl object-cover"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+                        <h5 className="text-xl font-bold text-slate-900">
+                          Comentarios de visitantes
+                        </h5>
 
                         <button
-                          onClick={() => añadirReseña(m.nombre)}
-                          className="mt-4 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md"
+                          onClick={() =>
+                            setMonumentoActivoResena(
+                              monumentoActivoResena === m.id ? null : m.id
+                            )
+                          }
+                          className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
                         >
-                          Publicar reseña
+                          {monumentoActivoResena === m.id
+                            ? "Cerrar comentario"
+                            : "Añadir comentario"}
                         </button>
                       </div>
-                    )}
 
-                    <div className="mt-6 grid gap-4">
-                      {m.reseñas.length === 0 ? (
-                        <div className="rounded-2xl border border-dashed border-orange-200 p-4 text-sm text-slate-500">
-                          Todavía no hay reseñas para este monumento.
-                        </div>
-                      ) : (
-                        m.reseñas.map((r, reseñaIndex) => (
-                          <div
-                            key={`${m.nombre}-reseña-${reseñaIndex}`}
-                            className="rounded-3xl border border-orange-100 bg-white p-4 shadow-sm"
-                          >
-                            <div className="flex items-start gap-4">
-                              <AvatarReseña usuario={r.usuario} foto={r.foto} />
+                      {monumentoActivoResena === m.id && (
+                        <div className="mt-5 rounded-3xl border border-orange-100 bg-orange-50/50 p-5">
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <input
+                              type="text"
+                              value={usuarioResena}
+                              onChange={(e) =>
+                                setUsuarioResena(e.target.value)
+                              }
+                              placeholder="Tu nombre"
+                              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
+                            />
 
-                              <div className="flex-1">
-                                <p className="font-bold text-slate-900">
-                                  {r.usuario}
+                            <div className="md:col-span-2">
+                              <textarea
+                                value={comentarioResena}
+                                onChange={(e) =>
+                                  setComentarioResena(e.target.value)
+                                }
+                                placeholder="Escribe tu comentario o reseña"
+                                rows={4}
+                                className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
+                              />
+                            </div>
+
+                            <div className="md:col-span-2">
+                              <label className="mb-2 block text-sm font-medium text-slate-700">
+                                Subir foto del comentario
+                              </label>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={manejarArchivoResena}
+                                className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
+                              />
+                              {procesandoFotoResena && (
+                                <p className="mt-2 text-sm text-slate-500">
+                                  Procesando foto...
                                 </p>
-                                <p className="mt-1 text-slate-600">
-                                  {r.comentario}
-                                </p>
-                                <p className="mt-3 rounded-2xl bg-orange-50 px-3 py-2 text-sm text-slate-600">
-                                  <span className="font-semibold text-slate-800">
-                                    Observaciones:
-                                  </span>{" "}
-                                  {r.observaciones}
-                                </p>
-                              </div>
+                              )}
+                              {fotoResenaArchivo && (
+                                <img
+                                  src={fotoResenaArchivo}
+                                  alt="Previsualización"
+                                  className="mt-3 h-28 rounded-2xl object-cover"
+                                />
+                              )}
                             </div>
                           </div>
-                        ))
+
+                          <button
+                            onClick={() => añadirResena(m.id)}
+                            disabled={guardandoResena}
+                            className="mt-4 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {guardandoResena
+                              ? "Guardando comentario..."
+                              : "Publicar comentario"}
+                          </button>
+                        </div>
                       )}
+
+                      <div className="mt-6 grid gap-4">
+                        {m.resenas.length === 0 ? (
+                          <div className="rounded-2xl border border-dashed border-orange-200 p-4 text-sm text-slate-500">
+                            Todavía no hay comentarios para este monumento.
+                          </div>
+                        ) : (
+                          m.resenas.map((r) => (
+                            <div
+                              key={r.id}
+                              className="rounded-3xl border border-orange-100 bg-white p-4 shadow-sm"
+                            >
+                              <div className="flex items-start gap-4">
+                                {r.foto ? (
+                                  <img
+                                    src={r.foto}
+                                    alt={r.usuario || "Visitante"}
+                                    className="h-14 w-14 rounded-2xl object-cover"
+                                  />
+                                ) : (
+                                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-bold text-white shadow-sm">
+                                    {(r.usuario || "V").charAt(0).toUpperCase()}
+                                  </div>
+                                )}
+
+                                <div className="flex-1">
+                                  <p className="font-bold text-slate-900">
+                                    {r.usuario || "Visitante"}
+                                  </p>
+                                  <p className="mt-1 text-slate-600">
+                                    {r.comentario || "Sin comentario"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
