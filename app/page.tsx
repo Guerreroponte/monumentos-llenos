@@ -44,6 +44,7 @@ type ResenaDB = {
   comentario?: string | null;
   foto?: string | null;
   created_at?: string | null;
+  likes?: number | null;
 };
 
 type MonumentoUI = {
@@ -244,7 +245,7 @@ export default function Home() {
     if (ids.length > 0) {
       const { data: dataResenas, error: errorResenas } = await supabase
         .from("resenas")
-        .select("id, monumento_id, usuario, comentario, foto, created_at")
+        .select("id, monumento_id, usuario, comentario, foto, created_at, likes")
         .in("monumento_id", ids)
         .order("created_at", { ascending: false });
 
@@ -431,6 +432,32 @@ export default function Home() {
     setGuardandoResena(false);
   };
 
+  const darLike = async (resenaId: string) => {
+    const { data, error } = await supabase
+      .from("resenas")
+      .select("likes")
+      .eq("id", resenaId)
+      .single();
+
+    if (error) {
+      console.error("Error obteniendo likes:", error);
+      return;
+    }
+
+    const nuevosLikes = (data?.likes || 0) + 1;
+
+    const { error: updateError } = await supabase
+      .from("resenas")
+      .update({ likes: nuevosLikes })
+      .eq("id", resenaId);
+
+    if (updateError) {
+      console.error("Error dando like:", updateError);
+    } else {
+      await cargarDatos();
+    }
+  };
+
   const renderEstadoOpcional = (
     titulo: string,
     valor: boolean | null | undefined,
@@ -455,11 +482,11 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
       <header className="sticky top-0 z-50 border-b border-white/40 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4">
             <img
               src="/logo.png"
               alt="Lugares Llenos"
-              className="h-16 md:h-20 w-auto object-contain"
+              className="h-12 w-auto object-contain"
             />
 
             <div>
@@ -891,9 +918,17 @@ export default function Home() {
                                   <p className="font-bold text-slate-900">
                                     {r.usuario || "Visitante"}
                                   </p>
+
                                   <p className="mt-1 text-slate-600">
                                     {r.comentario || "Sin comentario"}
                                   </p>
+
+                                  <button
+                                    onClick={() => darLike(r.id)}
+                                    className="mt-3 flex items-center gap-2 text-sm text-slate-500 transition hover:text-red-500"
+                                  >
+                                    ❤️ <span>{r.likes || 0}</span>
+                                  </button>
                                 </div>
                               </div>
                             </div>
