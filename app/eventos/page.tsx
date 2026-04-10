@@ -374,8 +374,8 @@ export default function EventosPage() {
 
                       <div className="mt-6">
                         <Link
-                          href={`/#lugares`}
-                          className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md inline-flex"
+                          href="/#lugares"
+                          className="inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md"
                         >
                           Ver lugares
                         </Link>
