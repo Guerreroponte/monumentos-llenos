@@ -35,6 +35,7 @@ type MonumentoDB = {
   slug?: string | null;
   fuente?: string | null;
   es_seed?: boolean | null;
+  reportado?: boolean | null;
 };
 
 type ResenaDB = {
@@ -45,6 +46,7 @@ type ResenaDB = {
   foto?: string | null;
   created_at?: string | null;
   likes?: number | null;
+  reportado?: boolean | null;
 };
 
 type MonumentoUI = {
@@ -66,6 +68,7 @@ type MonumentoUI = {
   slug?: string | null;
   fuente?: string | null;
   es_seed?: boolean | null;
+  reportado?: boolean | null;
   resenas: ResenaDB[];
 };
 
@@ -206,6 +209,12 @@ export default function Home() {
   const [resenaLikeLoadingId, setResenaLikeLoadingId] = useState<string | null>(
     null
   );
+  const [resenaReportandoId, setResenaReportandoId] = useState<string | null>(
+    null
+  );
+  const [lugarReportandoId, setLugarReportandoId] = useState<string | null>(
+    null
+  );
 
   const [busquedaNombre, setBusquedaNombre] = useState("");
   const [busquedaCiudad, setBusquedaCiudad] = useState("");
@@ -253,7 +262,10 @@ export default function Home() {
       return;
     }
 
-    const monumentosBase = (monumentosData || []) as MonumentoDB[];
+    const monumentosBase = ((monumentosData || []) as MonumentoDB[]).filter(
+      (m) => m.reportado !== true
+    );
+
     const ids = monumentosBase.map((m) => m.id).filter(Boolean);
 
     let resenasData: ResenaDB[] = [];
@@ -262,7 +274,7 @@ export default function Home() {
       const { data: dataResenas, error: errorResenas } = await supabase
         .from("resenas")
         .select(
-          "id, monumento_id, usuario, comentario, foto, created_at, likes"
+          "id, monumento_id, usuario, comentario, foto, created_at, likes, reportado"
         )
         .in("monumento_id", ids)
         .order("created_at", { ascending: false });
@@ -270,7 +282,9 @@ export default function Home() {
       if (errorResenas) {
         console.error("Error cargando comentarios:", errorResenas);
       } else {
-        resenasData = (dataResenas || []) as ResenaDB[];
+        resenasData = ((dataResenas || []) as ResenaDB[]).filter(
+          (r) => r.reportado !== true
+        );
       }
     }
 
@@ -306,6 +320,7 @@ export default function Home() {
       slug: m.slug || null,
       fuente: m.fuente || null,
       es_seed: typeof m.es_seed === "boolean" ? m.es_seed : null,
+      reportado: typeof m.reportado === "boolean" ? m.reportado : null,
       resenas: resenasPorMonumento.get(m.id) || [],
     }));
 
@@ -545,6 +560,48 @@ ${url}`;
       }
     } finally {
       setResenaLikeLoadingId(null);
+    }
+  };
+
+  const reportarResena = async (resenaId: string) => {
+    try {
+      setResenaReportandoId(resenaId);
+
+      const { error } = await supabase
+        .from("resenas")
+        .update({ reportado: true })
+        .eq("id", resenaId);
+
+      if (error) {
+        console.error("Error reportando comentario:", error);
+        alert("No se pudo reportar el comentario.");
+      } else {
+        alert("Comentario reportado correctamente.");
+        await cargarDatos();
+      }
+    } finally {
+      setResenaReportandoId(null);
+    }
+  };
+
+  const reportarLugar = async (monumentoId: string) => {
+    try {
+      setLugarReportandoId(monumentoId);
+
+      const { error } = await supabase
+        .from("Monumentos")
+        .update({ reportado: true })
+        .eq("id", monumentoId);
+
+      if (error) {
+        console.error("Error reportando lugar:", error);
+        alert("No se pudo reportar el lugar.");
+      } else {
+        alert("Lugar reportado correctamente.");
+        await cargarDatos();
+      }
+    } finally {
+      setLugarReportandoId(null);
     }
   };
 
@@ -1076,6 +1133,21 @@ ${url}`;
                           "Lugar añadido por la comunidad. Aquí irán creciendo sus comentarios, fotos y experiencias reales."}
                       </p>
 
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <button
+                          onClick={() => reportarLugar(m.id)}
+                          disabled={lugarReportandoId === m.id}
+                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <span>⚠️</span>
+                          <span>
+                            {lugarReportandoId === m.id
+                              ? "Reportando lugar..."
+                              : "Reportar lugar"}
+                          </span>
+                        </button>
+                      </div>
+
                       <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                         <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
                           <p className="text-slate-500">Acceso o precio</p>
@@ -1274,18 +1346,38 @@ ${url}`;
                                       </p>
                                     </div>
 
-                                    <button
-                                      onClick={() => darLike(r.id)}
-                                      disabled={resenaLikeLoadingId === r.id}
-                                      className="inline-flex max-w-full items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-left text-sm font-semibold text-rose-600 transition hover:scale-[1.03] hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-                                    >
-                                      <span className="text-base">❤️</span>
-                                      <span className="whitespace-normal">
-                                        {resenaLikeLoadingId === r.id
-                                          ? "Actualizando..."
-                                          : getTextoLikes(r.likes)}
-                                      </span>
-                                    </button>
+                                    <div className="flex flex-col items-start gap-2 sm:items-end">
+                                      <button
+                                        onClick={() => darLike(r.id)}
+                                        disabled={resenaLikeLoadingId === r.id}
+                                        className="inline-flex max-w-full items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-left text-sm font-semibold text-rose-600 transition hover:scale-[1.03] hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                      >
+                                        <span className="text-base">❤️</span>
+                                        <span className="whitespace-normal">
+                                          {resenaLikeLoadingId === r.id
+                                            ? "Actualizando..."
+                                            : getTextoLikes(r.likes)}
+                                        </span>
+                                      </button>
+
+                                      <button
+                                        onClick={() => reportarResena(r.id)}
+                                        disabled={
+                                          resenaReportandoId === r.id ||
+                                          r.reportado === true
+                                        }
+                                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                      >
+                                        <span>⚠️</span>
+                                        <span>
+                                          {r.reportado
+                                            ? "Comentario reportado"
+                                            : resenaReportandoId === r.id
+                                            ? "Reportando..."
+                                            : "Reportar comentario"}
+                                        </span>
+                                      </button>
+                                    </div>
                                   </div>
 
                                   <p className="mt-3 text-slate-600">
