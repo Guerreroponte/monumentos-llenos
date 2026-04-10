@@ -190,7 +190,8 @@ function LugarGaleriaRotativa({
           {monumento.nombre}
         </h4>
         <p className="mt-3 text-sm text-slate-600">
-          Lugar compartido por la comunidad
+          Todavía no hay fotos. Sube la primera y ayuda a los demás a descubrir
+          este sitio.
         </p>
       </div>
     </div>
@@ -327,6 +328,41 @@ export default function Home() {
       return coincideNombre && coincideCiudad;
     });
   }, [monumentos, busquedaNombre, busquedaCiudad]);
+
+  const totalComentarios = useMemo(() => {
+    return monumentos.reduce((acc, monumento) => acc + monumento.resenas.length, 0);
+  }, [monumentos]);
+
+  const totalFotos = useMemo(() => {
+    return monumentos.reduce((acc, monumento) => {
+      const fotosLugar = monumento.imagen ? 1 : 0;
+      const fotosResenas = monumento.resenas.filter((r) => r.foto).length;
+      return acc + fotosLugar + fotosResenas;
+    }, 0);
+  }, [monumentos]);
+
+  const ultimosAportes = useMemo(() => {
+    const items = monumentos
+      .flatMap((m) =>
+        m.resenas.map((r) => ({
+          id: r.id,
+          usuario: r.usuario || "Visitante",
+          comentario: r.comentario || "",
+          foto: r.foto || null,
+          created_at: r.created_at || null,
+          lugar: m.nombre,
+          ciudad: m.ciudad,
+        }))
+      )
+      .sort((a, b) => {
+        const fechaA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const fechaB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return fechaB - fechaA;
+      })
+      .slice(0, 3);
+
+    return items;
+  }, [monumentos]);
 
   const añadirMonumento = async () => {
     if (!nombre.trim() || !ciudad.trim() || !rating.trim() || !precio.trim()) {
@@ -539,6 +575,9 @@ export default function Home() {
             <a href="#mapa" className="transition hover:text-orange-600">
               Mapa
             </a>
+            <a href="#participa" className="transition hover:text-orange-600">
+              Participa
+            </a>
             <a href="#lugares" className="transition hover:text-orange-600">
               Lugares
             </a>
@@ -553,22 +592,162 @@ export default function Home() {
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(249,115,22,0.12),transparent_30%)]" />
 
         <div className="max-w-4xl">
-          <h2 className="text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
-            Descubre Lugares Llenos en España
+          <div className="inline-flex rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm backdrop-blur">
+            📸 Sube tu foto · 💬 Cuenta tu experiencia · ❤️ Ayuda a otros viajeros
+          </div>
+
+          <h2 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
+            Descubre rincones reales y compártelos con la comunidad
           </h2>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600 md:text-xl">
-            Opiniones reales, fotos de visitantes y sitios recomendados por la
-            comunidad. Encuentra playas, pueblos, rutas, miradores y mucho más.
+            Aquí no mandan las fotos perfectas ni las guías impersonales.
+            Mandan las experiencias reales: lugares compartidos por viajeros,
+            fotos subidas por la comunidad y comentarios que ayudan de verdad.
           </p>
+
+          <div className="mt-8 flex flex-wrap gap-4">
+            <a
+              href="#participa"
+              className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
+            >
+              Compartir un lugar
+            </a>
+
+            <a
+              href="#lugares"
+              className="rounded-full border border-orange-200 bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
+            >
+              Ver aportes de la comunidad
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
+            <p className="text-sm text-slate-500">Lugares compartidos</p>
+            <p className="mt-2 text-3xl font-extrabold text-slate-900">
+              {monumentos.length}
+            </p>
+            <p className="mt-2 text-sm text-slate-600">
+              Rincones descubiertos por la comunidad.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
+            <p className="text-sm text-slate-500">Fotos subidas</p>
+            <p className="mt-2 text-3xl font-extrabold text-slate-900">
+              {totalFotos}
+            </p>
+            <p className="mt-2 text-sm text-slate-600">
+              Imágenes reales compartidas por viajeros.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
+            <p className="text-sm text-slate-500">Experiencias contadas</p>
+            <p className="mt-2 text-3xl font-extrabold text-slate-900">
+              {totalComentarios}
+            </p>
+            <p className="mt-2 text-sm text-slate-600">
+              Comentarios que ayudan a otros a decidir mejor.
+            </p>
+          </div>
         </div>
       </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-12">
+        <div className="rounded-[32px] border border-orange-100 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 text-white shadow-xl">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">
+                Comunidad activa
+              </p>
+              <h3 className="mt-3 text-2xl font-bold md:text-3xl">
+                ¿Has estado en un sitio especial? Súbelo y ayuda al siguiente viajero.
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-slate-300 md:text-base">
+                Añade un lugar, sube una foto desde tu móvil o tu ordenador y
+                cuenta tu experiencia real. Tu aportación puede ser justo lo que
+                otra persona necesitaba para descubrir un rincón distinto.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <a
+                href="#participa"
+                className="rounded-full bg-white px-5 py-3 font-semibold text-slate-900 transition hover:scale-[1.02]"
+              >
+                Añadir lugar
+              </a>
+              <a
+                href="#lugares"
+                className="rounded-full border border-white/20 bg-white/10 px-5 py-3 font-semibold text-white transition hover:bg-white/15"
+              >
+                Ver comentarios reales
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {ultimosAportes.length > 0 && (
+        <section className="mx-auto max-w-6xl px-6 pb-12">
+          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900">
+                  Últimos aportes de la comunidad
+                </h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Lo último que han compartido otros viajeros.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              {ultimosAportes.map((aporte) => (
+                <div
+                  key={aporte.id}
+                  className="rounded-3xl border border-orange-100 bg-orange-50/50 p-4"
+                >
+                  <div className="flex items-center gap-3">
+                    {aporte.foto ? (
+                      <img
+                        src={aporte.foto}
+                        alt={aporte.usuario}
+                        className="h-14 w-14 rounded-2xl object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-bold text-white">
+                        {aporte.usuario.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+
+                    <div>
+                      <p className="font-bold text-slate-900">{aporte.usuario}</p>
+                      <p className="text-sm text-slate-500">
+                        en {aporte.lugar}, {aporte.ciudad}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-700">
+                    {aporte.comentario || "Compartió su experiencia con la comunidad."}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section id="buscador" className="mx-auto max-w-6xl px-6 pb-12">
         <div className="rounded-3xl border border-orange-100 bg-white/90 p-6 shadow-lg shadow-orange-100">
           <h3 className="text-2xl font-bold text-slate-900">Buscar lugares</h3>
           <p className="mt-2 text-sm text-slate-600">
-            Filtra por nombre del lugar o por ciudad.
+            Filtra por nombre del lugar o por ciudad para descubrir aportes de
+            la comunidad.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -591,16 +770,27 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-12">
+      <section id="participa" className="mx-auto max-w-6xl px-6 pb-12">
         <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-          <h3 className="text-2xl font-bold text-slate-900">
-            Añadir nuevo lugar
-          </h3>
-          <p className="mt-2 text-sm text-slate-600">
-            Puedes añadir los datos básicos, una descripción y subir una foto
-            desde tu dispositivo. Los campos de mascotas, coche y parking son
-            opcionales.
-          </p>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="max-w-3xl">
+              <h3 className="text-2xl font-bold text-slate-900">
+                Comparte un lugar con la comunidad
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Sube un rincón que merezca la pena, añade una foto real y deja
+                algo de contexto para ayudar a los demás. Los campos de mascotas,
+                coche y parking siguen siendo opcionales.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm text-slate-700">
+              <span className="font-semibold text-slate-900">
+                Consejo:
+              </span>{" "}
+              los lugares con foto y descripción invitan mucho más a comentar.
+            </div>
+          </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <input
@@ -671,14 +861,14 @@ export default function Home() {
             <textarea
               value={descripcionMonumento}
               onChange={(e) => setDescripcionMonumento(e.target.value)}
-              placeholder="Descripción del lugar"
+              placeholder="Describe por qué merece la pena, qué te gustó o qué debería saber otra persona antes de ir"
               rows={4}
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none md:col-span-2"
             />
 
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Subir foto del lugar
+                Sube una foto real del lugar
               </label>
 
               <input
@@ -701,17 +891,28 @@ export default function Home() {
                   className="mt-3 h-32 rounded-2xl object-cover"
                 />
               )}
+
+              {!imagenMonumentoArchivo && !procesandoFotoMonumento && (
+                <p className="mt-2 text-sm text-slate-500">
+                  Una foto real suele hacer que más gente entre, mire y comente.
+                </p>
+              )}
             </div>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-6 flex flex-wrap items-center gap-4">
             <button
               onClick={añadirMonumento}
               disabled={guardandoMonumento}
               className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {guardandoMonumento ? "Guardando..." : "Guardar lugar"}
+              {guardandoMonumento ? "Guardando..." : "Publicar lugar"}
             </button>
+
+            <p className="text-sm text-slate-500">
+              Tu aportación aparecerá junto al resto de lugares compartidos por la
+              comunidad.
+            </p>
           </div>
         </div>
       </section>
@@ -728,7 +929,7 @@ export default function Home() {
         />
       </section>
 
-      <section id="lugares" className="mx-auto max-w-6xl px-6 pb-20">
+      <section id="lugares" className="mx-auto max-w-6xl px-6 pb-24">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h3 className="text-3xl font-bold text-slate-900">
@@ -749,8 +950,20 @@ export default function Home() {
             Cargando lugares...
           </div>
         ) : monumentosFiltrados.length === 0 ? (
-          <div className="rounded-3xl border border-orange-100 bg-white p-6 text-slate-600 shadow-sm">
-            No hay lugares que coincidan con la búsqueda.
+          <div className="rounded-3xl border border-orange-100 bg-white p-8 text-slate-600 shadow-sm">
+            <p className="text-lg font-semibold text-slate-900">
+              No hay lugares que coincidan con la búsqueda.
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Prueba con otra ciudad, otro nombre o sé el primero en compartir un
+              lugar nuevo con la comunidad.
+            </p>
+            <a
+              href="#participa"
+              className="mt-5 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md"
+            >
+              Compartir un lugar
+            </a>
           </div>
         ) : (
           <div className="grid gap-8">
@@ -825,7 +1038,7 @@ export default function Home() {
                         )}
                       </div>
 
-                      {fotosValidas.length > 0 && (
+                      {fotosValidas.length > 0 ? (
                         <div className="mt-6">
                           <p className="mb-3 text-sm font-semibold text-slate-700">
                             Fotos compartidas
@@ -845,12 +1058,22 @@ export default function Home() {
                             ))}
                           </div>
                         </div>
+                      ) : (
+                        <div className="mt-6 rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-4 text-sm text-slate-600">
+                          Todavía no hay fotos compartidas de este lugar. Sé la
+                          primera persona en subir una.
+                        </div>
                       )}
 
                       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-                        <h5 className="text-xl font-bold text-slate-900">
-                          Comentarios de visitantes
-                        </h5>
+                        <div>
+                          <h5 className="text-xl font-bold text-slate-900">
+                            Comentarios de visitantes
+                          </h5>
+                          <p className="mt-1 text-sm text-slate-500">
+                            ¿Has estado aquí? Cuenta cómo fue tu experiencia.
+                          </p>
+                        </div>
 
                         <button
                           onClick={() =>
@@ -868,6 +1091,11 @@ export default function Home() {
 
                       {monumentoActivoResena === m.id && (
                         <div className="mt-5 rounded-3xl border border-orange-100 bg-orange-50/50 p-5">
+                          <div className="mb-4 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+                            Tu comentario puede ayudar a otra persona a decidir si
+                            este lugar merece la pena.
+                          </div>
+
                           <div className="grid gap-4 md:grid-cols-2">
                             <input
                               type="text"
@@ -885,7 +1113,7 @@ export default function Home() {
                                 onChange={(e) =>
                                   setComentarioResena(e.target.value)
                                 }
-                                placeholder="Escribe tu comentario o experiencia"
+                                placeholder="Cuéntanos qué te gustó, cómo fue el ambiente, si había gente, si repetirías..."
                                 rows={4}
                                 className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
                               />
@@ -893,7 +1121,7 @@ export default function Home() {
 
                             <div className="md:col-span-2">
                               <label className="mb-2 block text-sm font-medium text-slate-700">
-                                Subir foto del comentario
+                                Sube una foto de tu experiencia
                               </label>
                               <input
                                 type="file"
@@ -913,6 +1141,12 @@ export default function Home() {
                                   className="mt-3 h-28 rounded-2xl object-cover"
                                 />
                               )}
+                              {!fotoResenaArchivo && !procesandoFotoResena && (
+                                <p className="mt-2 text-sm text-slate-500">
+                                  Las fotos reales dan mucha más confianza a otros
+                                  visitantes.
+                                </p>
+                              )}
                             </div>
                           </div>
 
@@ -930,8 +1164,14 @@ export default function Home() {
 
                       <div className="mt-6 grid gap-4">
                         {m.resenas.length === 0 ? (
-                          <div className="rounded-2xl border border-dashed border-orange-200 p-4 text-sm text-slate-500">
-                            Todavía no hay comentarios para este lugar.
+                          <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-4 text-sm text-slate-600">
+                            <p className="font-semibold text-slate-900">
+                              Todavía nadie ha contado su experiencia aquí.
+                            </p>
+                            <p className="mt-2">
+                              Sé el primero en comentar y ayuda a otros a saber si
+                              este sitio merece la pena.
+                            </p>
                           </div>
                         ) : (
                           m.resenas.map((r) => (
@@ -999,6 +1239,14 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      <a
+        href="#participa"
+        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-xl shadow-orange-300 transition hover:scale-[1.03]"
+      >
+        <span>＋</span>
+        <span>Compartir lugar</span>
+      </a>
     </main>
   );
 }
