@@ -15,8 +15,46 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Monumentos Llenos",
-  description: "Descubre monumentos, fotos y reseñas",
+  title: {
+    default: "Lugares Llenos | Descubre sitios con ambiente en España",
+    template: "%s | Lugares Llenos",
+  },
+  description:
+    "Descubre lugares con ambiente en España. Opiniones reales, fotos de visitantes y sitios recomendados por la comunidad.",
+  metadataBase: new URL("https://www.monumentosllenos.com"),
+  applicationName: "Lugares Llenos",
+  keywords: [
+    "lugares llenos",
+    "lugares con ambiente",
+    "sitios recomendados España",
+    "opiniones de lugares",
+    "fotos de visitantes",
+    "playas",
+    "pueblos",
+    "rutas",
+    "miradores",
+    "lugares en España",
+  ],
+  openGraph: {
+    title: "Lugares Llenos | Descubre sitios con ambiente en España",
+    description:
+      "Opiniones reales, fotos de visitantes y sitios recomendados por la comunidad en España.",
+    url: "https://www.monumentosllenos.com",
+    siteName: "Lugares Llenos",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lugares Llenos | Descubre sitios con ambiente en España",
+    description:
+      "Opiniones reales, fotos de visitantes y sitios recomendados por la comunidad en España.",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -28,6 +66,23 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
+
+        <Script
+          id="ld-json-website"
+          type="application/ld+json"
+          strategy="afterInteractive"
+        >
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Lugares Llenos",
+            alternateName: "monumentosllenos.com",
+            url: "https://www.monumentosllenos.com",
+            description:
+              "Descubre lugares con ambiente en España. Opiniones reales, fotos de visitantes y sitios recomendados por la comunidad.",
+            inLanguage: "es",
+          })}
+        </Script>
 
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-K56T07CRK5"

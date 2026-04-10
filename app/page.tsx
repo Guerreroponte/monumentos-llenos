@@ -248,7 +248,9 @@ export default function Home() {
     if (ids.length > 0) {
       const { data: dataResenas, error: errorResenas } = await supabase
         .from("resenas")
-        .select("id, monumento_id, usuario, comentario, foto, created_at, likes")
+        .select(
+          "id, monumento_id, usuario, comentario, foto, created_at, likes"
+        )
         .in("monumento_id", ids)
         .order("created_at", { ascending: false });
 
@@ -530,12 +532,12 @@ export default function Home() {
 
         <div className="max-w-4xl">
           <h2 className="text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
-            Lugares reales, opiniones reales y fotos de visitantes
+            Descubre Lugares Llenos en España
           </h2>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600 md:text-xl">
-            Explora lugares, añade nuevos sitios y comparte tu experiencia con la
-            comunidad. Playas, cabos, museos, pueblos, rutas y mucho más.
+            Opiniones reales, fotos de visitantes y sitios recomendados por la
+            comunidad. Encuentra playas, pueblos, rutas, miradores y mucho más.
           </p>
         </div>
       </section>
@@ -573,8 +575,9 @@ export default function Home() {
             Añadir nuevo lugar
           </h3>
           <p className="mt-2 text-sm text-slate-600">
-            Puedes añadir los datos básicos, una descripción y subir una foto desde
-            tu dispositivo. Los campos de mascotas, coche y parking son opcionales.
+            Puedes añadir los datos básicos, una descripción y subir una foto
+            desde tu dispositivo. Los campos de mascotas, coche y parking son
+            opcionales.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -923,7 +926,9 @@ export default function Home() {
                                   />
                                 ) : (
                                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-bold text-white shadow-sm">
-                                    {(r.usuario || "V").charAt(0).toUpperCase()}
+                                    {(r.usuario || "V")
+                                      .charAt(0)
+                                      .toUpperCase()}
                                   </div>
                                 )}
 
