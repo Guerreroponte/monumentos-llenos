@@ -192,6 +192,9 @@ export default function Home() {
   const [cargando, setCargando] = useState(true);
   const [guardandoMonumento, setGuardandoMonumento] = useState(false);
   const [guardandoResena, setGuardandoResena] = useState(false);
+  const [resenaLikeLoadingId, setResenaLikeLoadingId] = useState<string | null>(
+    null
+  );
 
   const [busquedaNombre, setBusquedaNombre] = useState("");
   const [busquedaCiudad, setBusquedaCiudad] = useState("");
@@ -433,28 +436,34 @@ export default function Home() {
   };
 
   const darLike = async (resenaId: string) => {
-    const { data, error } = await supabase
-      .from("resenas")
-      .select("likes")
-      .eq("id", resenaId)
-      .single();
+    try {
+      setResenaLikeLoadingId(resenaId);
 
-    if (error) {
-      console.error("Error obteniendo likes:", error);
-      return;
-    }
+      const { data, error } = await supabase
+        .from("resenas")
+        .select("likes")
+        .eq("id", resenaId)
+        .single();
 
-    const nuevosLikes = (data?.likes || 0) + 1;
+      if (error) {
+        console.error("Error obteniendo likes:", error);
+        return;
+      }
 
-    const { error: updateError } = await supabase
-      .from("resenas")
-      .update({ likes: nuevosLikes })
-      .eq("id", resenaId);
+      const nuevosLikes = (data?.likes || 0) + 1;
 
-    if (updateError) {
-      console.error("Error dando like:", updateError);
-    } else {
-      await cargarDatos();
+      const { error: updateError } = await supabase
+        .from("resenas")
+        .update({ likes: nuevosLikes })
+        .eq("id", resenaId);
+
+      if (updateError) {
+        console.error("Error dando like:", updateError);
+      } else {
+        await cargarDatos();
+      }
+    } finally {
+      setResenaLikeLoadingId(null);
     }
   };
 
@@ -796,14 +805,18 @@ export default function Home() {
                           <p className="mb-3 text-sm font-semibold text-slate-700">
                             Fotos compartidas
                           </p>
-                          <div className="grid grid-cols-4 gap-3">
+                          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                             {fotosValidas.map((foto, index) => (
-                              <img
+                              <div
                                 key={`${m.id}-foto-${index}`}
-                                src={foto}
-                                alt={`Foto de ${m.nombre}`}
-                                className="h-20 w-full rounded-2xl object-cover"
-                              />
+                                className="group overflow-hidden rounded-2xl"
+                              >
+                                <img
+                                  src={foto}
+                                  alt={`Foto de ${m.nombre}`}
+                                  className="h-24 w-full rounded-2xl object-cover transition duration-300 group-hover:scale-105"
+                                />
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -899,36 +912,47 @@ export default function Home() {
                           m.resenas.map((r) => (
                             <div
                               key={r.id}
-                              className="rounded-3xl border border-orange-100 bg-white p-4 shadow-sm"
+                              className="rounded-3xl border border-orange-100 bg-white p-4 shadow-sm transition hover:shadow-md"
                             >
                               <div className="flex items-start gap-4">
                                 {r.foto ? (
                                   <img
                                     src={r.foto}
                                     alt={r.usuario || "Visitante"}
-                                    className="h-14 w-14 rounded-2xl object-cover"
+                                    className="h-16 w-16 rounded-2xl object-cover"
                                   />
                                 ) : (
-                                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-bold text-white shadow-sm">
+                                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-bold text-white shadow-sm">
                                     {(r.usuario || "V").charAt(0).toUpperCase()}
                                   </div>
                                 )}
 
                                 <div className="flex-1">
-                                  <p className="font-bold text-slate-900">
-                                    {r.usuario || "Visitante"}
-                                  </p>
+                                  <div className="flex flex-wrap items-center justify-between gap-3">
+                                    <p className="font-bold text-slate-900">
+                                      {r.usuario || "Visitante"}
+                                    </p>
 
-                                  <p className="mt-1 text-slate-600">
+                                    <button
+                                      onClick={() => darLike(r.id)}
+                                      disabled={resenaLikeLoadingId === r.id}
+                                      className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:scale-[1.03] hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                    >
+                                      <span className="text-base">❤️</span>
+                                      <span>
+                                        {resenaLikeLoadingId === r.id
+                                          ? "..."
+                                          : "Me gusta"}
+                                      </span>
+                                      <span className="rounded-full bg-white px-2 py-0.5 text-xs text-rose-700 shadow-sm">
+                                        {r.likes || 0}
+                                      </span>
+                                    </button>
+                                  </div>
+
+                                  <p className="mt-2 text-slate-600">
                                     {r.comentario || "Sin comentario"}
                                   </p>
-
-                                  <button
-                                    onClick={() => darLike(r.id)}
-                                    className="mt-3 flex items-center gap-2 text-sm text-slate-500 transition hover:text-red-500"
-                                  >
-                                    ❤️ <span>{r.likes || 0}</span>
-                                  </button>
                                 </div>
                               </div>
                             </div>

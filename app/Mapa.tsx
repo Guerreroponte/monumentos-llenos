@@ -1,6 +1,7 @@
 // @ts-nocheck
 "use client";
 
+import { useMemo } from "react";
 import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -46,32 +47,56 @@ export default function Mapa({
     (m) => typeof m.latitud === "number" && typeof m.longitud === "number"
   );
 
+  const center = useMemo<[number, number]>(() => {
+    if (monumentosConCoords.length === 0) {
+      return [40.4168, -3.7038];
+    }
+
+    const latMedia =
+      monumentosConCoords.reduce((acc, item) => acc + item.latitud, 0) /
+      monumentosConCoords.length;
+
+    const lngMedia =
+      monumentosConCoords.reduce((acc, item) => acc + item.longitud, 0) /
+      monumentosConCoords.length;
+
+    return [latMedia, lngMedia];
+  }, [monumentosConCoords]);
+
   return (
     <div className="mt-12">
-      <h3 className="mb-4 text-2xl font-bold">🗺️ Mapa de lugares</h3>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="text-2xl font-bold">🗺️ Mapa de lugares</h3>
 
-      <MapContainer
-        center={[40.4168, -3.7038]}
-        zoom={6}
-        scrollWheelZoom={true}
-        className="h-[500px] w-full rounded-2xl"
-      >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <div className="rounded-full border border-orange-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm">
+          {monumentosConCoords.length} con ubicación
+        </div>
+      </div>
 
-        {monumentosConCoords.map((m) => (
-          <Marker
-            key={m.id}
-            position={[m.latitud, m.longitud]}
-            icon={monumentoIcon}
-          >
-            <Popup>
-              <strong>{m.nombre}</strong>
-              <br />
-              {m.ciudad}
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+      <div className="overflow-hidden rounded-3xl border border-orange-100 shadow-lg shadow-orange-100">
+        <MapContainer
+          center={center}
+          zoom={monumentosConCoords.length > 0 ? 6 : 5}
+          scrollWheelZoom={true}
+          className="h-[500px] w-full"
+        >
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+          {monumentosConCoords.map((m) => (
+            <Marker
+              key={m.id}
+              position={[m.latitud, m.longitud]}
+              icon={monumentoIcon}
+            >
+              <Popup>
+                <strong>{m.nombre}</strong>
+                <br />
+                {m.ciudad}
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
     </div>
   );
 }
