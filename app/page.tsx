@@ -140,7 +140,7 @@ function LugarGaleriaRotativa({
 
   if (imagenes.length > 0) {
     return (
-      <div className="relative h-full min-h-[280px] w-full overflow-hidden">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 md:h-full md:min-h-[420px] md:aspect-auto">
         <img
           src={imagenes[indiceActual]}
           alt={monumento.nombre}
@@ -148,29 +148,29 @@ function LugarGaleriaRotativa({
         />
 
         {imagenes.length > 1 && (
-          <div className="absolute bottom-4 left-4 flex gap-2 rounded-full bg-black/30 px-3 py-2 backdrop-blur">
-            {imagenes.map((_, index) => (
-              <span
-                key={`${monumento.id}-dot-${index}`}
-                className={`h-2.5 w-2.5 rounded-full ${
-                  index === indiceActual ? "bg-white" : "bg-white/40"
-                }`}
-              />
-            ))}
-          </div>
-        )}
+          <>
+            <div className="absolute bottom-4 left-4 flex gap-2 rounded-full bg-black/30 px-3 py-2 backdrop-blur">
+              {imagenes.map((_, index) => (
+                <span
+                  key={`${monumento.id}-dot-${index}`}
+                  className={`h-2.5 w-2.5 rounded-full ${
+                    index === indiceActual ? "bg-white" : "bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
 
-        {imagenes.length > 1 && (
-          <div className="absolute right-4 top-4 rounded-full bg-black/40 px-3 py-1 text-xs font-medium text-white backdrop-blur">
-            {indiceActual + 1} / {imagenes.length}
-          </div>
+            <div className="absolute right-4 top-4 rounded-full bg-black/40 px-3 py-1 text-xs font-medium text-white backdrop-blur">
+              {indiceActual + 1} / {imagenes.length}
+            </div>
+          </>
         )}
       </div>
     );
   }
 
   return (
-    <div className="flex h-full min-h-[280px] w-full items-end bg-gradient-to-br from-orange-200 via-amber-100 to-rose-100 p-6">
+    <div className="flex aspect-[4/3] w-full items-end bg-gradient-to-br from-orange-200 via-amber-100 to-rose-100 p-6 md:h-full md:min-h-[420px] md:aspect-auto">
       <div className="rounded-3xl bg-white/70 p-5 backdrop-blur">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
           {monumento.ciudad}
@@ -453,18 +453,23 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
-      <header className="sticky top-0 z-50 border-b border-white/40 bg-white/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-white/40 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-orange-500">
-              Comunidad de lugares reales en España
-            </p>
-            <h1 className="mt-1 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-500 bg-clip-text text-2xl font-extrabold tracking-tight text-transparent">
-              Monumentos Llenos
-            </h1>
-            <p className="text-sm text-slate-600">
-              Descubre, comparte y comenta lugares con fotos y experiencias reales
-            </p>
+          <div className="flex items-center gap-5">
+            <img
+              src="/logo.png"
+              alt="Lugares Llenos"
+              className="h-16 md:h-20 w-auto object-contain"
+            />
+
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-orange-500">
+                Comunidad de lugares reales en España
+              </p>
+              <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-orange-500">
+                Lugares Llenos
+              </h1>
+            </div>
           </div>
 
           <nav className="hidden gap-4 text-sm font-medium text-slate-700 md:flex">
@@ -484,17 +489,17 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="relative mx-auto max-w-6xl px-6 py-20 md:py-24">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.25),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(249,115,22,0.18),transparent_30%)]" />
+      <section className="relative mx-auto max-w-6xl px-6 py-16 md:py-20">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(249,115,22,0.12),transparent_30%)]" />
 
         <div className="max-w-4xl">
-          <h2 className="text-5xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-7xl">
+          <h2 className="text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
             Lugares reales, opiniones reales y fotos de visitantes
           </h2>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600 md:text-xl">
             Explora lugares, añade nuevos sitios y comparte tu experiencia con la
-            comunidad. Monumentos, playas, cabos, museos, sendas y mucho más.
+            comunidad. Playas, cabos, museos, pueblos, rutas y mucho más.
           </p>
         </div>
       </section>
@@ -699,18 +704,18 @@ export default function Home() {
                   key={m.id}
                   className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100"
                 >
-                  <div className="grid md:grid-cols-2">
-                    <div className="relative min-h-[280px]">
+                  <div className="grid md:grid-cols-[1.08fr_1fr]">
+                    <div className="relative">
                       <LugarGaleriaRotativa monumento={m} />
                     </div>
 
                     <div className="p-6 md:p-8">
                       <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div>
+                        <div className="max-w-[80%]">
                           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
                             {m.ciudad}
                           </p>
-                          <h4 className="mt-2 text-3xl font-bold text-slate-900">
+                          <h4 className="mt-2 text-3xl font-bold leading-tight text-slate-900">
                             {m.nombre}
                           </h4>
                         </div>
@@ -720,12 +725,12 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <p className="mt-4 text-base leading-7 text-slate-600">
+                      <p className="mt-5 text-base leading-7 text-slate-600">
                         {m.descripcion ||
                           "Lugar añadido por la comunidad. Aquí irán creciendo sus comentarios, fotos y experiencias reales."}
                       </p>
 
-                      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                         <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
                           <p className="text-slate-500">Acceso o precio</p>
                           <p className="mt-1 font-semibold text-slate-900">
