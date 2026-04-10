@@ -231,6 +231,8 @@ export default function Home() {
   const [fotoResenaArchivo, setFotoResenaArchivo] = useState("");
   const [procesandoFotoResena, setProcesandoFotoResena] = useState(false);
 
+  const [mensajeCopiado, setMensajeCopiado] = useState("");
+
   const convertirOpcionalABooleano = (valor: string): boolean | null => {
     if (valor === "si") return true;
     if (valor === "no") return false;
@@ -315,6 +317,16 @@ export default function Home() {
     cargarDatos();
   }, []);
 
+  useEffect(() => {
+    if (!mensajeCopiado) return;
+
+    const timeout = setTimeout(() => {
+      setMensajeCopiado("");
+    }, 2500);
+
+    return () => clearTimeout(timeout);
+  }, [mensajeCopiado]);
+
   const monumentosFiltrados = useMemo(() => {
     return monumentos.filter((m) => {
       const coincideNombre = m.nombre
@@ -330,7 +342,10 @@ export default function Home() {
   }, [monumentos, busquedaNombre, busquedaCiudad]);
 
   const totalComentarios = useMemo(() => {
-    return monumentos.reduce((acc, monumento) => acc + monumento.resenas.length, 0);
+    return monumentos.reduce(
+      (acc, monumento) => acc + monumento.resenas.length,
+      0
+    );
   }, [monumentos]);
 
   const totalFotos = useMemo(() => {
@@ -363,6 +378,24 @@ export default function Home() {
 
     return items;
   }, [monumentos]);
+
+  const copiarInvitacion = async () => {
+    const url =
+      typeof window !== "undefined" ? window.location.origin : "";
+
+    const texto = `Estoy usando esta web para ver experiencias reales de lugares y consejos útiles de otras personas.
+
+Comparte la tuya aquí:
+${url}`;
+
+    try {
+      await navigator.clipboard.writeText(texto);
+      setMensajeCopiado("Enlace copiado para compartir");
+    } catch (error) {
+      console.error("No se pudo copiar el enlace:", error);
+      setMensajeCopiado("No se pudo copiar el enlace");
+    }
+  };
 
   const añadirMonumento = async () => {
     if (!nombre.trim() || !ciudad.trim() || !rating.trim() || !precio.trim()) {
@@ -686,6 +719,45 @@ export default function Home() {
               >
                 Ver comentarios reales
               </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-12">
+        <div className="rounded-[32px] border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-500">
+                Haz crecer la comunidad
+              </p>
+              <h3 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
+                Comparte tus experiencias y ayuda a otros a viajar mejor
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-slate-600 md:text-base">
+                Invita a otras personas a contar sus consejos, recomendaciones y
+                experiencias reales. Cuantas más aportaciones haya, más útil será
+                la web para todo el mundo.
+              </p>
+            </div>
+
+            <div className="flex w-full max-w-md flex-col gap-3">
+              <button
+                onClick={copiarInvitacion}
+                className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
+              >
+                Copiar enlace para invitar
+              </button>
+
+              <p className="text-sm text-slate-500">
+                Comparte el enlace con alguien que pueda aportar una experiencia útil.
+              </p>
+
+              {mensajeCopiado && (
+                <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm font-medium text-orange-700">
+                  {mensajeCopiado}
+                </div>
+              )}
             </div>
           </div>
         </div>
