@@ -501,6 +501,18 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
+      <div className="border-b border-orange-100 bg-gradient-to-r from-orange-500 to-amber-500 text-white">
+        <div className="mx-auto flex max-w-6xl items-center justify-end px-6 py-2">
+          <a
+            href="mailto:contacto@monumentosllenos.com?subject=Contacto%20desde%20la%20web"
+            className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-sm font-semibold transition hover:bg-white/25"
+          >
+            <span aria-hidden="true">✉️</span>
+            <span>Contacto</span>
+          </a>
+        </div>
+      </div>
+
       <header className="sticky top-0 z-50 border-b border-white/40 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
