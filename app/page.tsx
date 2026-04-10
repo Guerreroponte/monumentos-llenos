@@ -109,6 +109,16 @@ async function resizeImageToDataUrl(file: File): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.8);
 }
 
+function getTextoLikes(likes?: number | null) {
+  const total = likes || 0;
+
+  if (total === 1) {
+    return "A 1 persona le ha gustado este comentario";
+  }
+
+  return `A ${total} personas les ha gustado este comentario`;
+}
+
 function LugarGaleriaRotativa({
   monumento,
 }: {
@@ -933,29 +943,28 @@ export default function Home() {
                                 )}
 
                                 <div className="flex-1">
-                                  <div className="flex flex-wrap items-center justify-between gap-3">
-                                    <p className="font-bold text-slate-900">
-                                      {r.usuario || "Visitante"}
-                                    </p>
+                                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div>
+                                      <p className="font-bold text-slate-900">
+                                        {r.usuario || "Visitante"}
+                                      </p>
+                                    </div>
 
                                     <button
                                       onClick={() => darLike(r.id)}
                                       disabled={resenaLikeLoadingId === r.id}
-                                      className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-600 transition hover:scale-[1.03] hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                      className="inline-flex max-w-full items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-left text-sm font-semibold text-rose-600 transition hover:scale-[1.03] hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
                                     >
                                       <span className="text-base">❤️</span>
-                                      <span>
+                                      <span className="whitespace-normal">
                                         {resenaLikeLoadingId === r.id
-                                          ? "..."
-                                          : "Me gusta"}
-                                      </span>
-                                      <span className="rounded-full bg-white px-2 py-0.5 text-xs text-rose-700 shadow-sm">
-                                        {r.likes || 0}
+                                          ? "Actualizando..."
+                                          : getTextoLikes(r.likes)}
                                       </span>
                                     </button>
                                   </div>
 
-                                  <p className="mt-2 text-slate-600">
+                                  <p className="mt-3 text-slate-600">
                                     {r.comentario || "Sin comentario"}
                                   </p>
                                 </div>
