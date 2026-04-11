@@ -83,22 +83,31 @@ function formatFechaCorta(fecha?: string | null) {
   });
 }
 
-function esEventoFuturo(fecha?: string | null) {
-  if (!fecha) return false;
+function esEventoProximo(fechaInicio?: string | null, fechaFin?: string | null) {
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
 
-  const d = new Date(fecha);
-  if (Number.isNaN(d.getTime())) return false;
-  d.setHours(0, 0, 0, 0);
+  const inicio = fechaInicio ? new Date(fechaInicio) : null;
+  const fin = fechaFin ? new Date(fechaFin) : null;
 
-  return d >= hoy;
+  if (inicio && !Number.isNaN(inicio.getTime())) {
+    inicio.setHours(0, 0, 0, 0);
+  }
+
+  if (fin && !Number.isNaN(fin.getTime())) {
+    fin.setHours(0, 0, 0, 0);
+  }
+
+  if (fin) return fin >= hoy;
+  if (inicio) return inicio >= hoy;
+  return false;
 }
 
 function getFallbackImagen(id: string) {
-  const index = Math.abs(
-    id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-  ) % FALLBACKS_EVENTOS.length;
+  const index =
+    Math.abs(
+      id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    ) % FALLBACKS_EVENTOS.length;
 
   return FALLBACKS_EVENTOS[index];
 }
@@ -137,11 +146,14 @@ function eventoScore(e: EventoUI) {
 export default function EventosPage() {
   const [eventos, setEventos] = useState<EventoUI[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [busqueda, setBusqueda] = useState("");
   const [fechaSeleccionada, setFechaSeleccionada] = useState("");
   const [ciudadSeleccionada, setCiudadSeleccionada] = useState("");
   const [tipoSeleccionado, setTipoSeleccionado] = useState("");
-  const [soloProximos, setSoloProximos] = useState(true);
+
+  // IMPORTANTE: ahora entra en false para que no se vea vacío al entrar
+  const [soloProximos, setSoloProximos] = useState(false);
 
   useEffect(() => {
     let activo = true;
@@ -163,7 +175,7 @@ export default function EventosPage() {
         return;
       }
 
-      const eventosMapeados: EventoUI[] = (data as EventoDB[] | null ?? []).map(
+      const eventosMapeados: EventoUI[] = ((data as EventoDB[] | null) ?? []).map(
         (e) => ({
           id: e.id,
           nombre: normalizarTexto(e.nombre) || "Evento sin nombre",
@@ -207,7 +219,7 @@ export default function EventosPage() {
 
   const eventosProximos = useMemo(() => {
     return eventos
-      .filter((e) => esEventoFuturo(e.fechaInicio))
+      .filter((e) => esEventoProximo(e.fechaInicio, e.fechaFin))
       .sort((a, b) => {
         const aTime = a.fechaInicio ? new Date(a.fechaInicio).getTime() : Infinity;
         const bTime = b.fechaInicio ? new Date(b.fechaInicio).getTime() : Infinity;
@@ -216,17 +228,21 @@ export default function EventosPage() {
   }, [eventos]);
 
   const eventosDestacados = useMemo(() => {
-    return [...eventosProximos]
+    const base = eventosProximos.length > 0 ? eventosProximos : eventos;
+
+    return [...base]
       .sort((a, b) => eventoScore(b) - eventoScore(a))
       .slice(0, 6);
-  }, [eventosProximos]);
+  }, [eventos, eventosProximos]);
 
   const eventosFiltrados = useMemo(() => {
     const texto = busqueda.trim().toLowerCase();
 
     return eventos
       .filter((e) => {
-        if (soloProximos && !esEventoFuturo(e.fechaInicio)) return false;
+        if (soloProximos && !esEventoProximo(e.fechaInicio, e.fechaFin)) {
+          return false;
+        }
 
         if (texto) {
           const bloque = [
@@ -268,7 +284,9 @@ export default function EventosPage() {
   ]);
 
   const bloquesPorCiudad = useMemo(() => {
-    const ciudadesPrioritarias = ciudadesDisponibles
+    const base = eventosProximos.length > 0 ? eventosProximos : eventos;
+
+    const ciudadesPrioritarias = [...new Set(base.map((e) => e.ciudad))]
       .filter((c) => CIUDADES_TOP.includes(c))
       .sort((a, b) => CIUDADES_TOP.indexOf(a) - CIUDADES_TOP.indexOf(b))
       .slice(0, 4);
@@ -276,10 +294,36 @@ export default function EventosPage() {
     return ciudadesPrioritarias
       .map((ciudad) => ({
         ciudad,
-        eventos: eventosProximos.filter((e) => e.ciudad === ciudad).slice(0, 3),
+        eventos: base.filter((e) => e.ciudad === ciudad).slice(0, 3),
       }))
       .filter((bloque) => bloque.eventos.length > 0);
-  }, [ciudadesDisponibles, eventosProximos]);
+  }, [eventos, eventosProximos]);
+
+  function resetearFiltros() {
+    setBusqueda("");
+    setFechaSeleccionada("");
+    setCiudadSeleccionada("");
+    setTipoSeleccionado("");
+    setSoloProximos(false);
+  }
+
+  function filtrarHoy() {
+    const hoy = new Date().toISOString().slice(0, 10);
+    setFechaSeleccionada(hoy);
+    setSoloProximos(false);
+  }
+
+  function filtrarManana() {
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    setFechaSeleccionada(manana.toISOString().slice(0, 10));
+    setSoloProximos(false);
+  }
+
+  function verProximos() {
+    setFechaSeleccionada("");
+    setSoloProximos(true);
+  }
 
   return (
     <main className="min-h-screen bg-[#fffaf3] text-[#1f2937]">
@@ -301,6 +345,7 @@ export default function EventosPage() {
             <h1 className="max-w-3xl text-4xl font-extrabold leading-tight text-[#334155] md:text-5xl">
               Fiestas y eventos por fecha en España
             </h1>
+
             <p className="mt-4 max-w-2xl text-base leading-7 text-[#64748b] md:text-lg">
               Descubre los próximos eventos más importantes sin tener que buscar
               nada. Después podrás filtrar por fecha, ciudad o tipo y encontrar
@@ -309,46 +354,28 @@ export default function EventosPage() {
 
             <div className="mt-6 flex flex-wrap gap-3">
               <button
-                onClick={() => {
-                  setSoloProximos(true);
-                  setFechaSeleccionada("");
-                }}
+                onClick={verProximos}
                 className="rounded-full border border-[#fed7aa] bg-white px-4 py-2 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
               >
                 Próximos eventos
               </button>
 
               <button
-                onClick={() => {
-                  const hoy = new Date().toISOString().slice(0, 10);
-                  setFechaSeleccionada(hoy);
-                  setSoloProximos(false);
-                }}
+                onClick={filtrarHoy}
                 className="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-semibold text-[#475569] transition hover:bg-[#f8fafc]"
               >
                 Hoy
               </button>
 
               <button
-                onClick={() => {
-                  const manana = new Date();
-                  manana.setDate(manana.getDate() + 1);
-                  setFechaSeleccionada(manana.toISOString().slice(0, 10));
-                  setSoloProximos(false);
-                }}
+                onClick={filtrarManana}
                 className="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-semibold text-[#475569] transition hover:bg-[#f8fafc]"
               >
                 Mañana
               </button>
 
               <button
-                onClick={() => {
-                  setBusqueda("");
-                  setFechaSeleccionada("");
-                  setCiudadSeleccionada("");
-                  setTipoSeleccionado("");
-                  setSoloProximos(true);
-                }}
+                onClick={resetearFiltros}
                 className="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-semibold text-[#475569] transition hover:bg-[#f8fafc]"
               >
                 Resetear filtros
@@ -371,9 +398,10 @@ export default function EventosPage() {
               </h2>
               <p className="mt-2 text-sm text-[#64748b]">
                 {eventosDestacados[0]
-                  ? `${eventosDestacados[0].ciudad} · ${formatFecha(
-                      eventosDestacados[0].fechaInicio
-                    )}`
+                  ? `${eventosDestacados[0].ciudad} · ${
+                      formatFecha(eventosDestacados[0].fechaInicio) ||
+                      "Fecha por confirmar"
+                    }`
                   : "Ferias, fiestas, festivales y planes con más ambiente."}
               </p>
             </div>
@@ -484,7 +512,7 @@ export default function EventosPage() {
         ) : eventosDestacados.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-[#fdba74] bg-[#fff7ed] p-8 text-center">
             <p className="text-lg font-semibold text-[#9a3412]">
-              Todavía no hay próximos eventos cargados.
+              Todavía no hay eventos cargados.
             </p>
             <p className="mt-2 text-sm text-[#7c2d12]">
               En cuanto añadas eventos en Supabase, aparecerán aquí automáticamente.
@@ -503,10 +531,12 @@ export default function EventosPage() {
                     alt={evento.nombre}
                     className="h-56 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                   />
+
                   <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                     <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#ea580c]">
                       {evento.tipo}
                     </span>
+
                     {evento.destacado && (
                       <span className="rounded-full bg-[#ea580c] px-3 py-1 text-xs font-bold text-white">
                         Top
@@ -522,9 +552,9 @@ export default function EventosPage() {
 
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#64748b]">
                     <span>📍 {evento.ciudad}</span>
-                    {evento.fechaInicio && (
-                      <span>📅 {formatFecha(evento.fechaInicio)}</span>
-                    )}
+                    <span>
+                      📅 {evento.fechaInicio ? formatFecha(evento.fechaInicio) : "Fecha por confirmar"}
+                    </span>
                   </div>
 
                   <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
@@ -579,8 +609,13 @@ export default function EventosPage() {
                   <h3 className="text-xl font-bold text-[#334155]">
                     {bloque.ciudad}
                   </h3>
+
                   <button
-                    onClick={() => setCiudadSeleccionada(bloque.ciudad)}
+                    onClick={() => {
+                      setCiudadSeleccionada(bloque.ciudad);
+                      setFechaSeleccionada("");
+                      setSoloProximos(false);
+                    }}
                     className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]"
                   >
                     Ver todos
@@ -603,12 +638,17 @@ export default function EventosPage() {
                         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f97316]">
                           {evento.tipo}
                         </p>
+
                         <h4 className="mt-1 truncate text-base font-bold text-[#334155]">
                           {evento.nombre}
                         </h4>
+
                         <p className="mt-1 text-sm text-[#64748b]">
-                          {formatFechaCorta(evento.fechaInicio)}
+                          {evento.fechaInicio
+                            ? formatFechaCorta(evento.fechaInicio)
+                            : "Fecha por confirmar"}
                         </p>
+
                         <p className="mt-2 line-clamp-2 text-sm text-[#475569]">
                           {evento.descripcion}
                         </p>
@@ -626,7 +666,7 @@ export default function EventosPage() {
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold text-[#334155]">
-              Todos los próximos eventos
+              Todos los eventos
             </h2>
             <p className="mt-1 text-sm text-[#64748b]">
               Resultado en tiempo real según los filtros.
@@ -661,6 +701,7 @@ export default function EventosPage() {
                     <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
                       {evento.tipo}
                     </span>
+
                     <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-bold text-[#475569]">
                       {evento.ciudad}
                     </span>
@@ -706,6 +747,7 @@ export default function EventosPage() {
           <h3 className="text-2xl font-bold text-[#9a3412]">
             ¿Conoces una fiesta, feria o evento con ambiente?
           </h3>
+
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#7c2d12]">
             Añádelo a la comunidad para que más gente descubra cuándo merece la
             pena ir a esa ciudad.
