@@ -732,7 +732,7 @@ ${url}`;
           {menuMovilAbierto && (
             <div className="md:hidden">
               <div
-                className="fixed inset-0 top-[118px] z-40 bg-slate-900/20 backdrop-blur-[1px]"
+                className="fixed inset-0 top-[118px] z-40 bg-black/40"
                 onClick={cerrarMenuMovil}
               />
 
