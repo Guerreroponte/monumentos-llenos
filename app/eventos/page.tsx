@@ -318,37 +318,6 @@ export default function EventosPage() {
 
   return (
     <main className="min-h-screen bg-[#fffaf3] text-[#1f2937]">
-      <header className="sticky top-0 z-50 border-b border-[#f3e8dd] bg-[#fffaf3]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-sm font-extrabold uppercase tracking-[0.22em] text-[#f97316]">
-              Lugares Llenos
-            </span>
-          </Link>
-
-          <nav className="hidden items-center gap-6 md:flex">
-            <Link href="/" className="text-sm font-semibold text-[#64748b] transition hover:text-[#f97316]">
-              Inicio
-            </Link>
-            <Link href="/lugares" className="text-sm font-semibold text-[#64748b] transition hover:text-[#f97316]">
-              Lugares
-            </Link>
-            <Link href="/mapa" className="text-sm font-semibold text-[#64748b] transition hover:text-[#f97316]">
-              Mapa
-            </Link>
-            <Link href="/eventos" className="text-sm font-semibold text-[#f97316]">
-              Eventos
-            </Link>
-            <Link
-              href="/participa"
-              className="rounded-full bg-[#f97316] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#ea580c]"
-            >
-              Participa
-            </Link>
-          </nav>
-        </div>
-      </header>
-
       <section className="mx-auto max-w-7xl px-4 pb-8 pt-8 md:px-6 lg:px-8">
         <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#f97316]">
           <span className="rounded-full bg-[#fff0e6] px-3 py-1">
@@ -569,7 +538,10 @@ export default function EventosPage() {
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#64748b]">
                     <span>📍 {evento.ciudad}</span>
                     <span>
-                      📅 {evento.fechaInicio ? formatFecha(evento.fechaInicio) : "Fecha por confirmar"}
+                      📅{" "}
+                      {evento.fechaInicio
+                        ? formatFecha(evento.fechaInicio)
+                        : "Fecha por confirmar"}
                     </span>
                   </div>
 
