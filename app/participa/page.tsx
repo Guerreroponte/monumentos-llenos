@@ -61,8 +61,8 @@ export default function ParticipaPage() {
         </h1>
 
         <p className="mt-4 max-w-2xl text-base leading-7 text-[#64748b] md:text-lg">
-          Ayuda a que la web crezca añadiendo lugares, eventos y experiencias reales.
-          Poco a poco iremos haciendo esta sección más completa.
+          Ayuda a que la web crezca añadiendo lugares, eventos y experiencias
+          reales. Entre todos podemos hacer una guía mucho más útil y auténtica.
         </p>
 
         <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -74,8 +74,8 @@ export default function ParticipaPage() {
               Añadir un lugar
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#64748b]">
-              Comparte un sitio interesante para visitar y ayuda a otros usuarios a
-              descubrir rincones con ambiente, encanto o utilidad real.
+              Comparte un sitio interesante para visitar y ayuda a otros usuarios
+              a descubrir rincones con ambiente, encanto o utilidad real.
             </p>
 
             <div className="mt-6">
@@ -97,7 +97,8 @@ export default function ParticipaPage() {
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#64748b]">
               Comparte fiestas, ferias, festivales o eventos que merezca la pena
-              conocer para que más gente descubra cuándo hay más ambiente en cada ciudad.
+              conocer para que más gente descubra cuándo hay más ambiente en cada
+              ciudad.
             </p>
 
             <div className="mt-6">
@@ -113,11 +114,11 @@ export default function ParticipaPage() {
 
         <div className="mt-8 rounded-3xl bg-gradient-to-r from-[#fff7ed] to-[#ffedd5] p-8">
           <h3 className="text-2xl font-bold text-[#9a3412]">
-            Siguiente paso
+            Muy pronto podrás añadir contenido directamente
           </h3>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#7c2d12]">
-            Aquí podemos montar después un formulario real para que la gente envíe
-            nuevos lugares y eventos directamente desde la web.
+            Estamos preparando esta sección para que puedas subir lugares y
+            eventos desde la web de forma rápida y sencilla.
           </p>
         </div>
       </section>
