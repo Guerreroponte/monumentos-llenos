@@ -639,7 +639,7 @@ ${url}`;
       </div>
 
       <header className="sticky top-0 z-50 border-b border-white/40 bg-white/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <img
               src="/logo.png"
@@ -657,7 +657,7 @@ ${url}`;
             </div>
           </div>
 
-          <nav className="hidden gap-4 text-sm font-medium text-slate-700 md:flex">
+          <nav className="flex flex-wrap justify-end gap-3 text-sm font-medium text-slate-700 md:gap-4">
             <a href="#" className="transition hover:text-orange-600">
               Inicio
             </a>
