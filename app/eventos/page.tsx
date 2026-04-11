@@ -66,7 +66,7 @@ function formatFecha(fecha?: string | null) {
   const d = new Date(fecha);
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleDateString("es-ES", {
-    day: "2-digit",
+    day: "numeric",
     month: "long",
     year: "numeric",
   });
@@ -90,13 +90,8 @@ function esEventoProximo(fechaInicio?: string | null, fechaFin?: string | null) 
   const inicio = fechaInicio ? new Date(fechaInicio) : null;
   const fin = fechaFin ? new Date(fechaFin) : null;
 
-  if (inicio && !Number.isNaN(inicio.getTime())) {
-    inicio.setHours(0, 0, 0, 0);
-  }
-
-  if (fin && !Number.isNaN(fin.getTime())) {
-    fin.setHours(0, 0, 0, 0);
-  }
+  if (inicio && !Number.isNaN(inicio.getTime())) inicio.setHours(0, 0, 0, 0);
+  if (fin && !Number.isNaN(fin.getTime())) fin.setHours(0, 0, 0, 0);
 
   if (fin) return fin >= hoy;
   if (inicio) return inicio >= hoy;
@@ -151,8 +146,6 @@ export default function EventosPage() {
   const [fechaSeleccionada, setFechaSeleccionada] = useState("");
   const [ciudadSeleccionada, setCiudadSeleccionada] = useState("");
   const [tipoSeleccionado, setTipoSeleccionado] = useState("");
-
-  // IMPORTANTE: ahora entra en false para que no se vea vacío al entrar
   const [soloProximos, setSoloProximos] = useState(false);
 
   useEffect(() => {
@@ -230,9 +223,7 @@ export default function EventosPage() {
   const eventosDestacados = useMemo(() => {
     const base = eventosProximos.length > 0 ? eventosProximos : eventos;
 
-    return [...base]
-      .sort((a, b) => eventoScore(b) - eventoScore(a))
-      .slice(0, 6);
+    return [...base].sort((a, b) => eventoScore(b) - eventoScore(a)).slice(0, 6);
   }, [eventos, eventosProximos]);
 
   const eventosFiltrados = useMemo(() => {
@@ -327,6 +318,37 @@ export default function EventosPage() {
 
   return (
     <main className="min-h-screen bg-[#fffaf3] text-[#1f2937]">
+      <header className="sticky top-0 z-50 border-b border-[#f3e8dd] bg-[#fffaf3]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6 lg:px-8">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-sm font-extrabold uppercase tracking-[0.22em] text-[#f97316]">
+              Lugares Llenos
+            </span>
+          </Link>
+
+          <nav className="hidden items-center gap-6 md:flex">
+            <Link href="/" className="text-sm font-semibold text-[#64748b] transition hover:text-[#f97316]">
+              Inicio
+            </Link>
+            <Link href="/lugares" className="text-sm font-semibold text-[#64748b] transition hover:text-[#f97316]">
+              Lugares
+            </Link>
+            <Link href="/mapa" className="text-sm font-semibold text-[#64748b] transition hover:text-[#f97316]">
+              Mapa
+            </Link>
+            <Link href="/eventos" className="text-sm font-semibold text-[#f97316]">
+              Eventos
+            </Link>
+            <Link
+              href="/participa"
+              className="rounded-full bg-[#f97316] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#ea580c]"
+            >
+              Participa
+            </Link>
+          </nav>
+        </div>
+      </header>
+
       <section className="mx-auto max-w-7xl px-4 pb-8 pt-8 md:px-6 lg:px-8">
         <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#f97316]">
           <span className="rounded-full bg-[#fff0e6] px-3 py-1">
@@ -426,20 +448,20 @@ export default function EventosPage() {
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar evento o ciudad..."
-              className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none ring-0 transition focus:border-[#fb923c]"
+              className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
             />
 
             <input
               type="date"
               value={fechaSeleccionada}
               onChange={(e) => setFechaSeleccionada(e.target.value)}
-              className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none ring-0 transition focus:border-[#fb923c]"
+              className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
             />
 
             <select
               value={ciudadSeleccionada}
               onChange={(e) => setCiudadSeleccionada(e.target.value)}
-              className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none ring-0 transition focus:border-[#fb923c]"
+              className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
             >
               <option value="">Todas las ciudades</option>
               {ciudadesDisponibles.map((ciudad) => (
@@ -452,7 +474,7 @@ export default function EventosPage() {
             <select
               value={tipoSeleccionado}
               onChange={(e) => setTipoSeleccionado(e.target.value)}
-              className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none ring-0 transition focus:border-[#fb923c]"
+              className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
             >
               <option value="">Todos los tipos</option>
               {tiposDisponibles.map((tipo) => (
@@ -481,15 +503,13 @@ export default function EventosPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-[#334155]">
-              🔥 Eventos importantes que vienen pronto
-            </h2>
-            <p className="mt-1 text-sm text-[#64748b]">
-              Una selección inicial para que la página ya tenga vida al entrar.
-            </p>
-          </div>
+        <div className="mb-5">
+          <h2 className="text-2xl font-bold text-[#334155]">
+            🔥 Eventos importantes que vienen pronto
+          </h2>
+          <p className="mt-1 text-sm text-[#64748b]">
+            Una selección inicial para que la página ya tenga vida al entrar.
+          </p>
         </div>
 
         {loading ? (
@@ -504,7 +524,6 @@ export default function EventosPage() {
                   <div className="h-5 w-2/3 animate-pulse rounded bg-[#f1f5f9]" />
                   <div className="h-4 w-1/2 animate-pulse rounded bg-[#f1f5f9]" />
                   <div className="h-4 w-full animate-pulse rounded bg-[#f1f5f9]" />
-                  <div className="h-4 w-5/6 animate-pulse rounded bg-[#f1f5f9]" />
                 </div>
               </div>
             ))}
@@ -513,9 +532,6 @@ export default function EventosPage() {
           <div className="rounded-3xl border border-dashed border-[#fdba74] bg-[#fff7ed] p-8 text-center">
             <p className="text-lg font-semibold text-[#9a3412]">
               Todavía no hay eventos cargados.
-            </p>
-            <p className="mt-2 text-sm text-[#7c2d12]">
-              En cuanto añadas eventos en Supabase, aparecerán aquí automáticamente.
             </p>
           </div>
         ) : (
@@ -561,7 +577,7 @@ export default function EventosPage() {
                     {evento.descripcion}
                   </p>
 
-                  <div className="mt-5 flex items-center justify-between gap-3">
+                  <div className="mt-5">
                     {evento.enlace ? (
                       <a
                         href={evento.enlace}
@@ -576,10 +592,6 @@ export default function EventosPage() {
                         Próximamente más info
                       </span>
                     )}
-
-                    <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#94a3b8]">
-                      Ambiente
-                    </span>
                   </div>
                 </div>
               </article>
@@ -663,24 +675,19 @@ export default function EventosPage() {
       )}
 
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6 lg:px-8">
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold text-[#334155]">
-              Todos los eventos
-            </h2>
-            <p className="mt-1 text-sm text-[#64748b]">
-              Resultado en tiempo real según los filtros.
-            </p>
-          </div>
+        <div className="mb-5">
+          <h2 className="text-2xl font-bold text-[#334155]">
+            Todos los eventos
+          </h2>
+          <p className="mt-1 text-sm text-[#64748b]">
+            Resultado en tiempo real según los filtros.
+          </p>
         </div>
 
         {eventosFiltrados.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-[#cbd5e1] bg-white p-10 text-center">
             <p className="text-lg font-semibold text-[#334155]">
               No hemos encontrado eventos con esos filtros.
-            </p>
-            <p className="mt-2 text-sm text-[#64748b]">
-              Prueba otra ciudad, otra fecha o quita algún filtro.
             </p>
           </div>
         ) : (
