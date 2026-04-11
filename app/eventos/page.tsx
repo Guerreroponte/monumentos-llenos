@@ -33,6 +33,7 @@ type EventoUI = {
   imagen: string;
   enlace: string;
   destacado: boolean;
+  categoriaVisual: "grande" | "local";
 };
 
 const FALLBACKS_EVENTOS = [
@@ -65,6 +66,7 @@ function formatFecha(fecha?: string | null) {
   if (!fecha) return "";
   const d = new Date(fecha);
   if (Number.isNaN(d.getTime())) return "";
+
   return d.toLocaleDateString("es-ES", {
     day: "numeric",
     month: "long",
@@ -76,6 +78,7 @@ function formatFechaCorta(fecha?: string | null) {
   if (!fecha) return "";
   const d = new Date(fecha);
   if (Number.isNaN(d.getTime())) return "";
+
   return d.toLocaleDateString("es-ES", {
     day: "2-digit",
     month: "2-digit",
@@ -95,7 +98,38 @@ function esEventoProximo(fechaInicio?: string | null, fechaFin?: string | null) 
 
   if (fin) return fin >= hoy;
   if (inicio) return inicio >= hoy;
+
   return false;
+}
+
+function esHoy(fecha?: string | null) {
+  if (!fecha) return false;
+
+  const hoy = new Date();
+  const d = new Date(fecha);
+
+  if (Number.isNaN(d.getTime())) return false;
+
+  hoy.setHours(0, 0, 0, 0);
+  d.setHours(0, 0, 0, 0);
+
+  return hoy.getTime() === d.getTime();
+}
+
+function esManana(fecha?: string | null) {
+  if (!fecha) return false;
+
+  const manana = new Date();
+  manana.setDate(manana.getDate() + 1);
+
+  const d = new Date(fecha);
+
+  if (Number.isNaN(d.getTime())) return false;
+
+  manana.setHours(0, 0, 0, 0);
+  d.setHours(0, 0, 0, 0);
+
+  return manana.getTime() === d.getTime();
 }
 
 function getFallbackImagen(id: string) {
@@ -107,6 +141,63 @@ function getFallbackImagen(id: string) {
   return FALLBACKS_EVENTOS[index];
 }
 
+function tipoNormalizado(tipo?: string | null) {
+  return (tipo ?? "").trim().toLowerCase();
+}
+
+function esPlanLocalPorTipo(tipo?: string | null) {
+  const t = tipoNormalizado(tipo);
+
+  return (
+    t.includes("plan local") ||
+    t.includes("qué hacer hoy") ||
+    t.includes("que hacer hoy") ||
+    t.includes("hoy") ||
+    t.includes("mañana") ||
+    t.includes("manana") ||
+    t.includes("monólogo") ||
+    t.includes("monologo") ||
+    t.includes("tardeo") ||
+    t.includes("bar") ||
+    t.includes("sala") ||
+    t.includes("directo") ||
+    t.includes("vermú") ||
+    t.includes("vermu") ||
+    t.includes("local") ||
+    t.includes("pequeño") ||
+    t.includes("pequeno") ||
+    t.includes("microevento")
+  );
+}
+
+function esEventoGrandePorTipo(tipo?: string | null) {
+  const t = tipoNormalizado(tipo);
+
+  return (
+    t.includes("festival") ||
+    t.includes("feria") ||
+    t.includes("fiesta") ||
+    t.includes("romería") ||
+    t.includes("romeria") ||
+    t.includes("mercado medieval") ||
+    t.includes("carnaval") ||
+    t.includes("semana santa") ||
+    t.includes("concierto grande") ||
+    t.includes("evento grande")
+  );
+}
+
+function detectarCategoriaVisual(e: EventoDB): "grande" | "local" {
+  const tipo = e.tipo ?? "";
+
+  if (esPlanLocalPorTipo(tipo)) return "local";
+  if (esEventoGrandePorTipo(tipo)) return "grande";
+
+  if (e.destacado) return "grande";
+
+  return "grande";
+}
+
 function eventoScore(e: EventoUI) {
   let score = 0;
 
@@ -114,6 +205,7 @@ function eventoScore(e: EventoUI) {
   if (CIUDADES_TOP.includes(e.ciudad)) score += 25;
 
   const tipo = e.tipo.toLowerCase();
+
   if (
     tipo.includes("festival") ||
     tipo.includes("feria") ||
@@ -126,6 +218,7 @@ function eventoScore(e: EventoUI) {
   if (e.fechaInicio) {
     const ahora = new Date();
     const fecha = new Date(e.fechaInicio);
+
     const diffDias = Math.floor(
       (fecha.getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24)
     );
@@ -138,6 +231,43 @@ function eventoScore(e: EventoUI) {
   return score;
 }
 
+function planLocalScore(e: EventoUI) {
+  let score = 0;
+
+  if (esHoy(e.fechaInicio)) score += 50;
+  else if (esManana(e.fechaInicio)) score += 35;
+  else if (esEventoProximo(e.fechaInicio, e.fechaFin)) score += 20;
+
+  if (CIUDADES_TOP.includes(e.ciudad)) score += 12;
+  if (e.destacado) score += 10;
+
+  const tipo = e.tipo.toLowerCase();
+
+  if (
+    tipo.includes("concierto") ||
+    tipo.includes("monólogo") ||
+    tipo.includes("monologo") ||
+    tipo.includes("tardeo") ||
+    tipo.includes("directo")
+  ) {
+    score += 12;
+  }
+
+  return score;
+}
+
+function textoFechaEvento(e: EventoUI) {
+  if (e.fechaInicio && e.fechaFin) {
+    const inicio = formatFecha(e.fechaInicio);
+    const fin = formatFecha(e.fechaFin);
+
+    if (inicio && fin && inicio !== fin) return `${inicio} - ${fin}`;
+    if (inicio) return inicio;
+  }
+
+  return e.fechaInicio ? formatFecha(e.fechaInicio) : "Fecha por confirmar";
+}
+
 export default function EventosPage() {
   const [eventos, setEventos] = useState<EventoUI[]>([]);
   const [loading, setLoading] = useState(true);
@@ -147,6 +277,9 @@ export default function EventosPage() {
   const [ciudadSeleccionada, setCiudadSeleccionada] = useState("");
   const [tipoSeleccionado, setTipoSeleccionado] = useState("");
   const [soloProximos, setSoloProximos] = useState(false);
+  const [modoVista, setModoVista] = useState<"todos" | "grandes" | "locales">(
+    "todos"
+  );
 
   useEffect(() => {
     let activo = true;
@@ -184,6 +317,7 @@ export default function EventosPage() {
           imagen: normalizarTexto(e.imagen) || getFallbackImagen(e.id),
           enlace: normalizarTexto(e.enlace),
           destacado: Boolean(e.destacado),
+          categoriaVisual: detectarCategoriaVisual(e),
         })
       );
 
@@ -220,11 +354,50 @@ export default function EventosPage() {
       });
   }, [eventos]);
 
-  const eventosDestacados = useMemo(() => {
+  const eventosGrandes = useMemo(() => {
     const base = eventosProximos.length > 0 ? eventosProximos : eventos;
 
-    return [...base].sort((a, b) => eventoScore(b) - eventoScore(a)).slice(0, 6);
+    return base
+      .filter((e) => e.categoriaVisual === "grande")
+      .sort((a, b) => eventoScore(b) - eventoScore(a));
   }, [eventos, eventosProximos]);
+
+  const planesLocales = useMemo(() => {
+    const base = eventosProximos.length > 0 ? eventosProximos : eventos;
+
+    return base
+      .filter((e) => e.categoriaVisual === "local")
+      .sort((a, b) => planLocalScore(b) - planLocalScore(a));
+  }, [eventos, eventosProximos]);
+
+  const heroEvento = useMemo(() => {
+    if (eventosGrandes.length > 0) return eventosGrandes[0];
+    if (eventosProximos.length > 0) return eventosProximos[0];
+    return eventos[0] ?? null;
+  }, [eventos, eventosGrandes, eventosProximos]);
+
+  const eventosGrandesDestacados = useMemo(() => {
+    return eventosGrandes.slice(0, 6);
+  }, [eventosGrandes]);
+
+  const planesHoy = useMemo(() => {
+    return planesLocales
+      .filter((e) => esHoy(e.fechaInicio))
+      .sort((a, b) => planLocalScore(b) - planLocalScore(a))
+      .slice(0, 6);
+  }, [planesLocales]);
+
+  const planesManana = useMemo(() => {
+    return planesLocales
+      .filter((e) => esManana(e.fechaInicio))
+      .sort((a, b) => planLocalScore(b) - planLocalScore(a))
+      .slice(0, 6);
+  }, [planesLocales]);
+
+  const planesLocalesDestacados = useMemo(() => {
+    const base = planesHoy.length > 0 ? planesHoy : planesLocales;
+    return base.slice(0, 6);
+  }, [planesHoy, planesLocales]);
 
   const eventosFiltrados = useMemo(() => {
     const texto = busqueda.trim().toLowerCase();
@@ -232,6 +405,14 @@ export default function EventosPage() {
     return eventos
       .filter((e) => {
         if (soloProximos && !esEventoProximo(e.fechaInicio, e.fechaFin)) {
+          return false;
+        }
+
+        if (modoVista === "grandes" && e.categoriaVisual !== "grande") {
+          return false;
+        }
+
+        if (modoVista === "locales" && e.categoriaVisual !== "local") {
           return false;
         }
 
@@ -272,6 +453,7 @@ export default function EventosPage() {
     ciudadSeleccionada,
     tipoSeleccionado,
     soloProximos,
+    modoVista,
   ]);
 
   const bloquesPorCiudad = useMemo(() => {
@@ -296,12 +478,14 @@ export default function EventosPage() {
     setCiudadSeleccionada("");
     setTipoSeleccionado("");
     setSoloProximos(false);
+    setModoVista("todos");
   }
 
   function filtrarHoy() {
     const hoy = new Date().toISOString().slice(0, 10);
     setFechaSeleccionada(hoy);
     setSoloProximos(false);
+    setModoVista("locales");
   }
 
   function filtrarManana() {
@@ -309,10 +493,23 @@ export default function EventosPage() {
     manana.setDate(manana.getDate() + 1);
     setFechaSeleccionada(manana.toISOString().slice(0, 10));
     setSoloProximos(false);
+    setModoVista("locales");
   }
 
   function verProximos() {
     setFechaSeleccionada("");
+    setSoloProximos(true);
+  }
+
+  function verEventosGrandes() {
+    setFechaSeleccionada("");
+    setModoVista("grandes");
+    setSoloProximos(true);
+  }
+
+  function verPlanesLocales() {
+    setFechaSeleccionada("");
+    setModoVista("locales");
     setSoloProximos(true);
   }
 
@@ -324,23 +521,23 @@ export default function EventosPage() {
             Comunidad de lugares reales en España
           </span>
           <span className="rounded-full bg-[#fff0e6] px-3 py-1">
-            Eventos
+            Eventos grandes
           </span>
           <span className="rounded-full bg-[#fff0e6] px-3 py-1">
-            Próximos planes
+            Qué hacer hoy
           </span>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
             <h1 className="max-w-3xl text-4xl font-extrabold leading-tight text-[#334155] md:text-5xl">
-              Fiestas y eventos por fecha en España
+              Eventos grandes y planes reales para hoy en España
             </h1>
 
             <p className="mt-4 max-w-2xl text-base leading-7 text-[#64748b] md:text-lg">
-              Descubre los próximos eventos más importantes sin tener que buscar
-              nada. Después podrás filtrar por fecha, ciudad o tipo y encontrar
-              planes con más ambiente.
+              Descubre desde ferias, fiestas y festivales hasta planes pequeños
+              tipo concierto en un bar, monólogo, tardeo o directo de última hora.
+              La idea es que aquí se vea qué merece la pena de verdad.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -349,6 +546,20 @@ export default function EventosPage() {
                 className="rounded-full border border-[#fed7aa] bg-white px-4 py-2 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
               >
                 Próximos eventos
+              </button>
+
+              <button
+                onClick={verEventosGrandes}
+                className="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-semibold text-[#475569] transition hover:bg-[#f8fafc]"
+              >
+                Eventos grandes
+              </button>
+
+              <button
+                onClick={verPlanesLocales}
+                className="rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-semibold text-[#475569] transition hover:bg-[#f8fafc]"
+              >
+                Qué hacer hoy
               </button>
 
               <button
@@ -376,22 +587,25 @@ export default function EventosPage() {
 
           <div className="overflow-hidden rounded-3xl border border-[#fde7d7] bg-white shadow-sm">
             <img
-              src={eventosDestacados[0]?.imagen || FALLBACKS_EVENTOS[0]}
-              alt={eventosDestacados[0]?.nombre || "Eventos en España"}
+              src={heroEvento?.imagen || FALLBACKS_EVENTOS[0]}
+              alt={heroEvento?.nombre || "Eventos en España"}
               className="h-[280px] w-full object-cover"
             />
             <div className="p-5">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#f97316]">
-                Evento destacado
+                {heroEvento?.categoriaVisual === "local"
+                  ? "Plan local destacado"
+                  : "Evento destacado"}
               </p>
+
               <h2 className="mt-2 text-2xl font-bold text-[#334155]">
-                {eventosDestacados[0]?.nombre || "Descubre los próximos eventos"}
+                {heroEvento?.nombre || "Descubre los próximos eventos"}
               </h2>
+
               <p className="mt-2 text-sm text-[#64748b]">
-                {eventosDestacados[0]
-                  ? `${eventosDestacados[0].ciudad} · ${
-                      formatFecha(eventosDestacados[0].fechaInicio) ||
-                      "Fecha por confirmar"
+                {heroEvento
+                  ? `${heroEvento.ciudad} · ${
+                      formatFecha(heroEvento.fechaInicio) || "Fecha por confirmar"
                     }`
                   : "Ferias, fiestas, festivales y planes con más ambiente."}
               </p>
@@ -404,11 +618,46 @@ export default function EventosPage() {
         <div className="rounded-3xl border border-[#e5e7eb] bg-white p-5 shadow-sm md:p-6">
           <div className="mb-4">
             <h2 className="text-xl font-bold text-[#334155]">
-              Calendario de eventos
+              Calendario y filtros
             </h2>
             <p className="mt-1 text-sm text-[#64748b]">
-              Filtra por texto, fecha, ciudad o tipo.
+              Busca por texto, fecha, ciudad, tipo o por clase de plan.
             </p>
+          </div>
+
+          <div className="mb-4 flex flex-wrap gap-2">
+            <button
+              onClick={() => setModoVista("todos")}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                modoVista === "todos"
+                  ? "bg-[#f97316] text-white"
+                  : "border border-[#e2e8f0] bg-white text-[#475569] hover:bg-[#f8fafc]"
+              }`}
+            >
+              Todos
+            </button>
+
+            <button
+              onClick={() => setModoVista("grandes")}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                modoVista === "grandes"
+                  ? "bg-[#f97316] text-white"
+                  : "border border-[#e2e8f0] bg-white text-[#475569] hover:bg-[#f8fafc]"
+              }`}
+            >
+              Eventos grandes
+            </button>
+
+            <button
+              onClick={() => setModoVista("locales")}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                modoVista === "locales"
+                  ? "bg-[#f97316] text-white"
+                  : "border border-[#e2e8f0] bg-white text-[#475569] hover:bg-[#f8fafc]"
+              }`}
+            >
+              Planes locales
+            </button>
           </div>
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -416,7 +665,7 @@ export default function EventosPage() {
               type="text"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              placeholder="Buscar evento o ciudad..."
+              placeholder="Buscar evento, ciudad o plan..."
               className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
             />
 
@@ -472,13 +721,26 @@ export default function EventosPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
-        <div className="mb-5">
-          <h2 className="text-2xl font-bold text-[#334155]">
-            🔥 Eventos importantes que vienen pronto
-          </h2>
-          <p className="mt-1 text-sm text-[#64748b]">
-            Una selección inicial para que la página ya tenga vida al entrar.
-          </p>
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-[#334155]">
+              🔥 Eventos grandes que vienen pronto
+            </h2>
+            <p className="mt-1 text-sm text-[#64748b]">
+              Ferias, festivales, fiestas y citas potentes para que la página entre con fuerza.
+            </p>
+          </div>
+
+          <button
+            onClick={() => {
+              setModoVista("grandes");
+              setSoloProximos(true);
+              setFechaSeleccionada("");
+            }}
+            className="rounded-full bg-[#fff7ed] px-4 py-2 text-sm font-bold text-[#ea580c]"
+          >
+            Ver solo eventos grandes
+          </button>
         </div>
 
         {loading ? (
@@ -497,15 +759,15 @@ export default function EventosPage() {
               </div>
             ))}
           </div>
-        ) : eventosDestacados.length === 0 ? (
+        ) : eventosGrandesDestacados.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-[#fdba74] bg-[#fff7ed] p-8 text-center">
             <p className="text-lg font-semibold text-[#9a3412]">
-              Todavía no hay eventos cargados.
+              Todavía no hay eventos grandes cargados.
             </p>
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {eventosDestacados.map((evento) => (
+            {eventosGrandesDestacados.map((evento) => (
               <article
                 key={evento.id}
                 className="group overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
@@ -537,12 +799,7 @@ export default function EventosPage() {
 
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#64748b]">
                     <span>📍 {evento.ciudad}</span>
-                    <span>
-                      📅{" "}
-                      {evento.fechaInicio
-                        ? formatFecha(evento.fechaInicio)
-                        : "Fecha por confirmar"}
-                    </span>
+                    <span>📅 {textoFechaEvento(evento)}</span>
                   </div>
 
                   <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
@@ -571,6 +828,163 @@ export default function EventosPage() {
           </div>
         )}
       </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-[#334155]">
+              ⚡ Qué hacer hoy / planes pequeños
+            </h2>
+            <p className="mt-1 text-sm text-[#64748b]">
+              Conciertos pequeños, monólogos, tardeos, directos y planes cercanos que la gente pueda subir.
+            </p>
+          </div>
+
+          <button
+            onClick={() => {
+              setModoVista("locales");
+              setSoloProximos(true);
+              setFechaSeleccionada("");
+            }}
+            className="rounded-full bg-[#fff7ed] px-4 py-2 text-sm font-bold text-[#ea580c]"
+          >
+            Ver solo planes locales
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white"
+              >
+                <div className="h-40 animate-pulse bg-[#f1f5f9]" />
+                <div className="space-y-3 p-5">
+                  <div className="h-5 w-2/3 animate-pulse rounded bg-[#f1f5f9]" />
+                  <div className="h-4 w-1/2 animate-pulse rounded bg-[#f1f5f9]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : planesLocalesDestacados.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-[#cbd5e1] bg-white p-8 text-center">
+            <p className="text-lg font-semibold text-[#334155]">
+              Todavía no hay planes locales cargados.
+            </p>
+            <p className="mt-2 text-sm text-[#64748b]">
+              Aquí aparecerán ideas tipo “hoy concierto en tal sala”, “mañana monólogo” o “tardeo en tal bar”.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {planesLocalesDestacados.map((evento) => (
+              <article
+                key={evento.id}
+                className="overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm"
+              >
+                <img
+                  src={evento.imagen}
+                  alt={evento.nombre}
+                  className="h-48 w-full object-cover"
+                />
+
+                <div className="p-5">
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
+                      {evento.tipo}
+                    </span>
+
+                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-bold text-[#475569]">
+                      {evento.ciudad}
+                    </span>
+
+                    {esHoy(evento.fechaInicio) && (
+                      <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
+                        Hoy
+                      </span>
+                    )}
+
+                    {esManana(evento.fechaInicio) && (
+                      <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
+                        Mañana
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-lg font-bold text-[#334155]">
+                    {evento.nombre}
+                  </h3>
+
+                  <p className="mt-2 text-sm text-[#64748b]">
+                    {textoFechaEvento(evento)}
+                  </p>
+
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
+                    {evento.descripcion}
+                  </p>
+
+                  <div className="mt-5">
+                    {evento.enlace ? (
+                      <a
+                        href={evento.enlace}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex rounded-full border border-[#fed7aa] px-4 py-2 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
+                      >
+                        Ver plan
+                      </a>
+                    ) : (
+                      <span className="inline-flex rounded-full bg-[#f8fafc] px-4 py-2 text-sm font-semibold text-[#64748b]">
+                        Sin enlace externo
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {planesHoy.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
+          <div className="mb-5">
+            <h2 className="text-2xl font-bold text-[#334155]">
+              🟠 Hoy mismo
+            </h2>
+            <p className="mt-1 text-sm text-[#64748b]">
+              Para los que entran buscando plan rápido.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {planesHoy.map((evento) => (
+              <div
+                key={evento.id}
+                className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm"
+              >
+                <div className="mb-2 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
+                    Hoy
+                  </span>
+                  <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
+                    {evento.tipo}
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-bold text-[#334155]">{evento.nombre}</h3>
+                <p className="mt-1 text-sm text-[#64748b]">
+                  📍 {evento.ciudad} · 📅 {textoFechaEvento(evento)}
+                </p>
+                <p className="mt-3 line-clamp-2 text-sm text-[#475569]">
+                  {evento.descripcion}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {bloquesPorCiudad.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
@@ -649,7 +1063,7 @@ export default function EventosPage() {
       <section className="mx-auto max-w-7xl px-4 pb-16 md:px-6 lg:px-8">
         <div className="mb-5">
           <h2 className="text-2xl font-bold text-[#334155]">
-            Todos los eventos
+            Todos los eventos y planes
           </h2>
           <p className="mt-1 text-sm text-[#64748b]">
             Resultado en tiempo real según los filtros.
@@ -684,6 +1098,18 @@ export default function EventosPage() {
                     <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-bold text-[#475569]">
                       {evento.ciudad}
                     </span>
+
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-bold ${
+                        evento.categoriaVisual === "local"
+                          ? "bg-[#ecfeff] text-[#155e75]"
+                          : "bg-[#fef3c7] text-[#92400e]"
+                      }`}
+                    >
+                      {evento.categoriaVisual === "local"
+                        ? "Plan local"
+                        : "Evento grande"}
+                    </span>
                   </div>
 
                   <h3 className="text-lg font-bold text-[#334155]">
@@ -691,9 +1117,7 @@ export default function EventosPage() {
                   </h3>
 
                   <p className="mt-2 text-sm text-[#64748b]">
-                    {evento.fechaInicio
-                      ? formatFecha(evento.fechaInicio)
-                      : "Fecha por confirmar"}
+                    {textoFechaEvento(evento)}
                   </p>
 
                   <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
@@ -722,23 +1146,43 @@ export default function EventosPage() {
           </div>
         )}
 
-        <div className="mt-12 rounded-3xl bg-gradient-to-r from-[#fff7ed] to-[#ffedd5] p-8 text-center">
-          <h3 className="text-2xl font-bold text-[#9a3412]">
-            ¿Conoces una fiesta, feria o evento con ambiente?
-          </h3>
+        <div className="mt-12 grid gap-5 lg:grid-cols-2">
+          <div className="rounded-3xl bg-gradient-to-r from-[#fff7ed] to-[#ffedd5] p-8 text-center">
+            <h3 className="text-2xl font-bold text-[#9a3412]">
+              ¿Conoces una feria, festival o fiesta potente?
+            </h3>
 
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#7c2d12]">
-            Añádelo a la comunidad para que más gente descubra cuándo merece la
-            pena ir a esa ciudad.
-          </p>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#7c2d12]">
+              Añádelo para que más gente sepa cuándo merece la pena ir a esa ciudad.
+            </p>
 
-          <div className="mt-5">
-            <Link
-              href="/participa"
-              className="inline-flex rounded-full bg-[#f97316] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c]"
-            >
-              Añadir evento
-            </Link>
+            <div className="mt-5">
+              <Link
+                href="/participa"
+                className="inline-flex rounded-full bg-[#f97316] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c]"
+              >
+                Añadir evento grande
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-3xl bg-gradient-to-r from-[#eff6ff] to-[#dbeafe] p-8 text-center">
+            <h3 className="text-2xl font-bold text-[#1e3a8a]">
+              ¿Hay hoy un plan pequeño que merece la pena?
+            </h3>
+
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#1d4ed8]">
+              Súbelo a la comunidad: concierto en directo, monólogo, tardeo, sesión especial o plan local de última hora.
+            </p>
+
+            <div className="mt-5">
+              <Link
+                href="/participa"
+                className="inline-flex rounded-full bg-[#2563eb] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#1d4ed8]"
+              >
+                Añadir plan local
+              </Link>
+            </div>
           </div>
         </div>
       </section>
