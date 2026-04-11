@@ -12,13 +12,25 @@ type EventoDB = {
   provincia?: string | null;
   comunidad_autonoma?: string | null;
   tipo?: string | null;
+  subtipo?: string | null;
+  categoria_evento?: string | null;
   fecha_inicio?: string | null;
   fecha_fin?: string | null;
+  hora_inicio?: string | null;
+  hora_fin?: string | null;
   descripcion?: string | null;
   imagen?: string | null;
   enlace?: string | null;
   destacado?: boolean | null;
+  ubicacion_detalle?: string | null;
+  precio?: string | null;
+  ambiente?: string | null;
+  dificil_bebida?: boolean | null;
+  parking?: boolean | null;
+  recomendable?: boolean | null;
 };
+
+type CategoriaEvento = "grande" | "local";
 
 type EventoUI = {
   id: string;
@@ -27,13 +39,22 @@ type EventoUI = {
   provincia: string;
   comunidad: string;
   tipo: string;
+  subtipo: string;
+  categoriaEvento: CategoriaEvento;
   fechaInicio: string | null;
   fechaFin: string | null;
+  horaInicio: string | null;
+  horaFin: string | null;
   descripcion: string;
   imagen: string;
   enlace: string;
   destacado: boolean;
-  categoriaVisual: "grande" | "local";
+  ubicacionDetalle: string;
+  precio: string;
+  ambiente: string;
+  dificilBebida: boolean;
+  parking: boolean;
+  recomendable: boolean;
 };
 
 const FALLBACKS_EVENTOS = [
@@ -86,6 +107,11 @@ function formatFechaCorta(fecha?: string | null) {
   });
 }
 
+function formatHora(hora?: string | null) {
+  if (!hora) return "";
+  return hora.slice(0, 5);
+}
+
 function esEventoProximo(fechaInicio?: string | null, fechaFin?: string | null) {
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
@@ -98,18 +124,16 @@ function esEventoProximo(fechaInicio?: string | null, fechaFin?: string | null) 
 
   if (fin) return fin >= hoy;
   if (inicio) return inicio >= hoy;
-
   return false;
 }
 
 function esHoy(fecha?: string | null) {
   if (!fecha) return false;
 
-  const hoy = new Date();
   const d = new Date(fecha);
-
   if (Number.isNaN(d.getTime())) return false;
 
+  const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
   d.setHours(0, 0, 0, 0);
 
@@ -119,13 +143,11 @@ function esHoy(fecha?: string | null) {
 function esManana(fecha?: string | null) {
   if (!fecha) return false;
 
-  const manana = new Date();
-  manana.setDate(manana.getDate() + 1);
-
   const d = new Date(fecha);
-
   if (Number.isNaN(d.getTime())) return false;
 
+  const manana = new Date();
+  manana.setDate(manana.getDate() + 1);
   manana.setHours(0, 0, 0, 0);
   d.setHours(0, 0, 0, 0);
 
@@ -141,76 +163,20 @@ function getFallbackImagen(id: string) {
   return FALLBACKS_EVENTOS[index];
 }
 
-function tipoNormalizado(tipo?: string | null) {
-  return (tipo ?? "").trim().toLowerCase();
-}
-
-function esPlanLocalPorTipo(tipo?: string | null) {
-  const t = tipoNormalizado(tipo);
-
-  return (
-    t.includes("plan local") ||
-    t.includes("qué hacer hoy") ||
-    t.includes("que hacer hoy") ||
-    t.includes("hoy") ||
-    t.includes("mañana") ||
-    t.includes("manana") ||
-    t.includes("monólogo") ||
-    t.includes("monologo") ||
-    t.includes("tardeo") ||
-    t.includes("bar") ||
-    t.includes("sala") ||
-    t.includes("directo") ||
-    t.includes("vermú") ||
-    t.includes("vermu") ||
-    t.includes("local") ||
-    t.includes("pequeño") ||
-    t.includes("pequeno") ||
-    t.includes("microevento")
-  );
-}
-
-function esEventoGrandePorTipo(tipo?: string | null) {
-  const t = tipoNormalizado(tipo);
-
-  return (
-    t.includes("festival") ||
-    t.includes("feria") ||
-    t.includes("fiesta") ||
-    t.includes("romería") ||
-    t.includes("romeria") ||
-    t.includes("mercado medieval") ||
-    t.includes("carnaval") ||
-    t.includes("semana santa") ||
-    t.includes("concierto grande") ||
-    t.includes("evento grande")
-  );
-}
-
-function detectarCategoriaVisual(e: EventoDB): "grande" | "local" {
-  const tipo = e.tipo ?? "";
-
-  if (esPlanLocalPorTipo(tipo)) return "local";
-  if (esEventoGrandePorTipo(tipo)) return "grande";
-
-  if (e.destacado) return "grande";
-
-  return "grande";
-}
-
-function eventoScore(e: EventoUI) {
+function eventoGrandeScore(e: EventoUI) {
   let score = 0;
 
   if (e.destacado) score += 100;
   if (CIUDADES_TOP.includes(e.ciudad)) score += 25;
 
-  const tipo = e.tipo.toLowerCase();
+  const tipo = `${e.tipo} ${e.subtipo}`.toLowerCase();
 
   if (
     tipo.includes("festival") ||
     tipo.includes("feria") ||
     tipo.includes("fiesta") ||
-    tipo.includes("concierto")
+    tipo.includes("mercado") ||
+    tipo.includes("carnaval")
   ) {
     score += 20;
   }
@@ -218,7 +184,6 @@ function eventoScore(e: EventoUI) {
   if (e.fechaInicio) {
     const ahora = new Date();
     const fecha = new Date(e.fechaInicio);
-
     const diffDias = Math.floor(
       (fecha.getTime() - ahora.getTime()) / (1000 * 60 * 60 * 24)
     );
@@ -234,21 +199,24 @@ function eventoScore(e: EventoUI) {
 function planLocalScore(e: EventoUI) {
   let score = 0;
 
-  if (esHoy(e.fechaInicio)) score += 50;
-  else if (esManana(e.fechaInicio)) score += 35;
+  if (esHoy(e.fechaInicio)) score += 60;
+  else if (esManana(e.fechaInicio)) score += 40;
   else if (esEventoProximo(e.fechaInicio, e.fechaFin)) score += 20;
 
   if (CIUDADES_TOP.includes(e.ciudad)) score += 12;
-  if (e.destacado) score += 10;
+  if (e.destacado) score += 15;
+  if (e.recomendable) score += 10;
 
-  const tipo = e.tipo.toLowerCase();
+  const tipo = `${e.tipo} ${e.subtipo}`.toLowerCase();
 
   if (
     tipo.includes("concierto") ||
     tipo.includes("monólogo") ||
     tipo.includes("monologo") ||
     tipo.includes("tardeo") ||
-    tipo.includes("directo")
+    tipo.includes("directo") ||
+    tipo.includes("bar") ||
+    tipo.includes("sala")
   ) {
     score += 12;
   }
@@ -266,6 +234,15 @@ function textoFechaEvento(e: EventoUI) {
   }
 
   return e.fechaInicio ? formatFecha(e.fechaInicio) : "Fecha por confirmar";
+}
+
+function textoHoraEvento(e: EventoUI) {
+  const inicio = formatHora(e.horaInicio);
+  const fin = formatHora(e.horaFin);
+
+  if (inicio && fin) return `${inicio} - ${fin}`;
+  if (inicio) return inicio;
+  return "";
 }
 
 export default function EventosPage() {
@@ -309,15 +286,25 @@ export default function EventosPage() {
           provincia: normalizarTexto(e.provincia),
           comunidad: normalizarTexto(e.comunidad_autonoma),
           tipo: normalizarTexto(e.tipo) || "Evento",
+          subtipo: normalizarTexto(e.subtipo),
+          categoriaEvento:
+            e.categoria_evento === "local" ? "local" : "grande",
           fechaInicio: e.fecha_inicio ?? null,
           fechaFin: e.fecha_fin ?? null,
+          horaInicio: e.hora_inicio ?? null,
+          horaFin: e.hora_fin ?? null,
           descripcion:
             normalizarTexto(e.descripcion) ||
             "Consulta este evento y descubre más detalles sobre el ambiente de la zona.",
           imagen: normalizarTexto(e.imagen) || getFallbackImagen(e.id),
           enlace: normalizarTexto(e.enlace),
           destacado: Boolean(e.destacado),
-          categoriaVisual: detectarCategoriaVisual(e),
+          ubicacionDetalle: normalizarTexto(e.ubicacion_detalle),
+          precio: normalizarTexto(e.precio),
+          ambiente: normalizarTexto(e.ambiente),
+          dificilBebida: Boolean(e.dificil_bebida),
+          parking: Boolean(e.parking),
+          recomendable: e.recomendable !== false,
         })
       );
 
@@ -358,23 +345,23 @@ export default function EventosPage() {
     const base = eventosProximos.length > 0 ? eventosProximos : eventos;
 
     return base
-      .filter((e) => e.categoriaVisual === "grande")
-      .sort((a, b) => eventoScore(b) - eventoScore(a));
+      .filter((e) => e.categoriaEvento === "grande")
+      .sort((a, b) => eventoGrandeScore(b) - eventoGrandeScore(a));
   }, [eventos, eventosProximos]);
 
   const planesLocales = useMemo(() => {
     const base = eventosProximos.length > 0 ? eventosProximos : eventos;
 
     return base
-      .filter((e) => e.categoriaVisual === "local")
+      .filter((e) => e.categoriaEvento === "local")
       .sort((a, b) => planLocalScore(b) - planLocalScore(a));
   }, [eventos, eventosProximos]);
 
   const heroEvento = useMemo(() => {
     if (eventosGrandes.length > 0) return eventosGrandes[0];
-    if (eventosProximos.length > 0) return eventosProximos[0];
+    if (planesLocales.length > 0) return planesLocales[0];
     return eventos[0] ?? null;
-  }, [eventos, eventosGrandes, eventosProximos]);
+  }, [eventos, eventosGrandes, planesLocales]);
 
   const eventosGrandesDestacados = useMemo(() => {
     return eventosGrandes.slice(0, 6);
@@ -408,11 +395,11 @@ export default function EventosPage() {
           return false;
         }
 
-        if (modoVista === "grandes" && e.categoriaVisual !== "grande") {
+        if (modoVista === "grandes" && e.categoriaEvento !== "grande") {
           return false;
         }
 
-        if (modoVista === "locales" && e.categoriaVisual !== "local") {
+        if (modoVista === "locales" && e.categoriaEvento !== "local") {
           return false;
         }
 
@@ -423,7 +410,10 @@ export default function EventosPage() {
             e.provincia,
             e.comunidad,
             e.tipo,
+            e.subtipo,
             e.descripcion,
+            e.ubicacionDetalle,
+            e.ambiente,
           ]
             .join(" ")
             .toLowerCase();
@@ -537,7 +527,6 @@ export default function EventosPage() {
             <p className="mt-4 max-w-2xl text-base leading-7 text-[#64748b] md:text-lg">
               Descubre desde ferias, fiestas y festivales hasta planes pequeños
               tipo concierto en un bar, monólogo, tardeo o directo de última hora.
-              La idea es que aquí se vea qué merece la pena de verdad.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -593,7 +582,7 @@ export default function EventosPage() {
             />
             <div className="p-5">
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#f97316]">
-                {heroEvento?.categoriaVisual === "local"
+                {heroEvento?.categoriaEvento === "local"
                   ? "Plan local destacado"
                   : "Evento destacado"}
               </p>
@@ -727,7 +716,7 @@ export default function EventosPage() {
               🔥 Eventos grandes que vienen pronto
             </h2>
             <p className="mt-1 text-sm text-[#64748b]">
-              Ferias, festivales, fiestas y citas potentes para que la página entre con fuerza.
+              Ferias, festivales, fiestas y citas potentes para entrar con fuerza.
             </p>
           </div>
 
@@ -781,7 +770,7 @@ export default function EventosPage() {
 
                   <div className="absolute left-4 top-4 flex flex-wrap gap-2">
                     <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#ea580c]">
-                      {evento.tipo}
+                      {evento.subtipo || evento.tipo}
                     </span>
 
                     {evento.destacado && (
@@ -800,11 +789,26 @@ export default function EventosPage() {
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#64748b]">
                     <span>📍 {evento.ciudad}</span>
                     <span>📅 {textoFechaEvento(evento)}</span>
+                    {textoHoraEvento(evento) && <span>🕒 {textoHoraEvento(evento)}</span>}
                   </div>
 
                   <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
                     {evento.descripcion}
                   </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {evento.ubicacionDetalle && (
+                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                        {evento.ubicacionDetalle}
+                      </span>
+                    )}
+
+                    {evento.precio && (
+                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                        {evento.precio}
+                      </span>
+                    )}
+                  </div>
 
                   <div className="mt-5">
                     {evento.enlace ? (
@@ -836,7 +840,7 @@ export default function EventosPage() {
               ⚡ Qué hacer hoy / planes pequeños
             </h2>
             <p className="mt-1 text-sm text-[#64748b]">
-              Conciertos pequeños, monólogos, tardeos, directos y planes cercanos que la gente pueda subir.
+              Conciertos pequeños, monólogos, tardeos, directos y planes cercanos.
             </p>
           </div>
 
@@ -873,7 +877,7 @@ export default function EventosPage() {
               Todavía no hay planes locales cargados.
             </p>
             <p className="mt-2 text-sm text-[#64748b]">
-              Aquí aparecerán ideas tipo “hoy concierto en tal sala”, “mañana monólogo” o “tardeo en tal bar”.
+              Aquí aparecerán ideas tipo concierto en una sala, monólogo o tardeo de hoy.
             </p>
           </div>
         ) : (
@@ -892,7 +896,7 @@ export default function EventosPage() {
                 <div className="p-5">
                   <div className="mb-2 flex flex-wrap gap-2">
                     <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
-                      {evento.tipo}
+                      {evento.subtipo || evento.tipo}
                     </span>
 
                     <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-bold text-[#475569]">
@@ -910,19 +914,58 @@ export default function EventosPage() {
                         Mañana
                       </span>
                     )}
+
+                    {evento.recomendable && (
+                      <span className="rounded-full bg-[#fef3c7] px-3 py-1 text-xs font-bold text-[#92400e]">
+                        Recomendado
+                      </span>
+                    )}
                   </div>
 
                   <h3 className="text-lg font-bold text-[#334155]">
                     {evento.nombre}
                   </h3>
 
-                  <p className="mt-2 text-sm text-[#64748b]">
-                    {textoFechaEvento(evento)}
-                  </p>
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-[#64748b]">
+                    <span>📅 {textoFechaEvento(evento)}</span>
+                    {textoHoraEvento(evento) && <span>🕒 {textoHoraEvento(evento)}</span>}
+                  </div>
+
+                  {evento.ubicacionDetalle && (
+                    <p className="mt-2 text-sm text-[#64748b]">
+                      📍 {evento.ubicacionDetalle}
+                    </p>
+                  )}
 
                   <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
                     {evento.descripcion}
                   </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {evento.precio && (
+                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                        {evento.precio}
+                      </span>
+                    )}
+
+                    {evento.ambiente && (
+                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                        {evento.ambiente}
+                      </span>
+                    )}
+
+                    {evento.dificilBebida && (
+                      <span className="rounded-full bg-[#fee2e2] px-3 py-1 text-xs font-semibold text-[#991b1b]">
+                        Difícil pedir bebida
+                      </span>
+                    )}
+
+                    {evento.parking && (
+                      <span className="rounded-full bg-[#ecfccb] px-3 py-1 text-xs font-semibold text-[#3f6212]">
+                        Parking fácil
+                      </span>
+                    )}
+                  </div>
 
                   <div className="mt-5">
                     {evento.enlace ? (
@@ -951,10 +994,10 @@ export default function EventosPage() {
         <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
           <div className="mb-5">
             <h2 className="text-2xl font-bold text-[#334155]">
-              🟠 Hoy mismo
+              🟢 Hoy mismo
             </h2>
             <p className="mt-1 text-sm text-[#64748b]">
-              Para los que entran buscando plan rápido.
+              Para quien entra buscando plan rápido.
             </p>
           </div>
 
@@ -969,14 +1012,69 @@ export default function EventosPage() {
                     Hoy
                   </span>
                   <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
-                    {evento.tipo}
+                    {evento.subtipo || evento.tipo}
                   </span>
                 </div>
 
                 <h3 className="text-lg font-bold text-[#334155]">{evento.nombre}</h3>
+
                 <p className="mt-1 text-sm text-[#64748b]">
-                  📍 {evento.ciudad} · 📅 {textoFechaEvento(evento)}
+                  📍 {evento.ciudad}
+                  {evento.ubicacionDetalle ? ` · ${evento.ubicacionDetalle}` : ""}
                 </p>
+
+                <p className="mt-1 text-sm text-[#64748b]">
+                  📅 {textoFechaEvento(evento)}
+                  {textoHoraEvento(evento) ? ` · 🕒 ${textoHoraEvento(evento)}` : ""}
+                </p>
+
+                <p className="mt-3 line-clamp-2 text-sm text-[#475569]">
+                  {evento.descripcion}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {planesManana.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
+          <div className="mb-5">
+            <h2 className="text-2xl font-bold text-[#334155]">
+              🔵 Mañana
+            </h2>
+            <p className="mt-1 text-sm text-[#64748b]">
+              Para quien quiere dejar algo mirado ya.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {planesManana.map((evento) => (
+              <div
+                key={evento.id}
+                className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm"
+              >
+                <div className="mb-2 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
+                    Mañana
+                  </span>
+                  <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
+                    {evento.subtipo || evento.tipo}
+                  </span>
+                </div>
+
+                <h3 className="text-lg font-bold text-[#334155]">{evento.nombre}</h3>
+
+                <p className="mt-1 text-sm text-[#64748b]">
+                  📍 {evento.ciudad}
+                  {evento.ubicacionDetalle ? ` · ${evento.ubicacionDetalle}` : ""}
+                </p>
+
+                <p className="mt-1 text-sm text-[#64748b]">
+                  📅 {textoFechaEvento(evento)}
+                  {textoHoraEvento(evento) ? ` · 🕒 ${textoHoraEvento(evento)}` : ""}
+                </p>
+
                 <p className="mt-3 line-clamp-2 text-sm text-[#475569]">
                   {evento.descripcion}
                 </p>
@@ -1034,7 +1132,7 @@ export default function EventosPage() {
 
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f97316]">
-                          {evento.tipo}
+                          {evento.subtipo || evento.tipo}
                         </p>
 
                         <h4 className="mt-1 truncate text-base font-bold text-[#334155]">
@@ -1045,6 +1143,7 @@ export default function EventosPage() {
                           {evento.fechaInicio
                             ? formatFechaCorta(evento.fechaInicio)
                             : "Fecha por confirmar"}
+                          {textoHoraEvento(evento) ? ` · ${textoHoraEvento(evento)}` : ""}
                         </p>
 
                         <p className="mt-2 line-clamp-2 text-sm text-[#475569]">
@@ -1092,7 +1191,7 @@ export default function EventosPage() {
                 <div className="p-5">
                   <div className="mb-2 flex flex-wrap gap-2">
                     <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
-                      {evento.tipo}
+                      {evento.subtipo || evento.tipo}
                     </span>
 
                     <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-bold text-[#475569]">
@@ -1101,15 +1200,27 @@ export default function EventosPage() {
 
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        evento.categoriaVisual === "local"
+                        evento.categoriaEvento === "local"
                           ? "bg-[#ecfeff] text-[#155e75]"
                           : "bg-[#fef3c7] text-[#92400e]"
                       }`}
                     >
-                      {evento.categoriaVisual === "local"
+                      {evento.categoriaEvento === "local"
                         ? "Plan local"
                         : "Evento grande"}
                     </span>
+
+                    {esHoy(evento.fechaInicio) && (
+                      <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
+                        Hoy
+                      </span>
+                    )}
+
+                    {esManana(evento.fechaInicio) && (
+                      <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
+                        Mañana
+                      </span>
+                    )}
                   </div>
 
                   <h3 className="text-lg font-bold text-[#334155]">
@@ -1118,11 +1229,32 @@ export default function EventosPage() {
 
                   <p className="mt-2 text-sm text-[#64748b]">
                     {textoFechaEvento(evento)}
+                    {textoHoraEvento(evento) ? ` · ${textoHoraEvento(evento)}` : ""}
                   </p>
+
+                  {evento.ubicacionDetalle && (
+                    <p className="mt-2 text-sm text-[#64748b]">
+                      📍 {evento.ubicacionDetalle}
+                    </p>
+                  )}
 
                   <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
                     {evento.descripcion}
                   </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {evento.precio && (
+                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                        {evento.precio}
+                      </span>
+                    )}
+
+                    {evento.ambiente && (
+                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                        {evento.ambiente}
+                      </span>
+                    )}
+                  </div>
 
                   <div className="mt-5">
                     {evento.enlace ? (
@@ -1172,7 +1304,7 @@ export default function EventosPage() {
             </h3>
 
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#1d4ed8]">
-              Súbelo a la comunidad: concierto en directo, monólogo, tardeo, sesión especial o plan local de última hora.
+              Súbelo a la comunidad: concierto en directo, monólogo, tardeo o plan local de última hora.
             </p>
 
             <div className="mt-5">
