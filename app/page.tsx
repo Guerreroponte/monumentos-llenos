@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase";
 
 const STORAGE_BUCKET = "imagenes";
+const LUGARES_POR_PAGINA = 6;
 
 const Mapa = dynamic(() => import("./Mapa"), {
   ssr: false,
@@ -245,6 +246,7 @@ export default function Home() {
 
   const [busquedaNombre, setBusquedaNombre] = useState("");
   const [busquedaCiudad, setBusquedaCiudad] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
 
   const [nombre, setNombre] = useState("");
   const [ciudad, setCiudad] = useState("");
@@ -409,6 +411,10 @@ export default function Home() {
     };
   }, [fotosLugarSeleccionadas]);
 
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [busquedaNombre, busquedaCiudad]);
+
   const monumentosFiltrados = useMemo(() => {
     return monumentos.filter((m) => {
       const coincideNombre = m.nombre
@@ -461,6 +467,28 @@ export default function Home() {
 
     return items;
   }, [monumentos]);
+
+  const totalPaginas = useMemo(() => {
+    return Math.max(
+      1,
+      Math.ceil(monumentosFiltrados.length / LUGARES_POR_PAGINA)
+    );
+  }, [monumentosFiltrados.length]);
+
+  const monumentosPaginados = useMemo(() => {
+    const inicio = (paginaActual - 1) * LUGARES_POR_PAGINA;
+    const fin = inicio + LUGARES_POR_PAGINA;
+    return monumentosFiltrados.slice(inicio, fin);
+  }, [monumentosFiltrados, paginaActual]);
+
+  const inicioConteo = monumentosFiltrados.length
+    ? (paginaActual - 1) * LUGARES_POR_PAGINA + 1
+    : 0;
+
+  const finConteo = Math.min(
+    paginaActual * LUGARES_POR_PAGINA,
+    monumentosFiltrados.length
+  );
 
   const copiarInvitacion = async () => {
     const url = typeof window !== "undefined" ? window.location.origin : "";
@@ -637,6 +665,7 @@ ${url}`;
 
       limpiarFormularioLugar();
       await cargarDatos();
+      setPaginaActual(1);
     } catch (error: any) {
       console.error("Error subiendo fotos del lugar:", error);
       alert(
@@ -801,6 +830,8 @@ ${url}`;
     );
   };
 
+  const renderPaginacion = monumentosFiltrados.length > LUGARES_POR_PAGINA;
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
       <section className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
@@ -823,17 +854,17 @@ ${url}`;
 
           <div className="mt-8 flex flex-wrap gap-4">
             <a
-              href="#participa"
+              href="#lugares"
               className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
             >
-              Compartir un lugar
+              Ver lugares de la comunidad
             </a>
 
             <a
-              href="#lugares"
+              href="#participa"
               className="rounded-full border border-orange-200 bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
             >
-              Ver aportes de la comunidad
+              Compartir un lugar
             </a>
           </div>
         </div>
@@ -871,76 +902,30 @@ ${url}`;
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
-        <div className="rounded-[32px] border border-orange-100 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-6 text-white shadow-xl">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">
-                Comunidad activa
-              </p>
-              <h3 className="mt-3 text-2xl font-bold md:text-3xl">
-                ¿Has estado en un sitio especial? Súbelo y ayuda al siguiente viajero.
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-slate-300 md:text-base">
-                Añade un lugar, sube una foto desde tu móvil o tu ordenador y
-                cuenta tu experiencia real. Tu aportación puede ser justo lo que
-                otra persona necesitaba para descubrir un rincón distinto.
-              </p>
-            </div>
+      <section id="buscador" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+        <div className="rounded-3xl border border-orange-100 bg-white/90 p-6 shadow-lg shadow-orange-100">
+          <h3 className="text-2xl font-bold text-slate-900">Buscar lugares</h3>
+          <p className="mt-2 text-sm text-slate-600">
+            Filtra por nombre del lugar o por ciudad para descubrir aportes de
+            la comunidad.
+          </p>
 
-            <div className="flex flex-wrap gap-3">
-              <a
-                href="#participa"
-                className="rounded-full bg-white px-5 py-3 font-semibold text-slate-900 transition hover:scale-[1.02]"
-              >
-                Añadir lugar
-              </a>
-              <a
-                href="#lugares"
-                className="rounded-full border border-white/20 bg-white/10 px-5 py-3 font-semibold text-white transition hover:bg-white/15"
-              >
-                Ver comentarios reales
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            <input
+              type="text"
+              value={busquedaNombre}
+              onChange={(e) => setBusquedaNombre(e.target.value)}
+              placeholder="Buscar lugar..."
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+            />
 
-      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
-        <div className="rounded-[32px] border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-500">
-                Haz crecer la comunidad
-              </p>
-              <h3 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
-                Comparte tus experiencias y ayuda a otros a viajar mejor
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-slate-600 md:text-base">
-                Invita a otras personas a contar sus consejos, recomendaciones y
-                experiencias reales. Cuantas más aportaciones haya, más útil será
-                la web para todo el mundo.
-              </p>
-            </div>
-
-            <div className="flex w-full max-w-md flex-col gap-3">
-              <button
-                onClick={copiarInvitacion}
-                className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
-              >
-                Copiar enlace para invitar
-              </button>
-
-              <p className="text-sm text-slate-500">
-                Comparte el enlace con alguien que pueda aportar una experiencia útil.
-              </p>
-
-              {mensajeCopiado && (
-                <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm font-medium text-orange-700">
-                  {mensajeCopiado}
-                </div>
-              )}
-            </div>
+            <input
+              type="text"
+              value={busquedaCiudad}
+              onChange={(e) => setBusquedaCiudad(e.target.value)}
+              placeholder="Buscar ciudad..."
+              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+            />
           </div>
         </div>
       </section>
@@ -996,30 +981,436 @@ ${url}`;
         </section>
       )}
 
-      <section id="buscador" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
-        <div className="rounded-3xl border border-orange-100 bg-white/90 p-6 shadow-lg shadow-orange-100">
-          <h3 className="text-2xl font-bold text-slate-900">Buscar lugares</h3>
-          <p className="mt-2 text-sm text-slate-600">
-            Filtra por nombre del lugar o por ciudad para descubrir aportes de
-            la comunidad.
-          </p>
+      <section id="lugares" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 className="text-3xl font-bold text-slate-900">
+              Lugares descubiertos
+            </h3>
+            <p className="mt-2 text-sm text-slate-500">
+              Lugares compartidos por la comunidad en tiempo real.
+            </p>
+          </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <input
-              type="text"
-              value={busquedaNombre}
-              onChange={(e) => setBusquedaNombre(e.target.value)}
-              placeholder="Buscar lugar..."
-              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-            />
+          <div className="rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
+            {monumentosFiltrados.length} lugar(es)
+          </div>
+        </div>
 
-            <input
-              type="text"
-              value={busquedaCiudad}
-              onChange={(e) => setBusquedaCiudad(e.target.value)}
-              placeholder="Buscar ciudad..."
-              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-            />
+        {cargando ? (
+          <div className="rounded-3xl border border-orange-100 bg-white p-6 text-slate-600 shadow-sm">
+            Cargando lugares...
+          </div>
+        ) : monumentosFiltrados.length === 0 ? (
+          <div className="rounded-3xl border border-orange-100 bg-white p-8 text-slate-600 shadow-sm">
+            <p className="text-lg font-semibold text-slate-900">
+              No hay lugares que coincidan con la búsqueda.
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Prueba con otra ciudad, otro nombre o sé el primero en compartir un
+              lugar nuevo con la comunidad.
+            </p>
+            <a
+              href="#participa"
+              className="mt-5 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md"
+            >
+              Compartir un lugar
+            </a>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+              <span>
+                Mostrando <strong>{inicioConteo}</strong>–<strong>{finConteo}</strong> de{" "}
+                <strong>{monumentosFiltrados.length}</strong> lugares
+              </span>
+              <span>
+                Página <strong>{paginaActual}</strong> de <strong>{totalPaginas}</strong>
+              </span>
+            </div>
+
+            <div className="grid gap-8">
+              {monumentosPaginados.map((m) => {
+                const fotosValidas = [
+                  ...m.fotosLugar,
+                  ...m.resenas.map((r) => r.foto).filter(Boolean),
+                ].filter(Boolean) as string[];
+
+                const fotosUnicas = [...new Set(fotosValidas)].slice(0, 4);
+
+                return (
+                  <div
+                    key={m.id}
+                    className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100"
+                  >
+                    <div className="grid md:grid-cols-[1.08fr_1fr]">
+                      <div className="relative">
+                        <LugarGaleriaRotativa monumento={m} />
+                      </div>
+
+                      <div className="p-6 md:p-8">
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                          <div className="max-w-[80%]">
+                            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
+                              {m.ciudad}
+                            </p>
+                            <h4 className="mt-2 text-3xl font-bold leading-tight text-slate-900">
+                              {m.nombre}
+                            </h4>
+                          </div>
+
+                          <div className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
+                            ⭐ {m.rating ?? "Sin nota"}
+                          </div>
+                        </div>
+
+                        <p className="mt-5 text-base leading-7 text-slate-600">
+                          {m.descripcion ||
+                            "Lugar añadido por la comunidad. Aquí irán creciendo sus comentarios, fotos y experiencias reales."}
+                        </p>
+
+                        <div className="mt-4 flex flex-wrap gap-3">
+                          <button
+                            onClick={() => reportarLugar(m.id)}
+                            disabled={lugarReportandoId === m.id}
+                            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            <span>⚠️</span>
+                            <span>
+                              {lugarReportandoId === m.id
+                                ? "Reportando lugar..."
+                                : "Reportar lugar"}
+                            </span>
+                          </button>
+                        </div>
+
+                        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                          <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
+                            <p className="text-slate-500">Acceso o precio</p>
+                            <p className="mt-1 font-semibold text-slate-900">
+                              💶 {m.precio}
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
+                            <p className="text-slate-500">Comentarios</p>
+                            <p className="mt-1 font-semibold text-slate-900">
+                              💬 {m.resenas.length}
+                            </p>
+                          </div>
+
+                          {renderEstadoOpcional(
+                            "Acepta mascotas",
+                            m.acepta_mascotas,
+                            "🐾"
+                          )}
+
+                          {renderEstadoOpcional(
+                            "Parking cerca",
+                            m.parking_cerca,
+                            "🅿️"
+                          )}
+
+                          {renderEstadoOpcional(
+                            "Acceso en coche",
+                            m.acceso_coche,
+                            "🚗"
+                          )}
+                        </div>
+
+                        {fotosUnicas.length > 0 ? (
+                          <div className="mt-6">
+                            <p className="mb-3 text-sm font-semibold text-slate-700">
+                              Fotos compartidas
+                            </p>
+                            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                              {fotosUnicas.map((foto, index) => (
+                                <div
+                                  key={`${m.id}-foto-${index}`}
+                                  className="group overflow-hidden rounded-2xl"
+                                >
+                                  <img
+                                    src={foto}
+                                    alt={`Foto de ${m.nombre}`}
+                                    className="h-24 w-full rounded-2xl object-cover transition duration-300 group-hover:scale-105"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mt-6 rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-4 text-sm text-slate-600">
+                            Todavía no hay fotos compartidas de este lugar. Sé la
+                            primera persona en subir una.
+                          </div>
+                        )}
+
+                        <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+                          <div>
+                            <h5 className="text-xl font-bold text-slate-900">
+                              Comentarios de visitantes
+                            </h5>
+                            <p className="mt-1 text-sm text-slate-500">
+                              ¿Has estado aquí? Cuenta cómo fue tu experiencia.
+                            </p>
+                          </div>
+
+                          <button
+                            onClick={() =>
+                              setMonumentoActivoResena(
+                                monumentoActivoResena === m.id ? null : m.id
+                              )
+                            }
+                            className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                          >
+                            {monumentoActivoResena === m.id
+                              ? "Cerrar comentario"
+                              : "Añadir comentario"}
+                          </button>
+                        </div>
+
+                        {monumentoActivoResena === m.id && (
+                          <div className="mt-5 rounded-3xl border border-orange-100 bg-orange-50/50 p-5">
+                            <div className="mb-4 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+                              Tu comentario puede ayudar a otra persona a decidir si
+                              este lugar merece la pena.
+                            </div>
+
+                            <div className="grid gap-4 md:grid-cols-2">
+                              <input
+                                type="text"
+                                value={usuarioResena}
+                                onChange={(e) => setUsuarioResena(e.target.value)}
+                                placeholder="Tu nombre"
+                                className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
+                              />
+
+                              <div className="md:col-span-2">
+                                <textarea
+                                  value={comentarioResena}
+                                  onChange={(e) => setComentarioResena(e.target.value)}
+                                  placeholder="Cuéntanos qué te gustó, cómo fue el ambiente, si había gente, si repetirías..."
+                                  rows={4}
+                                  className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
+                                />
+                              </div>
+
+                              <div className="md:col-span-2">
+                                <label className="mb-2 block text-sm font-medium text-slate-700">
+                                  Sube una foto de tu experiencia
+                                </label>
+                                <input
+                                  ref={inputFotoResenaRef}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={manejarArchivoResena}
+                                  className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
+                                />
+                                {procesandoFotoResena && (
+                                  <p className="mt-2 text-sm text-slate-500">
+                                    Procesando foto...
+                                  </p>
+                                )}
+                                {fotoResenaArchivo && (
+                                  <img
+                                    src={fotoResenaArchivo}
+                                    alt="Previsualización"
+                                    className="mt-3 h-28 rounded-2xl object-cover"
+                                  />
+                                )}
+                                {!fotoResenaArchivo && !procesandoFotoResena && (
+                                  <p className="mt-2 text-sm text-slate-500">
+                                    Las fotos reales dan mucha más confianza a otros
+                                    visitantes.
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => añadirResena(m.id)}
+                              disabled={guardandoResena}
+                              className="mt-4 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {guardandoResena
+                                ? "Guardando comentario..."
+                                : "Publicar comentario"}
+                            </button>
+                          </div>
+                        )}
+
+                        <div className="mt-6 grid gap-4">
+                          {m.resenas.length === 0 ? (
+                            <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-4 text-sm text-slate-600">
+                              <p className="font-semibold text-slate-900">
+                                Todavía nadie ha contado su experiencia aquí.
+                              </p>
+                              <p className="mt-2">
+                                Sé el primero en comentar y ayuda a otros a saber si
+                                este sitio merece la pena.
+                              </p>
+                            </div>
+                          ) : (
+                            m.resenas.map((r) => (
+                              <div
+                                key={r.id}
+                                className="rounded-3xl border border-orange-100 bg-white p-4 shadow-sm transition hover:shadow-md"
+                              >
+                                <div className="flex items-start gap-4">
+                                  {r.foto ? (
+                                    <img
+                                      src={r.foto}
+                                      alt={r.usuario || "Visitante"}
+                                      className="h-16 w-16 rounded-2xl object-cover"
+                                    />
+                                  ) : (
+                                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-bold text-white shadow-sm">
+                                      {(r.usuario || "V").charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+
+                                  <div className="flex-1">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                      <div>
+                                        <p className="font-bold text-slate-900">
+                                          {r.usuario || "Visitante"}
+                                        </p>
+                                      </div>
+
+                                      <div className="flex flex-col items-start gap-2 sm:items-end">
+                                        <button
+                                          onClick={() => darLike(r.id)}
+                                          disabled={resenaLikeLoadingId === r.id}
+                                          className="inline-flex max-w-full items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-left text-sm font-semibold text-rose-600 transition hover:scale-[1.03] hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                          <span className="text-base">❤️</span>
+                                          <span className="whitespace-normal">
+                                            {resenaLikeLoadingId === r.id
+                                              ? "Actualizando..."
+                                              : getTextoLikes(r.likes)}
+                                          </span>
+                                        </button>
+
+                                        <button
+                                          onClick={() => reportarResena(r.id)}
+                                          disabled={
+                                            resenaReportandoId === r.id ||
+                                            r.reportado === true
+                                          }
+                                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                          <span>⚠️</span>
+                                          <span>
+                                            {r.reportado
+                                              ? "Comentario reportado"
+                                              : resenaReportandoId === r.id
+                                              ? "Reportando..."
+                                              : "Reportar comentario"}
+                                          </span>
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    <p className="mt-3 text-slate-600">
+                                      {r.comentario || "Sin comentario"}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+
+                        {m.fuente && (
+                          <p className="mt-4 text-xs text-slate-400">
+                            Fuente: {m.fuente}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {renderPaginacion && (
+              <div className="mt-8 flex flex-col items-center gap-4">
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <button
+                    onClick={() => setPaginaActual((prev) => Math.max(1, prev - 1))}
+                    disabled={paginaActual === 1}
+                    className="rounded-full border border-orange-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-orange-300 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Anterior
+                  </button>
+
+                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(
+                    (pagina) => (
+                      <button
+                        key={pagina}
+                        onClick={() => setPaginaActual(pagina)}
+                        className={`h-11 min-w-[44px] rounded-full px-4 text-sm font-bold transition ${
+                          paginaActual === pagina
+                            ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-200"
+                            : "border border-orange-200 bg-white text-slate-700 shadow-sm hover:border-orange-300 hover:text-orange-600"
+                        }`}
+                      >
+                        {pagina}
+                      </button>
+                    )
+                  )}
+
+                  <button
+                    onClick={() =>
+                      setPaginaActual((prev) => Math.min(totalPaginas, prev + 1))
+                    }
+                    disabled={paginaActual === totalPaginas}
+                    className="rounded-full border border-orange-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-orange-300 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+        <div className="rounded-[32px] border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-500">
+                Haz crecer la comunidad
+              </p>
+              <h3 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
+                Comparte tus experiencias y ayuda a otros a viajar mejor
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-slate-600 md:text-base">
+                Invita a otras personas a contar sus consejos, recomendaciones y
+                experiencias reales. Cuantas más aportaciones haya, más útil será
+                la web para todo el mundo.
+              </p>
+            </div>
+
+            <div className="flex w-full max-w-md flex-col gap-3">
+              <button
+                onClick={copiarInvitacion}
+                className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
+              >
+                Copiar enlace para invitar
+              </button>
+
+              <p className="text-sm text-slate-500">
+                Comparte el enlace con alguien que pueda aportar una experiencia útil.
+              </p>
+
+              {mensajeCopiado && (
+                <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm font-medium text-orange-700">
+                  {mensajeCopiado}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </section>
@@ -1225,7 +1616,7 @@ ${url}`;
         </div>
       </section>
 
-      <section id="mapa" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+      <section id="mapa" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
         <Mapa
           monumentos={monumentos.map((m) => ({
             id: m.id,
@@ -1235,349 +1626,6 @@ ${url}`;
             longitud: m.longitud,
           }))}
         />
-      </section>
-
-      <section id="lugares" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h3 className="text-3xl font-bold text-slate-900">
-              Lugares descubiertos
-            </h3>
-            <p className="mt-2 text-sm text-slate-500">
-              Lugares compartidos por la comunidad en tiempo real.
-            </p>
-          </div>
-
-          <div className="rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">
-            {monumentosFiltrados.length} lugar(es)
-          </div>
-        </div>
-
-        {cargando ? (
-          <div className="rounded-3xl border border-orange-100 bg-white p-6 text-slate-600 shadow-sm">
-            Cargando lugares...
-          </div>
-        ) : monumentosFiltrados.length === 0 ? (
-          <div className="rounded-3xl border border-orange-100 bg-white p-8 text-slate-600 shadow-sm">
-            <p className="text-lg font-semibold text-slate-900">
-              No hay lugares que coincidan con la búsqueda.
-            </p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Prueba con otra ciudad, otro nombre o sé el primero en compartir un
-              lugar nuevo con la comunidad.
-            </p>
-            <a
-              href="#participa"
-              className="mt-5 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md"
-            >
-              Compartir un lugar
-            </a>
-          </div>
-        ) : (
-          <div className="grid gap-8">
-            {monumentosFiltrados.map((m) => {
-              const fotosValidas = [
-                ...m.fotosLugar,
-                ...m.resenas.map((r) => r.foto).filter(Boolean),
-              ].filter(Boolean) as string[];
-
-              const fotosUnicas = [...new Set(fotosValidas)].slice(0, 4);
-
-              return (
-                <div
-                  key={m.id}
-                  className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100"
-                >
-                  <div className="grid md:grid-cols-[1.08fr_1fr]">
-                    <div className="relative">
-                      <LugarGaleriaRotativa monumento={m} />
-                    </div>
-
-                    <div className="p-6 md:p-8">
-                      <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div className="max-w-[80%]">
-                          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
-                            {m.ciudad}
-                          </p>
-                          <h4 className="mt-2 text-3xl font-bold leading-tight text-slate-900">
-                            {m.nombre}
-                          </h4>
-                        </div>
-
-                        <div className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
-                          ⭐ {m.rating ?? "Sin nota"}
-                        </div>
-                      </div>
-
-                      <p className="mt-5 text-base leading-7 text-slate-600">
-                        {m.descripcion ||
-                          "Lugar añadido por la comunidad. Aquí irán creciendo sus comentarios, fotos y experiencias reales."}
-                      </p>
-
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        <button
-                          onClick={() => reportarLugar(m.id)}
-                          disabled={lugarReportandoId === m.id}
-                          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                          <span>⚠️</span>
-                          <span>
-                            {lugarReportandoId === m.id
-                              ? "Reportando lugar..."
-                              : "Reportar lugar"}
-                          </span>
-                        </button>
-                      </div>
-
-                      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                        <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
-                          <p className="text-slate-500">Acceso o precio</p>
-                          <p className="mt-1 font-semibold text-slate-900">
-                            💶 {m.precio}
-                          </p>
-                        </div>
-
-                        <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
-                          <p className="text-slate-500">Comentarios</p>
-                          <p className="mt-1 font-semibold text-slate-900">
-                            💬 {m.resenas.length}
-                          </p>
-                        </div>
-
-                        {renderEstadoOpcional(
-                          "Acepta mascotas",
-                          m.acepta_mascotas,
-                          "🐾"
-                        )}
-
-                        {renderEstadoOpcional(
-                          "Parking cerca",
-                          m.parking_cerca,
-                          "🅿️"
-                        )}
-
-                        {renderEstadoOpcional(
-                          "Acceso en coche",
-                          m.acceso_coche,
-                          "🚗"
-                        )}
-                      </div>
-
-                      {fotosUnicas.length > 0 ? (
-                        <div className="mt-6">
-                          <p className="mb-3 text-sm font-semibold text-slate-700">
-                            Fotos compartidas
-                          </p>
-                          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                            {fotosUnicas.map((foto, index) => (
-                              <div
-                                key={`${m.id}-foto-${index}`}
-                                className="group overflow-hidden rounded-2xl"
-                              >
-                                <img
-                                  src={foto}
-                                  alt={`Foto de ${m.nombre}`}
-                                  className="h-24 w-full rounded-2xl object-cover transition duration-300 group-hover:scale-105"
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="mt-6 rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-4 text-sm text-slate-600">
-                          Todavía no hay fotos compartidas de este lugar. Sé la
-                          primera persona en subir una.
-                        </div>
-                      )}
-
-                      <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
-                        <div>
-                          <h5 className="text-xl font-bold text-slate-900">
-                            Comentarios de visitantes
-                          </h5>
-                          <p className="mt-1 text-sm text-slate-500">
-                            ¿Has estado aquí? Cuenta cómo fue tu experiencia.
-                          </p>
-                        </div>
-
-                        <button
-                          onClick={() =>
-                            setMonumentoActivoResena(
-                              monumentoActivoResena === m.id ? null : m.id
-                            )
-                          }
-                          className="rounded-full bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                        >
-                          {monumentoActivoResena === m.id
-                            ? "Cerrar comentario"
-                            : "Añadir comentario"}
-                        </button>
-                      </div>
-
-                      {monumentoActivoResena === m.id && (
-                        <div className="mt-5 rounded-3xl border border-orange-100 bg-orange-50/50 p-5">
-                          <div className="mb-4 rounded-2xl bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
-                            Tu comentario puede ayudar a otra persona a decidir si
-                            este lugar merece la pena.
-                          </div>
-
-                          <div className="grid gap-4 md:grid-cols-2">
-                            <input
-                              type="text"
-                              value={usuarioResena}
-                              onChange={(e) => setUsuarioResena(e.target.value)}
-                              placeholder="Tu nombre"
-                              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
-                            />
-
-                            <div className="md:col-span-2">
-                              <textarea
-                                value={comentarioResena}
-                                onChange={(e) => setComentarioResena(e.target.value)}
-                                placeholder="Cuéntanos qué te gustó, cómo fue el ambiente, si había gente, si repetirías..."
-                                rows={4}
-                                className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
-                              />
-                            </div>
-
-                            <div className="md:col-span-2">
-                              <label className="mb-2 block text-sm font-medium text-slate-700">
-                                Sube una foto de tu experiencia
-                              </label>
-                              <input
-                                ref={inputFotoResenaRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={manejarArchivoResena}
-                                className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
-                              />
-                              {procesandoFotoResena && (
-                                <p className="mt-2 text-sm text-slate-500">
-                                  Procesando foto...
-                                </p>
-                              )}
-                              {fotoResenaArchivo && (
-                                <img
-                                  src={fotoResenaArchivo}
-                                  alt="Previsualización"
-                                  className="mt-3 h-28 rounded-2xl object-cover"
-                                />
-                              )}
-                              {!fotoResenaArchivo && !procesandoFotoResena && (
-                                <p className="mt-2 text-sm text-slate-500">
-                                  Las fotos reales dan mucha más confianza a otros
-                                  visitantes.
-                                </p>
-                              )}
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() => añadirResena(m.id)}
-                            disabled={guardandoResena}
-                            className="mt-4 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {guardandoResena
-                              ? "Guardando comentario..."
-                              : "Publicar comentario"}
-                          </button>
-                        </div>
-                      )}
-
-                      <div className="mt-6 grid gap-4">
-                        {m.resenas.length === 0 ? (
-                          <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-4 text-sm text-slate-600">
-                            <p className="font-semibold text-slate-900">
-                              Todavía nadie ha contado su experiencia aquí.
-                            </p>
-                            <p className="mt-2">
-                              Sé el primero en comentar y ayuda a otros a saber si
-                              este sitio merece la pena.
-                            </p>
-                          </div>
-                        ) : (
-                          m.resenas.map((r) => (
-                            <div
-                              key={r.id}
-                              className="rounded-3xl border border-orange-100 bg-white p-4 shadow-sm transition hover:shadow-md"
-                            >
-                              <div className="flex items-start gap-4">
-                                {r.foto ? (
-                                  <img
-                                    src={r.foto}
-                                    alt={r.usuario || "Visitante"}
-                                    className="h-16 w-16 rounded-2xl object-cover"
-                                  />
-                                ) : (
-                                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-bold text-white shadow-sm">
-                                    {(r.usuario || "V").charAt(0).toUpperCase()}
-                                  </div>
-                                )}
-
-                                <div className="flex-1">
-                                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                    <div>
-                                      <p className="font-bold text-slate-900">
-                                        {r.usuario || "Visitante"}
-                                      </p>
-                                    </div>
-
-                                    <div className="flex flex-col items-start gap-2 sm:items-end">
-                                      <button
-                                        onClick={() => darLike(r.id)}
-                                        disabled={resenaLikeLoadingId === r.id}
-                                        className="inline-flex max-w-full items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-left text-sm font-semibold text-rose-600 transition hover:scale-[1.03] hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-                                      >
-                                        <span className="text-base">❤️</span>
-                                        <span className="whitespace-normal">
-                                          {resenaLikeLoadingId === r.id
-                                            ? "Actualizando..."
-                                            : getTextoLikes(r.likes)}
-                                        </span>
-                                      </button>
-
-                                      <button
-                                        onClick={() => reportarResena(r.id)}
-                                        disabled={
-                                          resenaReportandoId === r.id ||
-                                          r.reportado === true
-                                        }
-                                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
-                                      >
-                                        <span>⚠️</span>
-                                        <span>
-                                          {r.reportado
-                                            ? "Comentario reportado"
-                                            : resenaReportandoId === r.id
-                                            ? "Reportando..."
-                                            : "Reportar comentario"}
-                                        </span>
-                                      </button>
-                                    </div>
-                                  </div>
-
-                                  <p className="mt-3 text-slate-600">
-                                    {r.comentario || "Sin comentario"}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-
-                      {m.fuente && (
-                        <p className="mt-4 text-xs text-slate-400">
-                          Fuente: {m.fuente}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </section>
 
       <a
