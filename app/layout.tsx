@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
-import HeaderGlobal from "@/components/HeaderGlobal"; // 👈 IMPORTANTE
+import HeaderGlobal from "@/components/HeaderGlobal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,24 +25,28 @@ export const metadata: Metadata = {
     "Descubre lugares con ambiente en España. Opiniones reales, fotos de visitantes y sitios recomendados por la comunidad.",
   metadataBase: new URL("https://www.monumentosllenos.com"),
   applicationName: "Lugares Llenos",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/logo.png", type: "image/png" },
+    ],
+    shortcut: ["/favicon.ico"],
+    apple: [{ url: "/logo.png", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        
-        {/* ✅ HEADER GLOBAL (CLIENT COMPONENT) */}
         <HeaderGlobal />
 
-        {/* CONTENIDO */}
         {children}
 
-        {/* ANALYTICS */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-K56T07CRK5"
           strategy="afterInteractive"
