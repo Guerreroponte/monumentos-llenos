@@ -7,7 +7,9 @@ export default function HeaderGlobal() {
 
   useEffect(() => {
     if (typeof document === "undefined") return;
+
     document.body.style.overflow = menuMovilAbierto ? "hidden" : "";
+
     return () => {
       document.body.style.overflow = "";
     };
