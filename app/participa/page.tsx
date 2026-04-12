@@ -1,10 +1,17 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 type CategoriaEvento = "grande" | "local";
+
+type FotoSeleccionada = {
+  file: File;
+  preview: string;
+};
+
+const STORAGE_BUCKET = "imagenes";
 
 const SUBTIPOS_GRANDES = [
   "Festival",
@@ -33,6 +40,16 @@ function hoyMasDias(dias: number) {
   return fecha.toISOString().slice(0, 10);
 }
 
+function limpiarNombreArchivo(nombre: string) {
+  return nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9.\-_]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase();
+}
+
 export default function ParticipaPage() {
   const [categoriaEvento, setCategoriaEvento] =
     useState<CategoriaEvento>("local");
@@ -50,9 +67,11 @@ export default function ParticipaPage() {
   const [descripcion, setDescripcion] = useState("");
   const [precio, setPrecio] = useState("");
   const [ambiente, setAmbiente] = useState("");
-  const [imagen, setImagen] = useState("");
   const [enlace, setEnlace] = useState("");
   const [creadoPor, setCreadoPor] = useState("");
+
+  const [fotos, setFotos] = useState<FotoSeleccionada[]>([]);
+  const [subiendoImagenes, setSubiendoImagenes] = useState(false);
 
   const [dificilBebida, setDificilBebida] = useState(false);
   const [parking, setParking] = useState(false);
@@ -63,11 +82,15 @@ export default function ParticipaPage() {
   const [mensajeOk, setMensajeOk] = useState("");
   const [mensajeError, setMensajeError] = useState("");
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const subtipoOptions = useMemo(() => {
     return categoriaEvento === "grande" ? SUBTIPOS_GRANDES : SUBTIPOS_LOCALES;
   }, [categoriaEvento]);
 
   function resetFormulario(nuevaCategoria: CategoriaEvento = categoriaEvento) {
+    fotos.forEach((foto) => URL.revokeObjectURL(foto.preview));
+
     setNombre("");
     setCiudad("");
     setProvincia("");
@@ -81,13 +104,17 @@ export default function ParticipaPage() {
     setDescripcion("");
     setPrecio("");
     setAmbiente("");
-    setImagen("");
     setEnlace("");
     setCreadoPor("");
+    setFotos([]);
     setDificilBebida(false);
     setParking(false);
     setRecomendable(true);
     setDestacado(false);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }
 
   function cambiarCategoria(nuevaCategoria: CategoriaEvento) {
@@ -95,6 +122,75 @@ export default function ParticipaPage() {
     setSubtipo(nuevaCategoria === "grande" ? "Festival" : "Plan local");
     setMensajeOk("");
     setMensajeError("");
+  }
+
+  function handleSeleccionFotos(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+
+    if (!files.length) return;
+
+    const imagenesValidas = files.filter((file) =>
+      file.type.startsWith("image/")
+    );
+
+    if (imagenesValidas.length !== files.length) {
+      setMensajeError("Uno o varios archivos no eran imágenes válidas.");
+    } else {
+      setMensajeError("");
+    }
+
+    const nuevasFotos: FotoSeleccionada[] = imagenesValidas.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setFotos((prev) => [...prev, ...nuevasFotos]);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }
+
+  function quitarFoto(index: number) {
+    setFotos((prev) => {
+      const copia = [...prev];
+      const foto = copia[index];
+
+      if (foto) {
+        URL.revokeObjectURL(foto.preview);
+      }
+
+      copia.splice(index, 1);
+      return copia;
+    });
+  }
+
+  async function subirFotos(files: File[]) {
+    const urls: string[] = [];
+
+    for (let i = 0; i < files.length; i += 1) {
+      const file = files[i];
+      const extensionOriginal = file.name.split(".").pop() || "jpg";
+      const extension = extensionOriginal.toLowerCase();
+      const baseNombre = limpiarNombreArchivo(nombre || file.name || "evento");
+      const ruta = `eventos/${Date.now()}-${i + 1}-${baseNombre}.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(ruta, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(ruta);
+      urls.push(data.publicUrl);
+    }
+
+    return urls;
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -124,54 +220,100 @@ export default function ParticipaPage() {
     }
 
     setLoading(true);
+    setSubiendoImagenes(fotos.length > 0);
 
-    const tipoFinal =
-      categoriaEvento === "grande" ? subtipo || "Evento grande" : subtipo || "Plan local";
+    try {
+      const urlsFotos = fotos.length > 0 ? await subirFotos(fotos.map((f) => f.file)) : [];
 
-    const payload = {
-      nombre: nombre.trim(),
-      ciudad: ciudad.trim(),
-      provincia: provincia.trim() || null,
-      comunidad_autonoma: comunidadAutonoma.trim() || null,
-      tipo: tipoFinal,
-      categoria_evento: categoriaEvento,
-      subtipo: subtipo.trim() || null,
-      fecha_inicio: fechaInicio || null,
-      fecha_fin: fechaFin || null,
-      hora_inicio: horaInicio || null,
-      hora_fin: horaFin || null,
-      ubicacion_detalle: ubicacionDetalle.trim() || null,
-      descripcion: descripcion.trim(),
-      precio: precio.trim() || null,
-      ambiente: ambiente.trim() || null,
-      imagen: imagen.trim() || null,
-      enlace: enlace.trim() || null,
-      creado_por: creadoPor.trim() || null,
-      dificil_bebida: dificilBebida,
-      parking,
-      recomendable,
-      destacado,
-      validado: true,
-      reportado: false,
-    };
+      const imagenPrincipal = urlsFotos[0] ?? null;
 
-    const { error } = await supabase.from("eventos").insert([payload]);
+      const tipoFinal =
+        categoriaEvento === "grande"
+          ? subtipo || "Evento grande"
+          : subtipo || "Plan local";
 
-    if (error) {
-      console.error("Error insertando evento:", error);
-      setMensajeError("No se ha podido guardar. Revisa los campos e inténtalo otra vez.");
+      const payloadEvento = {
+        nombre: nombre.trim(),
+        ciudad: ciudad.trim(),
+        provincia: provincia.trim() || null,
+        comunidad_autonoma: comunidadAutonoma.trim() || null,
+        tipo: tipoFinal,
+        categoria_evento: categoriaEvento,
+        subtipo: subtipo.trim() || null,
+        fecha_inicio: fechaInicio || null,
+        fecha_fin: fechaFin || null,
+        hora_inicio: horaInicio || null,
+        hora_fin: horaFin || null,
+        ubicacion_detalle: ubicacionDetalle.trim() || null,
+        descripcion: descripcion.trim(),
+        precio: precio.trim() || null,
+        ambiente: ambiente.trim() || null,
+        imagen: imagenPrincipal,
+        enlace: enlace.trim() || null,
+        creado_por: creadoPor.trim() || null,
+        dificil_bebida: dificilBebida,
+        parking,
+        recomendable,
+        destacado,
+        validado: true,
+        reportado: false,
+      };
+
+      const { data: eventoInsertado, error: errorEvento } = await supabase
+        .from("eventos")
+        .insert([payloadEvento])
+        .select("id")
+        .single();
+
+      if (errorEvento || !eventoInsertado) {
+        console.error("Error insertando evento:", errorEvento);
+        setMensajeError(
+          "No se ha podido guardar el evento. Revisa los campos e inténtalo otra vez."
+        );
+        setLoading(false);
+        setSubiendoImagenes(false);
+        return;
+      }
+
+      if (urlsFotos.length > 0) {
+        const payloadFotos = urlsFotos.map((url, index) => ({
+          evento_id: eventoInsertado.id,
+          imagen: url,
+          orden: index,
+        }));
+
+        const { error: errorFotos } = await supabase
+          .from("eventos_fotos")
+          .insert(payloadFotos);
+
+        if (errorFotos) {
+          console.error("Error insertando fotos del evento:", errorFotos);
+          setMensajeError(
+            "El evento se guardó, pero hubo un problema guardando sus fotos extra."
+          );
+          setLoading(false);
+          setSubiendoImagenes(false);
+          return;
+        }
+      }
+
+      setMensajeOk(
+        categoriaEvento === "grande"
+          ? "Evento grande enviado correctamente."
+          : "Plan local enviado correctamente."
+      );
+
+      resetFormulario();
       setLoading(false);
-      return;
+      setSubiendoImagenes(false);
+    } catch (error) {
+      console.error("Error subiendo imágenes o guardando evento:", error);
+      setMensajeError(
+        "No se ha podido subir una o varias fotos o guardar el evento. Revisa Storage y vuelve a intentarlo."
+      );
+      setLoading(false);
+      setSubiendoImagenes(false);
     }
-
-    setMensajeOk(
-      categoriaEvento === "grande"
-        ? "Evento grande enviado correctamente."
-        : "Plan local enviado correctamente."
-    );
-
-    resetFormulario();
-    setLoading(false);
   }
 
   return (
@@ -522,17 +664,36 @@ export default function ParticipaPage() {
               </div>
 
               <div className="grid gap-5 md:grid-cols-2">
-                <div>
+                <div className="md:col-span-1">
                   <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Imagen (URL)
+                    Fotos del evento
                   </label>
+
                   <input
-                    type="text"
-                    value={imagen}
-                    onChange={(e) => setImagen(e.target.value)}
-                    placeholder="Opcional"
-                    className="w-full rounded-2xl border border-[#e2e8f0] px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    capture="environment"
+                    onChange={handleSeleccionFotos}
+                    className="hidden"
+                    id="subir-fotos-evento"
                   />
+
+                  <label
+                    htmlFor="subir-fotos-evento"
+                    className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-[#fdba74] bg-[#fff7ed] px-4 py-6 text-center transition hover:bg-[#ffedd5]"
+                  >
+                    <span className="text-sm font-bold text-[#c2410c]">
+                      Subir fotos
+                    </span>
+                    <span className="mt-1 text-xs text-[#7c2d12]">
+                      Pulsa aquí para abrir cámara o galería
+                    </span>
+                    <span className="mt-2 text-xs text-[#9a3412]">
+                      Puedes seleccionar varias
+                    </span>
+                  </label>
                 </div>
 
                 <div>
@@ -548,6 +709,47 @@ export default function ParticipaPage() {
                   />
                 </div>
               </div>
+
+              {fotos.length > 0 && (
+                <div>
+                  <p className="mb-3 text-sm font-semibold text-[#334155]">
+                    Fotos seleccionadas ({fotos.length})
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    {fotos.map((foto, index) => (
+                      <div
+                        key={`${foto.file.name}-${index}`}
+                        className="overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white"
+                      >
+                        <div className="relative">
+                          <img
+                            src={foto.preview}
+                            alt={`Foto ${index + 1}`}
+                            className="h-36 w-full object-cover"
+                          />
+
+                          {index === 0 && (
+                            <span className="absolute left-2 top-2 rounded-full bg-[#f97316] px-2 py-1 text-[10px] font-bold text-white">
+                              Principal
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="p-2">
+                          <button
+                            type="button"
+                            onClick={() => quitarFoto(index)}
+                            className="w-full rounded-xl border border-[#fecaca] px-3 py-2 text-xs font-bold text-[#b91c1c] transition hover:bg-[#fef2f2]"
+                          >
+                            Quitar foto
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#334155]">
@@ -607,7 +809,9 @@ export default function ParticipaPage() {
                   className="inline-flex rounded-full bg-[#f97316] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c] disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {loading
-                    ? "Guardando..."
+                    ? subiendoImagenes
+                      ? "Subiendo fotos y guardando..."
+                      : "Guardando..."
                     : categoriaEvento === "grande"
                     ? "Publicar evento grande"
                     : "Publicar plan local"}
