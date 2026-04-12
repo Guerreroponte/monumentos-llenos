@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase";
+
+const STORAGE_BUCKET = "imagenes";
 
 const Mapa = dynamic(() => import("./Mapa"), {
   ssr: false,
@@ -49,6 +51,14 @@ type ResenaDB = {
   reportado?: boolean | null;
 };
 
+type LugarFotoDB = {
+  id: string;
+  lugar_id?: string | null;
+  imagen?: string | null;
+  orden?: number | null;
+  created_at?: string | null;
+};
+
 type MonumentoUI = {
   id: string;
   nombre: string;
@@ -70,6 +80,12 @@ type MonumentoUI = {
   es_seed?: boolean | null;
   reportado?: boolean | null;
   resenas: ResenaDB[];
+  fotosLugar: string[];
+};
+
+type FotoSeleccionada = {
+  file: File;
+  preview: string;
 };
 
 async function resizeImageToDataUrl(file: File): Promise<string> {
@@ -112,6 +128,16 @@ async function resizeImageToDataUrl(file: File): Promise<string> {
   return canvas.toDataURL("image/jpeg", 0.8);
 }
 
+function limpiarNombreArchivo(nombre: string) {
+  return nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9.\-_]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase();
+}
+
 function getTextoLikes(likes?: number | null) {
   const total = likes || 0;
 
@@ -130,6 +156,7 @@ function LugarGaleriaRotativa({
   const imagenes = useMemo(() => {
     const lista = [
       monumento.imagen,
+      ...monumento.fotosLugar,
       ...monumento.resenas.map((r) => r.foto || null),
     ].filter(Boolean) as string[];
 
@@ -224,9 +251,10 @@ export default function Home() {
   const [rating, setRating] = useState("");
   const [precio, setPrecio] = useState("");
   const [descripcionMonumento, setDescripcionMonumento] = useState("");
-  const [imagenMonumentoArchivo, setImagenMonumentoArchivo] = useState("");
-  const [procesandoFotoMonumento, setProcesandoFotoMonumento] =
-    useState(false);
+  const [fotosLugarSeleccionadas, setFotosLugarSeleccionadas] = useState<
+    FotoSeleccionada[]
+  >([]);
+  const [subiendoFotosLugar, setSubiendoFotosLugar] = useState(false);
 
   const [aceptaMascotas, setAceptaMascotas] = useState("");
   const [accesoCoche, setAccesoCoche] = useState("");
@@ -241,6 +269,9 @@ export default function Home() {
   const [procesandoFotoResena, setProcesandoFotoResena] = useState(false);
 
   const [mensajeCopiado, setMensajeCopiado] = useState("");
+
+  const inputFotosLugarRef = useRef<HTMLInputElement | null>(null);
+  const inputFotoResenaRef = useRef<HTMLInputElement | null>(null);
 
   const convertirOpcionalABooleano = (valor: string): boolean | null => {
     if (valor === "si") return true;
@@ -269,6 +300,7 @@ export default function Home() {
     const ids = monumentosBase.map((m) => m.id).filter(Boolean);
 
     let resenasData: ResenaDB[] = [];
+    let lugaresFotosData: LugarFotoDB[] = [];
 
     if (ids.length > 0) {
       const { data: dataResenas, error: errorResenas } = await supabase
@@ -286,9 +318,22 @@ export default function Home() {
           (r) => r.reportado !== true
         );
       }
+
+      const { data: dataFotosLugar, error: errorFotosLugar } = await supabase
+        .from("lugares_fotos")
+        .select("id, lugar_id, imagen, orden, created_at")
+        .in("lugar_id", ids)
+        .order("orden", { ascending: true });
+
+      if (errorFotosLugar) {
+        console.error("Error cargando fotos de lugares:", errorFotosLugar);
+      } else {
+        lugaresFotosData = (dataFotosLugar || []) as LugarFotoDB[];
+      }
     }
 
     const resenasPorMonumento = new Map<string, ResenaDB[]>();
+    const fotosPorLugar = new Map<string, string[]>();
 
     for (const r of resenasData) {
       const monumentoId = r.monumento_id || "";
@@ -296,6 +341,19 @@ export default function Home() {
         resenasPorMonumento.set(monumentoId, []);
       }
       resenasPorMonumento.get(monumentoId)!.push(r);
+    }
+
+    for (const foto of lugaresFotosData) {
+      const lugarId = foto.lugar_id || "";
+      const imagen = foto.imagen || "";
+
+      if (!lugarId || !imagen) continue;
+
+      if (!fotosPorLugar.has(lugarId)) {
+        fotosPorLugar.set(lugarId, []);
+      }
+
+      fotosPorLugar.get(lugarId)!.push(imagen);
     }
 
     const resultado: MonumentoUI[] = monumentosBase.map((m) => ({
@@ -322,6 +380,7 @@ export default function Home() {
       es_seed: typeof m.es_seed === "boolean" ? m.es_seed : null,
       reportado: typeof m.reportado === "boolean" ? m.reportado : null,
       resenas: resenasPorMonumento.get(m.id) || [],
+      fotosLugar: [...new Set(fotosPorLugar.get(m.id) || [])],
     }));
 
     setMonumentos(resultado);
@@ -341,6 +400,14 @@ export default function Home() {
 
     return () => clearTimeout(timeout);
   }, [mensajeCopiado]);
+
+  useEffect(() => {
+    return () => {
+      fotosLugarSeleccionadas.forEach((foto) => {
+        URL.revokeObjectURL(foto.preview);
+      });
+    };
+  }, [fotosLugarSeleccionadas]);
 
   const monumentosFiltrados = useMemo(() => {
     return monumentos.filter((m) => {
@@ -365,9 +432,10 @@ export default function Home() {
 
   const totalFotos = useMemo(() => {
     return monumentos.reduce((acc, monumento) => {
-      const fotosLugar = monumento.imagen ? 1 : 0;
+      const fotosPrincipales = monumento.imagen ? 1 : 0;
+      const fotosExtraLugar = monumento.fotosLugar.length;
       const fotosResenas = monumento.resenas.filter((r) => r.foto).length;
-      return acc + fotosLugar + fotosResenas;
+      return acc + fotosPrincipales + fotosExtraLugar + fotosResenas;
     }, 0);
   }, [monumentos]);
 
@@ -411,6 +479,92 @@ ${url}`;
     }
   };
 
+  const manejarFotosLugar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+
+    const imagenesValidas = files.filter((file) =>
+      file.type.startsWith("image/")
+    );
+
+    if (imagenesValidas.length !== files.length) {
+      alert("Uno o varios archivos no eran imágenes válidas.");
+    }
+
+    const nuevasFotos: FotoSeleccionada[] = imagenesValidas.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+
+    setFotosLugarSeleccionadas((prev) => [...prev, ...nuevasFotos]);
+
+    if (inputFotosLugarRef.current) {
+      inputFotosLugarRef.current.value = "";
+    }
+  };
+
+  const quitarFotoLugar = (index: number) => {
+    setFotosLugarSeleccionadas((prev) => {
+      const copia = [...prev];
+      const foto = copia[index];
+
+      if (foto) {
+        URL.revokeObjectURL(foto.preview);
+      }
+
+      copia.splice(index, 1);
+      return copia;
+    });
+  };
+
+  const subirFotosLugar = async (files: File[], nombreLugar: string) => {
+    const urls: string[] = [];
+
+    for (let i = 0; i < files.length; i += 1) {
+      const file = files[i];
+      const extensionOriginal = file.name.split(".").pop() || "jpg";
+      const extension = extensionOriginal.toLowerCase();
+      const baseNombre = limpiarNombreArchivo(nombreLugar || file.name || "lugar");
+      const ruta = `lugares/${Date.now()}-${i + 1}-${baseNombre}.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(ruta, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(ruta);
+      urls.push(data.publicUrl);
+    }
+
+    return urls;
+  };
+
+  const limpiarFormularioLugar = () => {
+    fotosLugarSeleccionadas.forEach((foto) => {
+      URL.revokeObjectURL(foto.preview);
+    });
+
+    setNombre("");
+    setCiudad("");
+    setRating("");
+    setPrecio("");
+    setDescripcionMonumento("");
+    setFotosLugarSeleccionadas([]);
+    setAceptaMascotas("");
+    setAccesoCoche("");
+    setParkingCerca("");
+
+    if (inputFotosLugarRef.current) {
+      inputFotosLugarRef.current.value = "";
+    }
+  };
+
   const añadirMonumento = async () => {
     if (!nombre.trim() || !ciudad.trim() || !rating.trim() || !precio.trim()) {
       alert("Completa nombre, ciudad, valoración y acceso o precio.");
@@ -425,56 +579,75 @@ ${url}`;
     }
 
     setGuardandoMonumento(true);
+    setSubiendoFotosLugar(fotosLugarSeleccionadas.length > 0);
 
-    const { error } = await supabase.from("Monumentos").insert([
-      {
-        nombre: nombre.trim(),
-        ciudad: ciudad.trim(),
-        rating: ratingNumero,
-        precio: precio.trim(),
-        imagen: imagenMonumentoArchivo || null,
-        descripcion: descripcionMonumento.trim() || null,
-        acepta_mascotas: convertirOpcionalABooleano(aceptaMascotas),
-        acceso_coche: convertirOpcionalABooleano(accesoCoche),
-        parking_cerca: convertirOpcionalABooleano(parkingCerca),
-      },
-    ]);
+    try {
+      const urlsFotos =
+        fotosLugarSeleccionadas.length > 0
+          ? await subirFotosLugar(
+              fotosLugarSeleccionadas.map((f) => f.file),
+              nombre.trim()
+            )
+          : [];
 
-    if (error) {
-      console.error("Error al guardar lugar:", error);
-      alert(`Error al guardar el lugar: ${error.message}`);
-    } else {
-      setNombre("");
-      setCiudad("");
-      setRating("");
-      setPrecio("");
-      setDescripcionMonumento("");
-      setImagenMonumentoArchivo("");
-      setAceptaMascotas("");
-      setAccesoCoche("");
-      setParkingCerca("");
+      const imagenPrincipal = urlsFotos[0] ?? null;
+
+      const { data: monumentoInsertado, error } = await supabase
+        .from("Monumentos")
+        .insert([
+          {
+            nombre: nombre.trim(),
+            ciudad: ciudad.trim(),
+            rating: ratingNumero,
+            precio: precio.trim(),
+            imagen: imagenPrincipal,
+            descripcion: descripcionMonumento.trim() || null,
+            acepta_mascotas: convertirOpcionalABooleano(aceptaMascotas),
+            acceso_coche: convertirOpcionalABooleano(accesoCoche),
+            parking_cerca: convertirOpcionalABooleano(parkingCerca),
+          },
+        ])
+        .select("id")
+        .single();
+
+      if (error || !monumentoInsertado) {
+        console.error("Error al guardar lugar:", error);
+        alert(`Error al guardar el lugar: ${error?.message || "Error desconocido"}`);
+        setGuardandoMonumento(false);
+        setSubiendoFotosLugar(false);
+        return;
+      }
+
+      if (urlsFotos.length > 0) {
+        const payloadFotos = urlsFotos.map((url, index) => ({
+          lugar_id: monumentoInsertado.id,
+          imagen: url,
+          orden: index,
+        }));
+
+        const { error: errorFotos } = await supabase
+          .from("lugares_fotos")
+          .insert(payloadFotos);
+
+        if (errorFotos) {
+          console.error("Error guardando fotos extra del lugar:", errorFotos);
+          alert("El lugar se guardó, pero hubo un problema con algunas fotos.");
+        }
+      }
+
+      limpiarFormularioLugar();
       await cargarDatos();
+    } catch (error: any) {
+      console.error("Error subiendo fotos del lugar:", error);
+      alert(
+        `No se pudo guardar el lugar o subir sus fotos: ${
+          error?.message || "Error desconocido"
+        }`
+      );
     }
 
     setGuardandoMonumento(false);
-  };
-
-  const manejarArchivoMonumento = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setProcesandoFotoMonumento(true);
-      const dataUrl = await resizeImageToDataUrl(file);
-      setImagenMonumentoArchivo(dataUrl);
-    } catch (error) {
-      console.error("Error procesando foto del lugar:", error);
-      alert("No se pudo procesar la foto del lugar.");
-    } finally {
-      setProcesandoFotoMonumento(false);
-    }
+    setSubiendoFotosLugar(false);
   };
 
   const manejarArchivoResena = async (
@@ -500,6 +673,10 @@ ${url}`;
     setComentarioResena("");
     setFotoResenaArchivo("");
     setMonumentoActivoResena(null);
+
+    if (inputFotoResenaRef.current) {
+      inputFotoResenaRef.current.value = "";
+    }
   };
 
   const añadirResena = async (monumentoId: string) => {
@@ -855,7 +1032,7 @@ ${url}`;
                 Comparte un lugar con la comunidad
               </h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Sube un rincón que merezca la pena, añade una foto real y deja
+                Sube un rincón que merezca la pena, añade fotos reales y deja
                 algo de contexto para ayudar a los demás. Los campos de mascotas,
                 coche y parking siguen siendo opcionales.
               </p>
@@ -943,33 +1120,85 @@ ${url}`;
 
             <div className="md:col-span-2">
               <label className="mb-2 block text-sm font-medium text-slate-700">
-                Sube una foto real del lugar
+                Sube fotos reales del lugar
               </label>
 
               <input
+                ref={inputFotosLugarRef}
                 type="file"
                 accept="image/*"
-                onChange={manejarArchivoMonumento}
-                className="block w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm outline-none"
+                multiple
+                capture="environment"
+                onChange={manejarFotosLugar}
+                className="hidden"
+                id="subir-fotos-lugar"
               />
 
-              {procesandoFotoMonumento && (
+              <label
+                htmlFor="subir-fotos-lugar"
+                className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/60 px-4 py-6 text-center transition hover:bg-orange-100/70"
+              >
+                <span className="text-sm font-bold text-orange-700">
+                  Subir fotos
+                </span>
+                <span className="mt-1 text-xs text-orange-600">
+                  Pulsa aquí para abrir cámara o galería
+                </span>
+                <span className="mt-2 text-xs text-slate-500">
+                  Puedes seleccionar varias. La primera será la principal.
+                </span>
+              </label>
+
+              {subiendoFotosLugar && (
                 <p className="mt-2 text-sm text-slate-500">
-                  Procesando foto del lugar...
+                  Subiendo fotos del lugar...
                 </p>
               )}
 
-              {imagenMonumentoArchivo && (
-                <img
-                  src={imagenMonumentoArchivo}
-                  alt="Previsualización del lugar"
-                  className="mt-3 h-32 rounded-2xl object-cover"
-                />
+              {fotosLugarSeleccionadas.length > 0 && (
+                <div className="mt-4">
+                  <p className="mb-3 text-sm font-semibold text-slate-700">
+                    Fotos seleccionadas ({fotosLugarSeleccionadas.length})
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    {fotosLugarSeleccionadas.map((foto, index) => (
+                      <div
+                        key={`${foto.file.name}-${index}`}
+                        className="overflow-hidden rounded-2xl border border-orange-100 bg-white"
+                      >
+                        <div className="relative">
+                          <img
+                            src={foto.preview}
+                            alt={`Foto ${index + 1}`}
+                            className="h-28 w-full object-cover"
+                          />
+
+                          {index === 0 && (
+                            <span className="absolute left-2 top-2 rounded-full bg-orange-500 px-2 py-1 text-[10px] font-bold text-white">
+                              Principal
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="p-2">
+                          <button
+                            type="button"
+                            onClick={() => quitarFotoLugar(index)}
+                            className="w-full rounded-xl border border-red-200 px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50"
+                          >
+                            Quitar foto
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
 
-              {!imagenMonumentoArchivo && !procesandoFotoMonumento && (
+              {fotosLugarSeleccionadas.length === 0 && !subiendoFotosLugar && (
                 <p className="mt-2 text-sm text-slate-500">
-                  Una foto real suele hacer que más gente entre, mire y comente.
+                  Las fotos reales suelen hacer que más gente entre, mire y comente.
                 </p>
               )}
             </div>
@@ -981,7 +1210,11 @@ ${url}`;
               disabled={guardandoMonumento}
               className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {guardandoMonumento ? "Guardando..." : "Publicar lugar"}
+              {guardandoMonumento
+                ? subiendoFotosLugar
+                  ? "Subiendo fotos y guardando..."
+                  : "Guardando..."
+                : "Publicar lugar"}
             </button>
 
             <p className="text-sm text-slate-500">
@@ -1043,10 +1276,12 @@ ${url}`;
         ) : (
           <div className="grid gap-8">
             {monumentosFiltrados.map((m) => {
-              const fotosValidas = m.resenas
-                .map((r) => r.foto)
-                .filter(Boolean)
-                .slice(0, 4) as string[];
+              const fotosValidas = [
+                ...m.fotosLugar,
+                ...m.resenas.map((r) => r.foto).filter(Boolean),
+              ].filter(Boolean) as string[];
+
+              const fotosUnicas = [...new Set(fotosValidas)].slice(0, 4);
 
               return (
                 <div
@@ -1128,13 +1363,13 @@ ${url}`;
                         )}
                       </div>
 
-                      {fotosValidas.length > 0 ? (
+                      {fotosUnicas.length > 0 ? (
                         <div className="mt-6">
                           <p className="mb-3 text-sm font-semibold text-slate-700">
                             Fotos compartidas
                           </p>
                           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                            {fotosValidas.map((foto, index) => (
+                            {fotosUnicas.map((foto, index) => (
                               <div
                                 key={`${m.id}-foto-${index}`}
                                 className="group overflow-hidden rounded-2xl"
@@ -1210,6 +1445,7 @@ ${url}`;
                                 Sube una foto de tu experiencia
                               </label>
                               <input
+                                ref={inputFotoResenaRef}
                                 type="file"
                                 accept="image/*"
                                 onChange={manejarArchivoResena}
