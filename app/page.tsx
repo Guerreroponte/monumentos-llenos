@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 const STORAGE_BUCKET = "imagenes";
@@ -505,6 +506,16 @@ ${url}`;
       console.error("No se pudo copiar el enlace:", error);
       setMensajeCopiado("No se pudo copiar el enlace");
     }
+  };
+
+  const compartirLugarWhatsApp = (id: string, nombreLugar: string) => {
+    if (typeof window === "undefined") return;
+
+    const url = `${window.location.origin}/lugar/${id}`;
+    const texto = `Mira este lugar en Lugares Llenos 👇\n\n${nombreLugar}\n${url}`;
+    const enlace = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+
+    window.open(enlace, "_blank");
   };
 
   const manejarFotosLugar = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1044,9 +1055,9 @@ ${url}`;
                     className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100"
                   >
                     <div className="grid md:grid-cols-[1.08fr_1fr]">
-                      <div className="relative">
+                      <Link href={`/lugar/${m.id}`} className="relative block">
                         <LugarGaleriaRotativa monumento={m} />
-                      </div>
+                      </Link>
 
                       <div className="p-6 md:p-8">
                         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -1054,9 +1065,11 @@ ${url}`;
                             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
                               {m.ciudad}
                             </p>
-                            <h4 className="mt-2 text-3xl font-bold leading-tight text-slate-900">
-                              {m.nombre}
-                            </h4>
+                            <Link href={`/lugar/${m.id}`} className="block">
+                              <h4 className="mt-2 text-3xl font-bold leading-tight text-slate-900 transition hover:text-orange-600">
+                                {m.nombre}
+                              </h4>
+                            </Link>
                           </div>
 
                           <div className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
@@ -1070,6 +1083,22 @@ ${url}`;
                         </p>
 
                         <div className="mt-4 flex flex-wrap gap-3">
+                          <Link
+                            href={`/lugar/${m.id}`}
+                            className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                          >
+                            <span>🔎</span>
+                            <span>Ver ficha completa</span>
+                          </Link>
+
+                          <button
+                            onClick={() => compartirLugarWhatsApp(m.id, m.nombre)}
+                            className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-100"
+                          >
+                            <span>📲</span>
+                            <span>WhatsApp</span>
+                          </button>
+
                           <button
                             onClick={() => reportarLugar(m.id)}
                             disabled={lugarReportandoId === m.id}
