@@ -140,6 +140,16 @@ function limpiarNombreArchivo(nombre: string) {
     .toLowerCase();
 }
 
+function crearSlug(nombre: string, ciudad: string) {
+  return `${nombre}-${ciudad}`
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 function getTextoLikes(likes?: number | null) {
   const total = likes || 0;
 
@@ -508,10 +518,13 @@ ${url}`;
     }
   };
 
-  const compartirLugarWhatsApp = (id: string, nombreLugar: string) => {
-    if (typeof window === "undefined") return;
+  const compartirLugarWhatsApp = (
+    slug: string | null | undefined,
+    nombreLugar: string
+  ) => {
+    if (typeof window === "undefined" || !slug) return;
 
-    const url = `${window.location.origin}/lugar/${id}`;
+    const url = `${window.location.origin}/lugar/${slug}`;
     const texto = `Mira este lugar en Lugares Llenos 👇\n\n${nombreLugar}\n${url}`;
     const enlace = `https://wa.me/?text=${encodeURIComponent(texto)}`;
 
@@ -630,6 +643,7 @@ ${url}`;
           : [];
 
       const imagenPrincipal = urlsFotos[0] ?? null;
+      const slugGenerado = crearSlug(nombre.trim(), ciudad.trim());
 
       const { data: monumentoInsertado, error } = await supabase
         .from("Monumentos")
@@ -637,6 +651,7 @@ ${url}`;
           {
             nombre: nombre.trim(),
             ciudad: ciudad.trim(),
+            slug: slugGenerado,
             rating: ratingNumero,
             precio: precio.trim(),
             imagen: imagenPrincipal,
@@ -983,7 +998,8 @@ ${url}`;
                   </div>
 
                   <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-700">
-                    {aporte.comentario || "Compartió su experiencia con la comunidad."}
+                    {aporte.comentario ||
+                      "Compartió su experiencia con la comunidad."}
                   </p>
                 </div>
               ))}
@@ -1048,6 +1064,7 @@ ${url}`;
                 ].filter(Boolean) as string[];
 
                 const fotosUnicas = [...new Set(fotosValidas)].slice(0, 4);
+                const hrefLugar = m.slug ? `/lugar/${m.slug}` : "#";
 
                 return (
                   <div
@@ -1055,7 +1072,7 @@ ${url}`;
                     className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100"
                   >
                     <div className="grid md:grid-cols-[1.08fr_1fr]">
-                      <Link href={`/lugar/${m.id}`} className="relative block">
+                      <Link href={hrefLugar} className="relative block">
                         <LugarGaleriaRotativa monumento={m} />
                       </Link>
 
@@ -1065,7 +1082,7 @@ ${url}`;
                             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
                               {m.ciudad}
                             </p>
-                            <Link href={`/lugar/${m.id}`} className="block">
+                            <Link href={hrefLugar} className="block">
                               <h4 className="mt-2 text-3xl font-bold leading-tight text-slate-900 transition hover:text-orange-600">
                                 {m.nombre}
                               </h4>
@@ -1084,7 +1101,7 @@ ${url}`;
 
                         <div className="mt-4 flex flex-wrap gap-3">
                           <Link
-                            href={`/lugar/${m.id}`}
+                            href={hrefLugar}
                             className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                           >
                             <span>🔎</span>
@@ -1092,8 +1109,9 @@ ${url}`;
                           </Link>
 
                           <button
-                            onClick={() => compartirLugarWhatsApp(m.id, m.nombre)}
-                            className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-100"
+                            onClick={() => compartirLugarWhatsApp(m.slug, m.nombre)}
+                            disabled={!m.slug}
+                            className="inline-flex items-center gap-2 rounded-full border border-green-200 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 transition hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             <span>📲</span>
                             <span>WhatsApp</span>

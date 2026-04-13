@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 
 type Lugar = {
   id: string;
+  slug?: string | null;
   nombre?: string | null;
   ciudad?: string | null;
   descripcion?: string | null;
@@ -14,19 +15,19 @@ type Lugar = {
 
 export default function LugarPage() {
   const params = useParams();
-  const id = params?.id as string;
+  const slug = params?.slug as string;
 
   const [lugar, setLugar] = useState<Lugar | null>(null);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    if (!slug) return;
 
     const cargarLugar = async () => {
       const { data, error } = await supabase
         .from("Monumentos")
         .select("*")
-        .eq("id", id)
+        .eq("slug", slug)
         .single();
 
       if (error) {
@@ -40,7 +41,7 @@ export default function LugarPage() {
     };
 
     cargarLugar();
-  }, [id]);
+  }, [slug]);
 
   const compartirWhatsApp = () => {
     if (typeof window === "undefined") return;
