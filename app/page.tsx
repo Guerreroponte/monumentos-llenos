@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -525,7 +526,10 @@ ${url}`;
     if (typeof window === "undefined" || !slug) return;
 
     const url = `${window.location.origin}/lugar/${slug}`;
-    const texto = `Mira este lugar en Lugares Llenos 👇\n\n${nombreLugar}\n${url}`;
+    const texto = `Mira este lugar en Lugares Llenos 👇
+
+${nombreLugar}
+${url}`;
     const enlace = `https://wa.me/?text=${encodeURIComponent(texto)}`;
 
     window.open(enlace, "_blank");
@@ -860,22 +864,26 @@ ${url}`;
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
-      <section className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 md:py-20">
+      <section className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(249,115,22,0.12),transparent_30%)]" />
 
         <div className="max-w-4xl">
           <div className="inline-flex rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm backdrop-blur">
-            📸 Sube tu foto · 💬 Cuenta tu experiencia · ❤️ Ayuda a otros viajeros
+            🔥 Experiencias reales · 📸 Fotos sin filtros · 💬 Comentarios que ayudan
           </div>
 
-          <h2 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
-            Descubre rincones reales y compártelos con la comunidad
-          </h2>
+          <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
+            Esto nadie te lo dice antes de ir:
+            <span className="block text-orange-600">
+              cómo están los sitios de verdad
+            </span>
+          </h1>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600 md:text-xl">
-            Aquí no mandan las fotos perfectas ni las guías impersonales.
-            Mandan las experiencias reales: lugares compartidos por viajeros,
-            fotos subidas por la comunidad y comentarios que ayudan de verdad.
+            Hay lugares que parecen increíbles... hasta que vas y están a
+            reventar. Aquí la gente cuenta la realidad: si hay colas, si merece
+            la pena, si es mejor ir a otra hora o si directamente conviene
+            evitarlo.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
@@ -883,57 +891,190 @@ ${url}`;
               href="#lugares"
               className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
             >
-              Ver lugares de la comunidad
+              Ver lugares reales
             </a>
+
+            <Link
+              href="/eventos"
+              className="rounded-full border border-orange-200 bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
+            >
+              Qué hacer hoy
+            </Link>
 
             <a
               href="#participa"
-              className="rounded-full border border-orange-200 bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
+              className="rounded-full border border-slate-200 bg-slate-900 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:opacity-90"
             >
-              Compartir un lugar
+              Contar mi experiencia
             </a>
           </div>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Lugares compartidos</p>
+            <p className="text-sm font-semibold text-slate-500">
+              Lugares analizados por la comunidad
+            </p>
             <p className="mt-2 text-3xl font-extrabold text-slate-900">
               {monumentos.length}
             </p>
             <p className="mt-2 text-sm text-slate-600">
-              Rincones descubiertos por la comunidad.
+              Sitios compartidos con contexto real, no solo fotos bonitas.
             </p>
           </div>
 
           <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Fotos subidas</p>
+            <p className="text-sm font-semibold text-slate-500">
+              Fotos reales sin filtros
+            </p>
             <p className="mt-2 text-3xl font-extrabold text-slate-900">
               {totalFotos}
             </p>
             <p className="mt-2 text-sm text-slate-600">
-              Imágenes reales compartidas por viajeros.
+              Imágenes de viajeros para ver el ambiente de verdad.
             </p>
           </div>
 
           <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-            <p className="text-sm text-slate-500">Experiencias contadas</p>
+            <p className="text-sm font-semibold text-slate-500">
+              Experiencias útiles contadas
+            </p>
             <p className="mt-2 text-3xl font-extrabold text-slate-900">
               {totalComentarios}
             </p>
             <p className="mt-2 text-sm text-slate-600">
-              Comentarios que ayudan a otros a decidir mejor.
+              Comentarios que ayudan a decidir mejor antes de ir.
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100 lg:col-span-2">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
+                  Empieza por aquí
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                  Qué mirar primero si acabas de entrar
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Si quieres aprovechar la web rápido, empieza por los lugares
+                  con experiencias reales, mira qué hacer hoy y entra en fichas
+                  concretas para ver comentarios y fotos.
+                </p>
+              </div>
+
+              <Link
+                href="/eventos"
+                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+              >
+                Ver eventos y planes
+              </Link>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-3">
+              <a
+                href="#ultimos-aportes"
+                className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
+              >
+                <p className="text-sm font-semibold text-orange-600">
+                  01 · Último movimiento
+                </p>
+                <h3 className="mt-2 text-lg font-bold text-slate-900">
+                  Ver lo último que ha contado la gente
+                </h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Experiencias frescas, fotos y comentarios recientes.
+                </p>
+              </a>
+
+              <a
+                href="#lugares"
+                className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
+              >
+                <p className="text-sm font-semibold text-orange-600">
+                  02 · Lugares reales
+                </p>
+                <h3 className="mt-2 text-lg font-bold text-slate-900">
+                  Explorar sitios y ver su ficha completa
+                </h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Mira fotos, comentarios, acceso, parking y más.
+                </p>
+              </a>
+
+              <Link
+                href="/eventos"
+                className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
+              >
+                <p className="text-sm font-semibold text-orange-600">
+                  03 · Qué hacer hoy
+                </p>
+                <h3 className="mt-2 text-lg font-bold text-slate-900">
+                  Planes pequeños, directos y cercanos
+                </h3>
+                <p className="mt-2 text-sm text-slate-600">
+                  Ideas rápidas para hoy con ambiente real y consejos útiles.
+                </p>
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-orange-100 bg-slate-900 p-6 text-white shadow-lg shadow-orange-100">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-300">
+              Lo que pasa de verdad
+            </p>
+            <h3 className="mt-2 text-2xl font-bold">
+              No es el sitio.
+              <span className="block text-orange-300">Es cuándo vas.</span>
+            </h3>
+
+            <div className="mt-5 space-y-3 text-sm leading-6 text-slate-200">
+              <div className="rounded-2xl bg-white/10 p-4">
+                <p className="font-semibold text-white">
+                  ⚠️ Sitio bonito, mala hora
+                </p>
+                <p className="mt-1">
+                  Un lugar puede merecer muchísimo la pena por la mañana y ser
+                  un caos total por la tarde.
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-white/10 p-4">
+                <p className="font-semibold text-white">
+                  📸 Las fotos no siempre cuentan la verdad
+                </p>
+                <p className="mt-1">
+                  Aquí interesan más las colas, el ambiente, el ruido y si
+                  repetirías o no.
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-white/10 p-4">
+                <p className="font-semibold text-white">
+                  💬 Cuanta más gente aporte, mejor decide todo el mundo
+                </p>
+                <p className="mt-1">
+                  Una experiencia real puede ahorrar una mala visita a otra
+                  persona.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       <section id="buscador" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
         <div className="rounded-3xl border border-orange-100 bg-white/90 p-6 shadow-lg shadow-orange-100">
-          <h3 className="text-2xl font-bold text-slate-900">Buscar lugares</h3>
+          <h2 className="text-2xl font-bold text-slate-900">
+            Buscar lugares y ciudades
+          </h2>
           <p className="mt-2 text-sm text-slate-600">
-            Filtra por nombre del lugar o por ciudad para descubrir aportes de
-            la comunidad.
+            Filtra por nombre o ciudad para encontrar experiencias reales de la
+            comunidad.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -957,15 +1098,19 @@ ${url}`;
       </section>
 
       {ultimosAportes.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+        <section
+          id="ultimos-aportes"
+          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
+        >
           <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h3 className="text-2xl font-bold text-slate-900">
-                  Últimos aportes de la comunidad
-                </h3>
+                <h2 className="text-2xl font-bold text-slate-900">
+                  Últimas experiencias contadas
+                </h2>
                 <p className="mt-2 text-sm text-slate-600">
-                  Lo último que han compartido otros viajeros.
+                  Lo último que ha compartido la comunidad para ayudar a otros a
+                  decidir mejor.
                 </p>
               </div>
             </div>
@@ -1011,11 +1156,11 @@ ${url}`;
       <section id="lugares" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h3 className="text-3xl font-bold text-slate-900">
-              Lugares descubiertos
-            </h3>
+            <h2 className="text-3xl font-bold text-slate-900">
+              Lugares con experiencias reales
+            </h2>
             <p className="mt-2 text-sm text-slate-500">
-              Lugares compartidos por la comunidad en tiempo real.
+              Fotos, comentarios y detalles útiles compartidos por la comunidad.
             </p>
           </div>
 
@@ -1034,8 +1179,8 @@ ${url}`;
               No hay lugares que coincidan con la búsqueda.
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Prueba con otra ciudad, otro nombre o sé el primero en compartir un
-              lugar nuevo con la comunidad.
+              Prueba con otra ciudad, otro nombre o sé la primera persona en
+              compartir un lugar nuevo con la comunidad.
             </p>
             <a
               href="#participa"
@@ -1083,9 +1228,9 @@ ${url}`;
                               {m.ciudad}
                             </p>
                             <Link href={hrefLugar} className="block">
-                              <h4 className="mt-2 text-3xl font-bold leading-tight text-slate-900 transition hover:text-orange-600">
+                              <h3 className="mt-2 text-3xl font-bold leading-tight text-slate-900 transition hover:text-orange-600">
                                 {m.nombre}
-                              </h4>
+                              </h3>
                             </Link>
                           </div>
 
@@ -1194,9 +1339,9 @@ ${url}`;
 
                         <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
                           <div>
-                            <h5 className="text-xl font-bold text-slate-900">
+                            <h4 className="text-xl font-bold text-slate-900">
                               Comentarios de visitantes
-                            </h5>
+                            </h4>
                             <p className="mt-1 text-sm text-slate-500">
                               ¿Has estado aquí? Cuenta cómo fue tu experiencia.
                             </p>
@@ -1293,8 +1438,8 @@ ${url}`;
                                 Todavía nadie ha contado su experiencia aquí.
                               </p>
                               <p className="mt-2">
-                                Sé el primero en comentar y ayuda a otros a saber si
-                                este sitio merece la pena.
+                                Sé la primera persona en comentar y ayuda a otros a
+                                saber si este sitio merece la pena.
                               </p>
                             </div>
                           ) : (
@@ -1430,9 +1575,9 @@ ${url}`;
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-500">
                 Haz crecer la comunidad
               </p>
-              <h3 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
+              <h2 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
                 Comparte tus experiencias y ayuda a otros a viajar mejor
-              </h3>
+              </h2>
               <p className="mt-3 text-sm leading-7 text-slate-600 md:text-base">
                 Invita a otras personas a contar sus consejos, recomendaciones y
                 experiencias reales. Cuantas más aportaciones haya, más útil será
@@ -1466,9 +1611,9 @@ ${url}`;
         <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-3xl">
-              <h3 className="text-2xl font-bold text-slate-900">
+              <h2 className="text-2xl font-bold text-slate-900">
                 Comparte un lugar con la comunidad
-              </h3>
+              </h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Sube un rincón que merezca la pena, añade fotos reales y deja
                 algo de contexto para ayudar a los demás. Los campos de mascotas,
@@ -1664,6 +1809,13 @@ ${url}`;
       </section>
 
       <section id="mapa" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+        <div className="mb-5">
+          <h2 className="text-2xl font-bold text-slate-900">Mapa de lugares</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Explora visualmente los sitios compartidos por la comunidad.
+          </p>
+        </div>
+
         <Mapa
           monumentos={monumentos.map((m) => ({
             id: m.id,
