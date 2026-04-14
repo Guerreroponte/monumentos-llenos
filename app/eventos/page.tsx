@@ -856,8 +856,9 @@ export default function EventosPage() {
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {eventosGrandesDestacados.map((evento) => (
-              <article
+              <Link
                 key={evento.id}
+                href={`/eventos/${evento.id}`}
                 className="group overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="relative">
@@ -910,23 +911,12 @@ export default function EventosPage() {
                   </div>
 
                   <div className="mt-5">
-                    {evento.enlace ? (
-                      <a
-                        href={evento.enlace}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex rounded-full bg-[#f97316] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#ea580c]"
-                      >
-                        Ver evento
-                      </a>
-                    ) : (
-                      <span className="inline-flex rounded-full bg-[#fff7ed] px-4 py-2 text-sm font-semibold text-[#ea580c]">
-                        Próximamente más info
-                      </span>
-                    )}
+                    <span className="inline-flex rounded-full bg-[#f97316] px-4 py-2 text-sm font-semibold text-white">
+                      Ver detalles
+                    </span>
                   </div>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}
@@ -986,9 +976,10 @@ export default function EventosPage() {
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {planesLocalesDestacados.map((evento) => (
-              <article
+              <Link
                 key={evento.id}
-                className="overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm"
+                href={`/eventos/${evento.id}`}
+                className="block overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <img
                   src={evento.imagen}
@@ -1071,23 +1062,12 @@ export default function EventosPage() {
                   </div>
 
                   <div className="mt-5">
-                    {evento.enlace ? (
-                      <a
-                        href={evento.enlace}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex rounded-full border border-[#fed7aa] px-4 py-2 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
-                      >
-                        Ver plan
-                      </a>
-                    ) : (
-                      <span className="inline-flex rounded-full bg-[#f8fafc] px-4 py-2 text-sm font-semibold text-[#64748b]">
-                        Sin enlace externo
-                      </span>
-                    )}
+                    <span className="inline-flex rounded-full border border-[#fed7aa] px-4 py-2 text-sm font-semibold text-[#ea580c] transition group-hover:bg-[#fff7ed]">
+                      Ver detalles
+                    </span>
                   </div>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}
@@ -1109,9 +1089,10 @@ export default function EventosPage() {
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {planesHoy.map((evento) => (
-              <div
+              <Link
                 key={evento.id}
-                className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm"
+                href={`/eventos/${evento.id}`}
+                className="block rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="mb-2 flex flex-wrap gap-2">
                   <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
@@ -1137,7 +1118,7 @@ export default function EventosPage() {
                 <p className="mt-3 line-clamp-2 text-sm text-[#475569]">
                   {evento.descripcion}
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -1159,9 +1140,10 @@ export default function EventosPage() {
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {planesManana.map((evento) => (
-              <div
+              <Link
                 key={evento.id}
-                className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm"
+                href={`/eventos/${evento.id}`}
+                className="block rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="mb-2 flex flex-wrap gap-2">
                   <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
@@ -1187,7 +1169,7 @@ export default function EventosPage() {
                 <p className="mt-3 line-clamp-2 text-sm text-[#475569]">
                   {evento.descripcion}
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -1230,9 +1212,10 @@ export default function EventosPage() {
 
                 <div className="space-y-4">
                   {bloque.eventos.map((evento) => (
-                    <div
+                    <Link
                       key={evento.id}
-                      className="flex gap-4 rounded-2xl border border-[#f1f5f9] p-3"
+                      href={`/eventos/${evento.id}`}
+                      className="flex gap-4 rounded-2xl border border-[#f1f5f9] p-3 transition hover:bg-[#fffaf5]"
                     >
                       <img
                         src={evento.imagen}
@@ -1260,7 +1243,7 @@ export default function EventosPage() {
                           {evento.descripcion}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -1291,9 +1274,10 @@ export default function EventosPage() {
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {eventosFiltrados.map((evento) => (
-              <article
+              <Link
                 key={evento.id}
-                className="overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm"
+                href={`/eventos/${evento.id}`}
+                className="block overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <img
                   src={evento.imagen}
@@ -1370,23 +1354,12 @@ export default function EventosPage() {
                   </div>
 
                   <div className="mt-5">
-                    {evento.enlace ? (
-                      <a
-                        href={evento.enlace}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex rounded-full border border-[#fed7aa] px-4 py-2 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
-                      >
-                        Más información
-                      </a>
-                    ) : (
-                      <span className="inline-flex rounded-full bg-[#f8fafc] px-4 py-2 text-sm font-semibold text-[#64748b]">
-                        Sin enlace externo
-                      </span>
-                    )}
+                    <span className="inline-flex rounded-full border border-[#fed7aa] px-4 py-2 text-sm font-semibold text-[#ea580c] transition group-hover:bg-[#fff7ed]">
+                      Ver detalles
+                    </span>
                   </div>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}
