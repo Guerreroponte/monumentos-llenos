@@ -5,11 +5,24 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
+type Comentario = {
+  id: string;
+  texto: string;
+  autor?: string | null;
+  created_at: string;
+};
+
 export default function EventoPage() {
   const params = useParams();
   const id = params?.id as string;
 
   const [evento, setEvento] = useState<any>(null);
+  const [comentarios, setComentarios] = useState<Comentario[]>([]);
+  const [textoComentario, setTextoComentario] = useState("");
+  const [autorComentario, setAutorComentario] = useState("");
+  const [enviandoComentario, setEnviandoComentario] = useState(false);
+  const [errorComentario, setErrorComentario] = useState("");
+  const [comentarioEnviado, setComentarioEnviado] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -24,14 +37,83 @@ export default function EventoPage() {
       if (data) setEvento(data);
     };
 
+    const cargarComentarios = async () => {
+      const { data, error } = await supabase
+        .from("comentarios_eventos")
+        .select("*")
+        .eq("evento_id", id)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setComentarios(data);
+      }
+    };
+
     cargarEvento();
+    cargarComentarios();
   }, [id]);
 
   const compartirWhatsApp = () => {
+    if (!evento) return;
+
     const url = window.location.href;
     const texto = `Mira este plan: ${evento.nombre} (${evento.ciudad}) 👉 ${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
   };
+
+  const enviarComentario = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const textoLimpio = textoComentario.trim();
+    const autorLimpio = autorComentario.trim();
+
+    setErrorComentario("");
+    setComentarioEnviado(false);
+
+    if (!textoLimpio) {
+      setErrorComentario("Escribe un comentario antes de enviarlo.");
+      return;
+    }
+
+    setEnviandoComentario(true);
+
+    const { data, error } = await supabase
+      .from("comentarios_eventos")
+      .insert([
+        {
+          evento_id: id,
+          texto: textoLimpio,
+          autor: autorLimpio || null,
+        },
+      ])
+      .select()
+      .single();
+
+    setEnviandoComentario(false);
+
+    if (error) {
+      setErrorComentario("No se pudo enviar el comentario.");
+      return;
+    }
+
+    if (data) {
+      setComentarios((prev) => [data, ...prev]);
+      setTextoComentario("");
+      setAutorComentario("");
+      setComentarioEnviado(true);
+    }
+  };
+
+  function formatearFechaComentario(fecha: string) {
+    const d = new Date(fecha);
+    if (Number.isNaN(d.getTime())) return "";
+
+    return d.toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
 
   if (!evento) {
     return (
@@ -109,7 +191,9 @@ export default function EventoPage() {
 
               <p>
                 📅 {evento.fecha_inicio || "Fecha por confirmar"}
-                {evento.hora_inicio ? ` · 🕒 ${String(evento.hora_inicio).slice(0, 5)}` : ""}
+                {evento.hora_inicio
+                  ? ` · 🕒 ${String(evento.hora_inicio).slice(0, 5)}`
+                  : ""}
               </p>
             </div>
 
@@ -176,9 +260,85 @@ export default function EventoPage() {
             ¿Cómo estaba este plan?
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#64748b]">
-            En el siguiente paso metemos aquí los comentarios para que la gente pueda
-            contar si estaba lleno, normal, tranquilo o si mereció la pena.
+            Cuéntalo en una frase rápida. Ayuda más una experiencia real que una descripción perfecta.
           </p>
+
+          <form onSubmit={enviarComentario} className="mt-5 space-y-4">
+            <input
+              type="text"
+              value={autorComentario}
+              onChange={(e) => setAutorComentario(e.target.value)}
+              placeholder="Tu nombre (opcional)"
+              className="w-full rounded-2xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+            />
+
+            <textarea
+              value={textoComentario}
+              onChange={(e) => setTextoComentario(e.target.value)}
+              placeholder="Ejemplo: Fui ayer y estaba hasta arriba, mejor ir pronto."
+              rows={4}
+              className="w-full rounded-2xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+            />
+
+            {errorComentario && (
+              <p className="text-sm font-medium text-[#b91c1c]">
+                {errorComentario}
+              </p>
+            )}
+
+            {comentarioEnviado && (
+              <p className="text-sm font-medium text-[#166534]">
+                Comentario enviado.
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={enviandoComentario}
+              className="inline-flex rounded-full bg-[#f97316] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {enviandoComentario ? "Enviando..." : "Enviar comentario"}
+            </button>
+          </form>
+        </div>
+
+        <div className="mt-6 rounded-3xl border border-[#e5e7eb] bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-xl font-bold text-[#334155]">
+              Comentarios reales
+            </h2>
+            <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-semibold text-[#ea580c]">
+              {comentarios.length} comentario(s)
+            </span>
+          </div>
+
+          {comentarios.length === 0 ? (
+            <p className="text-sm leading-6 text-[#64748b]">
+              Todavía no hay comentarios. Sé el primero en contar cómo estaba este plan.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {comentarios.map((comentario) => (
+                <article
+                  key={comentario.id}
+                  className="rounded-2xl border border-[#f1f5f9] bg-[#fffaf7] p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-bold text-[#334155]">
+                      {comentario.autor?.trim() || "Anónimo"}
+                    </p>
+                    <p className="text-xs text-[#64748b]">
+                      {formatearFechaComentario(comentario.created_at)}
+                    </p>
+                  </div>
+
+                  <p className="mt-2 text-sm leading-6 text-[#475569]">
+                    {comentario.texto}
+                  </p>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </main>
