@@ -30,6 +30,11 @@ type EventoDB = {
   recomendable?: boolean | null;
 };
 
+type ComentarioEventoDB = {
+  id: string;
+  evento_id: string;
+};
+
 type CategoriaEvento = "grande" | "local";
 
 type EventoUI = {
@@ -55,6 +60,7 @@ type EventoUI = {
   dificilBebida: boolean;
   parking: boolean;
   recomendable: boolean;
+  comentariosCount: number;
 };
 
 const FALLBACKS_EVENTOS = [
@@ -245,6 +251,12 @@ function textoHoraEvento(e: EventoUI) {
   return "";
 }
 
+function textoComentarios(count: number) {
+  if (count === 0) return "Sin comentarios";
+  if (count === 1) return "1 comentario";
+  return `${count} comentarios`;
+}
+
 export default function EventosPage() {
   const [eventos, setEventos] = useState<EventoUI[]>([]);
   const [loading, setLoading] = useState(true);
@@ -264,21 +276,33 @@ export default function EventosPage() {
     async function cargarEventos() {
       setLoading(true);
 
-      const { data, error } = await supabase
-        .from("eventos")
-        .select("*")
-        .order("fecha_inicio", { ascending: true });
+      const [{ data: eventosData, error: eventosError }, { data: comentariosData, error: comentariosError }] =
+        await Promise.all([
+          supabase.from("eventos").select("*").order("fecha_inicio", { ascending: true }),
+          supabase.from("comentarios_eventos").select("id, evento_id"),
+        ]);
 
       if (!activo) return;
 
-      if (error) {
-        console.error("Error cargando eventos:", error);
+      if (eventosError) {
+        console.error("Error cargando eventos:", eventosError);
         setEventos([]);
         setLoading(false);
         return;
       }
 
-      const eventosMapeados: EventoUI[] = ((data as EventoDB[] | null) ?? []).map(
+      if (comentariosError) {
+        console.error("Error cargando comentarios de eventos:", comentariosError);
+      }
+
+      const comentariosPorEvento = new Map<string, number>();
+
+      ((comentariosData as ComentarioEventoDB[] | null) ?? []).forEach((comentario) => {
+        const actual = comentariosPorEvento.get(comentario.evento_id) ?? 0;
+        comentariosPorEvento.set(comentario.evento_id, actual + 1);
+      });
+
+      const eventosMapeados: EventoUI[] = ((eventosData as EventoDB[] | null) ?? []).map(
         (e) => ({
           id: e.id,
           nombre: normalizarTexto(e.nombre) || "Evento sin nombre",
@@ -305,6 +329,7 @@ export default function EventosPage() {
           dificilBebida: Boolean(e.dificil_bebida),
           parking: Boolean(e.parking),
           recomendable: e.recomendable !== false,
+          comentariosCount: comentariosPorEvento.get(e.id) ?? 0,
         })
       );
 
@@ -882,6 +907,12 @@ export default function EventosPage() {
                 </div>
 
                 <div className="p-5">
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                      💬 {textoComentarios(evento.comentariosCount)}
+                    </span>
+                  </div>
+
                   <h3 className="text-xl font-bold text-[#334155]">
                     {evento.nombre}
                   </h3>
@@ -1014,6 +1045,10 @@ export default function EventosPage() {
                         Recomendado
                       </span>
                     )}
+
+                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                      💬 {textoComentarios(evento.comentariosCount)}
+                    </span>
                   </div>
 
                   <h3 className="text-lg font-bold text-[#334155]">
@@ -1101,6 +1136,9 @@ export default function EventosPage() {
                   <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
                     {evento.subtipo || evento.tipo}
                   </span>
+                  <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                    💬 {textoComentarios(evento.comentariosCount)}
+                  </span>
                 </div>
 
                 <h3 className="text-lg font-bold text-[#334155]">{evento.nombre}</h3>
@@ -1151,6 +1189,9 @@ export default function EventosPage() {
                   </span>
                   <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
                     {evento.subtipo || evento.tipo}
+                  </span>
+                  <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                    💬 {textoComentarios(evento.comentariosCount)}
                   </span>
                 </div>
 
@@ -1224,9 +1265,14 @@ export default function EventosPage() {
                       />
 
                       <div className="min-w-0 flex-1">
-                        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f97316]">
-                          {evento.subtipo || evento.tipo}
-                        </p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f97316]">
+                            {evento.subtipo || evento.tipo}
+                          </p>
+                          <span className="rounded-full bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold text-[#475569]">
+                            💬 {textoComentarios(evento.comentariosCount)}
+                          </span>
+                        </div>
 
                         <h4 className="mt-1 truncate text-base font-bold text-[#334155]">
                           {evento.nombre}
@@ -1318,6 +1364,10 @@ export default function EventosPage() {
                         Mañana
                       </span>
                     )}
+
+                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                      💬 {textoComentarios(evento.comentariosCount)}
+                    </span>
                   </div>
 
                   <h3 className="text-lg font-bold text-[#334155]">
