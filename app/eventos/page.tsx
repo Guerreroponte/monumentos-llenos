@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 
 type EventoDB = {
   id: string;
+  slug?: string | null;
   created_at?: string | null;
   nombre?: string | null;
   ciudad?: string | null;
@@ -39,6 +40,7 @@ type CategoriaEvento = "grande" | "local";
 
 type EventoUI = {
   id: string;
+  slug: string;
   nombre: string;
   ciudad: string;
   provincia: string;
@@ -276,11 +278,13 @@ export default function EventosPage() {
     async function cargarEventos() {
       setLoading(true);
 
-      const [{ data: eventosData, error: eventosError }, { data: comentariosData, error: comentariosError }] =
-        await Promise.all([
-          supabase.from("eventos").select("*").order("fecha_inicio", { ascending: true }),
-          supabase.from("comentarios_eventos").select("id, evento_id"),
-        ]);
+      const [
+        { data: eventosData, error: eventosError },
+        { data: comentariosData, error: comentariosError },
+      ] = await Promise.all([
+        supabase.from("eventos").select("*").order("fecha_inicio", { ascending: true }),
+        supabase.from("comentarios_eventos").select("id, evento_id"),
+      ]);
 
       if (!activo) return;
 
@@ -305,14 +309,14 @@ export default function EventosPage() {
       const eventosMapeados: EventoUI[] = ((eventosData as EventoDB[] | null) ?? []).map(
         (e) => ({
           id: e.id,
+          slug: normalizarTexto(e.slug) || e.id,
           nombre: normalizarTexto(e.nombre) || "Evento sin nombre",
           ciudad: normalizarTexto(e.ciudad) || "Ciudad por confirmar",
           provincia: normalizarTexto(e.provincia),
           comunidad: normalizarTexto(e.comunidad_autonoma),
           tipo: normalizarTexto(e.tipo) || "Evento",
           subtipo: normalizarTexto(e.subtipo),
-          categoriaEvento:
-            e.categoria_evento === "local" ? "local" : "grande",
+          categoriaEvento: e.categoria_evento === "local" ? "local" : "grande",
           fechaInicio: e.fecha_inicio ?? null,
           fechaFin: e.fecha_fin ?? null,
           horaInicio: e.hora_inicio ?? null,
@@ -883,7 +887,7 @@ export default function EventosPage() {
             {eventosGrandesDestacados.map((evento) => (
               <Link
                 key={evento.id}
-                href={`/eventos/${evento.id}`}
+                href={`/eventos/${evento.slug}`}
                 className="group overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="relative">
@@ -1009,7 +1013,7 @@ export default function EventosPage() {
             {planesLocalesDestacados.map((evento) => (
               <Link
                 key={evento.id}
-                href={`/eventos/${evento.id}`}
+                href={`/eventos/${evento.slug}`}
                 className="block overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <img
@@ -1126,7 +1130,7 @@ export default function EventosPage() {
             {planesHoy.map((evento) => (
               <Link
                 key={evento.id}
-                href={`/eventos/${evento.id}`}
+                href={`/eventos/${evento.slug}`}
                 className="block rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="mb-2 flex flex-wrap gap-2">
@@ -1180,7 +1184,7 @@ export default function EventosPage() {
             {planesManana.map((evento) => (
               <Link
                 key={evento.id}
-                href={`/eventos/${evento.id}`}
+                href={`/eventos/${evento.slug}`}
                 className="block rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="mb-2 flex flex-wrap gap-2">
@@ -1255,7 +1259,7 @@ export default function EventosPage() {
                   {bloque.eventos.map((evento) => (
                     <Link
                       key={evento.id}
-                      href={`/eventos/${evento.id}`}
+                      href={`/eventos/${evento.slug}`}
                       className="flex gap-4 rounded-2xl border border-[#f1f5f9] p-3 transition hover:bg-[#fffaf5]"
                     >
                       <img
@@ -1322,7 +1326,7 @@ export default function EventosPage() {
             {eventosFiltrados.map((evento) => (
               <Link
                 key={evento.id}
-                href={`/eventos/${evento.id}`}
+                href={`/eventos/${evento.slug}`}
                 className="block overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <img

@@ -12,11 +12,67 @@ type Comentario = {
   created_at: string;
 };
 
+type Evento = {
+  id: string;
+  slug?: string | null;
+  nombre?: string | null;
+  ciudad?: string | null;
+  ubicacion_detalle?: string | null;
+  fecha_inicio?: string | null;
+  fecha_fin?: string | null;
+  hora_inicio?: string | null;
+  hora_fin?: string | null;
+  descripcion?: string | null;
+  imagen?: string | null;
+  enlace?: string | null;
+  tipo?: string | null;
+  subtipo?: string | null;
+  categoria_evento?: string | null;
+  precio?: string | null;
+  ambiente?: string | null;
+  dificil_bebida?: boolean | null;
+  parking?: boolean | null;
+  recomendable?: boolean | null;
+};
+
+function formatearFecha(fecha?: string | null) {
+  if (!fecha) return "Fecha por confirmar";
+
+  const d = new Date(fecha);
+  if (Number.isNaN(d.getTime())) return "Fecha por confirmar";
+
+  return d.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function formatearHora(hora?: string | null) {
+  if (!hora) return "";
+  return String(hora).slice(0, 5);
+}
+
+function textoFechaEvento(evento: Evento) {
+  const inicio = formatearFecha(evento.fecha_inicio);
+  const fin = formatearFecha(evento.fecha_fin);
+
+  if (
+    evento.fecha_inicio &&
+    evento.fecha_fin &&
+    evento.fecha_inicio !== evento.fecha_fin
+  ) {
+    return `${inicio} - ${fin}`;
+  }
+
+  return inicio;
+}
+
 export default function EventoPage() {
   const params = useParams();
-  const id = params?.id as string;
+  const slug = params?.slug as string;
 
-  const [evento, setEvento] = useState<any>(null);
+  const [evento, setEvento] = useState<Evento | null>(null);
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [textoComentario, setTextoComentario] = useState("");
   const [autorComentario, setAutorComentario] = useState("");
@@ -25,23 +81,33 @@ export default function EventoPage() {
   const [comentarioEnviado, setComentarioEnviado] = useState(false);
 
   useEffect(() => {
-    if (!id) return;
+    if (!slug) return;
 
     const cargarEvento = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("eventos")
         .select("*")
-        .eq("id", id)
+        .eq("slug", slug)
         .single();
 
-      if (data) setEvento(data);
+      if (!error && data) {
+        setEvento(data);
+      } else {
+        setEvento(null);
+      }
     };
+
+    cargarEvento();
+  }, [slug]);
+
+  useEffect(() => {
+    if (!evento?.id) return;
 
     const cargarComentarios = async () => {
       const { data, error } = await supabase
         .from("comentarios_eventos")
         .select("*")
-        .eq("evento_id", id)
+        .eq("evento_id", evento.id)
         .order("created_at", { ascending: false });
 
       if (!error && data) {
@@ -49,9 +115,8 @@ export default function EventoPage() {
       }
     };
 
-    cargarEvento();
     cargarComentarios();
-  }, [id]);
+  }, [evento?.id]);
 
   const compartirWhatsApp = () => {
     if (!evento) return;
@@ -75,13 +140,18 @@ export default function EventoPage() {
       return;
     }
 
+    if (!evento?.id) {
+      setErrorComentario("No se encontró el evento.");
+      return;
+    }
+
     setEnviandoComentario(true);
 
     const { data, error } = await supabase
       .from("comentarios_eventos")
       .insert([
         {
-          evento_id: id,
+          evento_id: evento.id,
           texto: textoLimpio,
           autor: autorLimpio || null,
         },
@@ -139,8 +209,8 @@ export default function EventoPage() {
 
         <div className="overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm">
           <img
-            src={evento.imagen}
-            alt={evento.nombre}
+            src={evento.imagen || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80"}
+            alt={evento.nombre || "Evento"}
             className="h-72 w-full object-cover"
           />
 
@@ -180,25 +250,28 @@ export default function EventoPage() {
             </div>
 
             <h1 className="text-3xl font-extrabold leading-tight text-[#334155]">
-              {evento.nombre}
+              {evento.nombre || "Evento"}
             </h1>
 
             <div className="mt-3 space-y-2 text-sm text-[#64748b]">
               <p>
-                📍 {evento.ciudad}
+                📍 {evento.ciudad || "Ciudad por confirmar"}
                 {evento.ubicacion_detalle ? ` · ${evento.ubicacion_detalle}` : ""}
               </p>
 
               <p>
-                📅 {evento.fecha_inicio || "Fecha por confirmar"}
+                📅 {textoFechaEvento(evento)}
                 {evento.hora_inicio
-                  ? ` · 🕒 ${String(evento.hora_inicio).slice(0, 5)}`
+                  ? ` · 🕒 ${formatearHora(evento.hora_inicio)}`
+                  : ""}
+                {evento.hora_fin
+                  ? ` - ${formatearHora(evento.hora_fin)}`
                   : ""}
               </p>
             </div>
 
             <p className="mt-5 text-base leading-7 text-[#475569]">
-              {evento.descripcion}
+              {evento.descripcion || "Sin descripción disponible."}
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
