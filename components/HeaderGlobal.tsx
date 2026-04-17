@@ -72,7 +72,7 @@ export default function HeaderGlobal() {
                 Buscar
               </a>
               <a
-                href="/#participa"
+                href="/participa"
                 className="rounded-full bg-orange-500 px-4 py-2 text-white transition hover:bg-orange-600"
               >
                 Participa
@@ -150,7 +150,7 @@ export default function HeaderGlobal() {
 
                   <div className="mt-3 border-t border-[#f1f5f9] pt-3">
                     <a
-                      href="/#participa"
+                      href="/participa"
                       onClick={cerrarMenuMovil}
                       className="block rounded-full bg-orange-500 px-4 py-3 text-center text-base font-bold text-white transition hover:bg-orange-600"
                     >
