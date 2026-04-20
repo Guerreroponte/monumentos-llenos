@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -84,6 +83,16 @@ type MonumentoUI = {
   reportado?: boolean | null;
   resenas: ResenaDB[];
   fotosLugar: string[];
+};
+
+type EventoUI = {
+  id: string;
+  nombre: string;
+  ciudad: string;
+  fecha_inicio?: string | null;
+  descripcion?: string | null;
+  tipo?: string | null;
+  slug?: string | null;
 };
 
 type FotoSeleccionada = {
@@ -243,6 +252,7 @@ function LugarGaleriaRotativa({
 
 export default function Home() {
   const [monumentos, setMonumentos] = useState<MonumentoUI[]>([]);
+  const [eventosHoy, setEventosHoy] = useState<EventoUI[]>([]);
   const [cargando, setCargando] = useState(true);
   const [guardandoMonumento, setGuardandoMonumento] = useState(false);
   const [guardandoResena, setGuardandoResena] = useState(false);
@@ -401,8 +411,28 @@ export default function Home() {
     setCargando(false);
   };
 
+  const cargarEventosHoy = async () => {
+    const hoy = new Date().toISOString().split("T")[0];
+
+    const { data, error } = await supabase
+      .from("eventos")
+      .select("id, nombre, ciudad, fecha_inicio, descripcion, tipo, slug, reportado")
+      .eq("fecha_inicio", hoy)
+      .eq("reportado", false)
+      .order("created_at", { ascending: false })
+      .limit(3);
+
+    if (error) {
+      console.error("Error cargando eventos de hoy:", error);
+      return;
+    }
+
+    setEventosHoy((data || []) as EventoUI[]);
+  };
+
   useEffect(() => {
     cargarDatos();
+    cargarEventosHoy();
   }, []);
 
   useEffect(() => {
@@ -1146,6 +1176,75 @@ ${url}`;
                     {aporte.comentario ||
                       "Compartió su experiencia con la comunidad."}
                   </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {eventosHoy.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
+                  Hoy mismo
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                  Qué hacer hoy
+                </h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  Planes rápidos y recientes para quien entra buscando algo ya.
+                </p>
+              </div>
+
+              <Link
+                href="/eventos"
+                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+              >
+                Ver todos los eventos
+              </Link>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {eventosHoy.map((evento) => (
+                <div
+                  key={evento.id}
+                  className="rounded-3xl border border-orange-100 bg-orange-50/40 p-5 transition hover:border-orange-200 hover:bg-orange-50"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+                      Hoy
+                    </span>
+
+                    {evento.tipo && (
+                      <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                        {evento.tipo}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
+                    {evento.nombre}
+                  </h3>
+
+                  <p className="mt-2 text-sm font-medium text-slate-500">
+                    📍 {evento.ciudad}
+                  </p>
+
+                  <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
+                    {evento.descripcion ||
+                      "Plan publicado para hoy en la comunidad."}
+                  </p>
+
+                  <Link
+                    href="/eventos"
+                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700"
+                  >
+                    <span>Ver evento</span>
+                    <span>→</span>
+                  </Link>
                 </div>
               ))}
             </div>
