@@ -416,7 +416,9 @@ export default function Home() {
 
     const { data, error } = await supabase
       .from("eventos")
-      .select("id, nombre, ciudad, fecha_inicio, descripcion, tipo, slug, reportado")
+      .select(
+        "id, nombre, ciudad, fecha_inicio, descripcion, tipo, slug, reportado"
+      )
       .eq("fecha_inicio", hoy)
       .eq("reportado", false)
       .order("created_at", { ascending: false })
@@ -1208,45 +1210,49 @@ ${url}`;
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {eventosHoy.map((evento) => (
-                <div
-                  key={evento.id}
-                  className="rounded-3xl border border-orange-100 bg-orange-50/40 p-5 transition hover:border-orange-200 hover:bg-orange-50"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-                      Hoy
-                    </span>
+              {eventosHoy.map((evento) => {
+                const hrefEvento = evento.slug
+                  ? `/eventos/${evento.slug}`
+                  : "/eventos";
 
-                    {evento.tipo && (
-                      <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
-                        {evento.tipo}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
-                    {evento.nombre}
-                  </h3>
-
-                  <p className="mt-2 text-sm font-medium text-slate-500">
-                    📍 {evento.ciudad}
-                  </p>
-
-                  <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
-                    {evento.descripcion ||
-                      "Plan publicado para hoy en la comunidad."}
-                  </p>
-
+                return (
                   <Link
-                    href="/eventos"
-                    className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700"
+                    key={evento.id}
+                    href={hrefEvento}
+                    className="block rounded-3xl border border-orange-100 bg-orange-50/40 p-5 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
                   >
-                    <span>Ver evento</span>
-                    <span>→</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+                        Hoy
+                      </span>
+
+                      {evento.tipo && (
+                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                          {evento.tipo}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
+                      {evento.nombre}
+                    </h3>
+
+                    <p className="mt-2 text-sm font-medium text-slate-500">
+                      📍 {evento.ciudad}
+                    </p>
+
+                    <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
+                      {evento.descripcion ||
+                        "Plan publicado para hoy en la comunidad."}
+                    </p>
+
+                    <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700">
+                      <span>Ver evento</span>
+                      <span>→</span>
+                    </div>
                   </Link>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
