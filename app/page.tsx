@@ -85,6 +85,10 @@ type MonumentoUI = {
   fotosLugar: string[];
 };
 
+type ComentarioEventoUI = {
+  id: string;
+};
+
 type EventoUI = {
   id: string;
   nombre: string;
@@ -93,6 +97,7 @@ type EventoUI = {
   descripcion?: string | null;
   tipo?: string | null;
   slug?: string | null;
+  comentarios_eventos?: ComentarioEventoUI[];
 };
 
 type FotoSeleccionada = {
@@ -168,6 +173,18 @@ function getTextoLikes(likes?: number | null) {
   }
 
   return `A ${total} personas les ha gustado este comentario`;
+}
+
+function getTextoComentariosEvento(total?: number) {
+  if (!total || total === 0) {
+    return "💬 Sin comentarios todavía";
+  }
+
+  if (total === 1) {
+    return "💬 1 comentario";
+  }
+
+  return `💬 ${total} comentarios`;
 }
 
 function LugarGaleriaRotativa({
@@ -267,7 +284,7 @@ export default function Home() {
   );
 
   const [busquedaNombre, setBusquedaNombre] = useState("");
-  const [busquedaCiudad, setBusquedaCiudad] = useState("");
+  const [busquedaCiudad, setBusquedaciudad] = useState("");
   const [paginaActual, setPaginaActual] = useState(1);
 
   const [nombre, setNombre] = useState("");
@@ -416,9 +433,16 @@ export default function Home() {
 
     const { data, error } = await supabase
       .from("eventos")
-      .select(
-        "id, nombre, ciudad, fecha_inicio, descripcion, tipo, slug, reportado"
-      )
+      .select(`
+        id,
+        nombre,
+        ciudad,
+        fecha_inicio,
+        descripcion,
+        tipo,
+        slug,
+        comentarios_eventos ( id )
+      `)
       .eq("fecha_inicio", hoy)
       .eq("reportado", false)
       .order("created_at", { ascending: false })
@@ -429,7 +453,10 @@ export default function Home() {
       return;
     }
 
-    setEventosHoy((data || []) as EventoUI[]);
+    setEventosHoy(((data || []) as EventoUI[]).map((evento) => ({
+      ...evento,
+      comentarios_eventos: evento.comentarios_eventos || [],
+    })));
   };
 
   useEffect(() => {
@@ -1063,6 +1090,9 @@ ${url}`;
                   ? `/eventos/${evento.slug}`
                   : "/eventos";
 
+                const totalComentariosEvento =
+                  evento.comentarios_eventos?.length || 0;
+
                 return (
                   <Link
                     key={evento.id}
@@ -1084,6 +1114,10 @@ ${url}`;
                     <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
                       {evento.nombre}
                     </h3>
+
+                    <p className="mt-2 text-sm font-medium text-slate-500">
+                      {getTextoComentariosEvento(totalComentariosEvento)}
+                    </p>
 
                     <p className="mt-2 text-sm font-medium text-slate-500">
                       📍 {evento.ciudad}
@@ -1349,7 +1383,7 @@ ${url}`;
             <input
               type="text"
               value={busquedaCiudad}
-              onChange={(e) => setBusquedaCiudad(e.target.value)}
+              onChange={(e) => setBusquedaciudad(e.target.value)}
               placeholder="Buscar ciudad..."
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
