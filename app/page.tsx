@@ -422,7 +422,7 @@ export default function Home() {
       .eq("fecha_inicio", hoy)
       .eq("reportado", false)
       .order("created_at", { ascending: false })
-      .limit(3);
+      .limit(6);
 
     if (error) {
       console.error("Error cargando eventos de hoy:", error);
@@ -510,6 +510,51 @@ export default function Home() {
       .slice(0, 3);
 
     return items;
+  }, [monumentos]);
+
+  const lugaresMasComentados = useMemo(() => {
+    return [...monumentos]
+      .filter((m) => m.resenas.length > 0)
+      .sort((a, b) => {
+        if (b.resenas.length !== a.resenas.length) {
+          return b.resenas.length - a.resenas.length;
+        }
+
+        const fechaA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const fechaB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return fechaB - fechaA;
+      })
+      .slice(0, 3);
+  }, [monumentos]);
+
+  const lugaresAlternativos = useMemo(() => {
+    const palabrasClave = [
+      "jardin",
+      "jardín",
+      "parque",
+      "mirador",
+      "capricho",
+      "oeste",
+      "retiro",
+      "campo",
+      "rio",
+      "río",
+    ];
+
+    const filtrados = monumentos.filter((m) => {
+      const texto = `${m.nombre} ${m.descripcion || ""}`.toLowerCase();
+      return palabrasClave.some((palabra) => texto.includes(palabra));
+    });
+
+    const base = filtrados.length > 0 ? filtrados : monumentos;
+
+    return [...base]
+      .sort((a, b) => {
+        const fechaA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const fechaB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return fechaB - fechaA;
+      })
+      .slice(0, 3);
   }, [monumentos]);
 
   const totalPaginas = useMemo(() => {
@@ -612,7 +657,9 @@ ${url}`;
       const file = files[i];
       const extensionOriginal = file.name.split(".").pop() || "jpg";
       const extension = extensionOriginal.toLowerCase();
-      const baseNombre = limpiarNombreArchivo(nombreLugar || file.name || "lugar");
+      const baseNombre = limpiarNombreArchivo(
+        nombreLugar || file.name || "lugar"
+      );
       const ruta = `lugares/${Date.now()}-${i + 1}-${baseNombre}.${extension}`;
 
       const { error: uploadError } = await supabase.storage
@@ -702,7 +749,9 @@ ${url}`;
 
       if (error || !monumentoInsertado) {
         console.error("Error al guardar lugar:", error);
-        alert(`Error al guardar el lugar: ${error?.message || "Error desconocido"}`);
+        alert(
+          `Error al guardar el lugar: ${error?.message || "Error desconocido"}`
+        );
         setGuardandoMonumento(false);
         setSubiendoFotosLugar(false);
         return;
@@ -905,33 +954,32 @@ ${url}`;
           </div>
 
           <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
-            Esto nadie te lo dice antes de ir:
+            Qué hacer hoy o qué sitio merece la pena:
             <span className="block text-orange-600">
-              cómo están los sitios de verdad
+              sin postureo y con realidad
             </span>
           </h1>
 
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600 md:text-xl">
-            Hay lugares que parecen increíbles... hasta que vas y están a
-            reventar. Aquí la gente cuenta la realidad: si hay colas, si merece
-            la pena, si es mejor ir a otra hora o si directamente conviene
-            evitarlo.
+            Aquí la gente cuenta cómo están los sitios de verdad: si hay colas,
+            si el ambiente merece la pena, si es mejor ir a otra hora o si hay
+            una alternativa mejor cerca.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
             <a
-              href="#lugares"
+              href="#hoy-mismo"
               className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
             >
-              Ver lugares reales
+              Ver qué hacer hoy
             </a>
 
-            <Link
-              href="/eventos"
+            <a
+              href="#comentado"
               className="rounded-full border border-orange-200 bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
             >
-              Qué hacer hoy
-            </Link>
+              Ver lo más comentado
+            </a>
 
             <a
               href="#participa"
@@ -981,6 +1029,186 @@ ${url}`;
         </div>
       </section>
 
+      {eventosHoy.length > 0 && (
+        <section
+          id="hoy-mismo"
+          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
+        >
+          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
+                  Hoy mismo
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                  Qué hacer hoy sin pensar demasiado
+                </h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  Planes rápidos para quien entra buscando algo para hoy, con
+                  ambiente real y sin dar demasiadas vueltas.
+                </p>
+              </div>
+
+              <Link
+                href="/eventos"
+                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+              >
+                Ver todos los eventos
+              </Link>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {eventosHoy.map((evento) => {
+                const hrefEvento = evento.slug
+                  ? `/eventos/${evento.slug}`
+                  : "/eventos";
+
+                return (
+                  <Link
+                    key={evento.id}
+                    href={hrefEvento}
+                    className="block rounded-3xl border border-orange-100 bg-orange-50/40 p-5 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+                        Hoy
+                      </span>
+
+                      {evento.tipo && (
+                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                          {evento.tipo}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
+                      {evento.nombre}
+                    </h3>
+
+                    <p className="mt-2 text-sm font-medium text-slate-500">
+                      📍 {evento.ciudad}
+                    </p>
+
+                    <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
+                      {evento.descripcion ||
+                        "Plan publicado para hoy en la comunidad."}
+                    </p>
+
+                    <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700">
+                      <span>Ver evento</span>
+                      <span>→</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-medium text-orange-700">
+              💬 ¿Has estado hoy en alguno? Entra en la ficha y cuéntalo abajo.
+            </div>
+          </div>
+        </section>
+      )}
+
+      {lugaresMasComentados.length > 0 && (
+        <section
+          id="comentado"
+          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
+        >
+          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
+                  Lo más real
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                  Lo que más está comentando la gente
+                </h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  Si quieres empezar por algo con señales de comunidad, entra en
+                  estas fichas primero.
+                </p>
+              </div>
+
+              <a
+                href="#lugares"
+                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+              >
+                Ver más lugares
+              </a>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {lugaresMasComentados.map((lugar) => {
+                const hrefLugar = lugar.slug ? `/lugar/${lugar.slug}` : "#";
+                const imagenCard =
+                  lugar.imagen ||
+                  lugar.fotosLugar[0] ||
+                  lugar.resenas.find((r) => r.foto)?.foto ||
+                  null;
+
+                return (
+                  <Link
+                    key={lugar.id}
+                    href={hrefLugar}
+                    className="overflow-hidden rounded-3xl border border-orange-100 bg-orange-50/40 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
+                  >
+                    {imagenCard ? (
+                      <img
+                        src={imagenCard}
+                        alt={lugar.nombre}
+                        className="h-48 w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-48 items-end bg-gradient-to-br from-orange-200 via-amber-100 to-rose-100 p-5">
+                        <div className="rounded-2xl bg-white/75 p-4 backdrop-blur">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-500">
+                            {lugar.ciudad}
+                          </p>
+                          <p className="mt-2 text-xl font-bold text-slate-900">
+                            {lugar.nombre}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="p-5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                          💬 {lugar.resenas.length} comentario
+                          {lugar.resenas.length !== 1 ? "s" : ""}
+                        </span>
+                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                          ⭐ {lugar.rating ?? "Sin nota"}
+                        </span>
+                      </div>
+
+                      <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
+                        {lugar.nombre}
+                      </h3>
+
+                      <p className="mt-2 text-sm font-medium text-slate-500">
+                        📍 {lugar.ciudad}
+                      </p>
+
+                      <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
+                        {lugar.descripcion ||
+                          "Lugar compartido por la comunidad con experiencias reales."}
+                      </p>
+
+                      <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600">
+                        <span>Ver ficha completa</span>
+                        <span>→</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
         <div className="grid gap-4 lg:grid-cols-3">
           <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100 lg:col-span-2">
@@ -990,12 +1218,12 @@ ${url}`;
                   Empieza por aquí
                 </p>
                 <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                  Qué mirar primero si acabas de entrar
+                  Cómo aprovechar la web en menos de un minuto
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Si quieres aprovechar la web rápido, empieza por los lugares
-                  con experiencias reales, mira qué hacer hoy y entra en fichas
-                  concretas para ver comentarios y fotos.
+                  Mira qué hacer hoy, entra en una ficha con comentarios y usa
+                  los lugares reales para evitar sitios llenos o encontrar una
+                  alternativa mejor.
                 </p>
               </div>
 
@@ -1009,49 +1237,49 @@ ${url}`;
 
             <div className="mt-6 grid gap-4 md:grid-cols-3">
               <a
-                href="#ultimos-aportes"
+                href="#hoy-mismo"
                 className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
               >
                 <p className="text-sm font-semibold text-orange-600">
-                  01 · Último movimiento
+                  01 · Qué hacer hoy
                 </p>
                 <h3 className="mt-2 text-lg font-bold text-slate-900">
-                  Ver lo último que ha contado la gente
+                  Entra rápido en un plan para hoy
                 </h3>
                 <p className="mt-2 text-sm text-slate-600">
-                  Experiencias frescas, fotos y comentarios recientes.
+                  Ideal si vienes buscando una idea directa sin complicarte.
                 </p>
               </a>
 
               <a
-                href="#lugares"
+                href="#comentado"
                 className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
               >
                 <p className="text-sm font-semibold text-orange-600">
-                  02 · Lugares reales
+                  02 · Lo más comentado
                 </p>
                 <h3 className="mt-2 text-lg font-bold text-slate-900">
-                  Explorar sitios y ver su ficha completa
+                  Mira primero donde ya hay comunidad
                 </h3>
                 <p className="mt-2 text-sm text-slate-600">
-                  Mira fotos, comentarios, acceso, parking y más.
+                  Los comentarios reales ayudan mucho más que una foto bonita.
                 </p>
               </a>
 
-              <Link
-                href="/eventos"
+              <a
+                href="#alternativas"
                 className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
               >
                 <p className="text-sm font-semibold text-orange-600">
-                  03 · Qué hacer hoy
+                  03 · Alternativas útiles
                 </p>
                 <h3 className="mt-2 text-lg font-bold text-slate-900">
-                  Planes pequeños, directos y cercanos
+                  Descubre rincones y planes con menos agobio
                 </h3>
                 <p className="mt-2 text-sm text-slate-600">
-                  Ideas rápidas para hoy con ambiente real y consejos útiles.
+                  Justo lo que diferencia esta web de un listado normal.
                 </p>
-              </Link>
+              </a>
             </div>
           </div>
 
@@ -1060,8 +1288,8 @@ ${url}`;
               Lo que pasa de verdad
             </p>
             <h3 className="mt-2 text-2xl font-bold">
-              No es el sitio.
-              <span className="block text-orange-300">Es cuándo vas.</span>
+              No es solo el sitio.
+              <span className="block text-orange-300">También es cuándo vas.</span>
             </h3>
 
             <div className="mt-5 space-y-3 text-sm leading-6 text-slate-200">
@@ -1080,7 +1308,7 @@ ${url}`;
                   📸 Las fotos no siempre cuentan la verdad
                 </p>
                 <p className="mt-1">
-                  Aquí interesan más las colas, el ambiente, el ruido y si
+                  Aquí importan las colas, el ambiente, el ruido y si
                   repetirías o no.
                 </p>
               </div>
@@ -1185,70 +1413,95 @@ ${url}`;
         </section>
       )}
 
-      {eventosHoy.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+      {lugaresAlternativos.length > 0 && (
+        <section
+          id="alternativas"
+          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
+        >
           <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                  Hoy mismo
+                  Alternativas inteligentes
                 </p>
                 <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                  Qué hacer hoy
+                  Rincones, parques y miradores para ir con menos agobio
                 </h2>
                 <p className="mt-2 text-sm text-slate-600">
-                  Planes rápidos y recientes para quien entra buscando algo ya.
+                  Una forma rápida de descubrir sitios que pueden ser mejor idea
+                  que el plan típico.
                 </p>
               </div>
 
-              <Link
-                href="/eventos"
+              <a
+                href="#lugares"
                 className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
               >
-                Ver todos los eventos
-              </Link>
+                Ver más lugares
+              </a>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {eventosHoy.map((evento) => {
-                const hrefEvento = evento.slug
-                  ? `/eventos/${evento.slug}`
-                  : "/eventos";
+              {lugaresAlternativos.map((lugar) => {
+                const hrefLugar = lugar.slug ? `/lugar/${lugar.slug}` : "#";
+                const imagenCard =
+                  lugar.imagen ||
+                  lugar.fotosLugar[0] ||
+                  lugar.resenas.find((r) => r.foto)?.foto ||
+                  null;
 
                 return (
                   <Link
-                    key={evento.id}
-                    href={hrefEvento}
-                    className="block rounded-3xl border border-orange-100 bg-orange-50/40 p-5 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
+                    key={lugar.id}
+                    href={hrefLugar}
+                    className="overflow-hidden rounded-3xl border border-orange-100 bg-orange-50/40 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
                   >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-                        Hoy
-                      </span>
+                    {imagenCard ? (
+                      <img
+                        src={imagenCard}
+                        alt={lugar.nombre}
+                        className="h-48 w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-48 items-end bg-gradient-to-br from-emerald-200 via-amber-100 to-orange-100 p-5">
+                        <div className="rounded-2xl bg-white/75 p-4 backdrop-blur">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-500">
+                            {lugar.ciudad}
+                          </p>
+                          <p className="mt-2 text-xl font-bold text-slate-900">
+                            {lugar.nombre}
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
-                      {evento.tipo && (
-                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
-                          {evento.tipo}
+                    <div className="p-5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
+                          🌿 Alternativa
                         </span>
-                      )}
-                    </div>
+                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
+                          ⭐ {lugar.rating ?? "Sin nota"}
+                        </span>
+                      </div>
 
-                    <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
-                      {evento.nombre}
-                    </h3>
+                      <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
+                        {lugar.nombre}
+                      </h3>
 
-                    <p className="mt-2 text-sm font-medium text-slate-500">
-                      📍 {evento.ciudad}
-                    </p>
+                      <p className="mt-2 text-sm font-medium text-slate-500">
+                        📍 {lugar.ciudad}
+                      </p>
 
-                    <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
-                      {evento.descripcion ||
-                        "Plan publicado para hoy en la comunidad."}
-                    </p>
+                      <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
+                        {lugar.descripcion ||
+                          "Lugar compartido por la comunidad como opción interesante para explorar."}
+                      </p>
 
-                    <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700">
-                      <span>Ver evento</span>
-                      <span>→</span>
+                      <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600">
+                        <span>Ver ficha completa</span>
+                        <span>→</span>
+                      </div>
                     </div>
                   </Link>
                 );
