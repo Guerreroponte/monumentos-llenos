@@ -5,6 +5,7 @@ import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
 import HeaderGlobal from "@/components/HeaderGlobal";
+import GoogleAnalyticsTracker from "@/components/GoogleAnalyticsTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,6 +45,8 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <HeaderGlobal />
+
+        <GoogleAnalyticsTracker />
 
         {children}
 
