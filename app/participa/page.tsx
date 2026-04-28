@@ -104,6 +104,7 @@ export default function ParticipaPage() {
   const [mensajeError, setMensajeError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const subtipoOptions = useMemo(() => {
     return categoriaEvento === "grande" ? SUBTIPOS_GRANDES : SUBTIPOS_LOCALES;
@@ -123,6 +124,19 @@ export default function ParticipaPage() {
       setCategoriaEvento("local");
       setSubtipo("Qué hacer hoy");
     }
+  }
+
+  function irAlFormulario() {
+    setTipoParticipacion("plan_local");
+    setCategoriaEvento("local");
+    setSubtipo("Qué hacer hoy");
+
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
   }
 
   function manejarCambioFotos(e: ChangeEvent<HTMLInputElement>) {
@@ -292,7 +306,9 @@ export default function ParticipaPage() {
   }
 
   const tituloFormulario =
-    categoriaEvento === "grande" ? "Añadir evento grande" : "Sube un plan en 30 segundos";
+    categoriaEvento === "grande"
+      ? "Añadir evento grande"
+      : "Sube un plan en 30 segundos";
 
   const descripcionFormulario =
     categoriaEvento === "grande"
@@ -312,13 +328,27 @@ export default function ParticipaPage() {
         </div>
 
         <h1 className="text-4xl font-extrabold leading-tight text-[#334155] md:text-5xl">
-          ¿Has visto un plan que merece la pena?
+          ¿Has visto un plan que merece la pena hoy?
         </h1>
 
         <p className="mt-4 max-w-3xl text-base leading-7 text-[#64748b] md:text-lg">
           Súbelo rápido para que otra persona sepa qué hacer hoy. No hace falta
           que sea perfecto: una foto, una frase o una recomendación real ya ayuda.
         </p>
+
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={irAlFormulario}
+            className="inline-flex rounded-full bg-[#2563eb] px-6 py-3 text-sm font-extrabold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1d4ed8] hover:shadow-md"
+          >
+            Subir plan ahora
+          </button>
+
+          <p className="text-sm font-semibold text-[#64748b]">
+            👉 Ya hay gente subiendo planes hoy. Añade el tuyo.
+          </p>
+        </div>
 
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           <div className="rounded-2xl border border-[#fde7d7] bg-white px-4 py-4 shadow-sm">
@@ -336,7 +366,9 @@ export default function ParticipaPage() {
           </div>
 
           <div className="rounded-2xl border border-[#fde7d7] bg-white px-4 py-4 shadow-sm">
-            <p className="text-sm font-bold text-[#334155]">3. Ayuda a decidir</p>
+            <p className="text-sm font-bold text-[#334155]">
+              3. Ayuda a decidir
+            </p>
             <p className="mt-1 text-sm text-[#64748b]">
               ¿Hay ambiente? ¿Merece la pena? ¿Está lleno?
             </p>
@@ -359,7 +391,7 @@ export default function ParticipaPage() {
               ⚡ Lo más rápido
             </p>
             <h2 className="mt-3 text-2xl font-bold text-[#334155]">
-              Subir plan local
+              Subir plan para hoy
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#64748b]">
               Algo para hoy, mañana o esta semana: paseo, bar, concierto pequeño,
@@ -468,7 +500,7 @@ export default function ParticipaPage() {
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
               <div className="rounded-3xl border border-[#fde7d7] bg-[#fffaf3] p-4 md:p-5">
                 <p className="text-sm font-bold text-[#334155]">
                   Campos básicos
@@ -784,7 +816,11 @@ export default function ParticipaPage() {
                     categoriaEvento === "grande"
                       ? "bg-[#f97316] hover:bg-[#ea580c]"
                       : "bg-[#2563eb] hover:bg-[#1d4ed8]"
-                  } ${loading || subiendoImagenes ? "cursor-not-allowed opacity-70" : ""}`}
+                  } ${
+                    loading || subiendoImagenes
+                      ? "cursor-not-allowed opacity-70"
+                      : ""
+                  }`}
                 >
                   {loading
                     ? "Publicando..."
