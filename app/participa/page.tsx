@@ -78,7 +78,7 @@ export default function ParticipaPage() {
   const [ciudad, setCiudad] = useState("");
   const [provincia, setProvincia] = useState("");
   const [comunidadAutonoma, setComunidadAutonoma] = useState("");
-  const [subtipo, setSubtipo] = useState("Plan local");
+  const [subtipo, setSubtipo] = useState("Qué hacer hoy");
   const [fechaInicio, setFechaInicio] = useState(hoyMasDias(0));
   const [fechaFin, setFechaFin] = useState("");
   const [horaInicio, setHoraInicio] = useState("");
@@ -97,6 +97,7 @@ export default function ParticipaPage() {
   const [parking, setParking] = useState(false);
   const [recomendable, setRecomendable] = useState(true);
   const [destacado, setDestacado] = useState(false);
+  const [mostrarAvanzado, setMostrarAvanzado] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [mensajeOk, setMensajeOk] = useState("");
@@ -120,7 +121,7 @@ export default function ParticipaPage() {
 
     if (tipo === "plan_local") {
       setCategoriaEvento("local");
-      setSubtipo("Plan local");
+      setSubtipo("Qué hacer hoy");
     }
   }
 
@@ -198,11 +199,12 @@ export default function ParticipaPage() {
     setParking(false);
     setRecomendable(true);
     setDestacado(false);
+    setMostrarAvanzado(false);
 
     if (categoriaEvento === "grande") {
       setSubtipo("Festival");
     } else {
-      setSubtipo("Plan local");
+      setSubtipo("Qué hacer hoy");
     }
 
     if (fileInputRef.current) {
@@ -222,7 +224,7 @@ export default function ParticipaPage() {
     }
 
     if (!nombre.trim() || !ciudad.trim() || !fechaInicio) {
-      setMensajeError("Faltan campos obligatorios: nombre, ciudad y fecha.");
+      setMensajeError("Solo faltan nombre del plan, ciudad y fecha.");
       return;
     }
 
@@ -240,6 +242,10 @@ export default function ParticipaPage() {
         fechaInicio,
       });
 
+      const descripcionFinal =
+        descripcion.trim() ||
+        "Plan compartido por la comunidad. Si alguien ha estado hoy, que diga cómo está el ambiente.";
+
       const payloadEvento = {
         nombre: nombre.trim(),
         ciudad: ciudad.trim(),
@@ -253,7 +259,7 @@ export default function ParticipaPage() {
         hora_inicio: horaInicio || null,
         hora_fin: horaFin || null,
         ubicacion_detalle: ubicacionDetalle || null,
-        descripcion: descripcion.trim(),
+        descripcion: descripcionFinal,
         precio: precio || null,
         ambiente: ambiente || null,
         imagen: imagenPrincipal,
@@ -272,26 +278,26 @@ export default function ParticipaPage() {
 
       setMensajeOk(
         categoriaEvento === "grande"
-          ? "Evento grande creado correctamente"
-          : "Plan local creado correctamente"
+          ? "Evento publicado. Gracias por aportar algo útil a la comunidad 🙌"
+          : "Plan publicado. Ya ayuda a otra persona a decidir qué hacer 🙌"
       );
 
       resetearFormulario();
     } catch (err) {
       console.error(err);
-      setMensajeError("Error al guardar el evento");
+      setMensajeError("Error al guardar. Prueba otra vez en unos segundos.");
     }
 
     setLoading(false);
   }
 
   const tituloFormulario =
-    categoriaEvento === "grande" ? "Añadir evento grande" : "Añadir plan local";
+    categoriaEvento === "grande" ? "Añadir evento grande" : "Sube un plan en 30 segundos";
 
   const descripcionFormulario =
     categoriaEvento === "grande"
       ? "Ferias, festivales, fiestas potentes o citas grandes que merecen tener su hueco en la web."
-      : "Conciertos pequeños, monólogos, tardeos, directos o planes reales para hoy, mañana o este finde.";
+      : "No hace falta escribir una reseña perfecta. Pon el plan, la ciudad y algo útil: si hay ambiente, si merece la pena o si conviene ir a otra hora.";
 
   return (
     <main className="min-h-screen bg-[#fffaf3] text-[#1f2937]">
@@ -301,39 +307,63 @@ export default function ParticipaPage() {
             Participa en la comunidad
           </span>
           <span className="rounded-full bg-[#fff0e6] px-3 py-1">
-            Lugares y planes reales
+            Tardas menos de 1 minuto
           </span>
         </div>
 
         <h1 className="text-4xl font-extrabold leading-tight text-[#334155] md:text-5xl">
-          Elige qué quieres añadir
+          ¿Has visto un plan que merece la pena?
         </h1>
 
         <p className="mt-4 max-w-3xl text-base leading-7 text-[#64748b] md:text-lg">
-          Puedes subir un lugar, un evento grande o un plan local. Cuanto más
-          real y útil sea lo que compartes, mejor para la gente que entre a la web.
+          Súbelo rápido para que otra persona sepa qué hacer hoy. No hace falta
+          que sea perfecto: una foto, una frase o una recomendación real ya ayuda.
         </p>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-3">
+          <div className="rounded-2xl border border-[#fde7d7] bg-white px-4 py-4 shadow-sm">
+            <p className="text-sm font-bold text-[#334155]">1. Pon el plan</p>
+            <p className="mt-1 text-sm text-[#64748b]">
+              Ej: cañas, paseo, concierto pequeño, tardeo...
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-[#fde7d7] bg-white px-4 py-4 shadow-sm">
+            <p className="text-sm font-bold text-[#334155]">2. Di dónde es</p>
+            <p className="mt-1 text-sm text-[#64748b]">
+              Ciudad + zona o local si lo sabes.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-[#fde7d7] bg-white px-4 py-4 shadow-sm">
+            <p className="text-sm font-bold text-[#334155]">3. Ayuda a decidir</p>
+            <p className="mt-1 text-sm text-[#64748b]">
+              ¿Hay ambiente? ¿Merece la pena? ¿Está lleno?
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-8 md:px-6 lg:px-8">
         <div className="grid gap-5 md:grid-cols-3">
           <button
             type="button"
-            onClick={() => seleccionarTipo("lugar")}
+            onClick={() => seleccionarTipo("plan_local")}
             className={`rounded-3xl border p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md ${
-              tipoParticipacion === "lugar"
-                ? "border-[#f97316] bg-[#fff7ed]"
+              tipoParticipacion === "plan_local"
+                ? "border-[#2563eb] bg-[#eff6ff]"
                 : "border-[#e5e7eb] bg-white"
             }`}
           >
-            <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#f97316]">
-              📍 Lugar
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#2563eb]">
+              ⚡ Lo más rápido
             </p>
             <h2 className="mt-3 text-2xl font-bold text-[#334155]">
-              Añadir lugar
+              Subir plan local
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#64748b]">
-              Monumento, rincón, sitio curioso o lugar que merece la pena visitar.
+              Algo para hoy, mañana o esta semana: paseo, bar, concierto pequeño,
+              tardeo o plan sencillo.
             </p>
           </button>
 
@@ -353,27 +383,27 @@ export default function ParticipaPage() {
               Feria, festival o fiesta
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#64748b]">
-              Para cosas grandes que atraen a mucha gente y merecen salir destacadas.
+              Para eventos grandes que atraen gente y merecen aparecer en la web.
             </p>
           </button>
 
           <button
             type="button"
-            onClick={() => seleccionarTipo("plan_local")}
+            onClick={() => seleccionarTipo("lugar")}
             className={`rounded-3xl border p-6 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-md ${
-              tipoParticipacion === "plan_local"
-                ? "border-[#2563eb] bg-[#eff6ff]"
+              tipoParticipacion === "lugar"
+                ? "border-[#f97316] bg-[#fff7ed]"
                 : "border-[#e5e7eb] bg-white"
             }`}
           >
-            <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#2563eb]">
-              ⚡ Plan local
+            <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#f97316]">
+              📍 Lugar
             </p>
             <h2 className="mt-3 text-2xl font-bold text-[#334155]">
-              Qué hacer hoy
+              Añadir lugar
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#64748b]">
-              Monólogo, concierto pequeño, bar con directo, tardeo o plan cercano.
+              Rincón, monumento, parque o sitio curioso que merezca la pena.
             </p>
           </button>
         </div>
@@ -387,13 +417,12 @@ export default function ParticipaPage() {
             </p>
 
             <h2 className="mt-2 text-2xl font-bold text-[#334155]">
-              Para subir un lugar, usa la sección principal de lugares
+              Para subir un lugar, usa la sección principal
             </h2>
 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#64748b]">
-              Ahora mismo este formulario está preparado para eventos y planes.
-              Si quieres añadir un lugar, entra a la sección principal y súbelo
-              desde allí para no romper el flujo que ya tienes montado.
+              Este formulario está optimizado para planes y eventos. Si quieres
+              añadir un lugar, entra a la sección principal y súbelo desde allí.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -409,7 +438,7 @@ export default function ParticipaPage() {
                 onClick={() => seleccionarTipo("plan_local")}
                 className="inline-flex rounded-full border border-[#e2e8f0] bg-white px-5 py-3 text-sm font-bold text-[#475569] transition hover:bg-[#f8fafc]"
               >
-                Mejor subir un plan local
+                Mejor subir un plan rápido
               </button>
             </div>
           </div>
@@ -427,7 +456,7 @@ export default function ParticipaPage() {
                     : "text-[#2563eb]"
                 }`}
               >
-                {categoriaEvento === "grande" ? "Evento grande" : "Plan local"}
+                {categoriaEvento === "grande" ? "Evento grande" : "Plan rápido"}
               </p>
 
               <h2 className="mt-2 text-3xl font-bold text-[#334155]">
@@ -440,207 +469,102 @@ export default function ParticipaPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Nombre *
-                  </label>
-                  <input
-                    value={nombre}
-                    onChange={(e) => setNombre(e.target.value)}
-                    placeholder={
-                      categoriaEvento === "grande"
-                        ? "Ej: Feria de Abril de Sevilla"
-                        : "Ej: Monólogo en Beer Station"
-                    }
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
+              <div className="rounded-3xl border border-[#fde7d7] bg-[#fffaf3] p-4 md:p-5">
+                <p className="text-sm font-bold text-[#334155]">
+                  Campos básicos
+                </p>
+                <p className="mt-1 text-sm text-[#64748b]">
+                  Con esto ya puedes publicar. Lo demás es opcional.
+                </p>
+
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                      ¿Qué plan es? *
+                    </label>
+                    <input
+                      value={nombre}
+                      onChange={(e) => setNombre(e.target.value)}
+                      placeholder={
+                        categoriaEvento === "grande"
+                          ? "Ej: Feria de Abril de Sevilla"
+                          : "Ej: Cañas por La Latina / Paseo por Muelle Uno"
+                      }
+                      className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                      Ciudad *
+                    </label>
+                    <input
+                      value={ciudad}
+                      onChange={(e) => setCiudad(e.target.value)}
+                      placeholder="Ej: Madrid, Málaga, Bilbao..."
+                      className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Ciudad *
-                  </label>
-                  <input
-                    value={ciudad}
-                    onChange={(e) => setCiudad(e.target.value)}
-                    placeholder="Ej: Madrid"
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
-                </div>
-              </div>
+                <div className="mt-4 grid gap-4 md:grid-cols-3">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                      Fecha *
+                    </label>
+                    <input
+                      type="date"
+                      value={fechaInicio}
+                      onChange={(e) => setFechaInicio(e.target.value)}
+                      className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                    />
+                  </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Provincia
-                  </label>
-                  <input
-                    value={provincia}
-                    onChange={(e) => setProvincia(e.target.value)}
-                    placeholder="Ej: Madrid"
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
-                </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                      Hora aproximada
+                    </label>
+                    <input
+                      type="time"
+                      value={horaInicio}
+                      onChange={(e) => setHoraInicio(e.target.value)}
+                      className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                    />
+                  </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Comunidad autónoma
-                  </label>
-                  <input
-                    value={comunidadAutonoma}
-                    onChange={(e) => setComunidadAutonoma(e.target.value)}
-                    placeholder="Ej: Comunidad de Madrid"
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Tipo / subtipo
-                  </label>
-                  <select
-                    value={subtipo}
-                    onChange={(e) => setSubtipo(e.target.value)}
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  >
-                    {subtipoOptions.map((opcion) => (
-                      <option key={opcion} value={opcion}>
-                        {opcion}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-4">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Fecha inicio *
-                  </label>
-                  <input
-                    type="date"
-                    value={fechaInicio}
-                    onChange={(e) => setFechaInicio(e.target.value)}
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                      Zona o sitio concreto
+                    </label>
+                    <input
+                      value={ubicacionDetalle}
+                      onChange={(e) => setUbicacionDetalle(e.target.value)}
+                      placeholder="Ej: Plaza Nueva, Portixol, Cava Baja..."
+                      className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                    />
+                  </div>
                 </div>
 
-                <div>
+                <div className="mt-4">
                   <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Fecha fin
+                    Cuenta algo útil
                   </label>
-                  <input
-                    type="date"
-                    value={fechaFin}
-                    onChange={(e) => setFechaFin(e.target.value)}
+                  <textarea
+                    value={descripcion}
+                    onChange={(e) => setDescripcion(e.target.value)}
+                    placeholder="Ej: Suele haber ambiente entre semana, mejor ir sobre las 20:00. No es fiesta, pero se está a gusto."
+                    rows={4}
                     className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
                   />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Hora inicio
-                  </label>
-                  <input
-                    type="time"
-                    value={horaInicio}
-                    onChange={(e) => setHoraInicio(e.target.value)}
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Hora fin
-                  </label>
-                  <input
-                    type="time"
-                    value={horaFin}
-                    onChange={(e) => setHoraFin(e.target.value)}
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
+                  <p className="mt-2 text-xs text-[#94a3b8]">
+                    Consejo: cuenta si hay ambiente, si está lleno, si merece la pena o si hay alternativa cerca.
+                  </p>
                 </div>
               </div>
 
               <div>
                 <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                  Ubicación / bar / sala / zona
-                </label>
-                <input
-                  value={ubicacionDetalle}
-                  onChange={(e) => setUbicacionDetalle(e.target.value)}
-                  placeholder="Ej: Beer Station · Cuesta de Santo Domingo 22"
-                  className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                  Descripción
-                </label>
-                <textarea
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                  placeholder="Ej: Plan fácil si no sabes qué hacer hoy. Buen ambiente, mejor llegar pronto..."
-                  rows={5}
-                  className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                />
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Precio
-                  </label>
-                  <input
-                    value={precio}
-                    onChange={(e) => setPrecio(e.target.value)}
-                    placeholder="Ej: Gratis / 10€ / consumición"
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Ambiente
-                  </label>
-                  <input
-                    value={ambiente}
-                    onChange={(e) => setAmbiente(e.target.value)}
-                    placeholder="Ej: Buen ambiente"
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Enlace
-                  </label>
-                  <input
-                    value={enlace}
-                    onChange={(e) => setEnlace(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Creado por
-                  </label>
-                  <input
-                    value={creadoPor}
-                    onChange={(e) => setCreadoPor(e.target.value)}
-                    placeholder="Tu nombre o alias"
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                  Fotos
+                  Foto opcional
                 </label>
 
                 <input
@@ -651,6 +575,10 @@ export default function ParticipaPage() {
                   onChange={manejarCambioFotos}
                   className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm"
                 />
+
+                <p className="mt-2 text-xs text-[#94a3b8]">
+                  Una foto real ayuda muchísimo, pero no es obligatorio.
+                </p>
 
                 {fotos.length > 0 && (
                   <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -677,43 +605,176 @@ export default function ParticipaPage() {
                 )}
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-[#fafaf9] px-4 py-3 text-sm text-[#475569]">
-                  <input
-                    type="checkbox"
-                    checked={dificilBebida}
-                    onChange={(e) => setDificilBebida(e.target.checked)}
-                  />
-                  Difícil pedir bebida
-                </label>
+              <button
+                type="button"
+                onClick={() => setMostrarAvanzado((prev) => !prev)}
+                className="rounded-full border border-[#e2e8f0] bg-white px-5 py-3 text-sm font-bold text-[#475569] transition hover:bg-[#f8fafc]"
+              >
+                {mostrarAvanzado
+                  ? "Ocultar detalles opcionales"
+                  : "Añadir más detalles opcionales"}
+              </button>
 
-                <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-[#fafaf9] px-4 py-3 text-sm text-[#475569]">
-                  <input
-                    type="checkbox"
-                    checked={parking}
-                    onChange={(e) => setParking(e.target.checked)}
-                  />
-                  Parking fácil
-                </label>
+              {mostrarAvanzado && (
+                <div className="space-y-5 rounded-3xl border border-[#e5e7eb] bg-[#fafaf9] p-4 md:p-5">
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Provincia
+                      </label>
+                      <input
+                        value={provincia}
+                        onChange={(e) => setProvincia(e.target.value)}
+                        placeholder="Ej: Madrid"
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      />
+                    </div>
 
-                <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-[#fafaf9] px-4 py-3 text-sm text-[#475569]">
-                  <input
-                    type="checkbox"
-                    checked={recomendable}
-                    onChange={(e) => setRecomendable(e.target.checked)}
-                  />
-                  Recomendable
-                </label>
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Comunidad autónoma
+                      </label>
+                      <input
+                        value={comunidadAutonoma}
+                        onChange={(e) => setComunidadAutonoma(e.target.value)}
+                        placeholder="Ej: Comunidad de Madrid"
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      />
+                    </div>
 
-                <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-[#fafaf9] px-4 py-3 text-sm text-[#475569]">
-                  <input
-                    type="checkbox"
-                    checked={destacado}
-                    onChange={(e) => setDestacado(e.target.checked)}
-                  />
-                  Destacado
-                </label>
-              </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Tipo / subtipo
+                      </label>
+                      <select
+                        value={subtipo}
+                        onChange={(e) => setSubtipo(e.target.value)}
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      >
+                        {subtipoOptions.map((opcion) => (
+                          <option key={opcion} value={opcion}>
+                            {opcion}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Fecha fin
+                      </label>
+                      <input
+                        type="date"
+                        value={fechaFin}
+                        onChange={(e) => setFechaFin(e.target.value)}
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Hora fin
+                      </label>
+                      <input
+                        type="time"
+                        value={horaFin}
+                        onChange={(e) => setHoraFin(e.target.value)}
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Precio
+                      </label>
+                      <input
+                        value={precio}
+                        onChange={(e) => setPrecio(e.target.value)}
+                        placeholder="Ej: Gratis / 10€ / consumición"
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Ambiente
+                      </label>
+                      <input
+                        value={ambiente}
+                        onChange={(e) => setAmbiente(e.target.value)}
+                        placeholder="Ej: Tranquilo / medio lleno / bastante ambiente"
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Enlace
+                      </label>
+                      <input
+                        value={enlace}
+                        onChange={(e) => setEnlace(e.target.value)}
+                        placeholder="https://..."
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Tu nombre o alias
+                      </label>
+                      <input
+                        value={creadoPor}
+                        onChange={(e) => setCreadoPor(e.target.value)}
+                        placeholder="Ej: Diego / Anónimo"
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#475569]">
+                      <input
+                        type="checkbox"
+                        checked={dificilBebida}
+                        onChange={(e) => setDificilBebida(e.target.checked)}
+                      />
+                      Difícil pedir bebida
+                    </label>
+
+                    <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#475569]">
+                      <input
+                        type="checkbox"
+                        checked={parking}
+                        onChange={(e) => setParking(e.target.checked)}
+                      />
+                      Parking fácil
+                    </label>
+
+                    <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#475569]">
+                      <input
+                        type="checkbox"
+                        checked={recomendable}
+                        onChange={(e) => setRecomendable(e.target.checked)}
+                      />
+                      Recomendable
+                    </label>
+
+                    <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#475569]">
+                      <input
+                        type="checkbox"
+                        checked={destacado}
+                        onChange={(e) => setDestacado(e.target.checked)}
+                      />
+                      Destacado
+                    </label>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-wrap gap-3 pt-2">
                 <button
@@ -726,12 +787,12 @@ export default function ParticipaPage() {
                   } ${loading || subiendoImagenes ? "cursor-not-allowed opacity-70" : ""}`}
                 >
                   {loading
-                    ? "Guardando..."
+                    ? "Publicando..."
                     : subiendoImagenes
-                    ? "Subiendo imágenes..."
+                    ? "Subiendo foto..."
                     : categoriaEvento === "grande"
-                    ? "Publicar evento grande"
-                    : "Publicar plan local"}
+                    ? "Publicar evento"
+                    : "Publicar plan rápido"}
                 </button>
 
                 <button
@@ -739,7 +800,7 @@ export default function ParticipaPage() {
                   onClick={resetearFormulario}
                   className="inline-flex rounded-full border border-[#e2e8f0] bg-white px-6 py-3 text-sm font-bold text-[#475569] transition hover:bg-[#f8fafc]"
                 >
-                  Limpiar formulario
+                  Limpiar
                 </button>
               </div>
 
