@@ -24,6 +24,15 @@ type Resena = {
   reportado?: boolean | null;
 };
 
+const COMENTARIOS_RAPIDOS = [
+  "🔥 Muy lleno, mejor ir con tiempo",
+  "👍 Buen ambiente sin agobios",
+  "😌 Tranquilo, perfecto para desconectar",
+  "👀 Merece la pena si estás por la zona",
+  "⚠️ Está bien, pero no esperes mucho ambiente",
+  "🌅 Mejor al atardecer",
+];
+
 export default function LugarPage() {
   const params = useParams();
   const slug = params?.slug as string;
@@ -34,6 +43,7 @@ export default function LugarPage() {
 
   const [usuario, setUsuario] = useState("");
   const [comentario, setComentario] = useState("");
+  const [comentarioRapidoActivo, setComentarioRapidoActivo] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [mensajeOk, setMensajeOk] = useState("");
   const [mensajeError, setMensajeError] = useState("");
@@ -95,6 +105,13 @@ ${url}`;
     window.open(enlace, "_blank", "noopener,noreferrer");
   };
 
+  const usarComentarioRapido = (texto: string) => {
+    setComentario(texto);
+    setComentarioRapidoActivo(texto);
+    setMensajeError("");
+    setMensajeOk("");
+  };
+
   const enviarComentario = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -107,7 +124,7 @@ ${url}`;
     }
 
     if (!comentario.trim()) {
-      setMensajeError("Escribe un comentario antes de enviarlo.");
+      setMensajeError("Elige una opción rápida o escribe una frase.");
       return;
     }
 
@@ -140,6 +157,7 @@ ${url}`;
       setResenas((prev) => [data, ...prev]);
       setUsuario("");
       setComentario("");
+      setComentarioRapidoActivo("");
       setMensajeOk("Comentario añadido. Gracias por aportar algo real 🙌");
     }
   };
@@ -265,7 +283,7 @@ ${url}`;
                 Comentarios de visitantes
               </h2>
               <p className="mt-2 text-sm text-slate-600">
-                ¿Has estado aquí? Cuenta cómo fue la experiencia.
+                ¿Estaba lleno o se estaba a gusto? Cuéntalo en 1 frase.
               </p>
             </div>
 
@@ -279,11 +297,28 @@ ${url}`;
             className="mt-6 rounded-3xl border border-orange-100 bg-[#fffaf3] p-5"
           >
             <p className="text-sm font-bold text-slate-900">
-              Añadir comentario rápido
+              Respuesta rápida
             </p>
             <p className="mt-1 text-sm text-slate-600">
-              Una frase real ayuda más que una reseña perfecta.
+              Pulsa una opción o escribe algo propio. Una frase real ya ayuda.
             </p>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {COMENTARIOS_RAPIDOS.map((texto) => (
+                <button
+                  key={texto}
+                  type="button"
+                  onClick={() => usarComentarioRapido(texto)}
+                  className={`rounded-full border px-4 py-2 text-sm font-bold transition ${
+                    comentarioRapidoActivo === texto
+                      ? "border-orange-400 bg-orange-500 text-white shadow-sm"
+                      : "border-orange-100 bg-white text-slate-700 hover:border-orange-300 hover:bg-orange-50"
+                  }`}
+                >
+                  {texto}
+                </button>
+              ))}
+            </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               <input
@@ -295,7 +330,10 @@ ${url}`;
 
               <input
                 value={comentario}
-                onChange={(e) => setComentario(e.target.value)}
+                onChange={(e) => {
+                  setComentario(e.target.value);
+                  setComentarioRapidoActivo("");
+                }}
                 placeholder="Ej: Fui al atardecer y había ambiente sin agobios"
                 className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-400"
               />
@@ -326,11 +364,11 @@ ${url}`;
             {resenas.length === 0 ? (
               <div className="rounded-3xl border border-dashed border-orange-200 bg-orange-50/50 p-5">
                 <p className="text-sm font-semibold text-slate-800">
-                  Todavía no hay comentarios.
+                  Nadie ha contado todavía cómo estaba.
                 </p>
                 <p className="mt-1 text-sm text-slate-600">
-                  Sé la primera persona en contar si merece la pena, si hay
-                  ambiente o si conviene ir a otra hora.
+                  Puedes ser la primera persona en decir si merece la pena, si
+                  hay ambiente o si conviene ir a otra hora.
                 </p>
               </div>
             ) : (
