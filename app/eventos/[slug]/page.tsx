@@ -35,6 +35,15 @@ type Evento = {
   recomendable?: boolean | null;
 };
 
+const COMENTARIOS_RAPIDOS_EVENTO = [
+  "🔥 Llenísimo, mejor ir pronto",
+  "👌 Buen ambiente sin agobios",
+  "😌 Tranquilo, perfecto para hoy",
+  "😐 Normal, ni fu ni fa",
+  "❌ No merece mucho la pena",
+  "🎶 Buen rollo y ambiente",
+];
+
 function formatearFecha(fecha?: string | null) {
   if (!fecha) return "Fecha por confirmar";
 
@@ -75,6 +84,7 @@ export default function EventoPage() {
   const [evento, setEvento] = useState<Evento | null>(null);
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [textoComentario, setTextoComentario] = useState("");
+  const [comentarioRapidoActivo, setComentarioRapidoActivo] = useState("");
   const [autorComentario, setAutorComentario] = useState("");
   const [enviandoComentario, setEnviandoComentario] = useState(false);
   const [errorComentario, setErrorComentario] = useState("");
@@ -126,6 +136,13 @@ export default function EventoPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
   };
 
+  const usarComentarioRapido = (texto: string) => {
+    setTextoComentario(texto);
+    setComentarioRapidoActivo(texto);
+    setErrorComentario("");
+    setComentarioEnviado(false);
+  };
+
   const enviarComentario = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -136,7 +153,7 @@ export default function EventoPage() {
     setComentarioEnviado(false);
 
     if (!textoLimpio) {
-      setErrorComentario("Escribe un comentario antes de enviarlo.");
+      setErrorComentario("Elige una opción rápida o escribe una frase.");
       return;
     }
 
@@ -169,6 +186,7 @@ export default function EventoPage() {
     if (data) {
       setComentarios((prev) => [data, ...prev]);
       setTextoComentario("");
+      setComentarioRapidoActivo("");
       setAutorComentario("");
       setComentarioEnviado(true);
     }
@@ -209,7 +227,10 @@ export default function EventoPage() {
 
         <div className="overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm">
           <img
-            src={evento.imagen || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80"}
+            src={
+              evento.imagen ||
+              "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80"
+            }
             alt={evento.nombre || "Evento"}
             className="h-72 w-full object-cover"
           />
@@ -256,7 +277,9 @@ export default function EventoPage() {
             <div className="mt-3 space-y-2 text-sm text-[#64748b]">
               <p>
                 📍 {evento.ciudad || "Ciudad por confirmar"}
-                {evento.ubicacion_detalle ? ` · ${evento.ubicacion_detalle}` : ""}
+                {evento.ubicacion_detalle
+                  ? ` · ${evento.ubicacion_detalle}`
+                  : ""}
               </p>
 
               <p>
@@ -330,13 +353,40 @@ export default function EventoPage() {
 
         <div className="mt-6 rounded-3xl border border-[#fde7d7] bg-white p-6 shadow-sm">
           <h2 className="text-xl font-bold text-[#334155]">
-            ¿Cómo estaba este plan?
+            ¿Cómo estaba este plan de verdad?
           </h2>
+
           <p className="mt-2 text-sm leading-6 text-[#64748b]">
-            Cuéntalo en una frase rápida. Ayuda más una experiencia real que una descripción perfecta.
+            💬 La gente está decidiendo si ir hoy. Tu comentario ayuda.
           </p>
 
           <form onSubmit={enviarComentario} className="mt-5 space-y-4">
+            <div>
+              <p className="text-sm font-bold text-[#334155]">
+                Respuesta rápida
+              </p>
+              <p className="mt-1 text-sm text-[#64748b]">
+                Pulsa una opción o escribe algo propio. Una frase real ya ayuda.
+              </p>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {COMENTARIOS_RAPIDOS_EVENTO.map((texto) => (
+                  <button
+                    key={texto}
+                    type="button"
+                    onClick={() => usarComentarioRapido(texto)}
+                    className={`rounded-full border px-3 py-2 text-xs font-bold transition ${
+                      comentarioRapidoActivo === texto
+                        ? "border-[#f97316] bg-[#f97316] text-white shadow-sm"
+                        : "border-[#fed7aa] bg-[#fff7ed] text-[#9a3412] hover:bg-[#ffedd5]"
+                    }`}
+                  >
+                    {texto}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <input
               type="text"
               value={autorComentario}
@@ -347,8 +397,11 @@ export default function EventoPage() {
 
             <textarea
               value={textoComentario}
-              onChange={(e) => setTextoComentario(e.target.value)}
-              placeholder="Ejemplo: Fui ayer y estaba hasta arriba, mejor ir pronto."
+              onChange={(e) => {
+                setTextoComentario(e.target.value);
+                setComentarioRapidoActivo("");
+              }}
+              placeholder="Ej: Fui ayer y estaba lleno pero buen ambiente"
               rows={4}
               className="w-full rounded-2xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
             />
@@ -361,7 +414,7 @@ export default function EventoPage() {
 
             {comentarioEnviado && (
               <p className="text-sm font-medium text-[#166534]">
-                Comentario enviado.
+                Comentario enviado. Gracias por ayudar a decidir 🙌
               </p>
             )}
 
@@ -370,28 +423,40 @@ export default function EventoPage() {
               disabled={enviandoComentario}
               className="inline-flex rounded-full bg-[#f97316] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {enviandoComentario ? "Enviando..." : "Enviar comentario"}
+              {enviandoComentario ? "Enviando..." : "Publicar comentario"}
             </button>
           </form>
         </div>
 
         <div className="mt-6 rounded-3xl border border-[#e5e7eb] bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-bold text-[#334155]">
-              Comentarios reales
-            </h2>
+            <div>
+              <p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-[#ea580c]">
+                🔴 Comentarios recientes del plan
+              </p>
+              <h2 className="text-xl font-bold text-[#334155]">
+                Comentarios reales
+              </h2>
+            </div>
+
             <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-semibold text-[#ea580c]">
               {comentarios.length} comentario(s)
             </span>
           </div>
 
           {comentarios.length === 0 ? (
-            <p className="text-sm leading-6 text-[#64748b]">
-              Todavía no hay comentarios. Sé el primero en contar cómo estaba este plan.
-            </p>
+            <div className="rounded-2xl border border-dashed border-[#fed7aa] bg-[#fff7ed] p-4">
+              <p className="text-sm font-semibold text-[#334155]">
+                Nadie ha contado todavía cómo estaba.
+              </p>
+              <p className="mt-1 text-sm leading-6 text-[#64748b]">
+                Puedes ser la primera persona en decir si había ambiente, si
+                estaba lleno o si merece la pena ir.
+              </p>
+            </div>
           ) : (
             <div className="space-y-4">
-              {comentarios.map((comentario) => (
+              {comentarios.map((comentario, index) => (
                 <article
                   key={comentario.id}
                   className="rounded-2xl border border-[#f1f5f9] bg-[#fffaf7] p-4"
@@ -399,6 +464,11 @@ export default function EventoPage() {
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="text-sm font-bold text-[#334155]">
                       {comentario.autor?.trim() || "Anónimo"}
+                      {index === 0 && (
+                        <span className="ml-2 rounded-full bg-[#fee2e2] px-2 py-1 text-xs font-bold text-[#b91c1c]">
+                          🔥 Reciente
+                        </span>
+                      )}
                     </p>
                     <p className="text-xs text-[#64748b]">
                       {formatearFechaComentario(comentario.created_at)}
