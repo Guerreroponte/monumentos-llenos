@@ -13,12 +13,30 @@ type Lugar = {
   imagen?: string | null;
 };
 
+type Resena = {
+  id: string;
+  monumento_id: string;
+  usuario?: string | null;
+  comentario?: string | null;
+  foto?: string | null;
+  created_at?: string | null;
+  likes?: number | null;
+  reportado?: boolean | null;
+};
+
 export default function LugarPage() {
   const params = useParams();
   const slug = params?.slug as string;
 
   const [lugar, setLugar] = useState<Lugar | null>(null);
+  const [resenas, setResenas] = useState<Resena[]>([]);
   const [cargando, setCargando] = useState(true);
+
+  const [usuario, setUsuario] = useState("");
+  const [comentario, setComentario] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [mensajeOk, setMensajeOk] = useState("");
+  const [mensajeError, setMensajeError] = useState("");
 
   useEffect(() => {
     if (!slug) return;
@@ -33,15 +51,38 @@ export default function LugarPage() {
       if (error) {
         console.error("Error cargando lugar:", error);
         setLugar(null);
-      } else {
-        setLugar(data);
+        setCargando(false);
+        return;
       }
 
+      setLugar(data);
       setCargando(false);
     };
 
     cargarLugar();
   }, [slug]);
+
+  useEffect(() => {
+    if (!lugar?.id) return;
+
+    const cargarResenas = async () => {
+      const { data, error } = await supabase
+        .from("resenas")
+        .select("*")
+        .eq("monumento_id", lugar.id)
+        .or("reportado.is.null,reportado.eq.false")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error cargando reseñas:", error);
+        return;
+      }
+
+      setResenas(data || []);
+    };
+
+    cargarResenas();
+  }, [lugar?.id]);
 
   const compartirWhatsApp = () => {
     if (typeof window === "undefined") return;
@@ -53,6 +94,68 @@ ${url}`;
 
     window.open(enlace, "_blank", "noopener,noreferrer");
   };
+
+  const enviarComentario = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setMensajeOk("");
+    setMensajeError("");
+
+    if (!lugar?.id) {
+      setMensajeError("No se encontró el lugar.");
+      return;
+    }
+
+    if (!comentario.trim()) {
+      setMensajeError("Escribe un comentario antes de enviarlo.");
+      return;
+    }
+
+    setEnviando(true);
+
+    const { data, error } = await supabase
+      .from("resenas")
+      .insert([
+        {
+          monumento_id: lugar.id,
+          usuario: usuario.trim() || "Anónimo",
+          comentario: comentario.trim(),
+          foto: null,
+          likes: 0,
+          reportado: false,
+        },
+      ])
+      .select()
+      .single();
+
+    setEnviando(false);
+
+    if (error) {
+      console.error("Error enviando comentario:", error);
+      setMensajeError("No se pudo enviar el comentario. Prueba otra vez.");
+      return;
+    }
+
+    if (data) {
+      setResenas((prev) => [data, ...prev]);
+      setUsuario("");
+      setComentario("");
+      setMensajeOk("Comentario añadido. Gracias por aportar algo real 🙌");
+    }
+  };
+
+  function formatearFecha(fecha?: string | null) {
+    if (!fecha) return "";
+
+    const d = new Date(fecha);
+    if (Number.isNaN(d.getTime())) return "";
+
+    return d.toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
 
   if (cargando) {
     return (
@@ -154,6 +257,127 @@ ${url}`;
             </div>
           </div>
         </div>
+
+        <section className="mt-6 rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-extrabold text-slate-900">
+                Comentarios de visitantes
+              </h2>
+              <p className="mt-2 text-sm text-slate-600">
+                ¿Has estado aquí? Cuenta cómo fue la experiencia.
+              </p>
+            </div>
+
+            <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-orange-600">
+              💬 {resenas.length} comentario(s)
+            </span>
+          </div>
+
+          <form
+            onSubmit={enviarComentario}
+            className="mt-6 rounded-3xl border border-orange-100 bg-[#fffaf3] p-5"
+          >
+            <p className="text-sm font-bold text-slate-900">
+              Añadir comentario rápido
+            </p>
+            <p className="mt-1 text-sm text-slate-600">
+              Una frase real ayuda más que una reseña perfecta.
+            </p>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <input
+                value={usuario}
+                onChange={(e) => setUsuario(e.target.value)}
+                placeholder="Tu nombre o alias (opcional)"
+                className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-400"
+              />
+
+              <input
+                value={comentario}
+                onChange={(e) => setComentario(e.target.value)}
+                placeholder="Ej: Fui al atardecer y había ambiente sin agobios"
+                className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-400"
+              />
+            </div>
+
+            {mensajeError && (
+              <p className="mt-3 text-sm font-semibold text-red-600">
+                {mensajeError}
+              </p>
+            )}
+
+            {mensajeOk && (
+              <p className="mt-3 text-sm font-semibold text-green-700">
+                {mensajeOk}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={enviando}
+              className="mt-4 rounded-full bg-slate-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {enviando ? "Enviando..." : "Publicar comentario"}
+            </button>
+          </form>
+
+          <div className="mt-6 space-y-4">
+            {resenas.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-orange-200 bg-orange-50/50 p-5">
+                <p className="text-sm font-semibold text-slate-800">
+                  Todavía no hay comentarios.
+                </p>
+                <p className="mt-1 text-sm text-slate-600">
+                  Sé la primera persona en contar si merece la pena, si hay
+                  ambiente o si conviene ir a otra hora.
+                </p>
+              </div>
+            ) : (
+              resenas.map((resena) => (
+                <article
+                  key={resena.id}
+                  className="rounded-3xl border border-orange-100 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      {resena.foto ? (
+                        <img
+                          src={resena.foto}
+                          alt={resena.usuario || "Usuario"}
+                          className="h-12 w-12 rounded-2xl object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-black uppercase text-white">
+                          {(resena.usuario || "A").slice(0, 1)}
+                        </div>
+                      )}
+
+                      <div>
+                        <p className="font-bold text-slate-900">
+                          {resena.usuario || "Anónimo"}
+                        </p>
+                        {resena.created_at && (
+                          <p className="text-xs text-slate-500">
+                            {formatearFecha(resena.created_at)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <span className="rounded-full bg-rose-50 px-4 py-2 text-sm font-bold text-rose-600">
+                      ❤️ A {resena.likes || 0} personas les ha gustado
+                    </span>
+                  </div>
+
+                  <p className="mt-4 text-base leading-7 text-slate-700">
+                    {resena.comentario || "Sin comentario."}
+                  </p>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
       </div>
     </main>
   );
