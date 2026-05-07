@@ -100,10 +100,39 @@ type EventoUI = {
   comentarios_eventos?: ComentarioEventoUI[];
 };
 
+type ComentarioEventoFotoUI = {
+  id: string;
+  texto?: string | null;
+  foto?: string | null;
+  created_at?: string | null;
+  eventos?:
+    | {
+        nombre?: string | null;
+        ciudad?: string | null;
+        slug?: string | null;
+        tipo?: string | null;
+      }
+    | {
+        nombre?: string | null;
+        ciudad?: string | null;
+        slug?: string | null;
+        tipo?: string | null;
+      }[]
+    | null;
+};
+
 type FotoSeleccionada = {
   file: File;
   preview: string;
 };
+
+function getEventoRelacionado(comentario: ComentarioEventoFotoUI) {
+  if (Array.isArray(comentario.eventos)) {
+    return comentario.eventos[0] || null;
+  }
+
+  return comentario.eventos || null;
+}
 
 async function resizeImageToDataUrl(file: File): Promise<string> {
   const fileDataUrl = await new Promise<string>((resolve, reject) => {
@@ -270,6 +299,9 @@ function LugarGaleriaRotativa({
 export default function Home() {
   const [monumentos, setMonumentos] = useState<MonumentoUI[]>([]);
   const [eventosHoy, setEventosHoy] = useState<EventoUI[]>([]);
+  const [comentariosEventosConFoto, setComentariosEventosConFoto] = useState<
+    ComentarioEventoFotoUI[]
+  >([]);
   const [cargando, setCargando] = useState(true);
   const [guardandoMonumento, setGuardandoMonumento] = useState(false);
   const [guardandoResena, setGuardandoResena] = useState(false);
@@ -459,9 +491,37 @@ export default function Home() {
     })));
   };
 
+  const cargarComentariosEventosConFoto = async () => {
+    const { data, error } = await supabase
+      .from("comentarios_eventos")
+      .select(`
+        id,
+        texto,
+        foto,
+        created_at,
+        eventos (
+          nombre,
+          ciudad,
+          slug,
+          tipo
+        )
+      `)
+      .not("foto", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(6);
+
+    if (error) {
+      console.error("Error cargando fotos de comentarios de eventos:", error);
+      return;
+    }
+
+    setComentariosEventosConFoto((data || []) as ComentarioEventoFotoUI[]);
+  };
+
   useEffect(() => {
     cargarDatos();
     cargarEventosHoy();
+    cargarComentariosEventosConFoto();
   }, []);
 
   useEffect(() => {
@@ -513,8 +573,8 @@ export default function Home() {
       const fotosExtraLugar = monumento.fotosLugar.length;
       const fotosResenas = monumento.resenas.filter((r) => r.foto).length;
       return acc + fotosPrincipales + fotosExtraLugar + fotosResenas;
-    }, 0);
-  }, [monumentos]);
+    }, comentariosEventosConFoto.length);
+  }, [monumentos, comentariosEventosConFoto.length]);
 
   const ultimosAportes = useMemo(() => {
     const items = monumentos
@@ -995,17 +1055,17 @@ ${url}`;
 
           <div className="mt-8 flex flex-wrap gap-4">
             <a
-              href="#hoy-mismo"
+              href="#asi-estan-los-planes"
               className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
             >
-              Ver qué hacer hoy
+              Ver fotos reales
             </a>
 
             <a
-              href="#comentado"
+              href="#hoy-mismo"
               className="rounded-full border border-orange-200 bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
             >
-              Ver lo más comentado
+              Ver qué hacer hoy
             </a>
 
             <a
@@ -1055,6 +1115,96 @@ ${url}`;
           </div>
         </div>
       </section>
+
+      {comentariosEventosConFoto.length > 0 && (
+        <section
+          id="asi-estan-los-planes"
+          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
+        >
+          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
+                  Fotos reales
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                  👀 Así están los planes ahora
+                </h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  Fotos subidas en comentarios de eventos. Ambiente real antes de decidir si ir.
+                </p>
+              </div>
+
+              <Link
+                href="/eventos"
+                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+              >
+                Ver todos los eventos
+              </Link>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {comentariosEventosConFoto.map((comentario) => {
+                const eventoRelacionado = getEventoRelacionado(comentario);
+                const hrefEvento = eventoRelacionado?.slug
+                  ? `/eventos/${eventoRelacionado.slug}`
+                  : "/eventos";
+
+                return (
+                  <Link
+                    key={comentario.id}
+                    href={hrefEvento}
+                    className="group overflow-hidden rounded-3xl border border-orange-100 bg-orange-50/40 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
+                  >
+                    {comentario.foto && (
+                      <img
+                        src={comentario.foto}
+                        alt={eventoRelacionado?.nombre || "Foto real de un evento"}
+                        className="h-56 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                      />
+                    )}
+
+                    <div className="p-5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
+                          📸 Foto real
+                        </span>
+
+                        {eventoRelacionado?.tipo && (
+                          <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                            {eventoRelacionado.tipo}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="mt-4 line-clamp-2 text-xl font-bold leading-tight text-slate-900">
+                        {eventoRelacionado?.nombre || "Plan de la comunidad"}
+                      </h3>
+
+                      <p className="mt-2 text-sm font-medium text-slate-500">
+                        📍 {eventoRelacionado?.ciudad || "Ciudad por confirmar"}
+                      </p>
+
+                      <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
+                        “{comentario.texto || "Foto subida por la comunidad."}”
+                      </p>
+
+                      <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 group-hover:text-orange-700">
+                        <span>Ver evento</span>
+                        <span>→</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-medium text-orange-700">
+              📸 Si vas a un plan, entra en su ficha y sube una foto para ayudar a otros a decidir.
+            </div>
+          </div>
+        </section>
+      )}
 
       {eventosHoy.length > 0 && (
         <section
@@ -1286,17 +1436,17 @@ ${url}`;
               </a>
 
               <a
-                href="#comentado"
+                href="#asi-estan-los-planes"
                 className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
               >
                 <p className="text-sm font-semibold text-orange-600">
-                  02 · Lo más comentado
+                  02 · Fotos reales
                 </p>
                 <h3 className="mt-2 text-lg font-bold text-slate-900">
-                  Mira primero donde ya hay comunidad
+                  Mira el ambiente antes de decidir
                 </h3>
                 <p className="mt-2 text-sm text-slate-600">
-                  Los comentarios reales ayudan mucho más que una foto bonita.
+                  Las fotos de comentarios hacen que la web se sienta viva.
                 </p>
               </a>
 
