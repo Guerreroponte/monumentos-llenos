@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -10,6 +10,7 @@ type Comentario = {
   texto: string;
   autor?: string | null;
   created_at: string;
+  foto?: string | null;
 };
 
 type Evento = {
@@ -34,6 +35,8 @@ type Evento = {
   parking?: boolean | null;
   recomendable?: boolean | null;
 };
+
+const STORAGE_BUCKET = "imagenes";
 
 const COMENTARIOS_RAPIDOS_EVENTO = [
   "🔥 Llenísimo, mejor ir pronto",
@@ -77,18 +80,100 @@ function textoFechaEvento(evento: Evento) {
   return inicio;
 }
 
+function limpiarNombreArchivo(nombre: string) {
+  return nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+async function resizeImageToBlob(file: File): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+
+      const maxSize = 1200;
+      let { width, height } = img;
+
+      if (width > height && width > maxSize) {
+        height = Math.round((height * maxSize) / width);
+        width = maxSize;
+      } else if (height > maxSize) {
+        width = Math.round((width * maxSize) / height);
+        height = maxSize;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("No se pudo procesar la imagen."));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error("No se pudo comprimir la imagen."));
+            return;
+          }
+
+          resolve(blob);
+        },
+        "image/jpeg",
+        0.8
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("No se pudo leer la imagen."));
+    };
+
+    img.src = url;
+  });
+}
+
 export default function EventoPage() {
   const params = useParams();
   const slug = params?.slug as string;
+  const botonPublicarRef = useRef<HTMLButtonElement | null>(null);
+  const inputFotoRef = useRef<HTMLInputElement | null>(null);
 
   const [evento, setEvento] = useState<Evento | null>(null);
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [textoComentario, setTextoComentario] = useState("");
   const [comentarioRapidoActivo, setComentarioRapidoActivo] = useState("");
   const [autorComentario, setAutorComentario] = useState("");
+  const [fotoComentario, setFotoComentario] = useState<File | null>(null);
+  const [previewFotoComentario, setPreviewFotoComentario] = useState("");
   const [enviandoComentario, setEnviandoComentario] = useState(false);
   const [errorComentario, setErrorComentario] = useState("");
   const [comentarioEnviado, setComentarioEnviado] = useState(false);
+
+  const comentariosOrdenados = useMemo(() => {
+    return [...comentarios].sort((a, b) => {
+      const aTieneFoto = !!a.foto;
+      const bTieneFoto = !!b.foto;
+
+      if (aTieneFoto && !bTieneFoto) return -1;
+      if (!aTieneFoto && bTieneFoto) return 1;
+
+      return (
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+    });
+  }, [comentarios]);
 
   useEffect(() => {
     if (!slug) return;
@@ -128,6 +213,20 @@ export default function EventoPage() {
     cargarComentarios();
   }, [evento?.id]);
 
+  useEffect(() => {
+    if (!fotoComentario) {
+      setPreviewFotoComentario("");
+      return;
+    }
+
+    const url = URL.createObjectURL(fotoComentario);
+    setPreviewFotoComentario(url);
+
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [fotoComentario]);
+
   const compartirWhatsApp = () => {
     if (!evento) return;
 
@@ -136,11 +235,80 @@ export default function EventoPage() {
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
   };
 
-  const usarComentarioRapido = (texto: string) => {
-    setTextoComentario(texto);
+  const subirFotoComentario = async () => {
+    if (!fotoComentario || !evento?.id) return null;
+
+    const nombreLimpio = limpiarNombreArchivo(fotoComentario.name || "foto");
+    const ruta = `comentarios-eventos/${evento.id}/${Date.now()}-${nombreLimpio}.jpg`;
+
+    const blob = await resizeImageToBlob(fotoComentario);
+
+    const { error } = await supabase.storage
+      .from(STORAGE_BUCKET)
+      .upload(ruta, blob, {
+        contentType: "image/jpeg",
+        upsert: false,
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    const { data } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(ruta);
+
+    return data.publicUrl;
+  };
+
+  const limpiarFormularioComentario = () => {
+    setTextoComentario("");
+    setComentarioRapidoActivo("");
+    setAutorComentario("");
+    setFotoComentario(null);
+    setPreviewFotoComentario("");
+
+    if (inputFotoRef.current) {
+      inputFotoRef.current.value = "";
+    }
+  };
+
+  const usarComentarioRapido = async (texto: string) => {
+    if (!evento?.id || enviandoComentario || comentarioRapidoActivo) return;
+
     setComentarioRapidoActivo(texto);
     setErrorComentario("");
     setComentarioEnviado(false);
+
+    const { data, error } = await supabase
+      .from("comentarios_eventos")
+      .insert([
+        {
+          evento_id: evento.id,
+          texto,
+          autor: null,
+          foto: null,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) {
+      setErrorComentario("No se pudo enviar el comentario.");
+      setComentarioRapidoActivo("");
+      return;
+    }
+
+    if (data) {
+      setComentarios((prev) => [data, ...prev]);
+      limpiarFormularioComentario();
+      setComentarioEnviado(true);
+
+      setTimeout(() => {
+        botonPublicarRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 100);
+    }
   };
 
   const enviarComentario = async (e: React.FormEvent) => {
@@ -164,31 +332,40 @@ export default function EventoPage() {
 
     setEnviandoComentario(true);
 
-    const { data, error } = await supabase
-      .from("comentarios_eventos")
-      .insert([
-        {
-          evento_id: evento.id,
-          texto: textoLimpio,
-          autor: autorLimpio || null,
-        },
-      ])
-      .select()
-      .single();
+    try {
+      let urlFoto: string | null = null;
 
-    setEnviandoComentario(false);
+      if (fotoComentario) {
+        urlFoto = await subirFotoComentario();
+      }
 
-    if (error) {
-      setErrorComentario("No se pudo enviar el comentario.");
-      return;
-    }
+      const { data, error } = await supabase
+        .from("comentarios_eventos")
+        .insert([
+          {
+            evento_id: evento.id,
+            texto: textoLimpio,
+            autor: autorLimpio || null,
+            foto: urlFoto,
+          },
+        ])
+        .select()
+        .single();
 
-    if (data) {
-      setComentarios((prev) => [data, ...prev]);
-      setTextoComentario("");
-      setComentarioRapidoActivo("");
-      setAutorComentario("");
-      setComentarioEnviado(true);
+      if (error) {
+        setErrorComentario("No se pudo enviar el comentario.");
+        return;
+      }
+
+      if (data) {
+        setComentarios((prev) => [data, ...prev]);
+        limpiarFormularioComentario();
+        setComentarioEnviado(true);
+      }
+    } catch {
+      setErrorComentario("No se pudo subir la foto. Prueba con otra imagen.");
+    } finally {
+      setEnviandoComentario(false);
     }
   };
 
@@ -357,7 +534,7 @@ export default function EventoPage() {
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-[#64748b]">
-            💬 La gente está decidiendo si ir hoy. Tu comentario ayuda.
+            ⚡ La gente está decidiendo ahora si ir. Tu comentario o foto puede ayudar mucho.
           </p>
 
           <form onSubmit={enviarComentario} className="mt-5 space-y-4">
@@ -366,7 +543,7 @@ export default function EventoPage() {
                 Respuesta rápida
               </p>
               <p className="mt-1 text-sm text-[#64748b]">
-                Pulsa una opción o escribe algo propio. Una frase real ya ayuda.
+                Pulsa una opción y se publica al momento. Una frase real ya ayuda.
               </p>
 
               <div className="mt-3 flex flex-wrap gap-2">
@@ -374,14 +551,15 @@ export default function EventoPage() {
                   <button
                     key={texto}
                     type="button"
+                    disabled={!!comentarioRapidoActivo || enviandoComentario}
                     onClick={() => usarComentarioRapido(texto)}
-                    className={`rounded-full border px-3 py-2 text-xs font-bold transition ${
+                    className={`rounded-full border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-70 ${
                       comentarioRapidoActivo === texto
                         ? "border-[#f97316] bg-[#f97316] text-white shadow-sm"
                         : "border-[#fed7aa] bg-[#fff7ed] text-[#9a3412] hover:bg-[#ffedd5]"
                     }`}
                   >
-                    {texto}
+                    {comentarioRapidoActivo === texto ? "Enviando..." : texto}
                   </button>
                 ))}
               </div>
@@ -406,6 +584,50 @@ export default function EventoPage() {
               className="w-full rounded-2xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
             />
 
+            <div className="rounded-2xl border border-dashed border-[#fed7aa] bg-[#fff7ed] p-4">
+              <p className="text-sm font-bold text-[#334155]">
+                📸 Añadir foto del ambiente (opcional)
+              </p>
+              <p className="mt-1 text-sm leading-6 text-[#64748b]">
+                Una foto ayuda mucho a ver si el plan estaba lleno, tranquilo o con buen ambiente.
+              </p>
+
+              <input
+                ref={inputFotoRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setFotoComentario(file);
+                }}
+                className="mt-3 w-full text-sm text-[#475569] file:mr-3 file:rounded-full file:border-0 file:bg-[#f97316] file:px-4 file:py-2 file:text-sm file:font-bold file:text-white"
+              />
+
+              {previewFotoComentario && (
+                <div className="mt-4">
+                  <img
+                    src={previewFotoComentario}
+                    alt="Vista previa de la foto"
+                    className="max-h-80 w-full rounded-2xl object-cover"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFotoComentario(null);
+                      setPreviewFotoComentario("");
+                      if (inputFotoRef.current) {
+                        inputFotoRef.current.value = "";
+                      }
+                    }}
+                    className="mt-3 rounded-full border border-[#fecaca] bg-white px-4 py-2 text-xs font-bold text-[#b91c1c] transition hover:bg-[#fef2f2]"
+                  >
+                    Quitar foto
+                  </button>
+                </div>
+              )}
+            </div>
+
             {errorComentario && (
               <p className="text-sm font-medium text-[#b91c1c]">
                 {errorComentario}
@@ -413,17 +635,23 @@ export default function EventoPage() {
             )}
 
             {comentarioEnviado && (
-              <p className="text-sm font-medium text-[#166534]">
-                Comentario enviado. Gracias por ayudar a decidir 🙌
-              </p>
+              <div className="rounded-2xl border border-[#bbf7d0] bg-[#f0fdf4] p-4">
+                <p className="text-sm font-semibold text-[#166534]">
+                  Comentario enviado. Gracias por ayudar a decidir 🙌
+                </p>
+                <p className="mt-1 text-sm text-[#64748b]">
+                  👉 Compártelo por WhatsApp para que más gente diga cómo estaba.
+                </p>
+              </div>
             )}
 
             <button
+              ref={botonPublicarRef}
               type="submit"
               disabled={enviandoComentario}
               className="inline-flex rounded-full bg-[#f97316] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {enviandoComentario ? "Enviando..." : "Publicar comentario"}
+              {enviandoComentario ? "Enviando..." : "Contar cómo estaba"}
             </button>
           </form>
         </div>
@@ -447,29 +675,46 @@ export default function EventoPage() {
           {comentarios.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#fed7aa] bg-[#fff7ed] p-4">
               <p className="text-sm font-semibold text-[#334155]">
-                Nadie ha contado todavía cómo estaba.
+                Todavía nadie ha contado cómo estaba.
               </p>
               <p className="mt-1 text-sm leading-6 text-[#64748b]">
-                Puedes ser la primera persona en decir si había ambiente, si
-                estaba lleno o si merece la pena ir.
+                Sé el primero en decir si había ambiente, si estaba lleno o si merece la pena ir 👇
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {comentarios.map((comentario, index) => (
+              {comentariosOrdenados.map((comentario, index) => (
                 <article
                   key={comentario.id}
-                  className="rounded-2xl border border-[#f1f5f9] bg-[#fffaf7] p-4"
+                  className={`rounded-2xl border p-4 ${
+                    comentario.foto
+                      ? "border-[#fed7aa] bg-[#fff7ed]"
+                      : "border-[#f1f5f9] bg-[#fffaf7]"
+                  }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="text-sm font-bold text-[#334155]">
                       {comentario.autor?.trim() || "Anónimo"}
+
+                      {comentario.foto && (
+                        <span className="ml-2 rounded-full bg-[#dbeafe] px-2 py-1 text-xs font-bold text-[#1d4ed8]">
+                          📸 Con foto
+                        </span>
+                      )}
+
                       {index === 0 && (
                         <span className="ml-2 rounded-full bg-[#fee2e2] px-2 py-1 text-xs font-bold text-[#b91c1c]">
-                          🔥 Reciente
+                          🔥 Destacado
+                        </span>
+                      )}
+
+                      {comentarios.length === 1 && (
+                        <span className="ml-2 rounded-full bg-[#ecfccb] px-2 py-1 text-xs font-bold text-[#3f6212]">
+                          🥇 Primero
                         </span>
                       )}
                     </p>
+
                     <p className="text-xs text-[#64748b]">
                       {formatearFechaComentario(comentario.created_at)}
                     </p>
@@ -478,6 +723,14 @@ export default function EventoPage() {
                   <p className="mt-2 text-sm leading-6 text-[#475569]">
                     {comentario.texto}
                   </p>
+
+                  {comentario.foto && (
+                    <img
+                      src={comentario.foto}
+                      alt="Foto subida en el comentario"
+                      className="mt-3 max-h-[520px] w-full rounded-2xl object-cover"
+                    />
+                  )}
                 </article>
               ))}
             </div>
