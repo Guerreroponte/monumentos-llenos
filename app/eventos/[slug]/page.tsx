@@ -160,6 +160,7 @@ export default function EventoPage() {
   const [enviandoComentario, setEnviandoComentario] = useState(false);
   const [errorComentario, setErrorComentario] = useState("");
   const [comentarioEnviado, setComentarioEnviado] = useState(false);
+  const [mensajeCompartir, setMensajeCompartir] = useState("");
 
   const comentariosOrdenados = useMemo(() => {
     return [...comentarios].sort((a, b) => {
@@ -227,12 +228,63 @@ export default function EventoPage() {
     };
   }, [fotoComentario]);
 
+  useEffect(() => {
+    if (!mensajeCompartir) return;
+
+    const timeout = setTimeout(() => {
+      setMensajeCompartir("");
+    }, 2500);
+
+    return () => clearTimeout(timeout);
+  }, [mensajeCompartir]);
+
   const compartirWhatsApp = () => {
     if (!evento) return;
 
     const url = window.location.href;
     const texto = `Mira este plan: ${evento.nombre} (${evento.ciudad}) 👉 ${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
+  };
+
+  const compartirGeneral = async () => {
+    if (!evento) return;
+
+    const url = window.location.href;
+    const titulo = evento.nombre || "Plan en Lugares Llenos";
+    const texto = `Mira este plan en Lugares Llenos${
+      evento.ciudad ? ` (${evento.ciudad})` : ""
+    }`;
+
+    // Compartir nativo (móvil principalmente)
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: titulo,
+          text: texto,
+          url,
+        });
+        return;
+      } catch (error: any) {
+        if (error?.name === "AbortError") return;
+      }
+    }
+
+    // Fallback copiar enlace sin romper
+    try {
+      if (
+        typeof navigator !== "undefined" &&
+        navigator.clipboard &&
+        document.hasFocus()
+      ) {
+        await navigator.clipboard.writeText(url);
+        setMensajeCompartir("Enlace copiado para compartir");
+      } else {
+        setMensajeCompartir("Copia el enlace desde la barra del navegador");
+      }
+    } catch (error) {
+      console.error("No se pudo compartir:", error);
+      setMensajeCompartir("Copia el enlace desde la barra del navegador");
+    }
   };
 
   const subirFotoComentario = async () => {
@@ -514,6 +566,13 @@ export default function EventoPage() {
                 Compartir por WhatsApp
               </button>
 
+              <button
+                onClick={compartirGeneral}
+                className="inline-flex rounded-full bg-[#0f172a] px-5 py-3 text-sm font-bold text-white transition hover:opacity-90"
+              >
+                Compartir
+              </button>
+
               {evento.enlace && (
                 <a
                   href={evento.enlace}
@@ -525,6 +584,12 @@ export default function EventoPage() {
                 </a>
               )}
             </div>
+
+            {mensajeCompartir && (
+              <div className="mt-3 rounded-2xl border border-[#bbf7d0] bg-[#f0fdf4] px-4 py-3 text-sm font-semibold text-[#166534]">
+                {mensajeCompartir}
+              </div>
+            )}
           </div>
         </div>
 
@@ -640,7 +705,7 @@ export default function EventoPage() {
                   Comentario enviado. Gracias por ayudar a decidir 🙌
                 </p>
                 <p className="mt-1 text-sm text-[#64748b]">
-                  👉 Compártelo por WhatsApp para que más gente diga cómo estaba.
+                  👉 Compártelo para que más gente diga cómo estaba.
                 </p>
               </div>
             )}
