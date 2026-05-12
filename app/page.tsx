@@ -1069,10 +1069,10 @@ ${url}`;
             </a>
 
             <a
-              href="#participa"
+              href="/participa"
               className="rounded-full border border-slate-200 bg-slate-900 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:opacity-90"
             >
-              Contar mi experiencia
+              Subir un plan
             </a>
           </div>
         </div>
