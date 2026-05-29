@@ -1349,7 +1349,7 @@ ${url}`;
             </div>
 
             <Link
-              href="/eventos"
+              href="/colaboradores"
               className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
             >
               Ver eventos
@@ -1392,10 +1392,10 @@ ${url}`;
                 </p>
 
                 <Link
-                  href="/eventos"
+                  href="/colaboradores"
                   className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-orange-600 hover:text-orange-700"
                 >
-                  <span>Ver eventos relacionados</span>
+                  <span>Ver colaboradores</span>
                   <span>→</span>
                 </Link>
               </div>
