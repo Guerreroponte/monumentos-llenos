@@ -15,6 +15,10 @@ type Colaborador = {
   destacado: boolean | null;
   logo: string | null;
   imagen: string | null;
+  sorteo_activo: boolean | null;
+  titulo_sorteo: string | null;
+  descripcion_sorteo: string | null;
+  fecha_sorteo: string | null;
 };
 
 export const dynamic = "force-dynamic";
@@ -23,12 +27,16 @@ export default async function ColaboradoresPage() {
   const { data, error } = await supabase
     .from("colaboradores")
     .select(
-      "id, nombre, ciudad, tipo, estado, descripcion, icono, web, instagram, email, destacado, logo, imagen"
+      "id, nombre, ciudad, tipo, estado, descripcion, icono, web, instagram, email, destacado, logo, imagen, sorteo_activo, titulo_sorteo, descripcion_sorteo, fecha_sorteo"
     )
     .eq("destacado", true)
     .order("created_at", { ascending: true });
 
   const locales = ((data || []) as Colaborador[]).filter(Boolean);
+
+  const sorteosActivos = locales.filter(
+    (local) => local.sorteo_activo && local.titulo_sorteo
+  );
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
@@ -59,6 +67,46 @@ export default async function ColaboradoresPage() {
         {error && (
           <div className="mt-8 rounded-3xl border border-red-100 bg-red-50 p-5 text-sm font-semibold text-red-700">
             No se han podido cargar los colaboradores ahora mismo.
+          </div>
+        )}
+
+        {sorteosActivos.length > 0 && (
+          <div className="mt-10 rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-6 shadow-lg shadow-orange-100">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🎟️</span>
+              <h2 className="text-2xl font-extrabold text-slate-900">
+                Sorteos e invitaciones activas
+              </h2>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              {sorteosActivos.map((sorteo) => (
+                <div
+                  key={sorteo.id}
+                  className="rounded-2xl bg-white p-5 shadow-sm"
+                >
+                  <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
+                    {sorteo.nombre}
+                  </p>
+
+                  <h3 className="mt-1 text-xl font-bold text-slate-900">
+                    {sorteo.titulo_sorteo}
+                  </h3>
+
+                  {sorteo.descripcion_sorteo && (
+                    <p className="mt-2 text-slate-600">
+                      {sorteo.descripcion_sorteo}
+                    </p>
+                  )}
+
+                  {sorteo.fecha_sorteo && (
+                    <p className="mt-3 font-semibold text-orange-700">
+                      📅 {sorteo.fecha_sorteo}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
