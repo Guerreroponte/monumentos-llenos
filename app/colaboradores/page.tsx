@@ -1,36 +1,35 @@
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
-const LOCALES = [
-  {
-    nombre: "Harlem Jazz Club",
-    ciudad: "Barcelona",
-    tipo: "Jazz y música en directo",
-    estado: "Colaborador",
-    descripcion:
-      "Sala histórica de Barcelona que puede compartir programación, conciertos e invitaciones para la comunidad.",
-    icono: "🎷",
-  },
-  {
-    nombre: "Café La Palma",
-    ciudad: "Madrid",
-    tipo: "Música en directo",
-    estado: "Programación",
-    descripcion:
-      "Sala madrileña con conciertos, sesiones y programación cultural.",
-    icono: "🎸",
-  },
-  {
-    nombre: "Loco Club",
-    ciudad: "Valencia",
-    tipo: "Directos y bandas",
-    estado: "Recomendado",
-    descripcion:
-      "Sala valenciana para descubrir grupos, conciertos y ambiente local.",
-    icono: "🎤",
-  },
-];
+type Colaborador = {
+  id: string;
+  nombre: string;
+  ciudad: string | null;
+  tipo: string | null;
+  estado: string | null;
+  descripcion: string | null;
+  icono: string | null;
+  web: string | null;
+  instagram: string | null;
+  email: string | null;
+  destacado: boolean | null;
+  logo: string | null;
+  imagen: string | null;
+};
 
-export default function ColaboradoresPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ColaboradoresPage() {
+  const { data, error } = await supabase
+    .from("colaboradores")
+    .select(
+      "id, nombre, ciudad, tipo, estado, descripcion, icono, web, instagram, email, destacado, logo, imagen"
+    )
+    .eq("destacado", true)
+    .order("created_at", { ascending: true });
+
+  const locales = ((data || []) as Colaborador[]).filter(Boolean);
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20">
@@ -57,50 +56,105 @@ export default function ColaboradoresPage() {
           </p>
         </div>
 
+        {error && (
+          <div className="mt-8 rounded-3xl border border-red-100 bg-red-50 p-5 text-sm font-semibold text-red-700">
+            No se han podido cargar los colaboradores ahora mismo.
+          </div>
+        )}
+
         <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {LOCALES.map((local) => (
+          {locales.map((local) => (
             <div
-              key={local.nombre}
-              className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100"
+              key={local.id}
+              className="overflow-hidden rounded-3xl border border-orange-100 bg-white/95 shadow-lg shadow-orange-100"
             >
-              <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
-                  📍 {local.ciudad}
-                </span>
+              {local.imagen && (
+                <img
+                  src={local.imagen}
+                  alt={local.nombre}
+                  className="h-44 w-full object-cover"
+                />
+              )}
 
-                <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-                  {local.estado}
-                </span>
-              </div>
+              <div className="p-6">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
+                    📍 {local.ciudad || "Ciudad"}
+                  </span>
 
-              <div className="mt-6 flex items-start gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-3xl shadow-sm">
-                  {local.icono}
+                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+                    {local.estado || "Colaborador"}
+                  </span>
                 </div>
 
-                <div>
-                  <h2 className="text-2xl font-extrabold text-slate-900">
-                    {local.nombre}
-                  </h2>
-                  <p className="mt-1 font-semibold text-orange-700">
-                    {local.tipo}
-                  </p>
+                <div className="mt-6 flex items-start gap-4">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-orange-50 text-3xl shadow-sm">
+                    {local.logo ? (
+                      <img
+                        src={local.logo}
+                        alt={local.nombre}
+                        className="h-full w-full object-contain p-2"
+                      />
+                    ) : (
+                      local.icono || "📍"
+                    )}
+                  </div>
+
+                  <div>
+                    <h2 className="text-2xl font-extrabold text-slate-900">
+                      {local.nombre}
+                    </h2>
+                    <p className="mt-1 font-semibold text-orange-700">
+                      {local.tipo || "Espacio colaborador"}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="mt-5 text-sm leading-6 text-slate-600">
+                  {local.descripcion ||
+                    "Espacio colaborador de la comunidad Lugares Llenos."}
+                </p>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link
+                    href="/eventos"
+                    className="inline-flex font-bold text-orange-600 hover:text-orange-700"
+                  >
+                    Ver eventos →
+                  </Link>
+
+                  {local.web && (
+                    <a
+                      href={local.web}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex font-bold text-slate-600 hover:text-orange-700"
+                    >
+                      Web oficial →
+                    </a>
+                  )}
+
+                  {local.instagram && (
+                    <a
+                      href={local.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex font-bold text-slate-600 hover:text-orange-700"
+                    >
+                      Instagram →
+                    </a>
+                  )}
                 </div>
               </div>
-
-              <p className="mt-5 text-sm leading-6 text-slate-600">
-                {local.descripcion}
-              </p>
-
-              <Link
-                href="/eventos"
-                className="mt-6 inline-flex font-bold text-orange-600 hover:text-orange-700"
-              >
-                Ver eventos →
-              </Link>
             </div>
           ))}
         </div>
+
+        {locales.length === 0 && !error && (
+          <div className="mt-10 rounded-3xl border border-orange-100 bg-white/95 p-6 text-slate-600 shadow-lg shadow-orange-100">
+            Todavía no hay colaboradores destacados visibles.
+          </div>
+        )}
 
         <div className="mt-10 rounded-3xl border border-orange-100 bg-white/95 p-8 shadow-lg shadow-orange-100">
           <h2 className="text-3xl font-bold text-slate-900">
@@ -124,15 +178,12 @@ export default function ColaboradoresPage() {
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               🎟️ Sorteos
             </span>
-
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               🎵 Programación
             </span>
-
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               🎫 Invitaciones
             </span>
-
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               📣 Promoción de eventos
             </span>
