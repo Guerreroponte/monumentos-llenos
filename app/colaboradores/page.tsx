@@ -102,20 +102,45 @@ export default function ColaboradoresPage() {
           ))}
         </div>
 
-        <div className="mt-10 rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-          <h2 className="text-2xl font-bold text-slate-900">
-            ¿Tienes una sala, bar, local o espacio cultural?
+        <div className="mt-10 rounded-3xl border border-orange-100 bg-white/95 p-8 shadow-lg shadow-orange-100">
+          <h2 className="text-3xl font-bold text-slate-900">
+            ¿Tienes una sala, bar, club o espacio cultural?
           </h2>
 
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
-            Si quieres compartir programación, sorteos, invitaciones o eventos
-            destacados con la comunidad, puedes escribirnos y valoramos cómo
-            darle visibilidad.
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
+            En Lugares Llenos ayudamos a dar visibilidad a espacios con ambiente
+            real. Si organizas conciertos, monólogos, directos, tardeos,
+            sesiones culturales o cualquier plan interesante, podemos colaborar
+            para que más personas los descubran.
           </p>
 
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
+            También estamos abiertos a compartir programación, sorteos,
+            invitaciones, promociones especiales o eventos destacados para la
+            comunidad.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
+              🎟️ Sorteos
+            </span>
+
+            <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
+              🎵 Programación
+            </span>
+
+            <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
+              🎫 Invitaciones
+            </span>
+
+            <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
+              📣 Promoción de eventos
+            </span>
+          </div>
+
           <a
-            href="mailto:hola@monumentosllenos.com"
-            className="mt-5 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md shadow-orange-100"
+            href="mailto:contacto@monumentosllenos.com?subject=Quiero%20colaborar%20con%20Lugares%20Llenos"
+            className="mt-8 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3 font-bold text-white shadow-md shadow-orange-100 transition hover:scale-105"
           >
             Quiero colaborar
           </a>
