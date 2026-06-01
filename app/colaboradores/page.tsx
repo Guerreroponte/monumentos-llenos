@@ -19,6 +19,9 @@ type Colaborador = {
   titulo_sorteo: string | null;
   descripcion_sorteo: string | null;
   fecha_sorteo: string | null;
+  programacion_texto: string | null;
+  programacion_activa: boolean | null;
+  programacion_enlace: string | null;
 };
 
 export const dynamic = "force-dynamic";
@@ -27,7 +30,7 @@ export default async function ColaboradoresPage() {
   const { data, error } = await supabase
     .from("colaboradores")
     .select(
-      "id, nombre, ciudad, tipo, estado, descripcion, icono, web, instagram, email, destacado, logo, imagen, sorteo_activo, titulo_sorteo, descripcion_sorteo, fecha_sorteo"
+      "id, nombre, ciudad, tipo, estado, descripcion, icono, web, instagram, email, destacado, logo, imagen, sorteo_activo, titulo_sorteo, descripcion_sorteo, fecha_sorteo, programacion_texto, programacion_activa, programacion_enlace"
     )
     .eq("destacado", true)
     .order("created_at", { ascending: true });
@@ -36,6 +39,10 @@ export default async function ColaboradoresPage() {
 
   const sorteosActivos = locales.filter(
     (local) => local.sorteo_activo && local.titulo_sorteo
+  );
+
+  const programacionesActivas = locales.filter(
+    (local) => local.programacion_activa && local.programacion_texto
   );
 
   return (
@@ -103,6 +110,43 @@ export default async function ColaboradoresPage() {
                     <p className="mt-3 font-semibold text-orange-700">
                       📅 {sorteo.fecha_sorteo}
                     </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {programacionesActivas.length > 0 && (
+          <div className="mt-10 rounded-3xl border border-orange-200 bg-white/95 p-6 shadow-lg shadow-orange-100">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🎵</span>
+              <h2 className="text-2xl font-extrabold text-slate-900">
+                Programación destacada de colaboradores
+              </h2>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {programacionesActivas.map((programacion) => (
+                <div
+                  key={programacion.id}
+                  className="rounded-2xl border border-orange-100 bg-orange-50/60 p-5"
+                >
+                  <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
+                    {programacion.nombre}
+                  </p>
+
+                  <p className="mt-2 text-lg font-bold text-slate-900">
+                    {programacion.programacion_texto}
+                  </p>
+
+                  {programacion.programacion_enlace && (
+                    <Link
+                      href={programacion.programacion_enlace}
+                      className="mt-4 inline-flex font-bold text-orange-600 hover:text-orange-700"
+                    >
+                      Ver evento →
+                    </Link>
                   )}
                 </div>
               ))}
