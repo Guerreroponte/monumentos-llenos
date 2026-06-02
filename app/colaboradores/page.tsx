@@ -1,6 +1,15 @@
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
+type ProgramacionColaborador = {
+  id: string;
+  titulo: string;
+  fecha_texto: string | null;
+  url: string | null;
+  activa: boolean | null;
+  orden: number | null;
+};
+
 type Colaborador = {
   id: string;
   nombre: string;
@@ -22,6 +31,7 @@ type Colaborador = {
   programacion_texto: string | null;
   programacion_activa: boolean | null;
   programacion_enlace: string | null;
+  colaboradores_programacion?: ProgramacionColaborador[];
 };
 
 export const dynamic = "force-dynamic";
@@ -29,9 +39,36 @@ export const dynamic = "force-dynamic";
 export default async function ColaboradoresPage() {
   const { data, error } = await supabase
     .from("colaboradores")
-    .select(
-      "id, nombre, ciudad, tipo, estado, descripcion, icono, web, instagram, email, destacado, logo, imagen, sorteo_activo, titulo_sorteo, descripcion_sorteo, fecha_sorteo, programacion_texto, programacion_activa, programacion_enlace"
-    )
+    .select(`
+      id,
+      nombre,
+      ciudad,
+      tipo,
+      estado,
+      descripcion,
+      icono,
+      web,
+      instagram,
+      email,
+      destacado,
+      logo,
+      imagen,
+      sorteo_activo,
+      titulo_sorteo,
+      descripcion_sorteo,
+      fecha_sorteo,
+      programacion_texto,
+      programacion_activa,
+      programacion_enlace,
+      colaboradores_programacion (
+        id,
+        titulo,
+        fecha_texto,
+        url,
+        activa,
+        orden
+      )
+    `)
     .eq("destacado", true)
     .order("created_at", { ascending: true });
 
@@ -41,9 +78,32 @@ export default async function ColaboradoresPage() {
     (local) => local.sorteo_activo && local.titulo_sorteo
   );
 
-  const programacionesActivas = locales.filter(
-    (local) => local.programacion_activa && local.programacion_texto
-  );
+  const colaboradoresConProgramacion = locales
+    .map((local) => {
+      const programacionNueva = (local.colaboradores_programacion || [])
+        .filter((evento) => evento.activa && evento.titulo)
+        .sort((a, b) => (a.orden || 0) - (b.orden || 0));
+
+      const programacionAntigua =
+        local.programacion_activa && local.programacion_texto
+          ? [
+              {
+                id: `${local.id}-programacion-antigua`,
+                titulo: local.programacion_texto,
+                fecha_texto: null,
+                url: local.programacion_enlace,
+                activa: true,
+                orden: 999,
+              },
+            ]
+          : [];
+
+      return {
+        ...local,
+        programacion: [...programacionNueva, ...programacionAntigua],
+      };
+    })
+    .filter((local) => local.programacion.length > 0);
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
@@ -117,7 +177,7 @@ export default async function ColaboradoresPage() {
           </div>
         )}
 
-        {programacionesActivas.length > 0 && (
+        {colaboradoresConProgramacion.length > 0 && (
           <div className="mt-10 rounded-3xl border border-orange-200 bg-white/95 p-6 shadow-lg shadow-orange-100">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🎵</span>
@@ -127,27 +187,42 @@ export default async function ColaboradoresPage() {
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {programacionesActivas.map((programacion) => (
+              {colaboradoresConProgramacion.map((colaborador) => (
                 <div
-                  key={programacion.id}
+                  key={colaborador.id}
                   className="rounded-2xl border border-orange-100 bg-orange-50/60 p-5"
                 >
                   <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
-                    {programacion.nombre}
+                    {colaborador.nombre}
                   </p>
 
-                  <p className="mt-2 text-lg font-bold text-slate-900">
-                    {programacion.programacion_texto}
-                  </p>
+                  <div className="mt-3 space-y-4">
+                    {colaborador.programacion.map((evento) => (
+                      <div
+                        key={evento.id}
+                        className="rounded-2xl bg-white/80 p-4 shadow-sm"
+                      >
+                        <p className="text-lg font-bold text-slate-900">
+                          {evento.titulo}
+                        </p>
 
-                  {programacion.programacion_enlace && (
-                    <Link
-                      href={programacion.programacion_enlace}
-                      className="mt-4 inline-flex font-bold text-orange-600 hover:text-orange-700"
-                    >
-                      Ver evento →
-                    </Link>
-                  )}
+                        {evento.fecha_texto && (
+                          <p className="mt-1 text-sm font-semibold text-slate-600">
+                            📅 {evento.fecha_texto}
+                          </p>
+                        )}
+
+                        {evento.url && evento.url !== "#" && (
+                          <Link
+                            href={evento.url}
+                            className="mt-3 inline-flex font-bold text-orange-600 hover:text-orange-700"
+                          >
+                            Ver evento →
+                          </Link>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
