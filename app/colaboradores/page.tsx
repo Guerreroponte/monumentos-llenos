@@ -23,6 +23,7 @@ type Colaborador = {
   email: string | null;
   destacado: boolean | null;
   logo: string | null;
+  logo_url: string | null;
   imagen: string | null;
   sorteo_activo: boolean | null;
   titulo_sorteo: string | null;
@@ -52,6 +53,7 @@ export default async function ColaboradoresPage() {
       email,
       destacado,
       logo,
+      logo_url,
       imagen,
       sorteo_activo,
       titulo_sorteo,
@@ -255,10 +257,10 @@ export default async function ColaboradoresPage() {
                 </div>
 
                 <div className="mt-6 flex items-start gap-4">
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-orange-50 text-3xl shadow-sm">
-                    {local.logo ? (
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white text-3xl shadow-sm ring-1 ring-orange-100">
+                    {local.logo_url || local.logo ? (
                       <img
-                        src={local.logo}
+                        src={local.logo_url || local.logo || ""}
                         alt={local.nombre}
                         className="h-full w-full object-contain p-2"
                       />
