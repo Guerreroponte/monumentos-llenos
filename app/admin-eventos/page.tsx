@@ -32,7 +32,6 @@ export default function AdminEventosPage() {
     precio: "",
     ubicacion_detalle: "",
     ambiente: "",
-    parking: "",
   });
 
   const CLAVE_ADMIN = "lugares2026";
@@ -44,13 +43,29 @@ export default function AdminEventosPage() {
     const slug = crearSlug(`${form.nombre}-${form.ciudad}-${form.fecha_inicio}`);
 
     const { error } = await supabase.from("eventos").insert({
-      ...form,
-      slug,
+      nombre: form.nombre,
+      ciudad: form.ciudad,
+      provincia: form.provincia,
+      comunidad_autonoma: form.comunidad_autonoma,
+      tipo: form.tipo,
+      categoria_evento: form.categoria_evento,
+      fecha_inicio: form.fecha_inicio,
       fecha_fin: form.fecha_fin || form.fecha_inicio,
+      hora_inicio: form.hora_inicio,
+      descripcion: form.descripcion,
+      imagen: form.imagen,
+      precio: form.precio,
+      ubicacion_detalle: form.ubicacion_detalle,
+      ambiente: form.ambiente,
+
+      dificil_bebida: false,
+      parking: false,
       recomendable: true,
       destacado: false,
       validado: true,
       reportado: false,
+
+      slug,
       creado_por: "Lugares Llenos",
     });
 
@@ -60,6 +75,7 @@ export default function AdminEventosPage() {
     }
 
     setMensaje("✅ Evento creado correctamente");
+
     setForm({
       nombre: "",
       ciudad: "Madrid",
@@ -75,7 +91,6 @@ export default function AdminEventosPage() {
       precio: "",
       ubicacion_detalle: "",
       ambiente: "",
-      parking: "",
     });
   }
 
@@ -115,6 +130,7 @@ export default function AdminEventosPage() {
         {Object.entries(form).map(([key, value]) => (
           <div key={key}>
             <label className="block font-bold mb-1">{key}</label>
+
             {key === "descripcion" ? (
               <textarea
                 className="w-full border p-3 rounded-xl min-h-32"
