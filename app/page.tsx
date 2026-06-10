@@ -329,6 +329,7 @@ function LugarGaleriaRotativa({
 export default function Home() {
   const [monumentos, setMonumentos] = useState<MonumentoUI[]>([]);
   const [eventosHoy, setEventosHoy] = useState<EventoUI[]>([]);
+  const [totalEventosPublicados, setTotalEventosPublicados] = useState(0);
   const [comentariosEventosConFoto, setComentariosEventosConFoto] = useState<
     ComentarioEventoFotoUI[]
   >([]);
@@ -490,6 +491,20 @@ export default function Home() {
     setCargando(false);
   };
 
+  const cargarTotalEventosPublicados = async () => {
+    const { count, error } = await supabase
+      .from("eventos")
+      .select("id", { count: "exact", head: true })
+      .eq("reportado", false);
+
+    if (error) {
+      console.error("Error cargando total de eventos:", error);
+      return;
+    }
+
+    setTotalEventosPublicados(count || 0);
+  };
+
   const cargarEventosHoy = async () => {
     const hoy = new Date().toISOString().split("T")[0];
 
@@ -550,6 +565,7 @@ export default function Home() {
 
   useEffect(() => {
     cargarDatos();
+    cargarTotalEventosPublicados();
     cargarEventosHoy();
     cargarComentariosEventosConFoto();
   }, []);
@@ -1107,7 +1123,7 @@ ${url}`;
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
             <p className="text-sm font-semibold text-slate-500">
               Lugares analizados por la comunidad
@@ -1117,6 +1133,18 @@ ${url}`;
             </p>
             <p className="mt-2 text-sm text-slate-600">
               Sitios compartidos con contexto real, no solo fotos bonitas.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
+            <p className="text-sm font-semibold text-slate-500">
+              Eventos publicados
+            </p>
+            <p className="mt-2 text-3xl font-extrabold text-slate-900">
+              {totalEventosPublicados}
+            </p>
+            <p className="mt-2 text-sm text-slate-600">
+              Conciertos, planes y propuestas para saber qué hacer hoy.
             </p>
           </div>
 
