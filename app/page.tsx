@@ -38,6 +38,17 @@ const LOCALES_COLABORADORES = [
   },
 ];
 
+
+const SALAS_DESTACADAS_COLABORADORAS = [
+  "Café La Palma",
+  "Loco Club",
+  "Harlem Jazz Club",
+  "Cotton Club Bilbao",
+  "Radio City",
+  "Sala Clamores",
+  "Intruso Bar",
+];
+
 const Mapa = dynamic(() => import("./Mapa"), {
   ssr: false,
 }) as React.ComponentType<{
@@ -1170,6 +1181,42 @@ ${url}`;
             <p className="mt-2 text-sm text-slate-600">
               Comentarios que ayudan a decidir mejor antes de ir.
             </p>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
+                Salas colaboradoras
+              </p>
+              <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                Espacios que ya ayudan a mover planes reales
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                Una muestra de salas y espacios que colaboran con Lugares Llenos
+                compartiendo programación, eventos y propuestas para la comunidad.
+              </p>
+            </div>
+
+            <Link
+              href="/colaboradores"
+              className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+            >
+              Ver colaboradores →
+            </Link>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {SALAS_DESTACADAS_COLABORADORAS.map((sala) => (
+              <Link
+                key={sala}
+                href="/colaboradores"
+                className="rounded-full border border-orange-100 bg-orange-50 px-4 py-2 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
+              >
+                {sala}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
