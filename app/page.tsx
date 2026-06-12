@@ -36,6 +36,15 @@ const LOCALES_COLABORADORES = [
     estado: "Recomendado",
     icono: "🎤",
   },
+  {
+    nombre: "Luz de Gas",
+    ciudad: "Barcelona",
+    tipo: "Sala de conciertos",
+    texto:
+      "Sala emblemática de Barcelona con conciertos, sesiones, eventos privados y una programación cultural muy activa. Una incorporación potente para reforzar la red de colaboradores.",
+    estado: "Colaborador",
+    icono: "✨",
+  },
 ];
 
 
@@ -45,6 +54,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Harlem Jazz Club",
   "Cotton Club Bilbao",
   "Radio City",
+  "Luz de Gas",
   "Sala Clamores",
   "Intruso Bar",
 ];
