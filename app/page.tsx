@@ -8,46 +8,6 @@ import { supabase } from "@/lib/supabase";
 const STORAGE_BUCKET = "imagenes";
 const LUGARES_POR_PAGINA = 6;
 
-const LOCALES_COLABORADORES = [
-  {
-    nombre: "Café La Palma",
-    ciudad: "Madrid",
-    tipo: "Música en directo",
-    texto:
-      "Sala madrileña con conciertos, sesiones y programación cultural. Uno de los espacios que ya ha mostrado buena disposición para colaborar con la comunidad.",
-    estado: "Programación",
-    icono: "🎸",
-  },
-  {
-    nombre: "Harlem Jazz Club",
-    ciudad: "Barcelona",
-    tipo: "Jazz y conciertos",
-    texto:
-      "Club histórico de Barcelona para disfrutar música en directo. Ideal para destacar conciertos, sorteos e invitaciones para la comunidad.",
-    estado: "Colaborador",
-    icono: "🎷",
-  },
-  {
-    nombre: "Loco Club",
-    ciudad: "Valencia",
-    tipo: "Directos y bandas",
-    texto:
-      "Sala valenciana para descubrir grupos, conciertos y ambiente local. Perfecta para seguir ampliando planes musicales en la ciudad.",
-    estado: "Recomendado",
-    icono: "🎤",
-  },
-  {
-    nombre: "Luz de Gas",
-    ciudad: "Barcelona",
-    tipo: "Sala de conciertos",
-    texto:
-      "Sala emblemática de Barcelona con conciertos, sesiones, eventos privados y una programación cultural muy activa. Una incorporación potente para reforzar la red de colaboradores.",
-    estado: "Colaborador",
-    icono: "✨",
-  },
-];
-
-
 const SALAS_DESTACADAS_COLABORADORAS = [
   "Café La Palma",
   "Loco Club",
@@ -1250,11 +1210,12 @@ ${url}`;
                 Salas colaboradoras
               </p>
               <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                Espacios que ya ayudan a mover planes reales
+                10 salas que ya comparten su programación con la comunidad
               </h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                Una muestra de salas y espacios que colaboran con Lugares Llenos
-                compartiendo programación, eventos y propuestas para la comunidad.
+                Cada vez más salas se unen para compartir sus eventos con Lugares Llenos.
+                Descubre conciertos, sesiones y planes reales de espacios que ya confían
+                en la comunidad.
               </p>
             </div>
 
@@ -1474,83 +1435,6 @@ ${url}`;
           </div>
         </section>
       )}
-
-      <section
-        id="locales-colaboradores"
-        className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
-      >
-        <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100 md:p-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                Salas y locales colaboradores
-              </p>
-              <h2 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
-                Espacios que ayudan a mover planes reales
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600 md:text-base">
-                Locales, salas y espacios que colaboran o pueden colaborar con
-                la comunidad compartiendo programación, sorteos, invitaciones o
-                eventos destacados para que más gente descubra planes con
-                ambiente.
-              </p>
-            </div>
-
-            <Link
-              href="/colaboradores"
-              className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
-            >
-              Ver eventos
-            </Link>
-          </div>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {LOCALES_COLABORADORES.map((local) => (
-              <div
-                key={local.nombre}
-                className="rounded-3xl border border-orange-100 bg-orange-50/50 p-5 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
-              >
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-orange-700">
-                    📍 {local.ciudad}
-                  </span>
-
-                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-                    {local.estado}
-                  </span>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">
-                    {local.icono}
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-extrabold leading-tight text-slate-900">
-                      {local.nombre}
-                    </h3>
-                    <p className="mt-1 text-sm font-semibold text-orange-700">
-                      {local.tipo}
-                    </p>
-                  </div>
-                </div>
-
-                <p className="mt-4 text-sm leading-6 text-slate-600">
-                  {local.texto}
-                </p>
-
-                <Link
-                  href="/colaboradores"
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-orange-600 hover:text-orange-700"
-                >
-                  <span>Ver colaboradores</span>
-                  <span>→</span>
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {lugaresMasComentados.length > 0 && (
         <section
