@@ -179,6 +179,11 @@ type FotoSeleccionada = {
   preview: string;
 };
 
+type SalaDestacadaUI = {
+  nombre: string;
+  logo?: string | null;
+};
+
 function getEventoRelacionado(comentario: ComentarioEventoFotoUI) {
   if (Array.isArray(comentario.eventos)) {
     return comentario.eventos[0] || null;
@@ -356,6 +361,14 @@ export default function Home() {
   const [comentariosEventosConFoto, setComentariosEventosConFoto] = useState<
     ComentarioEventoFotoUI[]
   >([]);
+  const [salasDestacadasConLogo, setSalasDestacadasConLogo] = useState<
+    SalaDestacadaUI[]
+  >(
+    SALAS_DESTACADAS_COLABORADORAS.map((nombre) => ({
+      nombre,
+      logo: null,
+    }))
+  );
   const [cargando, setCargando] = useState(true);
   const [guardandoMonumento, setGuardandoMonumento] = useState(false);
   const [guardandoResena, setGuardandoResena] = useState(false);
@@ -586,11 +599,45 @@ export default function Home() {
     setComentariosEventosConFoto((data || []) as ComentarioEventoFotoUI[]);
   };
 
+  const cargarLogosSalasDestacadas = async () => {
+    const { data, error } = await supabase
+      .from("colaboradores")
+      .select("nombre, logo, logo_url")
+      .in("nombre", SALAS_DESTACADAS_COLABORADORAS);
+
+    if (error) {
+      console.error("Error cargando logos de salas colaboradoras:", error);
+      return;
+    }
+
+    const logosPorNombre = new Map<string, string | null>();
+
+    for (const colaborador of data || []) {
+      const nombre = colaborador.nombre as string | null;
+      const logo =
+        (colaborador.logo_url as string | null) ||
+        (colaborador.logo as string | null) ||
+        null;
+
+      if (nombre) {
+        logosPorNombre.set(nombre, logo);
+      }
+    }
+
+    setSalasDestacadasConLogo(
+      SALAS_DESTACADAS_COLABORADORAS.map((nombre) => ({
+        nombre,
+        logo: logosPorNombre.get(nombre) || null,
+      }))
+    );
+  };
+
   useEffect(() => {
     cargarDatos();
     cargarTotalEventosPublicados();
     cargarEventosHoy();
     cargarComentariosEventosConFoto();
+    cargarLogosSalasDestacadas();
   }, []);
 
   useEffect(() => {
@@ -1219,14 +1266,28 @@ ${url}`;
             </Link>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            {SALAS_DESTACADAS_COLABORADORAS.map((sala) => (
+          <div className="mt-5 flex flex-wrap gap-3">
+            {salasDestacadasConLogo.map((sala) => (
               <Link
-                key={sala}
+                key={sala.nombre}
                 href="/colaboradores"
-                className="rounded-full border border-orange-100 bg-orange-50 px-4 py-2 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
+                className="inline-flex items-center gap-2 rounded-full border border-orange-100 bg-orange-50 px-3 py-2 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
               >
-                {sala}
+                {sala.logo ? (
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-1 shadow-sm">
+                    <img
+                      src={sala.logo}
+                      alt={`Logo ${sala.nombre}`}
+                      className="h-full w-full object-contain"
+                    />
+                  </span>
+                ) : (
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs shadow-sm">
+                    🎵
+                  </span>
+                )}
+
+                <span>{sala.nombre}</span>
               </Link>
             ))}
           </div>
