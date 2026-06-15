@@ -15,6 +15,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Cotton Club Bilbao",
   "Radio City",
   "Luz de Gas",
+  "Marula Café",
   "Sala X",
   "Sala Clamores",
   "Intruso Bar",
