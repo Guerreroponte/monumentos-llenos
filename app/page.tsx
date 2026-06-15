@@ -1211,7 +1211,7 @@ ${url}`;
                 Salas colaboradoras
               </p>
               <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                10 salas que ya comparten su programación con la comunidad
+                {SALAS_DESTACADAS_COLABORADORAS.length} salas que ya comparten su programación con la comunidad
               </h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
                 Cada vez más salas se unen para compartir sus eventos con Lugares Llenos.
