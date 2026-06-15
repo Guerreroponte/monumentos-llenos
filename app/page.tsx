@@ -19,6 +19,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Sala Clamores",
   "Intruso Bar",
   "Garaje Beat Club",
+  "Milwaukee Puerto",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
