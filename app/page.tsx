@@ -22,6 +22,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Garaje Beat Club",
   "Milwaukee Puerto",
   "Tribeca Live",
+  "Planta Baja",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
