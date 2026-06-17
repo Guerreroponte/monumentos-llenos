@@ -123,7 +123,7 @@ export default async function ColaboradoresPage() {
           </p>
 
           <h1 className="mt-3 text-4xl font-extrabold leading-tight text-slate-900 md:text-6xl">
-            Espacios que ayudan a mover planes reales
+            {locales.length} espacios que ayudan a mover planes reales
           </h1>
 
           <p className="mt-6 text-lg leading-8 text-slate-600">
@@ -136,98 +136,6 @@ export default async function ColaboradoresPage() {
         {error && (
           <div className="mt-8 rounded-3xl border border-red-100 bg-red-50 p-5 text-sm font-semibold text-red-700">
             No se han podido cargar los colaboradores ahora mismo.
-          </div>
-        )}
-
-        {sorteosActivos.length > 0 && (
-          <div className="mt-10 rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-6 shadow-lg shadow-orange-100">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🎟️</span>
-              <h2 className="text-2xl font-extrabold text-slate-900">
-                Sorteos e invitaciones activas
-              </h2>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              {sorteosActivos.map((sorteo) => (
-                <div
-                  key={sorteo.id}
-                  className="rounded-2xl bg-white p-5 shadow-sm"
-                >
-                  <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
-                    {sorteo.nombre}
-                  </p>
-
-                  <h3 className="mt-1 text-xl font-bold text-slate-900">
-                    {sorteo.titulo_sorteo}
-                  </h3>
-
-                  {sorteo.descripcion_sorteo && (
-                    <p className="mt-2 text-slate-600">
-                      {sorteo.descripcion_sorteo}
-                    </p>
-                  )}
-
-                  {sorteo.fecha_sorteo && (
-                    <p className="mt-3 font-semibold text-orange-700">
-                      📅 {sorteo.fecha_sorteo}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {colaboradoresConProgramacion.length > 0 && (
-          <div className="mt-10 rounded-3xl border border-orange-200 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🎵</span>
-              <h2 className="text-2xl font-extrabold text-slate-900">
-                Programación destacada de colaboradores
-              </h2>
-            </div>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {colaboradoresConProgramacion.map((colaborador) => (
-                <div
-                  key={colaborador.id}
-                  className="rounded-2xl border border-orange-100 bg-orange-50/60 p-5"
-                >
-                  <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
-                    {colaborador.nombre}
-                  </p>
-
-                  <div className="mt-3 space-y-4">
-                    {colaborador.programacion.map((evento) => (
-                      <div
-                        key={evento.id}
-                        className="rounded-2xl bg-white/80 p-4 shadow-sm"
-                      >
-                        <p className="text-lg font-bold text-slate-900">
-                          {evento.titulo}
-                        </p>
-
-                        {evento.fecha_texto && (
-                          <p className="mt-1 text-sm font-semibold text-slate-600">
-                            📅 {evento.fecha_texto}
-                          </p>
-                        )}
-
-                        {evento.url && evento.url !== "#" && (
-                          <Link
-                            href={evento.url}
-                            className="mt-3 inline-flex font-bold text-orange-600 hover:text-orange-700"
-                          >
-                            Ver evento →
-                          </Link>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
@@ -322,6 +230,98 @@ export default async function ColaboradoresPage() {
         {locales.length === 0 && !error && (
           <div className="mt-10 rounded-3xl border border-orange-100 bg-white/95 p-6 text-slate-600 shadow-lg shadow-orange-100">
             Todavía no hay colaboradores destacados visibles.
+          </div>
+        )}
+
+        {sorteosActivos.length > 0 && (
+          <div className="mt-10 rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-6 shadow-lg shadow-orange-100">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🎟️</span>
+              <h2 className="text-2xl font-extrabold text-slate-900">
+                Sorteos e invitaciones activas
+              </h2>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              {sorteosActivos.map((sorteo) => (
+                <div
+                  key={sorteo.id}
+                  className="rounded-2xl bg-white p-5 shadow-sm"
+                >
+                  <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
+                    {sorteo.nombre}
+                  </p>
+
+                  <h3 className="mt-1 text-xl font-bold text-slate-900">
+                    {sorteo.titulo_sorteo}
+                  </h3>
+
+                  {sorteo.descripcion_sorteo && (
+                    <p className="mt-2 text-slate-600">
+                      {sorteo.descripcion_sorteo}
+                    </p>
+                  )}
+
+                  {sorteo.fecha_sorteo && (
+                    <p className="mt-3 font-semibold text-orange-700">
+                      📅 {sorteo.fecha_sorteo}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {colaboradoresConProgramacion.length > 0 && (
+          <div className="mt-10 rounded-3xl border border-orange-200 bg-white/95 p-6 shadow-lg shadow-orange-100">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🎵</span>
+              <h2 className="text-2xl font-extrabold text-slate-900">
+                Programación destacada de colaboradores
+              </h2>
+            </div>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {colaboradoresConProgramacion.map((colaborador) => (
+                <div
+                  key={colaborador.id}
+                  className="rounded-2xl border border-orange-100 bg-orange-50/60 p-5"
+                >
+                  <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
+                    {colaborador.nombre}
+                  </p>
+
+                  <div className="mt-3 space-y-4">
+                    {colaborador.programacion.map((evento) => (
+                      <div
+                        key={evento.id}
+                        className="rounded-2xl bg-white/80 p-4 shadow-sm"
+                      >
+                        <p className="text-lg font-bold text-slate-900">
+                          {evento.titulo}
+                        </p>
+
+                        {evento.fecha_texto && (
+                          <p className="mt-1 text-sm font-semibold text-slate-600">
+                            📅 {evento.fecha_texto}
+                          </p>
+                        )}
+
+                        {evento.url && evento.url !== "#" && (
+                          <Link
+                            href={evento.url}
+                            className="mt-3 inline-flex font-bold text-orange-600 hover:text-orange-700"
+                          >
+                            Ver evento →
+                          </Link>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
