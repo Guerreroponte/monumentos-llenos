@@ -6,6 +6,7 @@ import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
 import HeaderGlobal from "@/components/HeaderGlobal";
+import FooterGlobal from "@/components/FooterGlobal";
 import GoogleAnalyticsTracker from "@/components/GoogleAnalyticsTracker";
 
 const geistSans = Geist({
@@ -52,6 +53,8 @@ export default function RootLayout({
         </Suspense>
 
         {children}
+
+        <FooterGlobal />
 
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-K56T07CRK5"
