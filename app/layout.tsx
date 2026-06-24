@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import Script from "next/script";
-import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
 import HeaderGlobal from "@/components/HeaderGlobal";
 import FooterGlobal from "@/components/FooterGlobal";
-import GoogleAnalyticsTracker from "@/components/GoogleAnalyticsTracker";
+import CookieBanner from "@/components/CookieBanner";
+import ConsentScripts from "@/components/ConsentScripts";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,34 +47,13 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <HeaderGlobal />
 
-        <Suspense fallback={null}>
-          <GoogleAnalyticsTracker />
-        </Suspense>
-
         {children}
 
         <FooterGlobal />
 
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-K56T07CRK5"
-          strategy="afterInteractive"
-        />
+        <CookieBanner />
 
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-K56T07CRK5');
-          `}
-        </Script>
-
-        <Script
-          id="getyourguide-analytics"
-          src="https://widget.getyourguide.com/dist/pa.umd.production.min.js"
-          strategy="afterInteractive"
-          data-gyg-partner-id="3B0Y74E"
-        />
+        <ConsentScripts />
       </body>
     </html>
   );
