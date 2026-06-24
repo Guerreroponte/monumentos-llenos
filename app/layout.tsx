@@ -57,6 +57,7 @@ export default function RootLayout({
           src="https://www.googletagmanager.com/gtag/js?id=G-K56T07CRK5"
           strategy="afterInteractive"
         />
+
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
@@ -65,6 +66,13 @@ export default function RootLayout({
             gtag('config', 'G-K56T07CRK5');
           `}
         </Script>
+
+        <Script
+          id="getyourguide-analytics"
+          src="https://widget.getyourguide.com/dist/pa.umd.production.min.js"
+          strategy="afterInteractive"
+          data-gyg-partner-id="3B0Y74E"
+        />
       </body>
     </html>
   );
