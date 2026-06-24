@@ -11,6 +11,7 @@ type Lugar = {
   ciudad?: string | null;
   descripcion?: string | null;
   imagen?: string | null;
+  url_afiliado?: string | null;
 };
 
 type Resena = {
@@ -273,6 +274,36 @@ ${url}`;
                   "Este lugar todavía no tiene descripción disponible."}
               </p>
             </div>
+
+            {lugar.url_afiliado && (
+              <div className="mt-6 rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-5 shadow-sm">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
+                      Actividades recomendadas
+                    </p>
+
+                    <h2 className="mt-2 text-xl font-extrabold text-slate-900">
+                      🎟️ Completa tu visita
+                    </h2>
+
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-700">
+                      Descubre visitas guiadas, entradas y experiencias
+                      relacionadas con este lugar.
+                    </p>
+                  </div>
+
+                  <a
+                    href={lugar.url_afiliado}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored nofollow"
+                    className="inline-flex shrink-0 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:from-orange-600 hover:to-amber-600"
+                  >
+                    Ver actividades →
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
