@@ -28,6 +28,8 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "La Cueva del Jazz",
   "Sala Villanos",
   "Marearock",
+  "Sala M100",
+  "Independance Club",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
