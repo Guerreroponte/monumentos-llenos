@@ -30,6 +30,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Marearock",
   "Sala M100",
   "Independance Club",
+  "La Cochera Cabaret",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
