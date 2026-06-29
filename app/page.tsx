@@ -33,6 +33,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "La Cochera Cabaret",
   "Sala Galileo",
   "Alboroto Las Palmas",
+  "Sala Repvblicca",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
