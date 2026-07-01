@@ -159,6 +159,18 @@ type SalaDestacadaUI = {
   logo?: string | null;
 };
 
+type PartnerExperienciaUI = {
+  id: string;
+  nombre: string;
+  slug?: string | null;
+  logo_url?: string | null;
+  url: string;
+  descripcion?: string | null;
+  activo?: boolean | null;
+  destacado?: boolean | null;
+  orden?: number | null;
+};
+
 function getEventoRelacionado(comentario: ComentarioEventoFotoUI) {
   if (Array.isArray(comentario.eventos)) {
     return comentario.eventos[0] || null;
@@ -344,6 +356,9 @@ export default function Home() {
       logo: null,
     }))
   );
+  const [partnersExperiencias, setPartnersExperiencias] = useState<
+    PartnerExperienciaUI[]
+  >([]);
   const [cargando, setCargando] = useState(true);
   const [guardandoMonumento, setGuardandoMonumento] = useState(false);
   const [guardandoResena, setGuardandoResena] = useState(false);
@@ -607,12 +622,29 @@ export default function Home() {
     );
   };
 
+  const cargarPartnersExperiencias = async () => {
+    const { data, error } = await supabase
+      .from("partners_experiencias")
+      .select("id, nombre, slug, logo_url, url, descripcion, activo, destacado, orden")
+      .eq("activo", true)
+      .eq("destacado", true)
+      .order("orden", { ascending: true });
+
+    if (error) {
+      console.error("Error cargando partners de experiencias:", error);
+      return;
+    }
+
+    setPartnersExperiencias((data || []) as PartnerExperienciaUI[]);
+  };
+
   useEffect(() => {
     cargarDatos();
     cargarTotalEventosPublicados();
     cargarEventosHoy();
     cargarComentariosEventosConFoto();
     cargarLogosSalasDestacadas();
+    cargarPartnersExperiencias();
   }, []);
 
   useEffect(() => {
@@ -1268,6 +1300,61 @@ ${url}`;
             ))}
           </div>
         </div>
+
+        {partnersExperiencias.length > 0 && (
+          <div className="mt-6 rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
+                  🌍 Partners de experiencias
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                  Reserva actividades, visitas y experiencias con nuestros partners
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                  Colaboradores que ayudan a completar la visita con actividades,
+                  excursiones y experiencias relacionadas con los lugares que descubre
+                  la comunidad.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              {partnersExperiencias.map((partner) => (
+                <a
+                  key={partner.id}
+                  href={partner.url}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  className="inline-flex items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
+                >
+                  {partner.logo_url ? (
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-1.5 shadow-sm">
+                      <img
+                        src={partner.logo_url}
+                        alt={`Logo ${partner.nombre}`}
+                        className="h-full w-full object-contain"
+                      />
+                    </span>
+                  ) : (
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-lg shadow-sm">
+                      🌍
+                    </span>
+                  )}
+
+                  <span className="flex flex-col">
+                    <span>{partner.nombre}</span>
+                    {partner.descripcion && (
+                      <span className="mt-0.5 max-w-[220px] text-xs font-medium leading-5 text-slate-500">
+                        {partner.descripcion}
+                      </span>
+                    )}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
 
