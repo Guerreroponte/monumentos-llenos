@@ -22,12 +22,46 @@ export default function HeaderGlobal() {
   return (
     <>
       <div className="border-b border-orange-100 bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-end px-4 py-2 sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-end gap-3 px-4 py-2 sm:px-6">
           <a
             href="mailto:contacto@monumentosllenos.com?subject=Contacto%20desde%20la%20web"
             className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1.5 text-sm font-semibold transition hover:bg-white/25"
           >
             ✉️ Contacto
+          </a>
+
+          <a
+            href="https://www.facebook.com/profile.php?id=61572066181086"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Facebook de Lugares Llenos"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 transition-all hover:scale-110 hover:bg-white/25"
+          >
+            <span className="text-base font-black leading-none">f</span>
+          </a>
+
+          <a
+            href="https://www.instagram.com/lugaresllenos"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram de Lugares Llenos"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/15 transition-all hover:scale-110 hover:bg-white/25"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-[18px] w-[18px]"
+              aria-hidden="true"
+            >
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+            </svg>
           </a>
         </div>
       </div>
