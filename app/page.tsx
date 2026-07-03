@@ -172,6 +172,20 @@ type PartnerExperienciaUI = {
   orden?: number | null;
 };
 
+type MarcaColaboradoraUI = {
+  id: string;
+  nombre: string;
+  slug: string;
+  logo_url?: string | null;
+  web_url?: string | null;
+  descripcion?: string | null;
+  descripcion_corta?: string | null;
+  color?: string | null;
+  activa?: boolean | null;
+  destacada?: boolean | null;
+  orden?: number | null;
+};
+
 function getEventoRelacionado(comentario: ComentarioEventoFotoUI) {
   if (Array.isArray(comentario.eventos)) {
     return comentario.eventos[0] || null;
@@ -359,6 +373,9 @@ export default function Home() {
   );
   const [partnersExperiencias, setPartnersExperiencias] = useState<
     PartnerExperienciaUI[]
+  >([]);
+  const [marcasColaboradoras, setMarcasColaboradoras] = useState<
+    MarcaColaboradoraUI[]
   >([]);
   const [cargando, setCargando] = useState(true);
   const [guardandoMonumento, setGuardandoMonumento] = useState(false);
@@ -639,6 +656,24 @@ export default function Home() {
     setPartnersExperiencias((data || []) as PartnerExperienciaUI[]);
   };
 
+  const cargarMarcasColaboradoras = async () => {
+    const { data, error } = await supabase
+      .from("marcas_colaboradoras")
+      .select(
+        "id, nombre, slug, logo_url, web_url, descripcion, descripcion_corta, color, activa, destacada, orden"
+      )
+      .eq("activa", true)
+      .eq("destacada", true)
+      .order("orden", { ascending: true });
+
+    if (error) {
+      console.error("Error cargando marcas colaboradoras:", error);
+      return;
+    }
+
+    setMarcasColaboradoras((data || []) as MarcaColaboradoraUI[]);
+  };
+
   useEffect(() => {
     cargarDatos();
     cargarTotalEventosPublicados();
@@ -646,6 +681,7 @@ export default function Home() {
     cargarComentariosEventosConFoto();
     cargarLogosSalasDestacadas();
     cargarPartnersExperiencias();
+    cargarMarcasColaboradoras();
   }, []);
 
   useEffect(() => {
@@ -1251,6 +1287,58 @@ ${url}`;
           </div>
         </div>
 
+        {marcasColaboradoras.length > 0 && (
+          <div className="mt-6 rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
+                  🤝 Marcas colaboradoras
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                  Marcas que se suman a Lugares Llenos
+                </h2>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                  Empresas que colaboran con la comunidad para impulsar experiencias
+                  reales, planes locales y nuevas formas de descubrir lugares.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              {marcasColaboradoras.map((marca) => (
+                <Link
+                  key={marca.id}
+                  href={marca.slug ? `/marcas/${marca.slug}` : marca.web_url || "#"}
+                  className="inline-flex items-center gap-4 rounded-2xl border border-orange-100 bg-orange-50 px-5 py-4 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
+                >
+                  {marca.logo_url ? (
+                    <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-2 shadow-sm">
+                      <img
+                        src={marca.logo_url}
+                        alt={`Logo ${marca.nombre}`}
+                        className="h-full w-full object-contain"
+                      />
+                    </span>
+                  ) : (
+                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white text-lg shadow-sm">
+                      🤝
+                    </span>
+                  )}
+
+                  <span className="flex flex-col">
+                    <span>{marca.nombre}</span>
+                    {marca.descripcion_corta && (
+                      <span className="mt-0.5 max-w-[260px] text-xs font-medium leading-5 text-slate-500">
+                        {marca.descripcion_corta}
+                      </span>
+                    )}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-6 rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
@@ -1327,10 +1415,10 @@ ${url}`;
                   href={partner.url}
                   target="_blank"
                   rel="noopener noreferrer sponsored"
-                  className="inline-flex items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
+                  className="inline-flex items-center gap-4 rounded-2xl border border-orange-100 bg-orange-50 px-5 py-4 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
                 >
                   {partner.logo_url ? (
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-1.5 shadow-sm">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-2 shadow-sm">
                       <img
                         src={partner.logo_url}
                         alt={`Logo ${partner.nombre}`}
