@@ -76,10 +76,6 @@ export default async function ColaboradoresPage() {
 
   const locales = ((data || []) as Colaborador[]).filter(Boolean);
 
-  const sorteosActivos = locales.filter(
-    (local) => local.sorteo_activo && local.titulo_sorteo
-  );
-
   const colaboradoresConProgramacion = locales
     .map((local) => {
       const programacionNueva = (local.colaboradores_programacion || [])
@@ -233,45 +229,101 @@ export default async function ColaboradoresPage() {
           </div>
         )}
 
-        {sorteosActivos.length > 0 && (
-          <div className="mt-10 rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-6 shadow-lg shadow-orange-100">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">🎟️</span>
-              <h2 className="text-2xl font-extrabold text-slate-900">
-                Sorteos e invitaciones activas
-              </h2>
+        <div className="mt-10 rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-6 shadow-lg shadow-orange-100">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🎁</span>
+            <h2 className="text-2xl font-extrabold text-slate-900">
+              Beneficios exclusivos para la comunidad
+            </h2>
+          </div>
+
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">
+            Sorteos, entradas, descuentos, merchandising y experiencias
+            especiales compartidas por salas, marcas y colaboradores de Lugares
+            Llenos.
+          </p>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-4">
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
+                🎟️ Entradas
+              </p>
+              <h3 className="mt-1 text-xl font-bold text-slate-900">
+                Entradas, sorteos y experiencias
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Muy pronto lanzaremos sorteos, invitaciones y experiencias
+                exclusivas junto a nuestras salas y marcas colaboradoras.
+              </p>
             </div>
 
-            <div className="mt-6 space-y-4">
-              {sorteosActivos.map((sorteo) => (
-                <div
-                  key={sorteo.id}
-                  className="rounded-2xl bg-white p-5 shadow-sm"
-                >
-                  <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
-                    {sorteo.nombre}
-                  </p>
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
+                🎁 Regalos
+              </p>
+              <h3 className="mt-1 text-xl font-bold text-slate-900">
+                Merchandising, descuentos y regalos
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Aquí encontrarás merchandising exclusivo, descuentos, packs,
+                regalos e invitaciones especiales de nuestros colaboradores.
+              </p>
+            </div>
 
-                  <h3 className="mt-1 text-xl font-bold text-slate-900">
-                    {sorteo.titulo_sorteo}
-                  </h3>
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
+                🍸 Marcas
+              </p>
+              <h3 className="mt-1 text-xl font-bold text-slate-900">
+                Acciones con marcas colaboradoras
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Activaciones especiales con marcas que apoyan la música, los
+                planes locales y las experiencias reales.
+              </p>
+            </div>
 
-                  {sorteo.descripcion_sorteo && (
-                    <p className="mt-2 text-slate-600">
-                      {sorteo.descripcion_sorteo}
-                    </p>
-                  )}
-
-                  {sorteo.fecha_sorteo && (
-                    <p className="mt-3 font-semibold text-orange-700">
-                      📅 {sorteo.fecha_sorteo}
-                    </p>
-                  )}
-                </div>
-              ))}
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
+                ⭐ Comunidad
+              </p>
+              <h3 className="mt-1 text-xl font-bold text-slate-900">
+                Concursos y ventajas exclusivas
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Concursos, retos, invitaciones y beneficios pensados para las
+                personas que participan en Lugares Llenos.
+              </p>
             </div>
           </div>
-        )}
+
+          <div className="mt-6 rounded-2xl border border-orange-100 bg-white/80 p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-orange-600">
+              Próximamente con salas, marcas y partners
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-orange-100">
+                🎵 Salas colaboradoras
+              </span>
+              <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-orange-100">
+                🍸 Vermut Zarro
+              </span>
+              <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-orange-100">
+                🌍 GetYourGuide
+              </span>
+              <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-orange-100">
+                🎟️ Entradas
+              </span>
+              <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-orange-100">
+                👕 Merchandising
+              </span>
+              <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-orange-100">
+                🎁 Regalos
+              </span>
+            </div>
+          </div>
+        </div>
 
         {colaboradoresConProgramacion.length > 0 && (
           <div className="mt-10 rounded-3xl border border-orange-200 bg-white/95 p-6 shadow-lg shadow-orange-100">
@@ -309,12 +361,14 @@ export default async function ColaboradoresPage() {
                         )}
 
                         {evento.url && evento.url !== "#" && (
-                          <Link
+                          <a
                             href={evento.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="mt-3 inline-flex font-bold text-orange-600 hover:text-orange-700"
                           >
                             Ver evento →
-                          </Link>
+                          </a>
                         )}
                       </div>
                     ))}
@@ -352,6 +406,9 @@ export default async function ColaboradoresPage() {
             </span>
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               🎫 Invitaciones
+            </span>
+            <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
+              👕 Merchandising
             </span>
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               📣 Promoción de eventos
