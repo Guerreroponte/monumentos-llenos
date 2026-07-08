@@ -26,6 +26,7 @@ type Evento = {
   descripcion?: string | null;
   imagen?: string | null;
   enlace?: string | null;
+  fever_url_afiliado?: string | null;
   tipo?: string | null;
   subtipo?: string | null;
   categoria_evento?: string | null;
@@ -255,7 +256,6 @@ export default function EventoPage() {
       evento.ciudad ? ` (${evento.ciudad})` : ""
     }`;
 
-    // Compartir nativo (móvil principalmente)
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
@@ -269,7 +269,6 @@ export default function EventoPage() {
       }
     }
 
-    // Fallback copiar enlace sin romper
     try {
       if (
         typeof navigator !== "undefined" &&
@@ -558,6 +557,39 @@ export default function EventoPage() {
               )}
             </div>
 
+            {evento.fever_url_afiliado && (
+              <section className="mt-7 rounded-3xl border border-[#fed7aa] bg-[#fff7ed] p-6 shadow-sm">
+                <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#ea580c]">
+                      🎟️ Entradas recomendadas
+                    </p>
+
+                    <h2 className="mt-3 text-2xl font-extrabold text-[#0f172a]">
+                      Completa tu plan
+                    </h2>
+
+                    <p className="mt-3 max-w-xl text-sm leading-6 text-[#475569]">
+                      Reserva tus entradas para este evento de forma rápida y segura con Fever.
+                    </p>
+
+                    <p className="mt-2 text-xs font-semibold text-[#94a3b8]">
+                      Partner de experiencias de Lugares Llenos.
+                    </p>
+                  </div>
+
+                  <a
+                    href={evento.fever_url_afiliado}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored"
+                    className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#f97316] px-6 py-3 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] hover:shadow-lg"
+                  >
+                    Ver entradas →
+                  </a>
+                </div>
+              </section>
+            )}
+
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 onClick={compartirWhatsApp}
@@ -573,7 +605,7 @@ export default function EventoPage() {
                 Compartir
               </button>
 
-              {evento.enlace && (
+              {!evento.fever_url_afiliado && evento.enlace && (
                 <a
                   href={evento.enlace}
                   target="_blank"
