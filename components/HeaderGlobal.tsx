@@ -99,6 +99,12 @@ export default function HeaderGlobal() {
               <a href="/#lugares" className="transition hover:text-orange-600">
                 Lugares
               </a>
+              <a
+                href="/que-hacer"
+                className="transition hover:text-orange-600"
+              >
+                Qué hacer
+              </a>
               <a href="/eventos" className="text-orange-600">
                 Eventos
               </a>
@@ -170,6 +176,14 @@ export default function HeaderGlobal() {
                     className="rounded-2xl px-4 py-3 text-base font-semibold text-[#334155] transition hover:bg-[#f8fafc]"
                   >
                     Lugares
+                  </a>
+
+                  <a
+                    href="/que-hacer"
+                    onClick={cerrarMenuMovil}
+                    className="rounded-2xl px-4 py-3 text-base font-semibold text-[#334155] transition hover:bg-[#f8fafc]"
+                  >
+                    Qué hacer
                   </a>
 
                   <a
