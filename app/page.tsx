@@ -37,6 +37,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Moby Dick Club",
   "Jimmy Jazz",
   "Peter Rock Club",
+  "Sala El Sol",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
