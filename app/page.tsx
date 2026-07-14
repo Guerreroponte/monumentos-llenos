@@ -38,6 +38,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Jimmy Jazz",
   "Peter Rock Club",
   "Sala El Sol",
+  "Círculo de Arte de Toledo",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
