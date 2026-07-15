@@ -837,6 +837,123 @@ export default function EventosPage() {
       </section>
 
       <section
+        id="seccion-todos"
+        className="mx-auto max-w-7xl px-4 pb-16 md:px-6 lg:px-8"
+      >
+        <div className="mb-5">
+          <h2 className="text-2xl font-bold text-[#334155]">
+            Todos los eventos y planes
+          </h2>
+          <p className="mt-1 text-sm text-[#64748b]">
+            Resultado en tiempo real según los filtros.
+          </p>
+        </div>
+
+        {eventosFiltrados.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-[#cbd5e1] bg-white p-10 text-center">
+            <p className="text-lg font-semibold text-[#334155]">
+              No hemos encontrado eventos con esos filtros.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {eventosFiltrados.map((evento) => (
+              <Link
+                key={evento.id}
+                href={`/eventos/${evento.slug}`}
+                className="block overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+              >
+                <img
+                  src={evento.imagen}
+                  alt={evento.nombre}
+                  className="h-52 w-full object-cover"
+                />
+
+                <div className="p-5">
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
+                      {evento.subtipo || evento.tipo}
+                    </span>
+
+                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-bold text-[#475569]">
+                      {evento.ciudad}
+                    </span>
+
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-bold ${
+                        evento.categoriaEvento === "local"
+                          ? "bg-[#ecfeff] text-[#155e75]"
+                          : "bg-[#fef3c7] text-[#92400e]"
+                      }`}
+                    >
+                      {evento.categoriaEvento === "local"
+                        ? "Plan local"
+                        : "Evento grande"}
+                    </span>
+
+                    {esHoy(evento.fechaInicio) && (
+                      <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
+                        Hoy
+                      </span>
+                    )}
+
+                    {esManana(evento.fechaInicio) && (
+                      <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
+                        Mañana
+                      </span>
+                    )}
+
+                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                      💬 {textoComentarios(evento.comentariosCount)}
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-[#334155]">
+                    {evento.nombre}
+                  </h3>
+
+                  <p className="mt-2 text-sm text-[#64748b]">
+                    {textoFechaEvento(evento)}
+                    {textoHoraEvento(evento) ? ` · ${textoHoraEvento(evento)}` : ""}
+                  </p>
+
+                  {evento.ubicacionDetalle && (
+                    <p className="mt-2 text-sm text-[#64748b]">
+                      📍 {evento.ubicacionDetalle}
+                    </p>
+                  )}
+
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
+                    {evento.descripcion}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {evento.precio && (
+                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                        {evento.precio}
+                      </span>
+                    )}
+
+                    {evento.ambiente && (
+                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                        {evento.ambiente}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-5">
+                    <span className="inline-flex rounded-full border border-[#fed7aa] px-4 py-2 text-sm font-semibold text-[#ea580c] transition group-hover:bg-[#fff7ed]">
+                      Ver detalles
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section
         id="seccion-grandes"
         className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8"
       >
@@ -1327,122 +1444,7 @@ export default function EventosPage() {
         </section>
       )}
 
-      <section
-        id="seccion-todos"
-        className="mx-auto max-w-7xl px-4 pb-16 md:px-6 lg:px-8"
-      >
-        <div className="mb-5">
-          <h2 className="text-2xl font-bold text-[#334155]">
-            Todos los eventos y planes
-          </h2>
-          <p className="mt-1 text-sm text-[#64748b]">
-            Resultado en tiempo real según los filtros.
-          </p>
-        </div>
 
-        {eventosFiltrados.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[#cbd5e1] bg-white p-10 text-center">
-            <p className="text-lg font-semibold text-[#334155]">
-              No hemos encontrado eventos con esos filtros.
-            </p>
-          </div>
-        ) : (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {eventosFiltrados.map((evento) => (
-              <Link
-                key={evento.id}
-                href={`/eventos/${evento.slug}`}
-                className="block overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
-              >
-                <img
-                  src={evento.imagen}
-                  alt={evento.nombre}
-                  className="h-52 w-full object-cover"
-                />
-
-                <div className="p-5">
-                  <div className="mb-2 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
-                      {evento.subtipo || evento.tipo}
-                    </span>
-
-                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-bold text-[#475569]">
-                      {evento.ciudad}
-                    </span>
-
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        evento.categoriaEvento === "local"
-                          ? "bg-[#ecfeff] text-[#155e75]"
-                          : "bg-[#fef3c7] text-[#92400e]"
-                      }`}
-                    >
-                      {evento.categoriaEvento === "local"
-                        ? "Plan local"
-                        : "Evento grande"}
-                    </span>
-
-                    {esHoy(evento.fechaInicio) && (
-                      <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
-                        Hoy
-                      </span>
-                    )}
-
-                    {esManana(evento.fechaInicio) && (
-                      <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
-                        Mañana
-                      </span>
-                    )}
-
-                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
-                      💬 {textoComentarios(evento.comentariosCount)}
-                    </span>
-                  </div>
-
-                  <h3 className="text-lg font-bold text-[#334155]">
-                    {evento.nombre}
-                  </h3>
-
-                  <p className="mt-2 text-sm text-[#64748b]">
-                    {textoFechaEvento(evento)}
-                    {textoHoraEvento(evento) ? ` · ${textoHoraEvento(evento)}` : ""}
-                  </p>
-
-                  {evento.ubicacionDetalle && (
-                    <p className="mt-2 text-sm text-[#64748b]">
-                      📍 {evento.ubicacionDetalle}
-                    </p>
-                  )}
-
-                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
-                    {evento.descripcion}
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {evento.precio && (
-                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
-                        {evento.precio}
-                      </span>
-                    )}
-
-                    {evento.ambiente && (
-                      <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
-                        {evento.ambiente}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-5">
-                    <span className="inline-flex rounded-full border border-[#fed7aa] px-4 py-2 text-sm font-semibold text-[#ea580c] transition group-hover:bg-[#fff7ed]">
-                      Ver detalles
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
     </main>
   );
 }
