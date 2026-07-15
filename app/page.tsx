@@ -2706,13 +2706,36 @@ ${url}`;
         />
       </section>
 
-      <a
-        href="#participa"
-        className="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-xl shadow-orange-300 transition hover:scale-[1.03] md:hidden"
-      >
-        <span>＋</span>
-        <span>Compartir lugar</span>
-      </a>
+            <details className="group fixed bottom-5 right-5 z-40 md:hidden">
+        <div className="absolute bottom-[calc(100%+0.75rem)] right-0 flex min-w-[210px] flex-col gap-2 rounded-2xl border border-orange-100 bg-white p-2 shadow-2xl">
+          <Link
+            href="/participa"
+            className="inline-flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-orange-50 hover:text-orange-600"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+              🎟️
+            </span>
+            <span>Compartir plan</span>
+          </Link>
+
+          <a
+            href="#participa"
+            className="inline-flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-orange-50 hover:text-orange-600"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
+              📍
+            </span>
+            <span>Compartir lugar</span>
+          </a>
+        </div>
+
+        <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-xl shadow-orange-300 transition hover:scale-[1.03] [&::-webkit-details-marker]:hidden">
+          <span className="text-lg transition-transform group-open:rotate-45">
+            ＋
+          </span>
+          <span>Compartir</span>
+        </summary>
+            </details>
     </main>
   );
 }
