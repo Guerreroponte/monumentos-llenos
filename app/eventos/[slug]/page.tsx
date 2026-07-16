@@ -557,38 +557,68 @@ export default function EventoPage() {
               )}
             </div>
 
-            {evento.fever_url_afiliado && (
-              <section className="mt-7 rounded-3xl border border-[#fed7aa] bg-[#fff7ed] p-6 shadow-sm">
-                <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#ea580c]">
-                      🎟️ Entradas recomendadas
-                    </p>
+            {(() => {
+              const urlEntradas =
+                evento.fever_url_afiliado?.trim() ||
+                evento.enlace?.trim() ||
+                "";
 
-                    <h2 className="mt-3 text-2xl font-extrabold text-[#0f172a]">
-                      Completa tu plan
-                    </h2>
+              const urlNormalizada = urlEntradas.toLowerCase();
 
-                    <p className="mt-3 max-w-xl text-sm leading-6 text-[#475569]">
-                      Reserva tus entradas para este evento de forma rápida y segura con Fever.
-                    </p>
+              const nombrePartner = urlNormalizada.includes("taquilla.com")
+                ? "Taquilla.com"
+                : urlNormalizada.includes("getyourguide")
+                ? "GetYourGuide"
+                : urlNormalizada.includes("booking.com")
+                ? "Booking.com"
+                : urlNormalizada.includes("fever") ||
+                  urlNormalizada.includes("pxf.io")
+                ? "Fever"
+                : "Lugares Llenos";
 
-                    <p className="mt-2 text-xs font-semibold text-[#94a3b8]">
-                      Partner de experiencias de Lugares Llenos.
-                    </p>
+              const esPartnerConocido =
+                urlNormalizada.includes("taquilla.com") ||
+                urlNormalizada.includes("getyourguide") ||
+                urlNormalizada.includes("booking.com") ||
+                urlNormalizada.includes("fever") ||
+                urlNormalizada.includes("pxf.io");
+
+              if (!urlEntradas || !esPartnerConocido) return null;
+
+              return (
+                <section className="mt-7 rounded-3xl border border-[#fed7aa] bg-[#fff7ed] p-6 shadow-sm">
+                  <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#ea580c]">
+                        🎟️ Entradas recomendadas
+                      </p>
+
+                      <h2 className="mt-3 text-2xl font-extrabold text-[#0f172a]">
+                        Reserva tus entradas
+                      </h2>
+
+                      <p className="mt-3 max-w-xl text-sm leading-6 text-[#475569]">
+                        Reserva tus entradas para este evento de forma rápida y
+                        segura con nuestros partners de experiencias.
+                      </p>
+
+                      <p className="mt-2 text-xs font-semibold text-[#94a3b8]">
+                        Partner oficial: {nombrePartner}
+                      </p>
+                    </div>
+
+                    <a
+                      href={urlEntradas}
+                      target="_blank"
+                      rel="noopener noreferrer sponsored"
+                      className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#f97316] px-6 py-3 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] hover:shadow-lg"
+                    >
+                      Ver entradas →
+                    </a>
                   </div>
-
-                  <a
-                    href={evento.fever_url_afiliado}
-                    target="_blank"
-                    rel="noopener noreferrer sponsored"
-                    className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#f97316] px-6 py-3 text-sm font-extrabold text-white shadow-md transition hover:bg-[#ea580c] hover:shadow-lg"
-                  >
-                    Ver entradas →
-                  </a>
-                </div>
-              </section>
-            )}
+                </section>
+              );
+            })()}
 
             <div className="mt-6 flex flex-wrap gap-3">
               <button
@@ -605,16 +635,22 @@ export default function EventoPage() {
                 Compartir
               </button>
 
-              {!evento.fever_url_afiliado && evento.enlace && (
-                <a
-                  href={evento.enlace}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex rounded-full border border-[#fed7aa] px-5 py-3 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
-                >
-                  Ver enlace externo
-                </a>
-              )}
+              {!evento.fever_url_afiliado &&
+                evento.enlace &&
+                !evento.enlace.toLowerCase().includes("taquilla.com") &&
+                !evento.enlace.toLowerCase().includes("getyourguide") &&
+                !evento.enlace.toLowerCase().includes("booking.com") &&
+                !evento.enlace.toLowerCase().includes("fever") &&
+                !evento.enlace.toLowerCase().includes("pxf.io") && (
+                  <a
+                    href={evento.enlace}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex rounded-full border border-[#fed7aa] px-5 py-3 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
+                  >
+                    Ver enlace externo
+                  </a>
+                )}
             </div>
 
             {mensajeCompartir && (
