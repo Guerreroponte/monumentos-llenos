@@ -10,11 +10,20 @@ type ProgramacionColaborador = {
   orden: number | null;
 };
 
+type CategoriaColaborador =
+  | "sala"
+  | "promotora"
+  | "medio"
+  | "proyecto"
+  | "festival"
+  | "institucion";
+
 type Colaborador = {
   id: string;
   nombre: string;
   ciudad: string | null;
   tipo: string | null;
+  categoria_colaborador: CategoriaColaborador | null;
   estado: string | null;
   descripcion: string | null;
   icono: string | null;
@@ -35,7 +44,144 @@ type Colaborador = {
   colaboradores_programacion?: ProgramacionColaborador[];
 };
 
+type ColaboradorConProgramacion = Colaborador & {
+  programacion: ProgramacionColaborador[];
+};
+
 export const dynamic = "force-dynamic";
+
+function etiquetaCategoria(categoria: CategoriaColaborador | null) {
+  switch (categoria) {
+    case "medio":
+      return "📰 Medio colaborador";
+    case "proyecto":
+      return "🤝 Proyecto colaborador";
+    case "promotora":
+      return "🎟️ Promotora colaboradora";
+    case "festival":
+      return "🎪 Festival colaborador";
+    case "institucion":
+      return "🏛️ Institución colaboradora";
+    default:
+      return "🎵 Sala colaboradora";
+  }
+}
+
+function iconoPorCategoria(categoria: CategoriaColaborador | null) {
+  switch (categoria) {
+    case "medio":
+      return "📰";
+    case "proyecto":
+      return "🤝";
+    case "promotora":
+      return "🎟️";
+    case "festival":
+      return "🎪";
+    case "institucion":
+      return "🏛️";
+    default:
+      return "🎵";
+  }
+}
+
+function ColaboradorCard({
+  colaborador,
+  mostrarEventos = false,
+}: {
+  colaborador: Colaborador;
+  mostrarEventos?: boolean;
+}) {
+  const categoria = colaborador.categoria_colaborador || "sala";
+  const logo = colaborador.logo_url || colaborador.logo;
+
+  return (
+    <article className="overflow-hidden rounded-3xl border border-orange-100 bg-white/95 shadow-lg shadow-orange-100">
+      {colaborador.imagen && (
+        <img
+          src={colaborador.imagen}
+          alt={colaborador.nombre}
+          className="h-44 w-full object-cover"
+        />
+      )}
+
+      <div className="p-6">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
+            {etiquetaCategoria(categoria)}
+          </span>
+
+          {colaborador.ciudad && (
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+              📍 {colaborador.ciudad}
+            </span>
+          )}
+        </div>
+
+        <div className="mt-6 flex items-start gap-4">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white text-3xl shadow-sm ring-1 ring-orange-100">
+            {logo ? (
+              <img
+                src={logo}
+                alt={`Logo de ${colaborador.nombre}`}
+                className="h-full w-full object-contain p-2"
+              />
+            ) : (
+              colaborador.icono || iconoPorCategoria(categoria)
+            )}
+          </div>
+
+          <div>
+            <h2 className="text-2xl font-extrabold text-slate-900">
+              {colaborador.nombre}
+            </h2>
+
+            <p className="mt-1 font-semibold text-orange-700">
+              {colaborador.tipo || "Colaborador de Lugares Llenos"}
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-5 text-sm leading-6 text-slate-600">
+          {colaborador.descripcion ||
+            "Colaborador de la comunidad Lugares Llenos."}
+        </p>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          {mostrarEventos && (
+            <Link
+              href="/eventos"
+              className="inline-flex font-bold text-orange-600 hover:text-orange-700"
+            >
+              Ver eventos →
+            </Link>
+          )}
+
+          {colaborador.web && (
+            <a
+              href={colaborador.web}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex font-bold text-slate-600 hover:text-orange-700"
+            >
+              Web oficial →
+            </a>
+          )}
+
+          {colaborador.instagram && (
+            <a
+              href={colaborador.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex font-bold text-slate-600 hover:text-orange-700"
+            >
+              Instagram →
+            </a>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export default async function ColaboradoresPage() {
   const { data, error } = await supabase
@@ -45,6 +191,7 @@ export default async function ColaboradoresPage() {
       nombre,
       ciudad,
       tipo,
+      categoria_colaborador,
       estado,
       descripcion,
       icono,
@@ -74,15 +221,34 @@ export default async function ColaboradoresPage() {
     .eq("destacado", true)
     .order("created_at", { ascending: true });
 
-  const locales = ((data || []) as Colaborador[]).filter(Boolean);
+  const colaboradores = ((data || []) as Colaborador[]).filter(Boolean);
 
-  const colaboradoresConProgramacion = locales
+  const salas = colaboradores.filter(
+    (colaborador) =>
+      !colaborador.categoria_colaborador ||
+      colaborador.categoria_colaborador === "sala",
+  );
+
+  const mediosYProyectos = colaboradores.filter(
+    (colaborador) =>
+      colaborador.categoria_colaborador === "medio" ||
+      colaborador.categoria_colaborador === "proyecto",
+  );
+
+  const promotorasFestivalesEInstituciones = colaboradores.filter(
+    (colaborador) =>
+      colaborador.categoria_colaborador === "promotora" ||
+      colaborador.categoria_colaborador === "festival" ||
+      colaborador.categoria_colaborador === "institucion",
+  );
+
+  const colaboradoresConProgramacion: ColaboradorConProgramacion[] = salas
     .map((local) => {
       const programacionNueva = (local.colaboradores_programacion || [])
         .filter((evento) => evento.activa && evento.titulo)
         .sort((a, b) => (a.orden || 0) - (b.orden || 0));
 
-      const programacionAntigua =
+      const programacionAntigua: ProgramacionColaborador[] =
         local.programacion_activa && local.programacion_texto
           ? [
               {
@@ -115,17 +281,17 @@ export default async function ColaboradoresPage() {
 
         <div className="mt-8 max-w-4xl">
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">
-            Salas y locales colaboradores
+            Comunidad colaboradora
           </p>
 
           <h1 className="mt-3 text-4xl font-extrabold leading-tight text-slate-900 md:text-6xl">
-            {locales.length} espacios que ayudan a mover planes reales
+            {colaboradores.length} colaboradores que ayudan a mover planes reales
           </h1>
 
           <p className="mt-6 text-lg leading-8 text-slate-600">
-            Locales, salas y espacios que comparten programación, sorteos,
-            invitaciones o eventos destacados para que más gente descubra planes
-            con ambiente.
+            Salas, medios, proyectos, promotoras y espacios que comparten
+            programación, recomendaciones, sorteos o eventos destacados para que
+            más personas descubran música y planes con ambiente.
           </p>
         </div>
 
@@ -135,101 +301,92 @@ export default async function ColaboradoresPage() {
           </div>
         )}
 
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
-          {locales.map((local) => (
-            <div
-              key={local.id}
-              className="overflow-hidden rounded-3xl border border-orange-100 bg-white/95 shadow-lg shadow-orange-100"
-            >
-              {local.imagen && (
-                <img
-                  src={local.imagen}
-                  alt={local.nombre}
-                  className="h-44 w-full object-cover"
-                />
-              )}
-
-              <div className="p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
-                    📍 {local.ciudad || "Ciudad"}
-                  </span>
-
-                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-                    {local.estado || "Colaborador"}
-                  </span>
-                </div>
-
-                <div className="mt-6 flex items-start gap-4">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white text-3xl shadow-sm ring-1 ring-orange-100">
-                    {local.logo_url || local.logo ? (
-                      <img
-                        src={local.logo_url || local.logo || ""}
-                        alt={local.nombre}
-                        className="h-full w-full object-contain p-2"
-                      />
-                    ) : (
-                      local.icono || "📍"
-                    )}
-                  </div>
-
-                  <div>
-                    <h2 className="text-2xl font-extrabold text-slate-900">
-                      {local.nombre}
-                    </h2>
-                    <p className="mt-1 font-semibold text-orange-700">
-                      {local.tipo || "Espacio colaborador"}
-                    </p>
-                  </div>
-                </div>
-
-                <p className="mt-5 text-sm leading-6 text-slate-600">
-                  {local.descripcion ||
-                    "Espacio colaborador de la comunidad Lugares Llenos."}
-                </p>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link
-                    href="/eventos"
-                    className="inline-flex font-bold text-orange-600 hover:text-orange-700"
-                  >
-                    Ver eventos →
-                  </Link>
-
-                  {local.web && (
-                    <a
-                      href={local.web}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex font-bold text-slate-600 hover:text-orange-700"
-                    >
-                      Web oficial →
-                    </a>
-                  )}
-
-                  {local.instagram && (
-                    <a
-                      href={local.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex font-bold text-slate-600 hover:text-orange-700"
-                    >
-                      Instagram →
-                    </a>
-                  )}
-                </div>
-              </div>
+        {salas.length > 0 && (
+          <section className="mt-12">
+            <div className="max-w-3xl">
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-600">
+                🎵 Salas colaboradoras
+              </p>
+              <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
+                Espacios donde la música sucede en directo
+              </h2>
+              <p className="mt-3 text-base leading-7 text-slate-600">
+                Salas, clubes y espacios culturales que comparten sus conciertos
+                y programación con la comunidad de Lugares Llenos.
+              </p>
             </div>
-          ))}
-        </div>
 
-        {locales.length === 0 && !error && (
+            <div className="mt-7 grid gap-5 md:grid-cols-3">
+              {salas.map((sala) => (
+                <ColaboradorCard
+                  key={sala.id}
+                  colaborador={sala}
+                  mostrarEventos
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {mediosYProyectos.length > 0 && (
+          <section className="mt-16">
+            <div className="max-w-3xl">
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-600">
+                📰 Medios y proyectos colaboradores
+              </p>
+              <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
+                Comunidades que impulsan y recomiendan música
+              </h2>
+              <p className="mt-3 text-base leading-7 text-slate-600">
+                Medios, comunidades y proyectos que dan visibilidad a artistas,
+                festivales, salas y nuevas propuestas musicales.
+              </p>
+            </div>
+
+            <div className="mt-7 grid gap-5 md:grid-cols-3">
+              {mediosYProyectos.map((colaborador) => (
+                <ColaboradorCard
+                  key={colaborador.id}
+                  colaborador={colaborador}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {promotorasFestivalesEInstituciones.length > 0 && (
+          <section className="mt-16">
+            <div className="max-w-3xl">
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-600">
+                🎟️ Promotoras, festivales e instituciones
+              </p>
+              <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
+                Organizaciones que hacen posibles nuevos planes
+              </h2>
+              <p className="mt-3 text-base leading-7 text-slate-600">
+                Proyectos que organizan, producen y apoyan conciertos, festivales
+                y experiencias culturales por toda España.
+              </p>
+            </div>
+
+            <div className="mt-7 grid gap-5 md:grid-cols-3">
+              {promotorasFestivalesEInstituciones.map((colaborador) => (
+                <ColaboradorCard
+                  key={colaborador.id}
+                  colaborador={colaborador}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {colaboradores.length === 0 && !error && (
           <div className="mt-10 rounded-3xl border border-orange-100 bg-white/95 p-6 text-slate-600 shadow-lg shadow-orange-100">
             Todavía no hay colaboradores destacados visibles.
           </div>
         )}
 
-        <div className="mt-10 rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-6 shadow-lg shadow-orange-100">
+        <div className="mt-16 rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-6 shadow-lg shadow-orange-100">
           <div className="flex items-center gap-2">
             <span className="text-2xl">🎁</span>
             <h2 className="text-2xl font-extrabold text-slate-900">
@@ -307,6 +464,9 @@ export default async function ColaboradoresPage() {
                 🎵 Salas colaboradoras
               </span>
               <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-orange-100">
+                📰 Medios colaboradores
+              </span>
+              <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-orange-100">
                 🍸 Vermut Zarro
               </span>
               <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-orange-100">
@@ -330,7 +490,7 @@ export default async function ColaboradoresPage() {
             <div className="flex items-center gap-2">
               <span className="text-2xl">🎵</span>
               <h2 className="text-2xl font-extrabold text-slate-900">
-                Programación destacada de colaboradores
+                Programación destacada de salas colaboradoras
               </h2>
             </div>
 
@@ -381,20 +541,20 @@ export default async function ColaboradoresPage() {
 
         <div className="mt-10 rounded-3xl border border-orange-100 bg-white/95 p-8 shadow-lg shadow-orange-100">
           <h2 className="text-3xl font-bold text-slate-900">
-            ¿Tienes una sala, bar, club o espacio cultural?
+            ¿Tienes una sala, promotora, medio o proyecto cultural?
           </h2>
 
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-            En Lugares Llenos ayudamos a dar visibilidad a espacios con ambiente
-            real. Si organizas conciertos, monólogos, directos, tardeos,
-            sesiones culturales o cualquier plan interesante, podemos colaborar
-            para que más personas los descubran.
+            En Lugares Llenos ayudamos a dar visibilidad a espacios, medios y
+            proyectos que impulsan la música, la cultura y los planes reales. Si
+            organizas conciertos, compartes recomendaciones o apoyas la escena
+            cultural, podemos colaborar para que más personas te descubran.
           </p>
 
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
             También estamos abiertos a compartir programación, sorteos,
-            invitaciones, promociones especiales o eventos destacados para la
-            comunidad.
+            invitaciones, promociones especiales, contenidos y eventos
+            destacados para la comunidad.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -403,6 +563,9 @@ export default async function ColaboradoresPage() {
             </span>
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               🎵 Programación
+            </span>
+            <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
+              📰 Contenido musical
             </span>
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               🎫 Invitaciones
