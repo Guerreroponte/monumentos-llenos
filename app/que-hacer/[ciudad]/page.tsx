@@ -52,25 +52,20 @@ const categorias = [
   { label: "🤝 Salas colaboradoras", href: "#colaboradores" },
 ];
 
-const ciudadesConTilde: Record<string, string> = {
-  malaga: "Málaga",
-  "a-coruna": "A Coruña",
-  cordoba: "Córdoba",
-  cadiz: "Cádiz",
-  leon: "León",
-  avila: "Ávila",
-  caceres: "Cáceres",
-  merida: "Mérida",
-  logrono: "Logroño",
-  gijon: "Gijón",
-  "san-sebastian": "San Sebastián",
-};
+function normalizarCiudad(texto: string) {
+  return decodeURIComponent(texto)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
-function formatearCiudad(slug: string) {
-  if (ciudadesConTilde[slug]) return ciudadesConTilde[slug];
-
-  return slug
+function formatearCiudadDesdeSlug(slug: string) {
+  return decodeURIComponent(slug)
     .split("-")
+    .filter(Boolean)
     .map((palabra) => palabra.charAt(0).toUpperCase() + palabra.slice(1))
     .join(" ");
 }
@@ -90,9 +85,14 @@ function formatearFecha(fecha?: string | null) {
 
 export default function CiudadPage() {
   const params = useParams();
-  const ciudadSlug = params?.ciudad as string;
-  const ciudadFormateada = formatearCiudad(ciudadSlug);
+  const parametroCiudad = params?.ciudad;
+  const ciudadSlug = Array.isArray(parametroCiudad)
+    ? parametroCiudad[0] || ""
+    : (parametroCiudad as string) || "";
 
+  const [ciudadFormateada, setCiudadFormateada] = useState(
+    formatearCiudadDesdeSlug(ciudadSlug)
+  );
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [lugares, setLugares] = useState<Lugar[]>([]);
   const [colaboradores, setColaboradores] = useState<Colaborador[]>([]);
@@ -102,56 +102,164 @@ export default function CiudadPage() {
   const [cargandoColaboradores, setCargandoColaboradores] = useState(true);
 
   useEffect(() => {
-    if (!ciudadFormateada) return;
+    if (!ciudadSlug) return;
+
+    let efectoCancelado = false;
+    const ciudadNormalizada = normalizarCiudad(ciudadSlug);
+    const TAMANO_PAGINA = 1000;
 
     const cargarDatosCiudad = async () => {
+      setCiudadFormateada(formatearCiudadDesdeSlug(ciudadSlug));
       setCargandoEventos(true);
       setCargandoLugares(true);
       setCargandoColaboradores(true);
 
       const hoy = new Date().toISOString().split("T")[0];
 
-      const { data: eventosData } = await supabase
-        .from("eventos")
-        .select("id,nombre,slug,ciudad,fecha_inicio,imagen,subtipo")
-        .ilike("ciudad", ciudadFormateada)
-        .eq("validado", true)
-        .eq("reportado", false)
-        .gte("fecha_inicio", hoy)
-        .order("fecha_inicio", { ascending: true })
-        .limit(8);
+      const cargarEventos = async () => {
+        const encontrados: Evento[] = [];
+        let desde = 0;
 
-      setEventos(eventosData || []);
+        while (encontrados.length < 8) {
+          const hasta = desde + TAMANO_PAGINA - 1;
+          const { data, error } = await supabase
+            .from("eventos")
+            .select("id,nombre,slug,ciudad,fecha_inicio,imagen,subtipo")
+            .eq("validado", true)
+            .eq("reportado", false)
+            .gte("fecha_inicio", hoy)
+            .order("fecha_inicio", { ascending: true })
+            .range(desde, hasta);
+
+          if (error) {
+            console.error("Error cargando eventos de la ciudad:", error);
+            break;
+          }
+
+          const pagina = (data || []) as Evento[];
+
+          encontrados.push(
+            ...pagina.filter(
+              (evento) =>
+                evento.ciudad &&
+                normalizarCiudad(evento.ciudad) === ciudadNormalizada
+            )
+          );
+
+          if (pagina.length < TAMANO_PAGINA) break;
+          desde += TAMANO_PAGINA;
+        }
+
+        return encontrados.slice(0, 8);
+      };
+
+      const cargarLugares = async () => {
+        const encontrados: Lugar[] = [];
+        let desde = 0;
+
+        while (encontrados.length < 8) {
+          const hasta = desde + TAMANO_PAGINA - 1;
+          const { data, error } = await supabase
+            .from("Monumentos")
+            .select(
+              "id,nombre,slug,ciudad,imagen,imagen_fullback,descripcion,rating"
+            )
+            .eq("reportado", false)
+            .order("created_at", { ascending: false })
+            .range(desde, hasta);
+
+          if (error) {
+            console.error("Error cargando lugares de la ciudad:", error);
+            break;
+          }
+
+          const pagina = (data || []) as Lugar[];
+
+          encontrados.push(
+            ...pagina.filter(
+              (lugar) =>
+                lugar.ciudad &&
+                normalizarCiudad(lugar.ciudad) === ciudadNormalizada
+            )
+          );
+
+          if (pagina.length < TAMANO_PAGINA) break;
+          desde += TAMANO_PAGINA;
+        }
+
+        return encontrados.slice(0, 8);
+      };
+
+      const cargarColaboradores = async () => {
+        const encontrados: Colaborador[] = [];
+        let desde = 0;
+
+        while (encontrados.length < 8) {
+          const hasta = desde + TAMANO_PAGINA - 1;
+          const { data, error } = await supabase
+            .from("colaboradores")
+            .select(
+              "id,nombre,ciudad,tipo,descripcion,web,instagram,logo_url,logo,imagen,programacion_url,programacion_enlace"
+            )
+            .order("nombre", { ascending: true })
+            .range(desde, hasta);
+
+          if (error) {
+            console.error("Error cargando colaboradores de la ciudad:", error);
+            break;
+          }
+
+          const pagina = (data || []) as Colaborador[];
+
+          encontrados.push(
+            ...pagina.filter(
+              (colaborador) =>
+                colaborador.ciudad &&
+                normalizarCiudad(colaborador.ciudad) === ciudadNormalizada
+            )
+          );
+
+          if (pagina.length < TAMANO_PAGINA) break;
+          desde += TAMANO_PAGINA;
+        }
+
+        return encontrados.slice(0, 8);
+      };
+
+      const [eventosEncontrados, lugaresEncontrados, colaboradoresEncontrados] =
+        await Promise.all([
+          cargarEventos(),
+          cargarLugares(),
+          cargarColaboradores(),
+        ]);
+
+      if (efectoCancelado) return;
+
+      setEventos(eventosEncontrados);
+      setLugares(lugaresEncontrados);
+      setColaboradores(colaboradoresEncontrados);
+
+      const ciudadReal =
+        eventosEncontrados.find((evento) => evento.ciudad)?.ciudad ||
+        lugaresEncontrados.find((lugar) => lugar.ciudad)?.ciudad ||
+        colaboradoresEncontrados.find((colaborador) => colaborador.ciudad)
+          ?.ciudad;
+
+      if (ciudadReal) {
+        setCiudadFormateada(ciudadReal);
+      }
+
       setCargandoEventos(false);
-
-      const { data: lugaresData } = await supabase
-        .from("Monumentos")
-        .select(
-          "id,nombre,slug,ciudad,imagen,imagen_fullback,descripcion,rating"
-        )
-        .ilike("ciudad", ciudadFormateada)
-        .eq("reportado", false)
-        .order("created_at", { ascending: false })
-        .limit(8);
-
-      setLugares(lugaresData || []);
       setCargandoLugares(false);
-
-      const { data: colaboradoresData } = await supabase
-        .from("colaboradores")
-        .select(
-          "id,nombre,ciudad,tipo,descripcion,web,instagram,logo_url,logo,imagen,programacion_url,programacion_enlace"
-        )
-        .ilike("ciudad", ciudadFormateada)
-        .order("nombre", { ascending: true })
-        .limit(8);
-
-      setColaboradores(colaboradoresData || []);
       setCargandoColaboradores(false);
     };
 
     cargarDatosCiudad();
-  }, [ciudadFormateada]);
+
+    return () => {
+      efectoCancelado = true;
+    };
+  }, [ciudadSlug]);
 
   return (
     <main className="bg-[#fff7ed] min-h-screen">
