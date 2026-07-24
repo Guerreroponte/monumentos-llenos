@@ -223,10 +223,13 @@ export default async function ColaboradoresPage() {
 
   const colaboradores = ((data || []) as Colaborador[]).filter(Boolean);
 
-  const salas = colaboradores.filter(
+  const colaboradoresMusicales = colaboradores.filter(
     (colaborador) =>
       !colaborador.categoria_colaborador ||
-      colaborador.categoria_colaborador === "sala",
+      colaborador.categoria_colaborador === "sala" ||
+      colaborador.categoria_colaborador === "promotora" ||
+      colaborador.categoria_colaborador === "festival" ||
+      colaborador.categoria_colaborador === "institucion",
   );
 
   const mediosYProyectos = colaboradores.filter(
@@ -235,14 +238,8 @@ export default async function ColaboradoresPage() {
       colaborador.categoria_colaborador === "proyecto",
   );
 
-  const promotorasFestivalesEInstituciones = colaboradores.filter(
-    (colaborador) =>
-      colaborador.categoria_colaborador === "promotora" ||
-      colaborador.categoria_colaborador === "festival" ||
-      colaborador.categoria_colaborador === "institucion",
-  );
-
-  const colaboradoresConProgramacion: ColaboradorConProgramacion[] = salas
+  const colaboradoresConProgramacion: ColaboradorConProgramacion[] =
+    colaboradoresMusicales
     .map((local) => {
       const programacionNueva = (local.colaboradores_programacion || [])
         .filter((evento) => evento.activa && evento.titulo)
@@ -301,26 +298,26 @@ export default async function ColaboradoresPage() {
           </div>
         )}
 
-        {salas.length > 0 && (
+        {colaboradoresMusicales.length > 0 && (
           <section className="mt-12">
             <div className="max-w-3xl">
               <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-600">
-                🎵 Salas colaboradoras
+                🎵 Colaboradores musicales
               </p>
               <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
-                Espacios donde la música sucede en directo
+                Espacios y organizaciones donde la música sucede
               </h2>
               <p className="mt-3 text-base leading-7 text-slate-600">
-                Salas, clubes y espacios culturales que comparten sus conciertos
-                y programación con la comunidad de Lugares Llenos.
+                Salas, ciclos, festivales, promotoras e instituciones que comparten
+                conciertos y programación con la comunidad de Lugares Llenos.
               </p>
             </div>
 
             <div className="mt-7 grid gap-5 md:grid-cols-3">
-              {salas.map((sala) => (
+              {colaboradoresMusicales.map((colaborador) => (
                 <ColaboradorCard
-                  key={sala.id}
-                  colaborador={sala}
+                  key={colaborador.id}
+                  colaborador={colaborador}
                   mostrarEventos
                 />
               ))}
@@ -345,32 +342,6 @@ export default async function ColaboradoresPage() {
 
             <div className="mt-7 grid gap-5 md:grid-cols-3">
               {mediosYProyectos.map((colaborador) => (
-                <ColaboradorCard
-                  key={colaborador.id}
-                  colaborador={colaborador}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {promotorasFestivalesEInstituciones.length > 0 && (
-          <section className="mt-16">
-            <div className="max-w-3xl">
-              <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-600">
-                🎟️ Promotoras, festivales e instituciones
-              </p>
-              <h2 className="mt-2 text-3xl font-extrabold text-slate-900">
-                Organizaciones que hacen posibles nuevos planes
-              </h2>
-              <p className="mt-3 text-base leading-7 text-slate-600">
-                Proyectos que organizan, producen y apoyan conciertos, festivales
-                y experiencias culturales por toda España.
-              </p>
-            </div>
-
-            <div className="mt-7 grid gap-5 md:grid-cols-3">
-              {promotorasFestivalesEInstituciones.map((colaborador) => (
                 <ColaboradorCard
                   key={colaborador.id}
                   colaborador={colaborador}
@@ -490,7 +461,7 @@ export default async function ColaboradoresPage() {
             <div className="flex items-center gap-2">
               <span className="text-2xl">🎵</span>
               <h2 className="text-2xl font-extrabold text-slate-900">
-                Programación destacada de salas colaboradoras
+                Programación destacada de colaboradores musicales
               </h2>
             </div>
 
