@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -10,6 +10,12 @@ type TipoParticipacion = "lugar" | "evento_grande" | "plan_local";
 type FotoSeleccionada = {
   file: File;
   preview: string;
+};
+
+type ColaboradorOpcion = {
+  id: string;
+  nombre: string;
+  categoria_colaborador: string | null;
 };
 
 const STORAGE_BUCKET = "imagenes";
@@ -93,6 +99,11 @@ export default function ParticipaPage() {
   const [enlace, setEnlace] = useState("");
   const [creadoPor, setCreadoPor] = useState("");
 
+  const [colaboradores, setColaboradores] = useState<ColaboradorOpcion[]>([]);
+  const [colaboradorId, setColaboradorId] = useState("");
+  const [cargandoColaboradores, setCargandoColaboradores] = useState(true);
+  const [errorColaboradores, setErrorColaboradores] = useState("");
+
   const [fotos, setFotos] = useState<FotoSeleccionada[]>([]);
   const [subiendoImagenes, setSubiendoImagenes] = useState(false);
 
@@ -117,6 +128,86 @@ export default function ParticipaPage() {
   const subtipoOptions = useMemo(() => {
     return categoriaEvento === "grande" ? SUBTIPOS_GRANDES : SUBTIPOS_LOCALES;
   }, [categoriaEvento]);
+
+  const colaboradorSeleccionado = useMemo(
+    () =>
+      colaboradores.find((colaborador) => colaborador.id === colaboradorId) ??
+      null,
+    [colaboradores, colaboradorId],
+  );
+
+  const colaboradoresAgrupados = useMemo(() => {
+    const grupos = {
+      salas: [] as ColaboradorOpcion[],
+      festivales: [] as ColaboradorOpcion[],
+      promotoras: [] as ColaboradorOpcion[],
+      medios: [] as ColaboradorOpcion[],
+      proyectos: [] as ColaboradorOpcion[],
+      instituciones: [] as ColaboradorOpcion[],
+      otros: [] as ColaboradorOpcion[],
+    };
+
+    colaboradores.forEach((colaborador) => {
+      switch (colaborador.categoria_colaborador?.toLowerCase()) {
+        case "sala":
+          grupos.salas.push(colaborador);
+          break;
+        case "festival":
+          grupos.festivales.push(colaborador);
+          break;
+        case "promotora":
+          grupos.promotoras.push(colaborador);
+          break;
+        case "medio":
+          grupos.medios.push(colaborador);
+          break;
+        case "proyecto":
+          grupos.proyectos.push(colaborador);
+          break;
+        case "institucion":
+          grupos.instituciones.push(colaborador);
+          break;
+        default:
+          grupos.otros.push(colaborador);
+      }
+    });
+
+    return grupos;
+  }, [colaboradores]);
+
+  useEffect(() => {
+    let activo = true;
+
+    async function cargarColaboradores() {
+      setCargandoColaboradores(true);
+      setErrorColaboradores("");
+
+      const { data, error } = await supabase
+        .from("colaboradores")
+        .select("id, nombre, categoria_colaborador")
+        .order("nombre", { ascending: true });
+
+      if (!activo) return;
+
+      if (error) {
+        console.error("Error al cargar colaboradores:", error);
+        setColaboradores([]);
+        setErrorColaboradores(
+          "No se han podido cargar los colaboradores. Puedes publicar igualmente.",
+        );
+      } else {
+        setColaboradores((data || []) as ColaboradorOpcion[]);
+      }
+
+      setCargandoColaboradores(false);
+    }
+
+    cargarColaboradores();
+
+    return () => {
+      activo = false;
+    };
+  }, []);
 
   function seleccionarTipo(tipo: TipoParticipacion) {
     setTipoParticipacion(tipo);
@@ -284,6 +375,7 @@ export default function ParticipaPage() {
     setAmbiente("");
     setEnlace("");
     setCreadoPor("");
+    setColaboradorId("");
 
     fotos.forEach((foto) => {
       if (foto.preview) URL.revokeObjectURL(foto.preview);
@@ -371,7 +463,9 @@ export default function ParticipaPage() {
         imagen: imagenPrincipal,
         video_url: videoUrl,
         enlace: enlace || null,
-        creado_por: creadoPor || null,
+        creado_por:
+          creadoPor.trim() || colaboradorSeleccionado?.nombre || null,
+        colaborador_id: colaboradorId || null,
         slug: slugEvento,
         dificil_bebida: dificilBebida,
         parking,
@@ -684,6 +778,106 @@ export default function ParticipaPage() {
                   <p className="mt-2 text-xs text-[#94a3b8]">
                     Consejo: cuenta si hay ambiente, si está lleno, si merece la pena o si hay alternativa cerca.
                   </p>
+                </div>
+
+                <div className="mt-4">
+                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                    Publicado por
+                  </label>
+
+                  <select
+                    value={colaboradorId}
+                    onChange={(e) => setColaboradorId(e.target.value)}
+                    disabled={cargandoColaboradores}
+                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c] disabled:cursor-not-allowed disabled:bg-[#f8fafc] disabled:text-[#94a3b8]"
+                  >
+                    <option value="">
+                      {cargandoColaboradores
+                        ? "Cargando colaboradores..."
+                        : "Comunidad / sin colaborador"}
+                    </option>
+
+                    {colaboradoresAgrupados.salas.length > 0 && (
+                      <optgroup label="🎵 Salas">
+                        {colaboradoresAgrupados.salas.map((colaborador) => (
+                          <option key={colaborador.id} value={colaborador.id}>
+                            {colaborador.nombre}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {colaboradoresAgrupados.festivales.length > 0 && (
+                      <optgroup label="🎪 Festivales y ciclos">
+                        {colaboradoresAgrupados.festivales.map((colaborador) => (
+                          <option key={colaborador.id} value={colaborador.id}>
+                            {colaborador.nombre}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {colaboradoresAgrupados.promotoras.length > 0 && (
+                      <optgroup label="🎟️ Promotoras">
+                        {colaboradoresAgrupados.promotoras.map((colaborador) => (
+                          <option key={colaborador.id} value={colaborador.id}>
+                            {colaborador.nombre}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {colaboradoresAgrupados.medios.length > 0 && (
+                      <optgroup label="📰 Medios">
+                        {colaboradoresAgrupados.medios.map((colaborador) => (
+                          <option key={colaborador.id} value={colaborador.id}>
+                            {colaborador.nombre}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {colaboradoresAgrupados.proyectos.length > 0 && (
+                      <optgroup label="🤝 Proyectos">
+                        {colaboradoresAgrupados.proyectos.map((colaborador) => (
+                          <option key={colaborador.id} value={colaborador.id}>
+                            {colaborador.nombre}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {colaboradoresAgrupados.instituciones.length > 0 && (
+                      <optgroup label="🏛️ Instituciones">
+                        {colaboradoresAgrupados.instituciones.map((colaborador) => (
+                          <option key={colaborador.id} value={colaborador.id}>
+                            {colaborador.nombre}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {colaboradoresAgrupados.otros.length > 0 && (
+                      <optgroup label="Otros colaboradores">
+                        {colaboradoresAgrupados.otros.map((colaborador) => (
+                          <option key={colaborador.id} value={colaborador.id}>
+                            {colaborador.nombre}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </select>
+
+                  <p className="mt-2 text-xs text-[#94a3b8]">
+                    Selecciona un colaborador solo cuando el evento lo publique en
+                    nombre de esa sala, medio, festival o proyecto.
+                  </p>
+
+                  {errorColaboradores && (
+                    <p className="mt-2 text-xs font-semibold text-[#b45309]">
+                      {errorColaboradores}
+                    </p>
+                  )}
                 </div>
               </div>
 

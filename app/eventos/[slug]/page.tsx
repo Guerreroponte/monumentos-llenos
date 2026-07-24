@@ -13,6 +13,14 @@ type Comentario = {
   foto?: string | null;
 };
 
+type ColaboradorEvento = {
+  id: string;
+  nombre: string;
+  categoria_colaborador?: string | null;
+  logo?: string | null;
+  logo_url?: string | null;
+};
+
 type Evento = {
   id: string;
   slug?: string | null;
@@ -35,6 +43,7 @@ type Evento = {
   dificil_bebida?: boolean | null;
   parking?: boolean | null;
   recomendable?: boolean | null;
+  colaborador_id?: string | null;
 };
 
 const STORAGE_BUCKET = "imagenes";
@@ -152,6 +161,7 @@ export default function EventoPage() {
   const inputFotoRef = useRef<HTMLInputElement | null>(null);
 
   const [evento, setEvento] = useState<Evento | null>(null);
+  const [colaborador, setColaborador] = useState<ColaboradorEvento | null>(null);
   const [comentarios, setComentarios] = useState<Comentario[]>([]);
   const [textoComentario, setTextoComentario] = useState("");
   const [comentarioRapidoActivo, setComentarioRapidoActivo] = useState("");
@@ -180,21 +190,47 @@ export default function EventoPage() {
   useEffect(() => {
     if (!slug) return;
 
+    let activo = true;
+
     const cargarEvento = async () => {
+      setColaborador(null);
+
       const { data, error } = await supabase
         .from("eventos")
         .select("*")
         .eq("slug", slug)
         .single();
 
-      if (!error && data) {
-        setEvento(data);
-      } else {
+      if (!activo) return;
+
+      if (error || !data) {
         setEvento(null);
+        return;
+      }
+
+      const eventoCargado = data as Evento;
+      setEvento(eventoCargado);
+
+      if (!eventoCargado.colaborador_id) return;
+
+      const { data: dataColaborador, error: errorColaborador } = await supabase
+        .from("colaboradores")
+        .select("id, nombre, categoria_colaborador, logo, logo_url")
+        .eq("id", eventoCargado.colaborador_id)
+        .maybeSingle();
+
+      if (!activo) return;
+
+      if (!errorColaborador && dataColaborador) {
+        setColaborador(dataColaborador as ColaboradorEvento);
       }
     };
 
     cargarEvento();
+
+    return () => {
+      activo = false;
+    };
   }, [slug]);
 
   useEffect(() => {
@@ -501,6 +537,38 @@ export default function EventoPage() {
             <h1 className="text-3xl font-extrabold leading-tight text-[#334155]">
               {evento.nombre || "Evento"}
             </h1>
+
+            {colaborador && (
+              <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#fed7aa] bg-[#fff7ed] px-4 py-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-[#fed7aa]">
+                  {colaborador.logo_url || colaborador.logo ? (
+                    <img
+                      src={colaborador.logo_url || colaborador.logo || ""}
+                      alt={`Logo de ${colaborador.nombre}`}
+                      className="h-full w-full object-contain p-1.5"
+                    />
+                  ) : (
+                    <span className="text-xl">📢</span>
+                  )}
+                </div>
+
+                <div className="min-w-0">
+                  <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#ea580c]">
+                    Publicado por
+                  </p>
+                  <p className="font-extrabold text-[#334155]">
+                    {colaborador.nombre}
+                  </p>
+                </div>
+
+                <Link
+                  href="/colaboradores"
+                  className="ml-auto inline-flex rounded-full border border-[#fed7aa] bg-white px-4 py-2 text-xs font-bold text-[#ea580c] transition hover:bg-[#ffedd5]"
+                >
+                  Ver colaborador →
+                </Link>
+              </div>
+            )}
 
             <div className="mt-3 space-y-2 text-sm text-[#64748b]">
               <p>
