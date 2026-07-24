@@ -86,10 +86,10 @@ function iconoPorCategoria(categoria: CategoriaColaborador | null) {
 
 function ColaboradorCard({
   colaborador,
-  mostrarEventos = false,
+  eventosHref,
 }: {
   colaborador: Colaborador;
-  mostrarEventos?: boolean;
+  eventosHref?: string;
 }) {
   const categoria = colaborador.categoria_colaborador || "sala";
   const logo = colaborador.logo_url || colaborador.logo;
@@ -147,9 +147,9 @@ function ColaboradorCard({
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
-          {mostrarEventos && (
+          {eventosHref && (
             <Link
-              href="/eventos"
+              href={eventosHref}
               className="inline-flex font-bold text-orange-600 hover:text-orange-700"
             >
               Ver eventos →
@@ -239,7 +239,7 @@ export default async function ColaboradoresPage() {
   );
 
   const colaboradoresConProgramacion: ColaboradorConProgramacion[] =
-    colaboradoresMusicales
+    colaboradores
     .map((local) => {
       const programacionNueva = (local.colaboradores_programacion || [])
         .filter((evento) => evento.activa && evento.titulo)
@@ -265,6 +265,10 @@ export default async function ColaboradoresPage() {
       };
     })
     .filter((local) => local.programacion.length > 0);
+
+  const idsConProgramacion = new Set(
+    colaboradoresConProgramacion.map((colaborador) => colaborador.id),
+  );
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
@@ -318,7 +322,11 @@ export default async function ColaboradoresPage() {
                 <ColaboradorCard
                   key={colaborador.id}
                   colaborador={colaborador}
-                  mostrarEventos
+                  eventosHref={
+                    idsConProgramacion.has(colaborador.id)
+                      ? `#programacion-${colaborador.id}`
+                      : "/eventos"
+                  }
                 />
               ))}
             </div>
@@ -345,6 +353,11 @@ export default async function ColaboradoresPage() {
                 <ColaboradorCard
                   key={colaborador.id}
                   colaborador={colaborador}
+                  eventosHref={
+                    idsConProgramacion.has(colaborador.id)
+                      ? `#programacion-${colaborador.id}`
+                      : undefined
+                  }
                 />
               ))}
             </div>
@@ -461,15 +474,16 @@ export default async function ColaboradoresPage() {
             <div className="flex items-center gap-2">
               <span className="text-2xl">🎵</span>
               <h2 className="text-2xl font-extrabold text-slate-900">
-                Programación destacada de colaboradores musicales
+                Programación destacada de colaboradores
               </h2>
             </div>
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               {colaboradoresConProgramacion.map((colaborador) => (
                 <div
+                  id={`programacion-${colaborador.id}`}
                   key={colaborador.id}
-                  className="rounded-2xl border border-orange-100 bg-orange-50/60 p-5"
+                  className="scroll-mt-28 rounded-2xl border border-orange-100 bg-orange-50/60 p-5"
                 >
                   <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
                     {colaborador.nombre}
