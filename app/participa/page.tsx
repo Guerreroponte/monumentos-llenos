@@ -13,6 +13,9 @@ type FotoSeleccionada = {
 };
 
 const STORAGE_BUCKET = "imagenes";
+const VIDEO_STORAGE_BUCKET = "videos";
+const MAX_VIDEO_SIZE_BYTES = 50 * 1024 * 1024;
+const VIDEO_MIME_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
 
 const SUBTIPOS_GRANDES = [
   "Festival",
@@ -93,6 +96,10 @@ export default function ParticipaPage() {
   const [fotos, setFotos] = useState<FotoSeleccionada[]>([]);
   const [subiendoImagenes, setSubiendoImagenes] = useState(false);
 
+  const [video, setVideo] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState("");
+  const [subiendoVideo, setSubiendoVideo] = useState(false);
+
   const [dificilBebida, setDificilBebida] = useState(false);
   const [parking, setParking] = useState(false);
   const [recomendable, setRecomendable] = useState(true);
@@ -104,6 +111,7 @@ export default function ParticipaPage() {
   const [mensajeError, setMensajeError] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const videoInputRef = useRef<HTMLInputElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const subtipoOptions = useMemo(() => {
@@ -165,6 +173,74 @@ export default function ParticipaPage() {
     }
   }
 
+  function manejarCambioVideo(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+
+    setMensajeError("");
+
+    if (!file) return;
+
+    if (!VIDEO_MIME_TYPES.includes(file.type)) {
+      setMensajeError("El vídeo debe ser MP4, WebM o MOV.");
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_VIDEO_SIZE_BYTES) {
+      setMensajeError("El vídeo no puede superar los 50 MB.");
+      e.target.value = "";
+      return;
+    }
+
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview);
+    }
+
+    setVideo(file);
+    setVideoPreview(URL.createObjectURL(file));
+  }
+
+  function eliminarVideo() {
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview);
+    }
+
+    setVideo(null);
+    setVideoPreview("");
+
+    if (videoInputRef.current) {
+      videoInputRef.current.value = "";
+    }
+  }
+
+  async function subirVideo(file: File) {
+    setSubiendoVideo(true);
+
+    try {
+      const extension = file.name.split(".").pop() || "mp4";
+      const baseNombre = limpiarNombreArchivo(nombre || file.name || "evento");
+      const ruta = `eventos/${Date.now()}-${baseNombre}.${extension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(VIDEO_STORAGE_BUCKET)
+        .upload(ruta, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from(VIDEO_STORAGE_BUCKET)
+        .getPublicUrl(ruta);
+
+      return data.publicUrl;
+    } finally {
+      setSubiendoVideo(false);
+    }
+  }
+
   async function subirFotos(files: File[]) {
     const urls: string[] = [];
 
@@ -208,7 +284,18 @@ export default function ParticipaPage() {
     setAmbiente("");
     setEnlace("");
     setCreadoPor("");
+
+    fotos.forEach((foto) => {
+      if (foto.preview) URL.revokeObjectURL(foto.preview);
+    });
     setFotos([]);
+
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview);
+    }
+    setVideo(null);
+    setVideoPreview("");
+
     setDificilBebida(false);
     setParking(false);
     setRecomendable(true);
@@ -223,6 +310,10 @@ export default function ParticipaPage() {
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
+    }
+
+    if (videoInputRef.current) {
+      videoInputRef.current.value = "";
     }
   }
 
@@ -249,6 +340,7 @@ export default function ParticipaPage() {
         fotos.length > 0 ? await subirFotos(fotos.map((f) => f.file)) : [];
 
       const imagenPrincipal = urlsFotos[0] ?? null;
+      const videoUrl = video ? await subirVideo(video) : null;
 
       const slugEvento = generarSlugEvento({
         nombre: nombre.trim(),
@@ -277,6 +369,7 @@ export default function ParticipaPage() {
         precio: precio || null,
         ambiente: ambiente || null,
         imagen: imagenPrincipal,
+        video_url: videoUrl,
         enlace: enlace || null,
         creado_por: creadoPor || null,
         slug: slugEvento,
@@ -637,6 +730,52 @@ export default function ParticipaPage() {
                 )}
               </div>
 
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                  Vídeo opcional
+                </label>
+
+                <input
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/mp4,video/webm,video/quicktime"
+                  onChange={manejarCambioVideo}
+                  className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm"
+                />
+
+                <p className="mt-2 text-xs text-[#94a3b8]">
+                  Puedes subir un vídeo MP4, WebM o MOV de hasta 50 MB. Solo se
+                  admite un vídeo por evento.
+                </p>
+
+                {videoPreview && (
+                  <div className="mt-4 overflow-hidden rounded-2xl border border-[#e5e7eb] bg-white">
+                    <video
+                      src={videoPreview}
+                      controls
+                      preload="metadata"
+                      className="max-h-[420px] w-full bg-black object-contain"
+                    >
+                      Tu navegador no puede reproducir este vídeo.
+                    </video>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e5e7eb] px-4 py-3">
+                      <p className="min-w-0 flex-1 truncate text-sm font-semibold text-[#475569]">
+                        {video?.name}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={eliminarVideo}
+                        className="rounded-full border border-[#fecaca] bg-white px-4 py-2 text-sm font-semibold text-[#dc2626] transition hover:bg-[#fef2f2]"
+                      >
+                        Quitar vídeo
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <button
                 type="button"
                 onClick={() => setMostrarAvanzado((prev) => !prev)}
@@ -811,13 +950,13 @@ export default function ParticipaPage() {
               <div className="flex flex-wrap gap-3 pt-2">
                 <button
                   type="submit"
-                  disabled={loading || subiendoImagenes}
+                  disabled={loading || subiendoImagenes || subiendoVideo}
                   className={`inline-flex rounded-full px-6 py-3 text-sm font-bold text-white transition ${
                     categoriaEvento === "grande"
                       ? "bg-[#f97316] hover:bg-[#ea580c]"
                       : "bg-[#2563eb] hover:bg-[#1d4ed8]"
                   } ${
-                    loading || subiendoImagenes
+                    loading || subiendoImagenes || subiendoVideo
                       ? "cursor-not-allowed opacity-70"
                       : ""
                   }`}
@@ -826,6 +965,8 @@ export default function ParticipaPage() {
                     ? "Publicando..."
                     : subiendoImagenes
                     ? "Subiendo foto..."
+                    : subiendoVideo
+                    ? "Subiendo vídeo..."
                     : categoriaEvento === "grande"
                     ? "Publicar evento"
                     : "Publicar plan rápido"}
