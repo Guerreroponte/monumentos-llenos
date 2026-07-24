@@ -39,6 +39,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Peter Rock Club",
   "Sala El Sol",
   "Círculo de Arte de Toledo",
+  "Los Conciertos de la Muralla",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
