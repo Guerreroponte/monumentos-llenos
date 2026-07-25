@@ -44,6 +44,8 @@ type Evento = {
   parking?: boolean | null;
   recomendable?: boolean | null;
   colaborador_id?: string | null;
+  creado_por?: string | null;
+  video_url?: string | null;
 };
 
 const STORAGE_BUCKET = "imagenes";
@@ -538,10 +540,10 @@ export default function EventoPage() {
               {evento.nombre || "Evento"}
             </h1>
 
-            {colaborador && (
+            {(colaborador || evento.creado_por?.trim()) && (
               <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#fed7aa] bg-[#fff7ed] px-4 py-3">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-[#fed7aa]">
-                  {colaborador.logo_url || colaborador.logo ? (
+                  {colaborador && (colaborador.logo_url || colaborador.logo) ? (
                     <img
                       src={colaborador.logo_url || colaborador.logo || ""}
                       alt={`Logo de ${colaborador.nombre}`}
@@ -557,16 +559,18 @@ export default function EventoPage() {
                     Publicado por
                   </p>
                   <p className="font-extrabold text-[#334155]">
-                    {colaborador.nombre}
+                    {colaborador?.nombre || evento.creado_por?.trim()}
                   </p>
                 </div>
 
-                <Link
-                  href="/colaboradores"
-                  className="ml-auto inline-flex rounded-full border border-[#fed7aa] bg-white px-4 py-2 text-xs font-bold text-[#ea580c] transition hover:bg-[#ffedd5]"
-                >
-                  Ver colaborador →
-                </Link>
+                {colaborador && (
+                  <Link
+                    href="/colaboradores"
+                    className="ml-auto inline-flex rounded-full border border-[#fed7aa] bg-white px-4 py-2 text-xs font-bold text-[#ea580c] transition hover:bg-[#ffedd5]"
+                  >
+                    Ver colaborador →
+                  </Link>
+                )}
               </div>
             )}
 
@@ -592,6 +596,34 @@ export default function EventoPage() {
             <p className="mt-5 text-base leading-7 text-[#475569]">
               {evento.descripcion || "Sin descripción disponible."}
             </p>
+
+            {evento.video_url?.trim() && (
+              <section className="mt-7 overflow-hidden rounded-3xl border border-[#e5e7eb] bg-[#0f172a] shadow-sm">
+                <div className="px-5 pb-4 pt-5 md:px-6">
+                  <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#fb923c]">
+                    🎥 Vídeo del evento
+                  </p>
+                  <h2 className="mt-2 text-xl font-extrabold text-white">
+                    Corazón Inverso en Brisa Festival
+                  </h2>
+                  {evento.creado_por?.trim() && (
+                    <p className="mt-2 text-sm text-[#cbd5e1]">
+                      Vídeo compartido por {evento.creado_por.trim()}
+                    </p>
+                  )}
+                </div>
+
+                <video
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="max-h-[720px] w-full bg-black object-contain"
+                >
+                  <source src={evento.video_url.trim()} />
+                  Tu navegador no puede reproducir este vídeo.
+                </video>
+              </section>
+            )}
 
             <div className="mt-5 flex flex-wrap gap-2">
               {evento.precio && (
