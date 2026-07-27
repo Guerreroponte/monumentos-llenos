@@ -3,6 +3,75 @@ import Link from "next/link";
 const IMAGEN_COLECCION =
   "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/merchandising/primeros-modelos.png";
 
+type Producto = {
+  slug: string;
+  nombre: string;
+  color: string;
+  imagen: string;
+};
+
+const CAMISETAS: Producto[] = [
+  {
+    slug: "camiseta-negra",
+    nombre: "Camiseta negra",
+    color: "Black",
+    imagen:
+      "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/merchandising/camiseta-negra.png",
+  },
+  {
+    slug: "camiseta-blanca",
+    nombre: "Camiseta blanca",
+    color: "White",
+    imagen:
+      "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/merchandising/camiseta-blanca.png",
+  },
+  {
+    slug: "camiseta-sand",
+    nombre: "Camiseta sand",
+    color: "Sand",
+    imagen:
+      "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/merchandising/camiseta-sand.png",
+  },
+  {
+    slug: "camiseta-forest-green",
+    nombre: "Camiseta forest green",
+    color: "Forest Green",
+    imagen:
+      "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/merchandising/camiseta-forest-green.png",
+  },
+];
+
+const GORRAS: Producto[] = [
+  {
+    slug: "gorra-negra",
+    nombre: "Gorra negra",
+    color: "Negra",
+    imagen:
+      "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/merchandising/gorra-negra.png",
+  },
+  {
+    slug: "gorra-beige",
+    nombre: "Gorra beige",
+    color: "Beige",
+    imagen:
+      "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/merchandising/gorra-beige.png",
+  },
+  {
+    slug: "gorra-verde-botella",
+    nombre: "Gorra verde botella",
+    color: "Verde botella",
+    imagen:
+      "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/merchandising/gorra-verde-botella.png",
+  },
+  {
+    slug: "gorra-blanca",
+    nombre: "Gorra blanca",
+    color: "Blanca",
+    imagen:
+      "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/merchandising/gorra-blanca.png",
+  },
+];
+
 export default function MerchandisingPage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
@@ -96,7 +165,7 @@ export default function MerchandisingPage() {
           </div>
         </section>
 
-        {/* INTRODUCCIÓN A LA COLECCIÓN */}
+        {/* INTRODUCCIÓN */}
         <section className="mt-16">
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-[0.22em] text-orange-600">
@@ -109,115 +178,166 @@ export default function MerchandisingPage() {
 
             <p className="mt-4 text-base leading-7 text-slate-600">
               Una primera colección sencilla, reconocible y conectada con la
-              identidad de Lugares Llenos. Diseños pensados para acompañarte en
-              conciertos, viajes y experiencias especiales.
+              identidad de Lugares Llenos. Selecciona cualquier modelo para
+              descubrir todos sus detalles.
             </p>
           </div>
+        </section>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-            {/* CAMISETAS */}
-            <article
-              id="camisetas"
-              className="scroll-mt-28 rounded-3xl border border-orange-100 bg-white p-7 shadow-lg shadow-orange-100 transition hover:-translate-y-1 hover:shadow-xl"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-3xl">
+        {/* CAMISETAS */}
+        <section id="camisetas" className="mt-16 scroll-mt-28">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-2xl">
                   👕
                 </div>
 
-                <span className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-orange-700 ring-1 ring-orange-100">
-                  4 modelos
-                </span>
-              </div>
-
-              <h3 className="mt-6 text-2xl font-extrabold text-slate-900">
-                Camisetas
-              </h3>
-
-              <p className="mt-3 leading-7 text-slate-600">
-                Diseños limpios y cómodos con el logotipo de Lugares Llenos en
-                la parte delantera y una ilustración minimalista en la espalda.
-              </p>
-
-              <div className="mt-6 flex flex-wrap gap-2">
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600">
-                  Negra
-                </span>
-
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600">
-                  Blanca
-                </span>
-
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600">
-                  Arena
-                </span>
-
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600">
-                  Verde
-                </span>
-              </div>
-
-              <div className="mt-7 border-t border-orange-100 pt-5">
-                <p className="text-sm font-bold text-orange-600">
-                  Modelos individuales próximamente →
+                <p className="text-sm font-bold uppercase tracking-[0.22em] text-orange-600">
+                  Cuatro modelos
                 </p>
               </div>
-            </article>
 
-            {/* GORRAS */}
-            <article
-              id="gorras"
-              className="scroll-mt-28 rounded-3xl border border-orange-100 bg-white p-7 shadow-lg shadow-orange-100 transition hover:-translate-y-1 hover:shadow-xl"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100 text-3xl">
+              <h2 className="mt-4 text-3xl font-extrabold text-slate-900 md:text-4xl">
+                Camisetas
+              </h2>
+
+              <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+                Logotipo delantero y una ilustración diferente en la espalda de
+                cada modelo.
+              </p>
+            </div>
+
+            <span className="inline-flex w-fit rounded-full bg-white px-4 py-2 text-sm font-bold text-orange-700 shadow-sm ring-1 ring-orange-100">
+              100 % algodón · Corte unisex
+            </span>
+          </div>
+
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {CAMISETAS.map((producto) => (
+              <Link
+                key={producto.slug}
+                href={`/merchandising/${producto.slug}`}
+                className="group overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-lg shadow-orange-100 transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl"
+              >
+                <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-orange-50 via-white to-amber-50 p-3">
+                  <span className="absolute left-4 top-4 z-10 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-orange-600 shadow-sm">
+                    Próximamente
+                  </span>
+
+                  <img
+                    src={producto.imagen}
+                    alt={`${producto.nombre} de Lugares Llenos`}
+                    className="h-full w-full rounded-2xl object-contain transition duration-300 group-hover:scale-[1.03]"
+                  />
+                </div>
+
+                <div className="border-t border-orange-100 p-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-orange-600">
+                    Camiseta oficial
+                  </p>
+
+                  <h3 className="mt-2 text-xl font-extrabold text-slate-900">
+                    {producto.nombre}
+                  </h3>
+
+                  <p className="mt-1 text-sm font-semibold text-slate-500">
+                    Color: {producto.color}
+                  </p>
+
+                  <div className="mt-5 flex items-center justify-between border-t border-orange-100 pt-4">
+                    <span className="text-sm font-bold text-orange-600">
+                      Ver modelo
+                    </span>
+
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-50 font-bold text-orange-600 transition group-hover:bg-orange-600 group-hover:text-white">
+                      →
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* GORRAS */}
+        <section id="gorras" className="mt-20 scroll-mt-28">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-2xl">
                   🧢
                 </div>
 
-                <span className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-orange-700 ring-1 ring-orange-100">
-                  4 modelos
-                </span>
-              </div>
-
-              <h3 className="mt-6 text-2xl font-extrabold text-slate-900">
-                Gorras
-              </h3>
-
-              <p className="mt-3 leading-7 text-slate-600">
-                Gorras con el logotipo bordado de Lugares Llenos en el frontal,
-                un pequeño detalle lateral y el nombre de la comunidad en la
-                parte trasera.
-              </p>
-
-              <div className="mt-6 flex flex-wrap gap-2">
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600">
-                  Negra
-                </span>
-
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600">
-                  Beige
-                </span>
-
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600">
-                  Verde
-                </span>
-
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600">
-                  Blanca
-                </span>
-              </div>
-
-              <div className="mt-7 border-t border-orange-100 pt-5">
-                <p className="text-sm font-bold text-orange-600">
-                  Modelos individuales próximamente →
+                <p className="text-sm font-bold uppercase tracking-[0.22em] text-orange-600">
+                  Cuatro modelos
                 </p>
               </div>
-            </article>
+
+              <h2 className="mt-4 text-3xl font-extrabold text-slate-900 md:text-4xl">
+                Gorras
+              </h2>
+
+              <p className="mt-3 max-w-2xl leading-7 text-slate-600">
+                Bordado frontal, detalle lateral y el nombre de Lugares Llenos
+                en la parte trasera.
+              </p>
+            </div>
+
+            <span className="inline-flex w-fit rounded-full bg-white px-4 py-2 text-sm font-bold text-orange-700 shadow-sm ring-1 ring-orange-100">
+              Ajustables · Bordado 3D · Unisex
+            </span>
+          </div>
+
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {GORRAS.map((producto) => (
+              <Link
+                key={producto.slug}
+                href={`/merchandising/${producto.slug}`}
+                className="group overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-lg shadow-orange-100 transition duration-300 hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl"
+              >
+                <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-gradient-to-br from-orange-50 via-white to-amber-50 p-3">
+                  <span className="absolute left-4 top-4 z-10 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-orange-600 shadow-sm">
+                    Próximamente
+                  </span>
+
+                  <img
+                    src={producto.imagen}
+                    alt={`${producto.nombre} de Lugares Llenos`}
+                    className="h-full w-full rounded-2xl object-contain transition duration-300 group-hover:scale-[1.03]"
+                  />
+                </div>
+
+                <div className="border-t border-orange-100 p-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-orange-600">
+                    Gorra oficial
+                  </p>
+
+                  <h3 className="mt-2 text-xl font-extrabold text-slate-900">
+                    {producto.nombre}
+                  </h3>
+
+                  <p className="mt-1 text-sm font-semibold text-slate-500">
+                    Color: {producto.color}
+                  </p>
+
+                  <div className="mt-5 flex items-center justify-between border-t border-orange-100 pt-4">
+                    <span className="text-sm font-bold text-orange-600">
+                      Ver modelo
+                    </span>
+
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-50 font-bold text-orange-600 transition group-hover:bg-orange-600 group-hover:text-white">
+                      →
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
 
         {/* VALORES DE LA COLECCIÓN */}
-        <section className="mt-16 rounded-3xl border border-orange-100 bg-white p-7 shadow-lg shadow-orange-100 sm:p-10">
+        <section className="mt-20 rounded-3xl border border-orange-100 bg-white p-7 shadow-lg shadow-orange-100 sm:p-10">
           <div className="max-w-3xl">
             <p className="text-sm font-bold uppercase tracking-[0.22em] text-orange-600">
               Nuestra identidad
@@ -283,9 +403,9 @@ export default function MerchandisingPage() {
               </h2>
 
               <p className="mt-4 max-w-2xl leading-7 text-slate-300">
-                Próximamente compartiremos los modelos individuales, las tallas,
-                la disponibilidad y toda la información necesaria para
-                conseguirlos.
+                Ya puedes descubrir individualmente los ocho primeros modelos.
+                Próximamente compartiremos las tallas, la disponibilidad y toda
+                la información necesaria para conseguirlos.
               </p>
             </div>
 
