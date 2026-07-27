@@ -400,15 +400,21 @@ export default async function ColaboradoresPage() {
 
             <div className="rounded-2xl bg-white p-5 shadow-sm">
               <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
-                🎁 Regalos
+                👕 Merchandising
               </p>
               <h3 className="mt-1 text-xl font-bold text-slate-900">
-                Merchandising, descuentos y regalos
+                Colección oficial de Lugares Llenos
               </h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Aquí encontrarás merchandising exclusivo, descuentos, packs,
-                regalos e invitaciones especiales de nuestros colaboradores.
+                Descubre las primeras camisetas y gorras oficiales inspiradas en
+                la música en directo, los viajes y los lugares únicos.
               </p>
+              <Link
+                href="/merchandising"
+                className="mt-4 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-orange-100 transition hover:scale-105"
+              >
+                Ver colección →
+              </Link>
             </div>
 
             <div className="rounded-2xl bg-white p-5 shadow-sm">
