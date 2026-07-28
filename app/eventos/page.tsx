@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 
 type EventoDB = {
   id: string;
+  colaborador_id?: string | null;
   slug?: string | null;
   created_at?: string | null;
   nombre?: string | null;
@@ -40,6 +41,7 @@ type CategoriaEvento = "grande" | "local";
 
 type EventoUI = {
   id: string;
+  colaboradorId: string | null;
   slug: string;
   nombre: string;
   ciudad: string;
@@ -262,6 +264,8 @@ function textoComentarios(count: number) {
 export default function EventosPage() {
   const [eventos, setEventos] = useState<EventoUI[]>([]);
   const [loading, setLoading] = useState(true);
+  const [colaboradorId, setColaboradorId] = useState("");
+  const [nombreColaborador, setNombreColaborador] = useState("");
 
   const [busqueda, setBusqueda] = useState("");
   const [fechaSeleccionada, setFechaSeleccionada] = useState("");
@@ -278,13 +282,46 @@ export default function EventosPage() {
     async function cargarEventos() {
       setLoading(true);
 
+      const params = new URLSearchParams(window.location.search);
+      const colaboradorParam = params.get("colaborador")?.trim() || "";
+
+      setColaboradorId(colaboradorParam);
+
+      let consultaEventos = supabase
+        .from("eventos")
+        .select("*")
+        .order("fecha_inicio", { ascending: true });
+
+      if (colaboradorParam) {
+        consultaEventos = consultaEventos.eq("colaborador_id", colaboradorParam);
+      }
+
       const [
         { data: eventosData, error: eventosError },
         { data: comentariosData, error: comentariosError },
       ] = await Promise.all([
-        supabase.from("eventos").select("*").order("fecha_inicio", { ascending: true }),
+        consultaEventos,
         supabase.from("comentarios_eventos").select("id, evento_id"),
       ]);
+
+      if (colaboradorParam) {
+        const { data: colaboradorData, error: colaboradorError } = await supabase
+          .from("colaboradores")
+          .select("nombre")
+          .eq("id", colaboradorParam)
+          .maybeSingle();
+
+        if (colaboradorError) {
+          console.error("Error cargando el colaborador:", colaboradorError);
+          setNombreColaborador("");
+        } else {
+          setNombreColaborador(
+            normalizarTexto(colaboradorData?.nombre) || "este colaborador"
+          );
+        }
+      } else {
+        setNombreColaborador("");
+      }
 
       if (!activo) return;
 
@@ -309,6 +346,7 @@ export default function EventosPage() {
       const eventosMapeados: EventoUI[] = ((eventosData as EventoDB[] | null) ?? []).map(
         (e) => ({
           id: e.id,
+          colaboradorId: e.colaborador_id ?? null,
           slug: normalizarTexto(e.slug) || e.id,
           nombre: normalizarTexto(e.nombre) || "Evento sin nombre",
           ciudad: normalizarTexto(e.ciudad) || "Ciudad por confirmar",
@@ -581,15 +619,40 @@ export default function EventosPage() {
           </span>
         </div>
 
+        {colaboradorId && (
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-[#fed7aa] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#f97316]">
+                Programación del colaborador
+              </p>
+              <p className="mt-1 text-base font-bold text-[#334155]">
+                {nombreColaborador || "Cargando colaborador..."}
+              </p>
+            </div>
+
+            <Link
+              href="/colaboradores"
+              className="inline-flex w-fit rounded-full border border-[#fed7aa] px-4 py-2 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
+            >
+              ← Volver a colaboradores
+            </Link>
+          </div>
+        )}
+
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
             <h1 className="max-w-3xl text-4xl font-extrabold leading-tight text-[#334155] md:text-5xl">
-              Eventos grandes y planes reales para hoy en España
+              {colaboradorId
+                ? `Eventos de ${nombreColaborador || "este colaborador"}`
+                : "Eventos grandes y planes reales para hoy en España"}
             </h1>
 
             <p className="mt-4 max-w-2xl text-base leading-7 text-[#64748b] md:text-lg">
-              Descubre desde ferias, fiestas y festivales hasta planes pequeños
-              tipo concierto en un bar, monólogo, tardeo o directo de última hora.
+              {colaboradorId
+                ? `Consulta los eventos vinculados a ${
+                    nombreColaborador || "este colaborador"
+                  } y utiliza los filtros para encontrar el plan que buscas.`
+                : "Descubre desde ferias, fiestas y festivales hasta planes pequeños tipo concierto en un bar, monólogo, tardeo o directo de última hora."}
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
@@ -842,7 +905,9 @@ export default function EventosPage() {
       >
         <div className="mb-5">
           <h2 className="text-2xl font-bold text-[#334155]">
-            Todos los eventos y planes
+            {colaboradorId
+              ? `Eventos de ${nombreColaborador || "este colaborador"}`
+              : "Todos los eventos y planes"}
           </h2>
           <p className="mt-1 text-sm text-[#64748b]">
             Resultado en tiempo real según los filtros.
@@ -852,7 +917,11 @@ export default function EventosPage() {
         {eventosFiltrados.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-[#cbd5e1] bg-white p-10 text-center">
             <p className="text-lg font-semibold text-[#334155]">
-              No hemos encontrado eventos con esos filtros.
+              {colaboradorId
+                ? `No hay eventos publicados para ${
+                    nombreColaborador || "este colaborador"
+                  } con los filtros seleccionados.`
+                : "No hemos encontrado eventos con esos filtros."}
             </p>
           </div>
         ) : (

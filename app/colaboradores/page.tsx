@@ -322,11 +322,7 @@ export default async function ColaboradoresPage() {
                 <ColaboradorCard
                   key={colaborador.id}
                   colaborador={colaborador}
-                  eventosHref={
-                    idsConProgramacion.has(colaborador.id)
-                      ? `#programacion-${colaborador.id}`
-                      : "/eventos"
-                  }
+                  eventosHref={`/eventos?colaborador=${colaborador.id}`}
                 />
               ))}
             </div>
@@ -353,11 +349,6 @@ export default async function ColaboradoresPage() {
                 <ColaboradorCard
                   key={colaborador.id}
                   colaborador={colaborador}
-                  eventosHref={
-                    idsConProgramacion.has(colaborador.id)
-                      ? `#programacion-${colaborador.id}`
-                      : undefined
-                  }
                 />
               ))}
             </div>
