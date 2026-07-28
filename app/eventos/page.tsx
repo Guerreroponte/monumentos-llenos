@@ -43,6 +43,7 @@ type EventoUI = {
   id: string;
   colaboradorId: string | null;
   slug: string;
+  createdAt: string | null;
   nombre: string;
   ciudad: string;
   provincia: string;
@@ -348,6 +349,7 @@ export default function EventosPage() {
           id: e.id,
           colaboradorId: e.colaborador_id ?? null,
           slug: normalizarTexto(e.slug) || e.id,
+          createdAt: e.created_at ?? null,
           nombre: normalizarTexto(e.nombre) || "Evento sin nombre",
           ciudad: normalizarTexto(e.ciudad) || "Ciudad por confirmar",
           provincia: normalizarTexto(e.provincia),
@@ -443,6 +445,17 @@ export default function EventosPage() {
     return eventosGrandes.slice(0, 6);
   }, [eventosGrandes]);
 
+  const ultimosEventosPublicados = useMemo(() => {
+    return [...eventos]
+      .sort((a, b) => {
+        const fechaA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const fechaB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
+        return fechaB - fechaA;
+      })
+      .slice(0, 6);
+  }, [eventos]);
+
   const planesHoy = useMemo(() => {
     return planesLocales
       .filter((e) => esHoy(e.fechaInicio))
@@ -521,6 +534,14 @@ export default function EventosPage() {
     soloProximos,
     modoVista,
   ]);
+
+  const hayFiltrosActivos =
+    busqueda.trim() !== "" ||
+    fechaSeleccionada !== "" ||
+    ciudadSeleccionada !== "" ||
+    tipoSeleccionado !== "" ||
+    soloProximos ||
+    modoVista !== "todos";
 
   const bloquesPorCiudad = useMemo(() => {
     const base = eventosProximos.length > 0 ? eventosProximos : eventos;
@@ -793,6 +814,7 @@ export default function EventosPage() {
         </div>
       </section>
 
+
       <section className="mx-auto max-w-7xl px-4 pb-10 md:px-6 lg:px-8">
         <div className="rounded-3xl border border-[#e5e7eb] bg-white p-5 shadow-sm md:p-6">
           <div className="mb-4">
@@ -899,6 +921,7 @@ export default function EventosPage() {
         </div>
       </section>
 
+      {hayFiltrosActivos ? (
       <section
         id="seccion-todos"
         className="mx-auto max-w-7xl px-4 pb-16 md:px-6 lg:px-8"
@@ -1021,6 +1044,107 @@ export default function EventosPage() {
           </div>
         )}
       </section>
+
+      ) : (
+      <section
+        id="seccion-ultimos"
+        className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8"
+      >
+        <div className="mb-5">
+          <h2 className="text-2xl font-bold text-[#334155]">
+            🆕 Últimos eventos publicados
+          </h2>
+          <p className="mt-1 text-sm text-[#64748b]">
+            Descubre las últimas incorporaciones a Lugares Llenos.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white"
+              >
+                <div className="h-48 animate-pulse bg-[#f1f5f9]" />
+                <div className="space-y-3 p-5">
+                  <div className="h-5 w-2/3 animate-pulse rounded bg-[#f1f5f9]" />
+                  <div className="h-4 w-1/2 animate-pulse rounded bg-[#f1f5f9]" />
+                  <div className="h-4 w-full animate-pulse rounded bg-[#f1f5f9]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : ultimosEventosPublicados.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-[#cbd5e1] bg-white p-8 text-center">
+            <p className="text-lg font-semibold text-[#334155]">
+              Todavía no hay eventos publicados.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {ultimosEventosPublicados.map((evento) => (
+              <Link
+                key={evento.id}
+                href={`/eventos/${evento.slug}`}
+                className="group overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+              >
+                <div className="relative overflow-hidden">
+                  <img
+                    src={evento.imagen}
+                    alt={evento.nombre}
+                    className="h-52 w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  />
+                  <span className="absolute left-4 top-4 rounded-full bg-[#f97316] px-3 py-1 text-xs font-bold text-white shadow-sm">
+                    Nuevo
+                  </span>
+                </div>
+
+                <div className="p-5">
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
+                      {evento.subtipo || evento.tipo}
+                    </span>
+                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-bold text-[#475569]">
+                      {evento.ciudad}
+                    </span>
+                    <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
+                      💬 {textoComentarios(evento.comentariosCount)}
+                    </span>
+                  </div>
+
+                  <h3 className="text-lg font-bold text-[#334155]">
+                    {evento.nombre}
+                  </h3>
+
+                  <p className="mt-2 text-sm text-[#64748b]">
+                    📅 {textoFechaEvento(evento)}
+                    {textoHoraEvento(evento) ? ` · 🕒 ${textoHoraEvento(evento)}` : ""}
+                  </p>
+
+                  {evento.ubicacionDetalle && (
+                    <p className="mt-2 text-sm text-[#64748b]">
+                      📍 {evento.ubicacionDetalle}
+                    </p>
+                  )}
+
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#475569]">
+                    {evento.descripcion}
+                  </p>
+
+                  <div className="mt-5">
+                    <span className="inline-flex rounded-full border border-[#fed7aa] px-4 py-2 text-sm font-semibold text-[#ea580c] transition group-hover:bg-[#fff7ed]">
+                      Ver detalles
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      )}
 
       <section
         id="seccion-grandes"
@@ -1301,27 +1425,87 @@ export default function EventosPage() {
         )}
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
-        <div className="rounded-3xl border border-[#fde7d7] bg-gradient-to-r from-[#fff7ed] to-white p-5 shadow-sm">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm font-bold text-[#334155]">
-                💬 ¿Has estado en algún plan de hoy o de este finde?
-              </p>
-              <p className="mt-1 text-sm text-[#64748b]">
-                Súbelo aunque sea rápido. Un sitio, una hora y una frase ya ayudan mucho.
-              </p>
-            </div>
-
-            <Link
-              href="/participa"
-              className="inline-flex items-center justify-center rounded-full bg-[#f97316] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c]"
-            >
-              Contar un plan real
-            </Link>
+      {bloquesPorCiudad.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
+          <div className="mb-5">
+            <h2 className="text-2xl font-bold text-[#334155]">
+              📍 Próximos eventos por ciudad
+            </h2>
+            <p className="mt-1 text-sm text-[#64748b]">
+              Para destacar ciudades fuertes sin tener que buscarlas.
+            </p>
           </div>
-        </div>
-      </section>
+
+          <div className="grid gap-5 lg:grid-cols-2">
+            {bloquesPorCiudad.map((bloque) => (
+              <div
+                key={bloque.ciudad}
+                className="rounded-3xl border border-[#e5e7eb] bg-white p-5 shadow-sm"
+              >
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <h3 className="text-xl font-bold text-[#334155]">
+                    {bloque.ciudad}
+                  </h3>
+
+                  <button
+                    onClick={() => {
+                      setCiudadSeleccionada(bloque.ciudad);
+                      setFechaSeleccionada("");
+                      setSoloProximos(false);
+                      scrollToSection("seccion-todos");
+                    }}
+                    className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]"
+                  >
+                    Ver todos
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {bloque.eventos.map((evento) => (
+                    <Link
+                      key={evento.id}
+                      href={`/eventos/${evento.slug}`}
+                      className="flex gap-4 rounded-2xl border border-[#f1f5f9] p-3 transition hover:bg-[#fffaf5]"
+                    >
+                      <img
+                        src={evento.imagen}
+                        alt={evento.nombre}
+                        className="h-24 w-28 rounded-xl object-cover"
+                      />
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f97316]">
+                            {evento.subtipo || evento.tipo}
+                          </p>
+                          <span className="rounded-full bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold text-[#475569]">
+                            💬 {textoComentarios(evento.comentariosCount)}
+                          </span>
+                        </div>
+
+                        <h4 className="mt-1 truncate text-base font-bold text-[#334155]">
+                          {evento.nombre}
+                        </h4>
+
+                        <p className="mt-1 text-sm text-[#64748b]">
+                          {evento.fechaInicio
+                            ? formatFechaCorta(evento.fechaInicio)
+                            : "Fecha por confirmar"}
+                          {textoHoraEvento(evento) ? ` · ${textoHoraEvento(evento)}` : ""}
+                        </p>
+
+                        <p className="mt-2 line-clamp-2 text-sm text-[#475569]">
+                          {evento.descripcion}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {planesHoy.length > 0 && (
         <section
@@ -1431,87 +1615,27 @@ export default function EventosPage() {
         </section>
       )}
 
-      {bloquesPorCiudad.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
-          <div className="mb-5">
-            <h2 className="text-2xl font-bold text-[#334155]">
-              📍 Próximos eventos por ciudad
-            </h2>
-            <p className="mt-1 text-sm text-[#64748b]">
-              Para destacar ciudades fuertes sin tener que buscarlas.
-            </p>
+      <section className="mx-auto max-w-7xl px-4 pb-6 md:px-6 lg:px-8">
+        <div className="rounded-3xl border border-[#fde7d7] bg-gradient-to-r from-[#fff7ed] to-white p-5 shadow-sm">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-bold text-[#334155]">
+                💬 ¿Has estado en algún plan de hoy o de este finde?
+              </p>
+              <p className="mt-1 text-sm text-[#64748b]">
+                Súbelo aunque sea rápido. Un sitio, una hora y una frase ya ayudan mucho.
+              </p>
+            </div>
+
+            <Link
+              href="/participa"
+              className="inline-flex items-center justify-center rounded-full bg-[#f97316] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c]"
+            >
+              Contar un plan real
+            </Link>
           </div>
-
-          <div className="grid gap-5 lg:grid-cols-2">
-            {bloquesPorCiudad.map((bloque) => (
-              <div
-                key={bloque.ciudad}
-                className="rounded-3xl border border-[#e5e7eb] bg-white p-5 shadow-sm"
-              >
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <h3 className="text-xl font-bold text-[#334155]">
-                    {bloque.ciudad}
-                  </h3>
-
-                  <button
-                    onClick={() => {
-                      setCiudadSeleccionada(bloque.ciudad);
-                      setFechaSeleccionada("");
-                      setSoloProximos(false);
-                      scrollToSection("seccion-todos");
-                    }}
-                    className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]"
-                  >
-                    Ver todos
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  {bloque.eventos.map((evento) => (
-                    <Link
-                      key={evento.id}
-                      href={`/eventos/${evento.slug}`}
-                      className="flex gap-4 rounded-2xl border border-[#f1f5f9] p-3 transition hover:bg-[#fffaf5]"
-                    >
-                      <img
-                        src={evento.imagen}
-                        alt={evento.nombre}
-                        className="h-24 w-28 rounded-xl object-cover"
-                      />
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#f97316]">
-                            {evento.subtipo || evento.tipo}
-                          </p>
-                          <span className="rounded-full bg-[#f8fafc] px-2 py-1 text-[11px] font-semibold text-[#475569]">
-                            💬 {textoComentarios(evento.comentariosCount)}
-                          </span>
-                        </div>
-
-                        <h4 className="mt-1 truncate text-base font-bold text-[#334155]">
-                          {evento.nombre}
-                        </h4>
-
-                        <p className="mt-1 text-sm text-[#64748b]">
-                          {evento.fechaInicio
-                            ? formatFechaCorta(evento.fechaInicio)
-                            : "Fecha por confirmar"}
-                          {textoHoraEvento(evento) ? ` · ${textoHoraEvento(evento)}` : ""}
-                        </p>
-
-                        <p className="mt-2 line-clamp-2 text-sm text-[#475569]">
-                          {evento.descripcion}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+        </div>
+      </section>
 
 
     </main>
