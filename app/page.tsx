@@ -40,6 +40,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Sala El Sol",
   "Círculo de Arte de Toledo",
   "Los Conciertos de la Muralla",
+  "Teatro Eslava",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
