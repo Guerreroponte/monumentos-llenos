@@ -90,6 +90,7 @@ export default function ParticipaPage() {
   const [subtipo, setSubtipo] = useState("Qué hacer hoy");
   const [fechaInicio, setFechaInicio] = useState(hoyMasDias(0));
   const [fechaFin, setFechaFin] = useState("");
+  const [variosDias, setVariosDias] = useState(false);
   const [horaInicio, setHoraInicio] = useState("");
   const [horaFin, setHoraFin] = useState("");
   const [ubicacionDetalle, setUbicacionDetalle] = useState("");
@@ -114,12 +115,12 @@ export default function ParticipaPage() {
   const [dificilBebida, setDificilBebida] = useState(false);
   const [parking, setParking] = useState(false);
   const [recomendable, setRecomendable] = useState(true);
-  const [destacado, setDestacado] = useState(false);
   const [mostrarAvanzado, setMostrarAvanzado] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [mensajeOk, setMensajeOk] = useState("");
   const [mensajeError, setMensajeError] = useState("");
+  const [enlaceEdicion, setEnlaceEdicion] = useState("");
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
@@ -213,6 +214,7 @@ export default function ParticipaPage() {
     setTipoParticipacion(tipo);
     setMensajeOk("");
     setMensajeError("");
+    setEnlaceEdicion("");
 
     if (tipo === "evento_grande") {
       setCategoriaEvento("grande");
@@ -367,6 +369,7 @@ export default function ParticipaPage() {
     setComunidadAutonoma("");
     setFechaInicio(hoyMasDias(0));
     setFechaFin("");
+    setVariosDias(false);
     setHoraInicio("");
     setHoraFin("");
     setUbicacionDetalle("");
@@ -391,8 +394,8 @@ export default function ParticipaPage() {
     setDificilBebida(false);
     setParking(false);
     setRecomendable(true);
-    setDestacado(false);
     setMostrarAvanzado(false);
+    setEnlaceEdicion("");
 
     if (categoriaEvento === "grande") {
       setSubtipo("Festival");
@@ -414,6 +417,7 @@ export default function ParticipaPage() {
 
     setMensajeOk("");
     setMensajeError("");
+    setEnlaceEdicion("");
 
     if (tipoParticipacion === "lugar") {
       setMensajeError("Para añadir un lugar, usa la opción de lugar de abajo.");
@@ -470,20 +474,58 @@ export default function ParticipaPage() {
         dificil_bebida: dificilBebida,
         parking,
         recomendable,
-        destacado,
       };
 
-      const { error } = await supabase.from("eventos").insert([payloadEvento]);
+      const { data: eventoCreado, error } = await supabase.rpc(
+        "crear_evento_con_token",
+        {
+          p_nombre: payloadEvento.nombre,
+          p_ciudad: payloadEvento.ciudad,
+          p_provincia: payloadEvento.provincia,
+          p_comunidad_autonoma: payloadEvento.comunidad_autonoma,
+          p_tipo: payloadEvento.tipo,
+          p_categoria_evento: payloadEvento.categoria_evento,
+          p_subtipo: payloadEvento.subtipo,
+          p_fecha_inicio: payloadEvento.fecha_inicio,
+          p_fecha_fin: payloadEvento.fecha_fin,
+          p_hora_inicio: payloadEvento.hora_inicio,
+          p_hora_fin: payloadEvento.hora_fin,
+          p_ubicacion_detalle: payloadEvento.ubicacion_detalle,
+          p_descripcion: payloadEvento.descripcion,
+          p_precio: payloadEvento.precio,
+          p_ambiente: payloadEvento.ambiente,
+          p_imagen: payloadEvento.imagen,
+          p_video_url: payloadEvento.video_url,
+          p_enlace: payloadEvento.enlace,
+          p_creado_por: payloadEvento.creado_por,
+          p_colaborador_id: payloadEvento.colaborador_id,
+          p_slug: payloadEvento.slug,
+          p_dificil_bebida: payloadEvento.dificil_bebida,
+          p_parking: payloadEvento.parking,
+          p_recomendable: payloadEvento.recomendable,
+        }
+      );
 
       if (error) throw error;
+
+      const resultado = Array.isArray(eventoCreado)
+        ? eventoCreado[0]
+        : eventoCreado;
+
+      if (!resultado?.evento_id || !resultado?.edit_token) {
+        throw new Error("No se pudo recuperar el enlace de edición.");
+      }
+
+      const urlEdicion = `${window.location.origin}/editar-evento/${resultado.edit_token}`;
+
+      resetearFormulario();
+      setEnlaceEdicion(urlEdicion);
 
       setMensajeOk(
         categoriaEvento === "grande"
           ? "Evento publicado. Gracias por aportar algo útil a la comunidad 🙌"
           : "Plan publicado. Ya ayuda a otra persona a decidir qué hacer 🙌"
       );
-
-      resetearFormulario();
     } catch (err) {
       console.error(err);
       setMensajeError("Error al guardar. Prueba otra vez en unos segundos.");
@@ -726,18 +768,70 @@ export default function ParticipaPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 grid gap-4 md:grid-cols-3">
+                <div className="mt-4 grid gap-4 md:grid-cols-2">
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                      Fecha *
+                      Fecha de inicio *
                     </label>
                     <input
                       type="date"
                       value={fechaInicio}
-                      onChange={(e) => setFechaInicio(e.target.value)}
+                      onChange={(e) => {
+                        const nuevaFechaInicio = e.target.value;
+                        setFechaInicio(nuevaFechaInicio);
+
+                        if (
+                          variosDias &&
+                          fechaFin &&
+                          nuevaFechaInicio &&
+                          fechaFin < nuevaFechaInicio
+                        ) {
+                          setFechaFin("");
+                        }
+                      }}
                       className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
                     />
                   </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                      ¿Dura varios días?
+                    </label>
+
+                    <label className="flex min-h-[46px] items-center gap-3 rounded-xl border border-[#e2e8f0] bg-white px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={variosDias}
+                        onChange={(e) => {
+                          const activo = e.target.checked;
+                          setVariosDias(activo);
+
+                          if (!activo) {
+                            setFechaFin("");
+                          }
+                        }}
+                      />
+
+                      <span className="text-sm font-semibold text-[#475569]">
+                        Sí, tiene varios días
+                      </span>
+                    </label>
+                  </div>
+
+                  {variosDias && (
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
+                        Fecha de fin
+                      </label>
+                      <input
+                        type="date"
+                        min={fechaInicio}
+                        value={fechaFin}
+                        onChange={(e) => setFechaFin(e.target.value)}
+                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
+                      />
+                    </div>
+                  )}
 
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-[#334155]">
@@ -751,7 +845,7 @@ export default function ParticipaPage() {
                     />
                   </div>
 
-                  <div>
+                  <div className={variosDias ? "md:col-span-2" : ""}>
                     <label className="mb-2 block text-sm font-semibold text-[#334155]">
                       Zona o sitio concreto
                     </label>
@@ -1025,19 +1119,7 @@ export default function ParticipaPage() {
                     </div>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                        Fecha fin
-                      </label>
-                      <input
-                        type="date"
-                        value={fechaFin}
-                        onChange={(e) => setFechaFin(e.target.value)}
-                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                      />
-                    </div>
-
+                  <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-[#334155]">
                         Hora fin
@@ -1101,7 +1183,7 @@ export default function ParticipaPage() {
                     </div>
                   </div>
 
-                  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  <div className="grid gap-3 md:grid-cols-3">
                     <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#475569]">
                       <input
                         type="checkbox"
@@ -1129,14 +1211,6 @@ export default function ParticipaPage() {
                       Recomendable
                     </label>
 
-                    <label className="inline-flex items-center gap-2 rounded-2xl border border-[#e5e7eb] bg-white px-4 py-3 text-sm text-[#475569]">
-                      <input
-                        type="checkbox"
-                        checked={destacado}
-                        onChange={(e) => setDestacado(e.target.checked)}
-                      />
-                      Destacado
-                    </label>
                   </div>
                 </div>
               )}
@@ -1168,7 +1242,11 @@ export default function ParticipaPage() {
 
                 <button
                   type="button"
-                  onClick={resetearFormulario}
+                  onClick={() => {
+                    resetearFormulario();
+                    setMensajeOk("");
+                    setMensajeError("");
+                  }}
                   className="inline-flex rounded-full border border-[#e2e8f0] bg-white px-6 py-3 text-sm font-bold text-[#475569] transition hover:bg-[#f8fafc]"
                 >
                   Limpiar
@@ -1179,6 +1257,41 @@ export default function ParticipaPage() {
                 <p className="rounded-2xl bg-[#ecfdf5] px-4 py-3 text-sm font-semibold text-[#166534]">
                   {mensajeOk}
                 </p>
+              )}
+
+              {enlaceEdicion && (
+                <div className="rounded-2xl border border-[#bfdbfe] bg-[#eff6ff] p-4">
+                  <p className="text-sm font-bold text-[#1e3a8a]">
+                    ✏️ Guarda tu enlace privado de edición
+                  </p>
+
+                  <p className="mt-1 text-sm leading-6 text-[#475569]">
+                    Con este enlace podrás volver más adelante y corregir los datos de
+                    este evento. No lo compartas públicamente.
+                  </p>
+
+                  <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                    <input
+                      readOnly
+                      value={enlaceEdicion}
+                      className="min-w-0 flex-1 rounded-xl border border-[#bfdbfe] bg-white px-4 py-3 text-sm text-[#334155] outline-none"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(enlaceEdicion);
+                        } catch (error) {
+                          console.error("No se pudo copiar el enlace:", error);
+                        }
+                      }}
+                      className="rounded-xl bg-[#2563eb] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#1d4ed8]"
+                    >
+                      Copiar enlace
+                    </button>
+                  </div>
+                </div>
               )}
 
               {mensajeError && (
