@@ -288,22 +288,42 @@ export default function EventosPage() {
 
       setColaboradorId(colaboradorParam);
 
-      let consultaEventos = supabase
-        .from("eventos")
-        .select("*")
-        .order("fecha_inicio", { ascending: true });
+      const TAMANO_PAGINA = 1000;
+      const eventosData: EventoDB[] = [];
+      let eventosError: unknown = null;
+      let desde = 0;
 
-      if (colaboradorParam) {
-        consultaEventos = consultaEventos.eq("colaborador_id", colaboradorParam);
+      while (true) {
+        let consultaEventos = supabase
+          .from("eventos")
+          .select("*")
+          .order("fecha_inicio", { ascending: true })
+          .range(desde, desde + TAMANO_PAGINA - 1);
+
+        if (colaboradorParam) {
+          consultaEventos = consultaEventos.eq("colaborador_id", colaboradorParam);
+        }
+
+        const { data: bloqueEventos, error: errorBloque } = await consultaEventos;
+
+        if (errorBloque) {
+          eventosError = errorBloque;
+          break;
+        }
+
+        const bloque = (bloqueEventos as EventoDB[] | null) ?? [];
+        eventosData.push(...bloque);
+
+        if (bloque.length < TAMANO_PAGINA) {
+          break;
+        }
+
+        desde += TAMANO_PAGINA;
       }
 
-      const [
-        { data: eventosData, error: eventosError },
-        { data: comentariosData, error: comentariosError },
-      ] = await Promise.all([
-        consultaEventos,
-        supabase.from("comentarios_eventos").select("id, evento_id"),
-      ]);
+      const { data: comentariosData, error: comentariosError } = await supabase
+        .from("comentarios_eventos")
+        .select("id, evento_id");
 
       if (colaboradorParam) {
         const { data: colaboradorData, error: colaboradorError } = await supabase
