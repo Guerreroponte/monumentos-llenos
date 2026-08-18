@@ -12,6 +12,7 @@ type Lugar = {
   descripcion?: string | null;
   imagen?: string | null;
   url_afiliado?: string | null;
+  video_url?: string | null;
 };
 
 type Resena = {
@@ -274,6 +275,30 @@ ${url}`;
                   "Este lugar todavía no tiene descripción disponible."}
               </p>
             </div>
+
+            {lugar.video_url?.trim() && (
+              <div className="mt-6 overflow-hidden rounded-3xl border border-orange-100 bg-slate-950 shadow-sm">
+                <div className="px-5 pb-4 pt-5 md:px-6">
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-400">
+                    🎥 Así es este lugar
+                  </p>
+
+                  <h2 className="mt-2 text-xl font-extrabold text-white">
+                    Descubre {lugar.nombre || "este lugar"}
+                  </h2>
+                </div>
+
+                <video
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="max-h-[720px] w-full bg-black object-contain"
+                >
+                  <source src={lugar.video_url.trim()} />
+                  Tu navegador no puede reproducir este vídeo.
+                </video>
+              </div>
+            )}
 
             {lugar.url_afiliado && (
               <div className="mt-6 rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-5 shadow-sm">
