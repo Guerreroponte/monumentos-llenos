@@ -11,6 +11,7 @@ type Comentario = {
   autor?: string | null;
   created_at: string;
   foto?: string | null;
+  video_url?: string | null;
 };
 
 type ColaboradorEvento = {
@@ -161,6 +162,7 @@ export default function EventoPage() {
   const slug = params?.slug as string;
   const botonPublicarRef = useRef<HTMLButtonElement | null>(null);
   const inputFotoRef = useRef<HTMLInputElement | null>(null);
+  const inputVideoRef = useRef<HTMLInputElement | null>(null);
 
   const [evento, setEvento] = useState<Evento | null>(null);
   const [colaborador, setColaborador] = useState<ColaboradorEvento | null>(null);
@@ -170,6 +172,7 @@ export default function EventoPage() {
   const [autorComentario, setAutorComentario] = useState("");
   const [fotoComentario, setFotoComentario] = useState<File | null>(null);
   const [previewFotoComentario, setPreviewFotoComentario] = useState("");
+  const [videoComentario, setVideoComentario] = useState<File | null>(null);
   const [enviandoComentario, setEnviandoComentario] = useState(false);
   const [errorComentario, setErrorComentario] = useState("");
   const [comentarioEnviado, setComentarioEnviado] = useState(false);
@@ -177,11 +180,11 @@ export default function EventoPage() {
 
   const comentariosOrdenados = useMemo(() => {
     return [...comentarios].sort((a, b) => {
-      const aTieneFoto = !!a.foto;
-      const bTieneFoto = !!b.foto;
+      const aTieneMedia = !!a.foto || !!a.video_url;
+      const bTieneMedia = !!b.foto || !!b.video_url;
 
-      if (aTieneFoto && !bTieneFoto) return -1;
-      if (!aTieneFoto && bTieneFoto) return 1;
+      if (aTieneMedia && !bTieneMedia) return -1;
+      if (!aTieneMedia && bTieneMedia) return 1;
 
       return (
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -348,15 +351,44 @@ export default function EventoPage() {
     return data.publicUrl;
   };
 
+  const subirVideoComentario = async () => {
+    if (!videoComentario || !evento?.id) return null;
+
+    const nombreLimpio = limpiarNombreArchivo(
+      videoComentario.name || "video-comentario"
+    );
+    const ruta = `comentarios-eventos/${evento.id}/${Date.now()}-${nombreLimpio}`;
+
+    const { error } = await supabase.storage
+      .from("videos")
+      .upload(ruta, videoComentario, {
+        contentType: videoComentario.type || undefined,
+        upsert: false,
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    const { data } = supabase.storage.from("videos").getPublicUrl(ruta);
+
+    return data.publicUrl;
+  };
+
   const limpiarFormularioComentario = () => {
     setTextoComentario("");
     setComentarioRapidoActivo("");
     setAutorComentario("");
     setFotoComentario(null);
     setPreviewFotoComentario("");
+    setVideoComentario(null);
 
     if (inputFotoRef.current) {
       inputFotoRef.current.value = "";
+    }
+
+    if (inputVideoRef.current) {
+      inputVideoRef.current.value = "";
     }
   };
 
@@ -375,6 +407,7 @@ export default function EventoPage() {
           texto,
           autor: null,
           foto: null,
+          video_url: null,
         },
       ])
       .select()
@@ -423,9 +456,14 @@ export default function EventoPage() {
 
     try {
       let urlFoto: string | null = null;
+      let urlVideo: string | null = null;
 
       if (fotoComentario) {
         urlFoto = await subirFotoComentario();
+      }
+
+      if (videoComentario) {
+        urlVideo = await subirVideoComentario();
       }
 
       const { data, error } = await supabase
@@ -436,6 +474,7 @@ export default function EventoPage() {
             texto: textoLimpio,
             autor: autorLimpio || null,
             foto: urlFoto,
+            video_url: urlVideo,
           },
         ])
         .select()
@@ -452,7 +491,9 @@ export default function EventoPage() {
         setComentarioEnviado(true);
       }
     } catch {
-      setErrorComentario("No se pudo subir la foto. Prueba con otra imagen.");
+      setErrorComentario(
+        "No se pudo subir la foto o el vídeo. Prueba con otro archivo."
+      );
     } finally {
       setEnviandoComentario(false);
     }
@@ -861,6 +902,56 @@ export default function EventoPage() {
               )}
             </div>
 
+            <div className="rounded-2xl border border-dashed border-[#fed7aa] bg-[#fff7ed] p-4">
+              <p className="text-sm font-bold text-[#334155]">
+                🎥 Añadir vídeo del ambiente (opcional)
+              </p>
+              <p className="mt-1 text-sm leading-6 text-[#64748b]">
+                Un vídeo corto puede enseñar todavía mejor cómo estaba el plan. Máximo 50 MB.
+              </p>
+
+              <input
+                ref={inputVideoRef}
+                type="file"
+                accept="video/mp4,video/webm,video/quicktime"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+
+                  if (file && file.size > 50 * 1024 * 1024) {
+                    setErrorComentario("El vídeo no puede superar los 50 MB.");
+                    e.currentTarget.value = "";
+                    setVideoComentario(null);
+                    return;
+                  }
+
+                  setErrorComentario("");
+                  setVideoComentario(file);
+                }}
+                className="mt-3 w-full text-sm text-[#475569] file:mr-3 file:rounded-full file:border-0 file:bg-[#0f172a] file:px-4 file:py-2 file:text-sm file:font-bold file:text-white"
+              />
+
+              {videoComentario && (
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <p className="text-xs font-semibold text-[#166534]">
+                    Vídeo seleccionado: {videoComentario.name}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVideoComentario(null);
+                      if (inputVideoRef.current) {
+                        inputVideoRef.current.value = "";
+                      }
+                    }}
+                    className="rounded-full border border-[#fecaca] bg-white px-4 py-2 text-xs font-bold text-[#b91c1c] transition hover:bg-[#fef2f2]"
+                  >
+                    Quitar vídeo
+                  </button>
+                </div>
+              )}
+            </div>
+
             {errorComentario && (
               <p className="text-sm font-medium text-[#b91c1c]">
                 {errorComentario}
@@ -920,7 +1011,7 @@ export default function EventoPage() {
                 <article
                   key={comentario.id}
                   className={`rounded-2xl border p-4 ${
-                    comentario.foto
+                    comentario.foto || comentario.video_url
                       ? "border-[#fed7aa] bg-[#fff7ed]"
                       : "border-[#f1f5f9] bg-[#fffaf7]"
                   }`}
@@ -932,6 +1023,12 @@ export default function EventoPage() {
                       {comentario.foto && (
                         <span className="ml-2 rounded-full bg-[#dbeafe] px-2 py-1 text-xs font-bold text-[#1d4ed8]">
                           📸 Con foto
+                        </span>
+                      )}
+
+                      {comentario.video_url && (
+                        <span className="ml-2 rounded-full bg-[#ede9fe] px-2 py-1 text-xs font-bold text-[#6d28d9]">
+                          🎥 Con vídeo
                         </span>
                       )}
 
@@ -963,6 +1060,18 @@ export default function EventoPage() {
                       alt="Foto subida en el comentario"
                       className="mt-3 max-h-[520px] w-full rounded-2xl object-cover"
                     />
+                  )}
+
+                  {comentario.video_url?.trim() && (
+                    <video
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="mt-3 max-h-[640px] w-full rounded-2xl bg-black object-contain"
+                    >
+                      <source src={comentario.video_url.trim()} />
+                      Tu navegador no puede reproducir este vídeo.
+                    </video>
                   )}
                 </article>
               ))}
