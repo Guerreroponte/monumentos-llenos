@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useParams } from "next/navigation";
 
@@ -21,6 +21,7 @@ type Resena = {
   usuario?: string | null;
   comentario?: string | null;
   foto?: string | null;
+  video_url?: string | null;
   created_at?: string | null;
   likes?: number | null;
   reportado?: boolean | null;
@@ -34,6 +35,16 @@ const COMENTARIOS_RAPIDOS = [
   "⚠️ Está bien, pero no esperes mucho ambiente",
   "🌅 Mejor al atardecer",
 ];
+
+function limpiarNombreArchivo(nombre: string) {
+  return nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
 
 export default function LugarPage() {
   const params = useParams();
@@ -49,6 +60,10 @@ export default function LugarPage() {
   const [enviando, setEnviando] = useState(false);
   const [mensajeOk, setMensajeOk] = useState("");
   const [mensajeError, setMensajeError] = useState("");
+  const inputFotoRef = useRef<HTMLInputElement | null>(null);
+  const inputVideoRef = useRef<HTMLInputElement | null>(null);
+  const [fotoComentario, setFotoComentario] = useState<File | null>(null);
+  const [videoComentario, setVideoComentario] = useState<File | null>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -132,35 +147,107 @@ ${url}`;
 
     setEnviando(true);
 
-    const { data, error } = await supabase
-      .from("resenas")
-      .insert([
-        {
-          monumento_id: lugar.id,
-          usuario: usuario.trim() || "Anónimo",
-          comentario: comentario.trim(),
-          foto: null,
-          likes: 0,
-          reportado: false,
-        },
-      ])
-      .select()
-      .single();
+    try {
+      let fotoUrl: string | null = null;
+      let videoUrl: string | null = null;
 
-    setEnviando(false);
+      if (fotoComentario) {
+        const nombreFoto = limpiarNombreArchivo(
+          fotoComentario.name || "foto-comentario"
+        );
+        const rutaFoto = `comentarios-lugares/${lugar.id}/${Date.now()}-${nombreFoto}`;
 
-    if (error) {
-      console.error("Error enviando comentario:", error);
-      setMensajeError("No se pudo enviar el comentario. Prueba otra vez.");
-      return;
-    }
+        const { error: errorFoto } = await supabase.storage
+          .from("imagenes")
+          .upload(rutaFoto, fotoComentario, {
+            contentType: fotoComentario.type || undefined,
+            upsert: false,
+          });
 
-    if (data) {
-      setResenas((prev) => [data, ...prev]);
-      setUsuario("");
-      setComentario("");
-      setComentarioRapidoActivo("");
-      setMensajeOk("Comentario añadido. Gracias por aportar algo real 🙌");
+        if (errorFoto) {
+          console.error("Error subiendo foto:", errorFoto);
+          setMensajeError("No se pudo subir la foto. Prueba con otra imagen.");
+          return;
+        }
+
+        const { data: fotoPublica } = supabase.storage
+          .from("imagenes")
+          .getPublicUrl(rutaFoto);
+
+        fotoUrl = fotoPublica.publicUrl;
+      }
+
+      if (videoComentario) {
+        const nombreVideo = limpiarNombreArchivo(
+          videoComentario.name || "video-comentario"
+        );
+        const rutaVideo = `comentarios-lugares/${lugar.id}/${Date.now()}-${nombreVideo}`;
+
+        const { error: errorVideo } = await supabase.storage
+          .from("videos")
+          .upload(rutaVideo, videoComentario, {
+            contentType: videoComentario.type || undefined,
+            upsert: false,
+          });
+
+        if (errorVideo) {
+          console.error("Error subiendo vídeo:", errorVideo);
+          setMensajeError("No se pudo subir el vídeo. Prueba con otro archivo.");
+          return;
+        }
+
+        const { data: videoPublico } = supabase.storage
+          .from("videos")
+          .getPublicUrl(rutaVideo);
+
+        videoUrl = videoPublico.publicUrl;
+      }
+
+      const { data, error } = await supabase
+        .from("resenas")
+        .insert([
+          {
+            monumento_id: lugar.id,
+            usuario: usuario.trim() || "Anónimo",
+            comentario: comentario.trim(),
+            foto: fotoUrl,
+            video_url: videoUrl,
+            likes: 0,
+            reportado: false,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error enviando comentario:", error);
+        setMensajeError("No se pudo enviar el comentario. Prueba otra vez.");
+        return;
+      }
+
+      if (data) {
+        setResenas((prev) => [data, ...prev]);
+        setUsuario("");
+        setComentario("");
+        setComentarioRapidoActivo("");
+        setFotoComentario(null);
+        setVideoComentario(null);
+
+        if (inputFotoRef.current) {
+          inputFotoRef.current.value = "";
+        }
+
+        if (inputVideoRef.current) {
+          inputVideoRef.current.value = "";
+        }
+
+        setMensajeOk("Comentario añadido. Gracias por aportar algo real 🙌");
+      }
+    } catch (error) {
+      console.error("Error publicando comentario:", error);
+      setMensajeError("No se pudo publicar el comentario. Prueba otra vez.");
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -395,6 +482,111 @@ ${url}`;
               />
             </div>
 
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/50 p-4">
+                <p className="text-sm font-bold text-slate-900">
+                  📸 Añadir foto (opcional)
+                </p>
+
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Sube una foto para enseñar cómo estaba el lugar. Máximo 10 MB.
+                </p>
+
+                <input
+                  ref={inputFotoRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+
+                    if (file && file.size > 10 * 1024 * 1024) {
+                      setMensajeError("La foto no puede superar los 10 MB.");
+                      e.currentTarget.value = "";
+                      setFotoComentario(null);
+                      return;
+                    }
+
+                    setMensajeError("");
+                    setFotoComentario(file);
+                  }}
+                  className="mt-3 w-full text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-bold file:text-white"
+                />
+
+                {fotoComentario && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <p className="text-xs font-semibold text-green-700">
+                      Foto seleccionada: {fotoComentario.name}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFotoComentario(null);
+                        if (inputFotoRef.current) {
+                          inputFotoRef.current.value = "";
+                        }
+                      }}
+                      className="rounded-full border border-red-200 bg-white px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50"
+                    >
+                      Quitar foto
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/50 p-4">
+                <p className="text-sm font-bold text-slate-900">
+                  🎥 Añadir vídeo (opcional)
+                </p>
+
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Puedes subir un vídeo corto para enseñar cómo está realmente el
+                  lugar. Máximo 50 MB.
+                </p>
+
+                <input
+                  ref={inputVideoRef}
+                  type="file"
+                  accept="video/mp4,video/webm,video/quicktime"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+
+                    if (file && file.size > 50 * 1024 * 1024) {
+                      setMensajeError("El vídeo no puede superar los 50 MB.");
+                      e.currentTarget.value = "";
+                      setVideoComentario(null);
+                      return;
+                    }
+
+                    setMensajeError("");
+                    setVideoComentario(file);
+                  }}
+                  className="mt-3 w-full text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-bold file:text-white"
+                />
+
+                {videoComentario && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <p className="text-xs font-semibold text-green-700">
+                      Vídeo seleccionado: {videoComentario.name}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVideoComentario(null);
+                        if (inputVideoRef.current) {
+                          inputVideoRef.current.value = "";
+                        }
+                      }}
+                      className="rounded-full border border-red-200 bg-white px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50"
+                    >
+                      Quitar vídeo
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {mensajeError && (
               <p className="mt-3 text-sm font-semibold text-red-600">
                 {mensajeError}
@@ -435,17 +627,9 @@ ${url}`;
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      {resena.foto ? (
-                        <img
-                          src={resena.foto}
-                          alt={resena.usuario || "Usuario"}
-                          className="h-12 w-12 rounded-2xl object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-black uppercase text-white">
-                          {(resena.usuario || "A").slice(0, 1)}
-                        </div>
-                      )}
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-black uppercase text-white">
+                        {(resena.usuario || "A").slice(0, 1)}
+                      </div>
 
                       <div>
                         <p className="font-bold text-slate-900">
@@ -467,6 +651,26 @@ ${url}`;
                   <p className="mt-4 text-base leading-7 text-slate-700">
                     {resena.comentario || "Sin comentario."}
                   </p>
+
+                  {resena.foto && (
+                    <img
+                      src={resena.foto}
+                      alt={`Foto compartida por ${resena.usuario || "un visitante"}`}
+                      className="mt-4 max-h-[520px] w-full rounded-2xl object-cover"
+                    />
+                  )}
+
+                  {resena.video_url?.trim() && (
+                    <video
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="mt-4 max-h-[640px] w-full rounded-2xl bg-black object-contain"
+                    >
+                      <source src={resena.video_url.trim()} />
+                      Tu navegador no puede reproducir este vídeo.
+                    </video>
+                  )}
                 </article>
               ))
             )}
