@@ -8,7 +8,7 @@ export default function FooterGlobal() {
           <div className="max-w-xl">
             <div className="flex items-center gap-4">
               <img
-                src="/logo.png"
+                src="/icon.png"
                 alt="Lugares Llenos"
                 className="h-14 w-14 rounded-xl bg-white object-contain p-2 shadow-sm"
               />
@@ -36,19 +36,28 @@ export default function FooterGlobal() {
 
             <ul className="mt-4 space-y-3 text-base font-semibold text-slate-600">
               <li>
-                <Link href="/aviso-legal" className="transition hover:text-orange-600">
+                <Link
+                  href="/aviso-legal"
+                  className="transition hover:text-orange-600"
+                >
                   Aviso Legal
                 </Link>
               </li>
 
               <li>
-                <Link href="/politica-privacidad" className="transition hover:text-orange-600">
+                <Link
+                  href="/politica-privacidad"
+                  className="transition hover:text-orange-600"
+                >
                   Política de Privacidad
                 </Link>
               </li>
 
               <li>
-                <Link href="/politica-cookies" className="transition hover:text-orange-600">
+                <Link
+                  href="/politica-cookies"
+                  className="transition hover:text-orange-600"
+                >
                   Política de Cookies
                 </Link>
               </li>

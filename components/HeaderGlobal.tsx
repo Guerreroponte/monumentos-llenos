@@ -75,10 +75,11 @@ export default function HeaderGlobal() {
               className="flex items-center gap-3"
             >
               <img
-                src="/logo.png"
-                alt="Lugares Llenos"
-                className="h-11 w-auto sm:h-12"
+                src="/icon.png"
+                alt="Logo LLL de Lugares Llenos"
+                className="h-11 w-11 object-contain sm:h-12 sm:w-12"
               />
+
               <div>
                 <p className="text-[10px] uppercase tracking-[0.22em] text-orange-500">
                   Comunidad real
@@ -93,30 +94,37 @@ export default function HeaderGlobal() {
               <a href="/" className="transition hover:text-orange-600">
                 Inicio
               </a>
+
               <a href="/#mapa" className="transition hover:text-orange-600">
                 Mapa
               </a>
+
               <a href="/#lugares" className="transition hover:text-orange-600">
                 Lugares
               </a>
+
               <a
                 href="/que-hacer"
                 className="transition hover:text-orange-600"
               >
                 Qué hacer
               </a>
+
               <a href="/eventos" className="text-orange-600">
                 Eventos
               </a>
+
               <a
                 href="/colaboradores"
                 className="transition hover:text-orange-600"
               >
                 Colaboradores
               </a>
+
               <a href="/#buscador" className="transition hover:text-orange-600">
                 Buscar
               </a>
+
               <a
                 href="/participa"
                 className="rounded-full bg-orange-500 px-4 py-2 text-white transition hover:bg-orange-600"
@@ -148,6 +156,7 @@ export default function HeaderGlobal() {
                   <p className="text-xs font-bold uppercase tracking-[0.22em] text-orange-500">
                     Lugares Llenos
                   </p>
+
                   <p className="mt-1 text-sm text-[#64748b]">
                     Descubre sitios, eventos y planes reales cerca de ti.
                   </p>
