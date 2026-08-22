@@ -29,11 +29,18 @@ export const metadata: Metadata = {
   applicationName: "Lugares Llenos",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/logo.png", type: "image/png" },
+      {
+        url: "/icon.png",
+        type: "image/png",
+      },
     ],
-    shortcut: ["/favicon.ico"],
-    apple: [{ url: "/logo.png", type: "image/png" }],
+    shortcut: ["/icon.png"],
+    apple: [
+      {
+        url: "/icon.png",
+        type: "image/png",
+      },
+    ],
   },
 };
 
