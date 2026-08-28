@@ -1,8 +1,9 @@
 import { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
 
-// Actualiza el sitemap cada hora
-export const revalidate = 3600;
+// Fuerza a generar el sitemap siempre con los datos actuales de Supabase
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const PAGE_SIZE = 1000;
 
