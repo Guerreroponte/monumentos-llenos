@@ -41,6 +41,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Círculo de Arte de Toledo",
   "Los Conciertos de la Muralla",
   "Teatro Eslava",
+  "Rvbicón Bar",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
