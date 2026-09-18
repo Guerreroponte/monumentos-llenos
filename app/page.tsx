@@ -42,6 +42,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Los Conciertos de la Muralla",
   "Teatro Eslava",
   "Rvbicón Bar",
+  "Big Mama Ballroom",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
