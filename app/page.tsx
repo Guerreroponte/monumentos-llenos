@@ -158,6 +158,18 @@ type ComentarioEventoFotoUI = {
     | null;
 };
 
+type FotoRealUI = {
+  id: string;
+  origen: "evento" | "lugar";
+  foto: string;
+  texto: string;
+  created_at?: string | null;
+  nombre: string;
+  ciudad: string;
+  href: string;
+  tipo?: string | null;
+};
+
 type FotoSeleccionada = {
   file: File;
   preview: string;
@@ -743,6 +755,53 @@ export default function Home() {
       return acc + fotosPrincipales + fotosExtraLugar + fotosResenas;
     }, comentariosEventosConFoto.length);
   }, [monumentos, comentariosEventosConFoto.length]);
+
+  const fotosReales = useMemo<FotoRealUI[]>(() => {
+    const fotosEventos: FotoRealUI[] = comentariosEventosConFoto
+      .filter((comentario) => Boolean(comentario.foto))
+      .map((comentario) => {
+        const eventoRelacionado = getEventoRelacionado(comentario);
+        const href = eventoRelacionado?.slug
+          ? `/eventos/${eventoRelacionado.slug}`
+          : "/eventos";
+
+        return {
+          id: `evento-${comentario.id}`,
+          origen: "evento",
+          foto: comentario.foto as string,
+          texto: comentario.texto || "Foto subida por la comunidad.",
+          created_at: comentario.created_at || null,
+          nombre: eventoRelacionado?.nombre || "Plan de la comunidad",
+          ciudad: eventoRelacionado?.ciudad || "Ciudad por confirmar",
+          href,
+          tipo: eventoRelacionado?.tipo || "Evento",
+        };
+      });
+
+    const fotosLugares: FotoRealUI[] = monumentos.flatMap((monumento) =>
+      monumento.resenas
+        .filter((resena) => Boolean(resena.foto))
+        .map((resena) => ({
+          id: `lugar-${resena.id}`,
+          origen: "lugar" as const,
+          foto: resena.foto as string,
+          texto: resena.comentario || "Foto subida por la comunidad.",
+          created_at: resena.created_at || null,
+          nombre: monumento.nombre,
+          ciudad: monumento.ciudad,
+          href: monumento.slug ? `/lugar/${monumento.slug}` : "/lugares",
+          tipo: "Lugar",
+        }))
+    );
+
+    return [...fotosEventos, ...fotosLugares]
+      .sort((a, b) => {
+        const fechaA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const fechaB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return fechaB - fechaA;
+      })
+      .slice(0, 6);
+  }, [comentariosEventosConFoto, monumentos]);
 
   const ultimosAportes = useMemo(() => {
     const items = monumentos
@@ -1457,7 +1516,7 @@ ${url}`;
 
 
 
-      {comentariosEventosConFoto.length > 0 && (
+      {fotosReales.length > 0 && (
         <section
           id="asi-estan-los-planes"
           className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
@@ -1472,76 +1531,65 @@ ${url}`;
                   👀 Así están los planes ahora
                 </h2>
                 <p className="mt-2 text-sm text-slate-600">
-                  Fotos subidas en comentarios de eventos. Ambiente real antes de decidir si ir.
+                  Fotos subidas por la comunidad en lugares y eventos. Ambiente real antes de decidir si ir.
                 </p>
               </div>
 
               <Link
-                href="/eventos"
+                href="/buscar"
                 className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
               >
-                Ver todos los eventos
+                Explorar planes
               </Link>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {comentariosEventosConFoto.map((comentario) => {
-                const eventoRelacionado = getEventoRelacionado(comentario);
-                const hrefEvento = eventoRelacionado?.slug
-                  ? `/eventos/${eventoRelacionado.slug}`
-                  : "/eventos";
+              {fotosReales.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="group overflow-hidden rounded-3xl border border-orange-100 bg-orange-50/40 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
+                >
+                  <img
+                    src={item.foto}
+                    alt={`Foto real de ${item.nombre}`}
+                    className="h-56 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                  />
 
-                return (
-                  <Link
-                    key={comentario.id}
-                    href={hrefEvento}
-                    className="group overflow-hidden rounded-3xl border border-orange-100 bg-orange-50/40 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
-                  >
-                    {comentario.foto && (
-                      <img
-                        src={comentario.foto}
-                        alt={eventoRelacionado?.nombre || "Foto real de un evento"}
-                        className="h-56 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-                      />
-                    )}
+                  <div className="p-5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
+                        📸 Foto real
+                      </span>
 
-                    <div className="p-5">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
-                          📸 Foto real
-                        </span>
-
-                        {eventoRelacionado?.tipo && (
-                          <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
-                            {eventoRelacionado.tipo}
-                          </span>
-                        )}
-                      </div>
-
-                      <h3 className="mt-4 line-clamp-2 text-xl font-bold leading-tight text-slate-900">
-                        {eventoRelacionado?.nombre || "Plan de la comunidad"}
-                      </h3>
-
-                      <p className="mt-2 text-sm font-medium text-slate-500">
-                        📍 {eventoRelacionado?.ciudad || "Ciudad por confirmar"}
-                      </p>
-
-                      <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
-                        “{comentario.texto || "Foto subida por la comunidad."}”
-                      </p>
-
-                      <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 group-hover:text-orange-700">
-                        <span>Ver evento</span>
-                        <span>→</span>
-                      </div>
+                      <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
+                        {item.origen === "lugar" ? "Lugar" : item.tipo || "Evento"}
+                      </span>
                     </div>
-                  </Link>
-                );
-              })}
+
+                    <h3 className="mt-4 line-clamp-2 text-xl font-bold leading-tight text-slate-900">
+                      {item.nombre}
+                    </h3>
+
+                    <p className="mt-2 text-sm font-medium text-slate-500">
+                      📍 {item.ciudad}
+                    </p>
+
+                    <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
+                      “{item.texto}”
+                    </p>
+
+                    <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 group-hover:text-orange-700">
+                      <span>{item.origen === "lugar" ? "Ver lugar" : "Ver evento"}</span>
+                      <span>→</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
 
             <div className="mt-6 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-medium text-orange-700">
-              📸 Si vas a un plan, entra en su ficha y sube una foto para ayudar a otros a decidir.
+              📸 Si estás en un lugar o evento, entra en su ficha y sube una foto para ayudar a otros a decidir.
             </div>
           </div>
         </section>
