@@ -133,6 +133,7 @@ type EventoUI = {
   fecha_inicio?: string | null;
   descripcion?: string | null;
   tipo?: string | null;
+  imagen?: string | null;
   slug?: string | null;
   comentarios_eventos?: ComentarioEventoUI[];
 };
@@ -168,6 +169,17 @@ type FotoRealUI = {
   ciudad: string;
   href: string;
   tipo?: string | null;
+};
+
+type HeroItemUI = {
+  id: string;
+  origen: "foto-lugar" | "foto-evento" | "evento-futuro";
+  imagen: string;
+  nombre: string;
+  ciudad: string;
+  href: string;
+  tipo?: string | null;
+  fecha_inicio?: string | null;
 };
 
 type FotoSeleccionada = {
@@ -379,6 +391,8 @@ function LugarGaleriaRotativa({
 export default function Home() {
   const [monumentos, setMonumentos] = useState<MonumentoUI[]>([]);
   const [eventosHoy, setEventosHoy] = useState<EventoUI[]>([]);
+  const [eventosProximosHero, setEventosProximosHero] = useState<EventoUI[]>([]);
+  const [indiceHero, setIndiceHero] = useState(0);
   const [totalEventosPublicados, setTotalEventosPublicados] = useState(0);
   const [comentariosEventosConFoto, setComentariosEventosConFoto] = useState<
     ComentarioEventoFotoUI[]
@@ -581,6 +595,7 @@ export default function Home() {
         fecha_inicio,
         descripcion,
         tipo,
+        imagen,
         slug,
         comentarios_eventos ( id )
       `)
@@ -598,6 +613,34 @@ export default function Home() {
       ...evento,
       comentarios_eventos: evento.comentarios_eventos || [],
     })));
+  };
+
+  const cargarEventosProximosHero = async () => {
+    const hoy = new Date().toISOString().split("T")[0];
+
+    const { data, error } = await supabase
+      .from("eventos")
+      .select(`
+        id,
+        nombre,
+        ciudad,
+        fecha_inicio,
+        tipo,
+        imagen,
+        slug
+      `)
+      .gte("fecha_inicio", hoy)
+      .eq("reportado", false)
+      .not("imagen", "is", null)
+      .order("fecha_inicio", { ascending: true })
+      .limit(12);
+
+    if (error) {
+      console.error("Error cargando próximos eventos del hero:", error);
+      return;
+    }
+
+    setEventosProximosHero((data || []) as EventoUI[]);
   };
 
   const cargarComentariosEventosConFoto = async () => {
@@ -698,6 +741,7 @@ export default function Home() {
     cargarDatos();
     cargarTotalEventosPublicados();
     cargarEventosHoy();
+    cargarEventosProximosHero();
     cargarComentariosEventosConFoto();
     cargarLogosSalasDestacadas();
     cargarPartnersExperiencias();
@@ -802,6 +846,63 @@ export default function Home() {
       })
       .slice(0, 6);
   }, [comentariosEventosConFoto, monumentos]);
+
+  const heroItems = useMemo<HeroItemUI[]>(() => {
+    const itemsFotos: HeroItemUI[] = fotosReales.map((item) => ({
+      id: `foto-${item.id}`,
+      origen: item.origen === "lugar" ? "foto-lugar" : "foto-evento",
+      imagen: item.foto,
+      nombre: item.nombre,
+      ciudad: item.ciudad,
+      href: item.href,
+      tipo: item.tipo || null,
+      fecha_inicio: null,
+    }));
+
+    const itemsEventos: HeroItemUI[] = eventosProximosHero
+      .filter((evento) => Boolean(evento.imagen))
+      .map((evento) => ({
+        id: `proximo-${evento.id}`,
+        origen: "evento-futuro" as const,
+        imagen: evento.imagen as string,
+        nombre: evento.nombre,
+        ciudad: evento.ciudad,
+        href: evento.slug ? `/eventos/${evento.slug}` : "/eventos",
+        tipo: evento.tipo || "Evento",
+        fecha_inicio: evento.fecha_inicio || null,
+      }));
+
+    // Intercalamos fotos reales con eventos próximos para que el hero
+    // enseñe comunidad + agenda futura y no se quede solo en lugares.
+    const mezclados: HeroItemUI[] = [];
+    const total = Math.max(itemsFotos.length, itemsEventos.length);
+
+    for (let i = 0; i < total; i += 1) {
+      if (itemsFotos[i]) mezclados.push(itemsFotos[i]);
+      if (itemsEventos[i]) mezclados.push(itemsEventos[i]);
+    }
+
+    return mezclados;
+  }, [fotosReales, eventosProximosHero]);
+
+  const heroItemsVisibles = useMemo(() => {
+    if (heroItems.length === 0) return [];
+
+    const cantidad = Math.min(3, heroItems.length);
+    return Array.from({ length: cantidad }, (_, offset) =>
+      heroItems[(indiceHero + offset) % heroItems.length]
+    );
+  }, [heroItems, indiceHero]);
+
+  useEffect(() => {
+    if (heroItems.length <= 3) return;
+
+    const interval = window.setInterval(() => {
+      setIndiceHero((prev) => (prev + 1) % heroItems.length);
+    }, 6000);
+
+    return () => window.clearInterval(interval);
+  }, [heroItems.length]);
 
   const ultimosAportes = useMemo(() => {
     const items = monumentos
@@ -1258,521 +1359,421 @@ ${url}`;
   const renderPaginacion = monumentosFiltrados.length > LUGARES_POR_PAGINA;
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
-      <section className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.18),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(249,115,22,0.12),transparent_30%)]" />
+    <main className="min-h-screen overflow-hidden bg-[#fffaf5] text-slate-900">
+      {/* HERO */}
+      <section className="relative isolate overflow-hidden border-b border-orange-100/80 bg-gradient-to-b from-amber-50 via-orange-50/80 to-[#fffaf5]">
+        <div className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-orange-300/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 top-24 -z-10 h-96 w-96 rounded-full bg-amber-300/20 blur-3xl" />
 
-        <div className="max-w-4xl">
-          <div className="inline-flex rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-sm font-semibold text-orange-600 shadow-sm backdrop-blur">
-            🔥 Experiencias reales · 📸 Fotos sin filtros · 💬 Comentarios que ayudan
-          </div>
-
-          <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
-            Qué hacer hoy o qué sitio merece la pena:
-            <span className="block text-orange-600">
-              sin postureo y con realidad
-            </span>
-          </h1>
-
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-600 md:text-xl">
-            Aquí la gente cuenta cómo están los sitios de verdad: si hay colas,
-            si el ambiente merece la pena, si es mejor ir a otra hora o si hay
-            una alternativa mejor cerca.
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-4">
-            <a
-              href="#asi-estan-los-planes"
-              className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
-            >
-              Ver fotos reales
-            </a>
-
-            <a
-              href="#hoy-mismo"
-              className="rounded-full border border-orange-200 bg-white px-6 py-3.5 font-semibold text-slate-800 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
-            >
-              Ver qué hacer hoy
-            </a>
-
-            <a
-              href="/participa"
-              className="rounded-full border border-slate-200 bg-slate-900 px-6 py-3.5 font-semibold text-white shadow-sm transition hover:opacity-90"
-            >
-              Subir un plan
-            </a>
-          </div>
-        </div>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-slate-500">
-              Lugares analizados por la comunidad
-            </p>
-            <p className="mt-2 text-3xl font-extrabold text-slate-900">
-              {monumentos.length}
-            </p>
-            <p className="mt-2 text-sm text-slate-600">
-              Sitios compartidos con contexto real, no solo fotos bonitas.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-slate-500">
-              Eventos publicados
-            </p>
-            <p className="mt-2 text-3xl font-extrabold text-slate-900">
-              {totalEventosPublicados}
-            </p>
-            <p className="mt-2 text-sm text-slate-600">
-              Conciertos, planes y propuestas para saber qué hacer hoy.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-slate-500">
-              Fotos reales sin filtros
-            </p>
-            <p className="mt-2 text-3xl font-extrabold text-slate-900">
-              {totalFotos}
-            </p>
-            <p className="mt-2 text-sm text-slate-600">
-              Imágenes de viajeros para ver el ambiente de verdad.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-            <p className="text-sm font-semibold text-slate-500">
-              Experiencias útiles contadas
-            </p>
-            <p className="mt-2 text-3xl font-extrabold text-slate-900">
-              {totalComentarios}
-            </p>
-            <p className="mt-2 text-sm text-slate-600">
-              Comentarios que ayudan a decidir mejor antes de ir.
-            </p>
-          </div>
-        </div>
-
-        {marcasColaboradoras.length > 0 && (
-          <div className="mt-6 rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                  🤝 Marcas colaboradoras
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                  Marcas que se suman a Lugares Llenos
-                </h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                  Empresas que colaboran con la comunidad para impulsar experiencias
-                  reales, planes locales y nuevas formas de descubrir lugares.
-                </p>
-              </div>
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 pb-10 pt-12 sm:px-6 md:pb-14 md:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14">
+          <div>
+            <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-orange-200 bg-white/90 px-4 py-2 text-sm font-bold text-orange-700 shadow-sm backdrop-blur">
+              <span>🔥 Planes reales</span>
+              <span className="text-orange-300">•</span>
+              <span>📸 Fotos de la comunidad</span>
+              <span className="text-orange-300">•</span>
+              <span>💬 Opiniones útiles</span>
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-3">
-              {marcasColaboradoras.map((marca) => (
-                <Link
-                  key={marca.id}
-                  href={marca.slug ? `/marcas/${marca.slug}` : marca.web_url || "#"}
-                  className="inline-flex items-center gap-4 rounded-2xl border border-orange-100 bg-orange-50 px-5 py-4 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
-                >
-                  {marca.logo_url ? (
-                    <span className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-2 shadow-sm">
+            <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.04] tracking-[-0.04em] text-slate-950 sm:text-5xl md:text-6xl">
+              Qué hacer hoy y qué sitio
+              <span className="block bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 bg-clip-text text-transparent">
+                merece la pena de verdad.
+              </span>
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+              Lugares Llenos junta planes, lugares, fotos y experiencias reales para
+              ayudarte a decidir mejor: qué ambiente hay, cuándo ir y qué alternativa
+              tienes cerca si el plan no convence.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a
+                href="#hoy-mismo"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-bold text-white shadow-lg shadow-orange-200 transition hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                <span>🔥</span>
+                <span>Ver qué hacer hoy</span>
+              </a>
+
+              <a
+                href="#asi-estan-los-planes"
+                className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-6 py-3.5 font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:text-orange-700"
+              >
+                <span>👀</span>
+                <span>Ver fotos reales</span>
+              </a>
+
+              <Link
+                href="/participa"
+                className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-6 py-3.5 font-bold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800"
+              >
+                <span>＋</span>
+                <span>Compartir un plan</span>
+              </Link>
+            </div>
+
+            <div className="mt-7 flex flex-wrap gap-2 text-xs font-semibold text-slate-600 sm:text-sm">
+              <span className="rounded-full border border-orange-100 bg-white/80 px-3 py-2">📍 Toda España</span>
+              <span className="rounded-full border border-orange-100 bg-white/80 px-3 py-2">🧭 Ideas para hoy</span>
+              <span className="rounded-full border border-orange-100 bg-white/80 px-3 py-2">🤝 Comunidad + colaboradores</span>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="absolute -inset-6 -z-10 rounded-[42px] bg-gradient-to-br from-orange-200/50 via-amber-100/30 to-rose-100/50 blur-2xl" />
+
+            {heroItemsVisibles.length > 0 ? (
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {heroItemsVisibles.map((item, index) => {
+                  const esEventoFuturo = item.origen === "evento-futuro";
+                  const fechaEvento = item.fecha_inicio
+                    ? new Date(`${item.fecha_inicio}T12:00:00`).toLocaleDateString(
+                        "es-ES",
+                        { day: "numeric", month: "short" }
+                      )
+                    : null;
+
+                  return (
+                    <Link
+                      key={`hero-${index}-${item.id}`}
+                      href={item.href}
+                      className={`group relative overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-xl shadow-orange-100/70 transition hover:-translate-y-0.5 ${
+                        index === 0 ? "col-span-2 aspect-[16/9]" : "aspect-square"
+                      }`}
+                    >
                       <img
-                        src={marca.logo_url}
-                        alt={`Logo ${marca.nombre}`}
+                        src={item.imagen}
+                        alt={
+                          esEventoFuturo
+                            ? `Cartel de ${item.nombre}`
+                            : `Foto real de ${item.nombre}`
+                        }
+                        className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/15 to-transparent" />
+
+                      <div className="absolute left-3 top-3 flex flex-wrap gap-2 sm:left-4 sm:top-4">
+                        <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-800 shadow-sm backdrop-blur">
+                          {esEventoFuturo ? "🗓️ Próximo plan" : "📸 Foto real"}
+                        </span>
+                        <span className="rounded-full bg-orange-500/95 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm backdrop-blur">
+                          {esEventoFuturo
+                            ? `🎟️ ${item.tipo || "Evento"}`
+                            : item.origen === "foto-lugar"
+                            ? "📍 Lugar"
+                            : "🎟️ Evento"}
+                        </span>
+                      </div>
+
+                      <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
+                        <p className="line-clamp-1 text-sm font-black sm:text-lg">
+                          {item.nombre}
+                        </p>
+                        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-white/85 sm:text-sm">
+                          <span>📍 {item.ciudad}</span>
+                          {esEventoFuturo && fechaEvento && (
+                            <span>· 📅 {fechaEvento}</span>
+                          )}
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex min-h-[430px] items-end overflow-hidden rounded-[34px] border border-orange-100 bg-gradient-to-br from-orange-300 via-amber-200 to-rose-200 p-6 shadow-xl shadow-orange-100">
+                <div className="max-w-md rounded-3xl bg-white/85 p-6 backdrop-blur">
+                  <p className="text-sm font-black uppercase tracking-[0.18em] text-orange-600">👀 Así se vive</p>
+                  <h2 className="mt-3 text-3xl font-black text-slate-950">Fotos reales y próximos planes.</h2>
+                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                    Aquí irán rotando las últimas fotos de la comunidad y eventos futuros con cartel para descubrir qué hacer después.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* MÉTRICAS COMPACTAS */}
+        <div className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+          <div className="grid overflow-hidden rounded-[30px] border border-orange-100 bg-white/95 shadow-lg shadow-orange-100/70 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="border-b border-orange-100 p-5 sm:border-r lg:border-b-0">
+              <p className="text-3xl font-black tracking-tight text-slate-950">{cargando ? "…" : monumentos.length}</p>
+              <p className="mt-1 text-sm font-bold text-slate-600">📍 Lugares compartidos</p>
+            </div>
+            <div className="border-b border-orange-100 p-5 lg:border-b-0 lg:border-r">
+              <p className="text-3xl font-black tracking-tight text-slate-950">{totalEventosPublicados || "…"}</p>
+              <p className="mt-1 text-sm font-bold text-slate-600">🎟️ Eventos publicados</p>
+            </div>
+            <div className="border-b border-orange-100 p-5 sm:border-b-0 sm:border-r">
+              <p className="text-3xl font-black tracking-tight text-slate-950">{cargando ? "…" : totalFotos}</p>
+              <p className="mt-1 text-sm font-bold text-slate-600">📸 Fotos en la plataforma</p>
+            </div>
+            <div className="p-5">
+              <p className="text-3xl font-black tracking-tight text-slate-950">{cargando ? "…" : totalComentarios}</p>
+              <p className="mt-1 text-sm font-bold text-slate-600">💬 Experiencias contadas</p>
+            </div>
+          </div>
+        </div>
+
+        {/* CONFIANZA RÁPIDA: SALAS COLABORADORAS */}
+        <div className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+          <div className="overflow-hidden rounded-[30px] border border-orange-100 bg-white/90 shadow-sm shadow-orange-100/60">
+            <div className="flex flex-col gap-4 border-b border-orange-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-orange-500">🤝 Confían en Lugares Llenos</p>
+                <p className="mt-1 text-base font-black text-slate-900 sm:text-lg">
+                  {SALAS_DESTACADAS_COLABORADORAS.length} salas ya comparten su programación con la comunidad
+                </p>
+              </div>
+              <Link
+                href="/colaboradores"
+                className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-black text-orange-700 transition hover:bg-orange-100"
+              >
+                Ver todas <span>→</span>
+              </Link>
+            </div>
+
+            <div className="flex gap-3 overflow-x-auto px-5 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {salasDestacadasConLogo.slice(0, 12).map((sala) => (
+                <Link
+                  key={`confianza-${sala.nombre}`}
+                  href="/colaboradores"
+                  className="group inline-flex shrink-0 items-center gap-2.5 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:text-orange-700 hover:shadow-md"
+                >
+                  {sala.logo ? (
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-1">
+                      <img
+                        src={sala.logo}
+                        alt={`Logo ${sala.nombre}`}
                         className="h-full w-full object-contain"
                       />
                     </span>
                   ) : (
-                    <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white text-lg shadow-sm">
-                      🤝
-                    </span>
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-50 text-xs">🎵</span>
                   )}
-
-                  <span className="flex flex-col">
-                    <span>{marca.nombre}</span>
-                    {marca.descripcion_corta && (
-                      <span className="mt-0.5 max-w-[260px] text-xs font-medium leading-5 text-slate-500">
-                        {marca.descripcion_corta}
-                      </span>
-                    )}
-                  </span>
+                  <span className="whitespace-nowrap">{sala.nombre}</span>
                 </Link>
               ))}
             </div>
           </div>
-        )}
-
-        <div className="mt-6 rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                Salas colaboradoras
-              </p>
-              <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                {SALAS_DESTACADAS_COLABORADORAS.length} salas que ya comparten su programación con la comunidad
-              </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                Cada vez más salas se unen para compartir sus eventos con Lugares Llenos.
-                Descubre conciertos, sesiones y planes reales de espacios que ya confían
-                en la comunidad.
-              </p>
-            </div>
-
-            <Link
-              href="/colaboradores"
-              className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
-            >
-              Ver colaboradores →
-            </Link>
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-3">
-            {salasDestacadasConLogo.map((sala) => (
-              <Link
-                key={sala.nombre}
-                href="/colaboradores"
-                className="inline-flex items-center gap-2 rounded-full border border-orange-100 bg-orange-50 px-3 py-2 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
-              >
-                {sala.logo ? (
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-1 shadow-sm">
-                    <img
-                      src={sala.logo}
-                      alt={`Logo ${sala.nombre}`}
-                      className="h-full w-full object-contain"
-                    />
-                  </span>
-                ) : (
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs shadow-sm">
-                    🎵
-                  </span>
-                )}
-
-                <span>{sala.nombre}</span>
-              </Link>
-            ))}
-          </div>
         </div>
-
-        {partnersExperiencias.length > 0 && (
-          <div className="mt-6 rounded-3xl border border-orange-100 bg-white/90 p-5 shadow-sm">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                  🌍 Partners de experiencias
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                  Reserva actividades, visitas y experiencias con nuestros partners
-                </h2>
-                <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-                  Colaboradores que ayudan a completar la visita con actividades,
-                  excursiones y experiencias relacionadas con los lugares que descubre
-                  la comunidad.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-5 flex flex-wrap gap-3">
-              {partnersExperiencias.map((partner) => (
-                <a
-                  key={partner.id}
-                  href={partner.url}
-                  target="_blank"
-                  rel="noopener noreferrer sponsored"
-                  className="inline-flex items-center gap-4 rounded-2xl border border-orange-100 bg-orange-50 px-5 py-4 text-sm font-bold text-slate-800 shadow-sm transition hover:border-orange-200 hover:bg-orange-100 hover:text-orange-700"
-                >
-                  {partner.logo_url ? (
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-2 shadow-sm">
-                      <img
-                        src={partner.logo_url}
-                        alt={`Logo ${partner.nombre}`}
-                        className="h-full w-full object-contain"
-                      />
-                    </span>
-                  ) : (
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-lg shadow-sm">
-                      🌍
-                    </span>
-                  )}
-
-                  <span className="flex flex-col">
-                    <span>{partner.nombre}</span>
-                    {partner.descripcion && (
-                      <span className="mt-0.5 max-w-[220px] text-xs font-medium leading-5 text-slate-500">
-                        {partner.descripcion}
-                      </span>
-                    )}
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
       </section>
 
+      {/* FOTOS REALES: AHORA MUCHO MÁS ARRIBA */}
+      <section id="asi-estan-los-planes" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
+        <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">📸 Fotos reales</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">👀 Así están los planes ahora</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
+              Imágenes subidas por la comunidad en lugares y eventos. Menos foto perfecta y más contexto real antes de decidir.
+            </p>
+          </div>
+          <Link
+            href="/buscar"
+            className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-200 bg-white px-5 py-2.5 text-sm font-bold text-orange-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-50"
+          >
+            Explorar más <span>→</span>
+          </Link>
+        </div>
 
-
-
-      {fotosReales.length > 0 && (
-        <section
-          id="asi-estan-los-planes"
-          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
-        >
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                  Fotos reales
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                  👀 Así están los planes ahora
-                </h2>
-                <p className="mt-2 text-sm text-slate-600">
-                  Fotos subidas por la comunidad en lugares y eventos. Ambiente real antes de decidir si ir.
-                </p>
-              </div>
-
+        {fotosReales.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {fotosReales.map((item, index) => (
               <Link
-                href="/buscar"
-                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+                key={item.id}
+                href={item.href}
+                className={`group overflow-hidden rounded-[30px] border border-orange-100 bg-white shadow-sm transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100 ${
+                  index === 0 ? "md:col-span-2 xl:col-span-2" : ""
+                }`}
               >
-                Explorar planes
-              </Link>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {fotosReales.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="group overflow-hidden rounded-3xl border border-orange-100 bg-orange-50/40 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
-                >
+                <div className={`relative overflow-hidden ${index === 0 ? "h-72 sm:h-80" : "h-56"}`}>
                   <img
                     src={item.foto}
                     alt={`Foto real de ${item.nombre}`}
-                    className="h-56 w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                   />
-
-                  <div className="p-5">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
-                        📸 Foto real
-                      </span>
-
-                      <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
-                        {item.origen === "lugar" ? "Lugar" : item.tipo || "Evento"}
-                      </span>
-                    </div>
-
-                    <h3 className="mt-4 line-clamp-2 text-xl font-bold leading-tight text-slate-900">
-                      {item.nombre}
-                    </h3>
-
-                    <p className="mt-2 text-sm font-medium text-slate-500">
-                      📍 {item.ciudad}
-                    </p>
-
-                    <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
-                      “{item.texto}”
-                    </p>
-
-                    <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 group-hover:text-orange-700">
-                      <span>{item.origen === "lugar" ? "Ver lugar" : "Ver evento"}</span>
-                      <span>→</span>
-                    </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+                  <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-extrabold text-slate-800 shadow-sm backdrop-blur">📸 Foto real</span>
+                    <span className="rounded-full bg-orange-500/90 px-3 py-1 text-xs font-extrabold text-white shadow-sm backdrop-blur">
+                      {item.origen === "lugar" ? "📍 Lugar" : item.tipo || "🎟️ Evento"}
+                    </span>
                   </div>
-                </Link>
-              ))}
-            </div>
+                </div>
 
-            <div className="mt-6 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-medium text-orange-700">
-              📸 Si estás en un lugar o evento, entra en su ficha y sube una foto para ayudar a otros a decidir.
-            </div>
-          </div>
-        </section>
-      )}
-
-      {eventosHoy.length > 0 && (
-        <section
-          id="hoy-mismo"
-          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
-        >
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                  Hoy mismo
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                  Qué hacer hoy sin pensar demasiado
-                </h2>
-                <p className="mt-2 text-sm text-slate-600">
-                  Planes rápidos para quien entra buscando algo para hoy, con
-                  ambiente real y sin dar demasiadas vueltas.
-                </p>
-              </div>
-
-              <Link
-                href="/eventos"
-                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
-              >
-                Ver todos los eventos
+                <div className="p-5 sm:p-6">
+                  <h3 className={`${index === 0 ? "text-2xl sm:text-3xl" : "text-xl"} line-clamp-2 font-black leading-tight text-slate-950`}>
+                    {item.nombre}
+                  </h3>
+                  <p className="mt-2 text-sm font-bold text-slate-500">📍 {item.ciudad}</p>
+                  <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">“{item.texto}”</p>
+                  <div className="mt-5 inline-flex items-center gap-2 text-sm font-black text-orange-600">
+                    <span>{item.origen === "lugar" ? "Ver lugar" : "Ver evento"}</span>
+                    <span className="transition group-hover:translate-x-1">→</span>
+                  </div>
+                </div>
               </Link>
-            </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-[30px] border border-dashed border-orange-200 bg-orange-50/70 p-8 text-center">
+            <p className="text-3xl">📷</p>
+            <h3 className="mt-3 text-xl font-black text-slate-900">Todavía no hay fotos recientes para mostrar</h3>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">Entra en una ficha de lugar o evento y sube una foto para ayudar a la siguiente persona a decidir.</p>
+          </div>
+        )}
 
+        <div className="mt-5 rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3 text-sm font-bold text-orange-800">
+          💡 Si estás en un lugar o evento, una foto actual puede ayudar más que diez descripciones.
+        </div>
+      </section>
+
+      {/* QUÉ HACER HOY */}
+      <section id="hoy-mismo" className="border-y border-orange-100 bg-white/70 py-12 md:py-16">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🔥 Hoy mismo</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">Qué hacer hoy sin darle demasiadas vueltas</h2>
+              <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">Planes rápidos para entrar, comparar y decidir en pocos segundos.</p>
+            </div>
+            <Link href="/eventos" className="inline-flex w-fit items-center gap-2 rounded-full bg-slate-950 px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-slate-800">
+              Todos los eventos <span>→</span>
+            </Link>
+          </div>
+
+          {eventosHoy.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {eventosHoy.map((evento) => {
-                const hrefEvento = evento.slug
-                  ? `/eventos/${evento.slug}`
-                  : "/eventos";
-
-                const totalComentariosEvento =
-                  evento.comentarios_eventos?.length || 0;
+                const hrefEvento = evento.slug ? `/eventos/${evento.slug}` : "/eventos";
+                const totalComentariosEvento = evento.comentarios_eventos?.length || 0;
 
                 return (
                   <Link
                     key={evento.id}
                     href={hrefEvento}
-                    className="block rounded-3xl border border-orange-100 bg-orange-50/40 p-5 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
+                    className="group overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-sm transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100"
                   >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
-                        Hoy
-                      </span>
+                    {evento.imagen ? (
+                      <div className="relative h-48 overflow-hidden bg-slate-100">
+                        <img src={evento.imagen} alt={evento.nombre} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 to-transparent" />
+                        <span className="absolute left-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-xs font-black text-white shadow-sm">HOY</span>
+                      </div>
+                    ) : (
+                      <div className="flex h-40 items-end bg-gradient-to-br from-orange-300 via-amber-200 to-rose-200 p-5">
+                        <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-orange-700">🔥 HOY</span>
+                      </div>
+                    )}
 
-                      {evento.tipo && (
-                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
-                          {evento.tipo}
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
-                      {evento.nombre}
-                    </h3>
-
-                    <p className="mt-2 text-sm font-medium text-slate-500">
-                      {getTextoComentariosEvento(totalComentariosEvento)}
-                    </p>
-
-                    <p className="mt-2 text-sm font-medium text-slate-500">
-                      📍 {evento.ciudad}
-                    </p>
-
-                    <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
-                      {evento.descripcion ||
-                        "Plan publicado para hoy en la comunidad."}
-                    </p>
-
-                    <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700">
-                      <span>Ver evento</span>
-                      <span>→</span>
+                    <div className="p-5">
+                      <div className="flex flex-wrap gap-2">
+                        {evento.tipo && <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-extrabold text-orange-700">{evento.tipo}</span>}
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-600">{getTextoComentariosEvento(totalComentariosEvento)}</span>
+                      </div>
+                      <h3 className="mt-4 line-clamp-2 text-xl font-black leading-tight text-slate-950">{evento.nombre}</h3>
+                      <p className="mt-2 text-sm font-bold text-slate-500">📍 {evento.ciudad}</p>
+                      <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">{evento.descripcion || "Plan publicado para hoy en la comunidad."}</p>
+                      <div className="mt-5 inline-flex items-center gap-2 text-sm font-black text-orange-600">Ver evento <span className="transition group-hover:translate-x-1">→</span></div>
                     </div>
                   </Link>
                 );
               })}
             </div>
-
-            <div className="mt-6 rounded-2xl bg-orange-50 px-4 py-3 text-sm font-medium text-orange-700">
-              💬 ¿Has estado hoy en alguno? Entra en la ficha y cuéntalo abajo.
-            </div>
-          </div>
-        </section>
-      )}
-
-      {lugaresMasComentados.length > 0 && (
-        <section
-          id="comentado"
-          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
-        >
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                  Lo más real
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                  Lo que más está comentando la gente
-                </h2>
-                <p className="mt-2 text-sm text-slate-600">
-                  Si quieres empezar por algo con señales de comunidad, entra en
-                  estas fichas primero.
-                </p>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
+              <div className="rounded-[30px] border border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50 p-7">
+                <p className="text-3xl">🗓️</p>
+                <h3 className="mt-3 text-2xl font-black text-slate-950">No hay planes de hoy destacados en este bloque</h3>
+                <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">La agenda completa tiene muchos más eventos próximos. Entra y filtra por ciudad o fecha.</p>
               </div>
+              <Link href="/eventos" className="flex min-h-[190px] flex-col justify-between rounded-[30px] bg-slate-950 p-7 text-white transition hover:-translate-y-1">
+                <span className="text-4xl">🎟️</span>
+                <div>
+                  <p className="text-xl font-black">Abrir agenda completa</p>
+                  <p className="mt-2 text-sm text-slate-300">Conciertos, festivales, ferias y más →</p>
+                </div>
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
 
-              <a
-                href="#lugares"
-                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
-              >
-                Ver más lugares
-              </a>
+      {/* CÓMO FUNCIONA / PROPUESTA DE VALOR */}
+      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
+        <div className="mb-7 max-w-3xl">
+          <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">⚡ En menos de un minuto</p>
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">Decidir un plan debería ser más fácil</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">Tres señales rápidas para saber si ese sitio o evento encaja contigo antes de salir de casa.</p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <a href="#asi-estan-los-planes" className="group rounded-[30px] border border-orange-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-2xl">📸</div>
+            <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-blue-600">01 · Mira</p>
+            <h3 className="mt-2 text-xl font-black text-slate-950">Ve cómo está ahora</h3>
+            <p className="mt-3 text-sm leading-6 text-slate-600">Fotos reales y recientes para entender ambiente, aforo o tipo de público.</p>
+            <span className="mt-5 inline-flex text-sm font-black text-orange-600">Ver fotos <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
+          </a>
+
+          <a href="#comentado" className="group rounded-[30px] border border-orange-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-2xl">💬</div>
+            <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-rose-600">02 · Comprueba</p>
+            <h3 className="mt-2 text-xl font-black text-slate-950">Lee experiencias reales</h3>
+            <p className="mt-3 text-sm leading-6 text-slate-600">Consejos sobre horarios, colas, ambiente y detalles que una ficha turística no suele contar.</p>
+            <span className="mt-5 inline-flex text-sm font-black text-orange-600">Ver comunidad <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
+          </a>
+
+          <a href="#alternativas" className="group rounded-[30px] border border-orange-100 bg-slate-950 p-6 text-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-2xl">🧭</div>
+            <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-orange-300">03 · Decide</p>
+            <h3 className="mt-2 text-xl font-black">Ten siempre un plan B</h3>
+            <p className="mt-3 text-sm leading-6 text-slate-300">Si está demasiado lleno o no te convence, descubre rincones y alternativas cercanas.</p>
+            <span className="mt-5 inline-flex text-sm font-black text-orange-300">Descubrir alternativas <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
+          </a>
+        </div>
+      </section>
+
+      {/* MÁS COMENTADOS */}
+      {lugaresMasComentados.length > 0 && (
+        <section id="comentado" className="bg-slate-950 py-12 text-white md:py-16">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-300">💬 Lo más comentado</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight md:text-4xl">Sitios donde la comunidad ya está dejando señales</h2>
+                <p className="mt-3 text-sm leading-6 text-slate-300 sm:text-base">Empieza por lugares con experiencias reales para tener más contexto antes de ir.</p>
+              </div>
+              <a href="#lugares" className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-white/15">Ver todos <span>→</span></a>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
               {lugaresMasComentados.map((lugar) => {
                 const hrefLugar = lugar.slug ? `/lugar/${lugar.slug}` : "#";
-                const imagenCard =
-                  lugar.imagen ||
-                  lugar.fotosLugar[0] ||
-                  lugar.resenas.find((r) => r.foto)?.foto ||
-                  null;
-
+                const imagenCard = lugar.imagen || lugar.fotosLugar[0] || lugar.resenas.find((r) => r.foto)?.foto || null;
                 return (
-                  <Link
-                    key={lugar.id}
-                    href={hrefLugar}
-                    className="overflow-hidden rounded-3xl border border-orange-100 bg-orange-50/40 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
-                  >
+                  <Link key={lugar.id} href={hrefLugar} className="group overflow-hidden rounded-[28px] border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:bg-white/10">
                     {imagenCard ? (
-                      <img
-                        src={imagenCard}
-                        alt={lugar.nombre}
-                        className="h-48 w-full object-cover"
-                      />
+                      <div className="relative h-52 overflow-hidden">
+                        <img src={imagenCard} alt={lugar.nombre} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/65 to-transparent" />
+                      </div>
                     ) : (
-                      <div className="flex h-48 items-end bg-gradient-to-br from-orange-200 via-amber-100 to-rose-100 p-5">
-                        <div className="rounded-2xl bg-white/75 p-4 backdrop-blur">
-                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-500">
-                            {lugar.ciudad}
-                          </p>
-                          <p className="mt-2 text-xl font-bold text-slate-900">
-                            {lugar.nombre}
-                          </p>
-                        </div>
-                      </div>
+                      <div className="h-52 bg-gradient-to-br from-orange-500/40 via-amber-400/20 to-rose-500/30" />
                     )}
-
                     <div className="p-5">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-bold text-orange-700">
-                          💬 {lugar.resenas.length} comentario
-                          {lugar.resenas.length !== 1 ? "s" : ""}
-                        </span>
-                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
-                          ⭐ {lugar.rating ?? "Sin nota"}
-                        </span>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full bg-orange-400/15 px-3 py-1 text-xs font-black text-orange-200">💬 {lugar.resenas.length} comentario{lugar.resenas.length !== 1 ? "s" : ""}</span>
+                        <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-amber-200">⭐ {lugar.rating ?? "Sin nota"}</span>
                       </div>
-
-                      <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
-                        {lugar.nombre}
-                      </h3>
-
-                      <p className="mt-2 text-sm font-medium text-slate-500">
-                        📍 {lugar.ciudad}
-                      </p>
-
-                      <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
-                        {lugar.descripcion ||
-                          "Lugar compartido por la comunidad con experiencias reales."}
-                      </p>
-
-                      <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600">
-                        <span>Ver ficha completa</span>
-                        <span>→</span>
-                      </div>
+                      <h3 className="mt-4 text-xl font-black leading-tight">{lugar.nombre}</h3>
+                      <p className="mt-2 text-sm font-bold text-slate-400">📍 {lugar.ciudad}</p>
+                      <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-300">{lugar.descripcion || "Lugar compartido por la comunidad con experiencias reales."}</p>
+                      <span className="mt-5 inline-flex text-sm font-black text-orange-300">Ver ficha <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
                     </div>
                   </Link>
                 );
@@ -1782,299 +1783,88 @@ ${url}`;
         </section>
       )}
 
-      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
-        <div className="grid gap-4 lg:grid-cols-3">
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100 lg:col-span-2">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                  Empieza por aquí
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                  Cómo aprovechar la web en menos de un minuto
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Mira qué hacer hoy, entra en una ficha con comentarios y usa
-                  los lugares reales para evitar sitios llenos o encontrar una
-                  alternativa mejor.
-                </p>
-              </div>
-
-              <Link
-                href="/eventos"
-                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
-              >
-                Ver eventos y planes
-              </Link>
+      {/* BUSCADOR */}
+      <section id="buscador" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
+        <div className="relative overflow-hidden rounded-[34px] border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-amber-50 p-6 shadow-xl shadow-orange-100/60 sm:p-8">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-orange-300/20 blur-3xl" />
+          <div className="relative grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🔎 Encuentra tu siguiente sitio</p>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Buscar lugares y ciudades</h2>
+              <p className="mt-3 text-sm leading-6 text-slate-600">Filtra la comunidad por nombre o ciudad y salta directamente a lo que te interesa.</p>
             </div>
 
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              <a
-                href="#hoy-mismo"
-                className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
-              >
-                <p className="text-sm font-semibold text-orange-600">
-                  01 · Qué hacer hoy
-                </p>
-                <h3 className="mt-2 text-lg font-bold text-slate-900">
-                  Entra rápido en un plan para hoy
-                </h3>
-                <p className="mt-2 text-sm text-slate-600">
-                  Ideal si vienes buscando una idea directa sin complicarte.
-                </p>
-              </a>
-
-              <a
-                href="#asi-estan-los-planes"
-                className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
-              >
-                <p className="text-sm font-semibold text-orange-600">
-                  02 · Fotos reales
-                </p>
-                <h3 className="mt-2 text-lg font-bold text-slate-900">
-                  Mira el ambiente antes de decidir
-                </h3>
-                <p className="mt-2 text-sm text-slate-600">
-                  Las fotos de comentarios hacen que la web se sienta viva.
-                </p>
-              </a>
-
-              <a
-                href="#alternativas"
-                className="rounded-3xl border border-orange-100 bg-orange-50/60 p-4 transition hover:border-orange-200 hover:bg-orange-100/70"
-              >
-                <p className="text-sm font-semibold text-orange-600">
-                  03 · Alternativas útiles
-                </p>
-                <h3 className="mt-2 text-lg font-bold text-slate-900">
-                  Descubre rincones y planes con menos agobio
-                </h3>
-                <p className="mt-2 text-sm text-slate-600">
-                  Justo lo que diferencia esta web de un listado normal.
-                </p>
-              </a>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-orange-100 bg-slate-900 p-6 text-white shadow-lg shadow-orange-100">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-300">
-              Lo que pasa de verdad
-            </p>
-            <h3 className="mt-2 text-2xl font-bold">
-              No es solo el sitio.
-              <span className="block text-orange-300">También es cuándo vas.</span>
-            </h3>
-
-            <div className="mt-5 space-y-3 text-sm leading-6 text-slate-200">
-              <div className="rounded-2xl bg-white/10 p-4">
-                <p className="font-semibold text-white">
-                  ⚠️ Sitio bonito, mala hora
-                </p>
-                <p className="mt-1">
-                  Un lugar puede merecer muchísimo la pena por la mañana y ser
-                  un caos total por la tarde.
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-white/10 p-4">
-                <p className="font-semibold text-white">
-                  📸 Las fotos no siempre cuentan la verdad
-                </p>
-                <p className="mt-1">
-                  Aquí importan las colas, el ambiente, el ruido y si
-                  repetirías o no.
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-white/10 p-4">
-                <p className="font-semibold text-white">
-                  💬 Cuanta más gente aporte, mejor decide todo el mundo
-                </p>
-                <p className="mt-1">
-                  Una experiencia real puede ahorrar una mala visita a otra
-                  persona.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="buscador" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
-        <div className="rounded-3xl border border-orange-100 bg-white/90 p-6 shadow-lg shadow-orange-100">
-          <h2 className="text-2xl font-bold text-slate-900">
-            Buscar lugares y ciudades
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Filtra por nombre o ciudad para encontrar experiencias reales de la
-            comunidad.
-          </p>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <input
-              type="text"
-              value={busquedaNombre}
-              onChange={(e) => setBusquedaNombre(e.target.value)}
-              placeholder="Buscar lugar..."
-              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-            />
-
-            <input
-              type="text"
-              value={busquedaCiudad}
-              onChange={(e) => setBusquedaciudad(e.target.value)}
-              placeholder="Buscar ciudad..."
-              className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-            />
-          </div>
-        </div>
-      </section>
-
-      {ultimosAportes.length > 0 && (
-        <section
-          id="ultimos-aportes"
-          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
-        >
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900">
-                  Últimas experiencias contadas
-                </h2>
-                <p className="mt-2 text-sm text-slate-600">
-                  Lo último que ha compartido la comunidad para ayudar a otros a
-                  decidir mejor.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              {ultimosAportes.map((aporte) => (
-                <div
-                  key={aporte.id}
-                  className="rounded-3xl border border-orange-100 bg-orange-50/50 p-4"
-                >
-                  <div className="flex items-center gap-3">
-                    {aporte.foto ? (
-                      <img
-                        src={aporte.foto}
-                        alt={aporte.usuario}
-                        className="h-14 w-14 rounded-2xl object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-bold text-white">
-                        {aporte.usuario.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-
-                    <div>
-                      <p className="font-bold text-slate-900">{aporte.usuario}</p>
-                      <p className="text-sm text-slate-500">
-                        en {aporte.lugar}, {aporte.ciudad}
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-700">
-                    {aporte.comentario ||
-                      "Compartió su experiencia con la comunidad."}
-                  </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-orange-100 bg-white p-2 shadow-sm">
+                <div className="flex items-center gap-3 px-3">
+                  <span className="text-xl">📍</span>
+                  <input type="text" value={busquedaNombre} onChange={(e) => setBusquedaNombre(e.target.value)} placeholder="Buscar lugar..." className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400" />
                 </div>
-              ))}
+              </div>
+              <div className="rounded-2xl border border-orange-100 bg-white p-2 shadow-sm">
+                <div className="flex items-center gap-3 px-3">
+                  <span className="text-xl">🏙️</span>
+                  <input type="text" value={busquedaCiudad} onChange={(e) => setBusquedaciudad(e.target.value)} placeholder="Buscar ciudad..." className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400" />
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ÚLTIMAS EXPERIENCIAS */}
+      {ultimosAportes.length > 0 && (
+        <section id="ultimos-aportes" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 md:pb-16">
+          <div className="mb-6">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🗣️ La comunidad habla</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Últimas experiencias contadas</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {ultimosAportes.map((aporte) => (
+              <div key={aporte.id} className="rounded-[28px] border border-orange-100 bg-white p-5 shadow-sm">
+                <div className="flex items-center gap-3">
+                  {aporte.foto ? (
+                    <img src={aporte.foto} alt={aporte.usuario} className="h-14 w-14 rounded-2xl object-cover" />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-400 text-lg font-black text-white">{aporte.usuario.charAt(0).toUpperCase()}</div>
+                  )}
+                  <div>
+                    <p className="font-black text-slate-950">{aporte.usuario}</p>
+                    <p className="text-sm font-medium text-slate-500">📍 {aporte.lugar}, {aporte.ciudad}</p>
+                  </div>
+                </div>
+                <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-700">“{aporte.comentario || "Compartió su experiencia con la comunidad."}”</p>
+              </div>
+            ))}
           </div>
         </section>
       )}
 
+      {/* ALTERNATIVAS */}
       {lugaresAlternativos.length > 0 && (
-        <section
-          id="alternativas"
-          className="mx-auto max-w-6xl px-4 pb-12 sm:px-6"
-        >
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-500">
-                  Alternativas inteligentes
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">
-                  Rincones, parques y miradores para ir con menos agobio
-                </h2>
-                <p className="mt-2 text-sm text-slate-600">
-                  Una forma rápida de descubrir sitios que pueden ser mejor idea
-                  que el plan típico.
-                </p>
+        <section id="alternativas" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 md:pb-16">
+          <div className="rounded-[34px] border border-orange-100 bg-gradient-to-br from-emerald-50 via-white to-orange-50 p-6 sm:p-8">
+            <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-600">🧭 Plan B inteligente</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Rincones para ir con menos agobio</h2>
+                <p className="mt-3 text-sm leading-6 text-slate-600">Parques, miradores y lugares que pueden ser mejor idea que el plan típico.</p>
               </div>
-
-              <a
-                href="#lugares"
-                className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
-              >
-                Ver más lugares
-              </a>
+              <a href="#lugares" className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-white px-5 py-2.5 text-sm font-bold text-emerald-700 shadow-sm">Ver más lugares →</a>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
               {lugaresAlternativos.map((lugar) => {
                 const hrefLugar = lugar.slug ? `/lugar/${lugar.slug}` : "#";
-                const imagenCard =
-                  lugar.imagen ||
-                  lugar.fotosLugar[0] ||
-                  lugar.resenas.find((r) => r.foto)?.foto ||
-                  null;
-
+                const imagenCard = lugar.imagen || lugar.fotosLugar[0] || lugar.resenas.find((r) => r.foto)?.foto || null;
                 return (
-                  <Link
-                    key={lugar.id}
-                    href={hrefLugar}
-                    className="overflow-hidden rounded-3xl border border-orange-100 bg-orange-50/40 transition hover:border-orange-200 hover:bg-orange-50 hover:shadow-md"
-                  >
-                    {imagenCard ? (
-                      <img
-                        src={imagenCard}
-                        alt={lugar.nombre}
-                        className="h-48 w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-48 items-end bg-gradient-to-br from-emerald-200 via-amber-100 to-orange-100 p-5">
-                        <div className="rounded-2xl bg-white/75 p-4 backdrop-blur">
-                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-500">
-                            {lugar.ciudad}
-                          </p>
-                          <p className="mt-2 text-xl font-bold text-slate-900">
-                            {lugar.nombre}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
+                  <Link key={lugar.id} href={hrefLugar} className="group overflow-hidden rounded-[26px] border border-white bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                    {imagenCard ? <img src={imagenCard} alt={lugar.nombre} className="h-48 w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-48 bg-gradient-to-br from-emerald-200 via-amber-100 to-orange-200" />}
                     <div className="p-5">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700">
-                          🌿 Alternativa
-                        </span>
-                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700">
-                          ⭐ {lugar.rating ?? "Sin nota"}
-                        </span>
-                      </div>
-
-                      <h3 className="mt-4 text-xl font-bold leading-tight text-slate-900">
-                        {lugar.nombre}
-                      </h3>
-
-                      <p className="mt-2 text-sm font-medium text-slate-500">
-                        📍 {lugar.ciudad}
-                      </p>
-
-                      <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-600">
-                        {lugar.descripcion ||
-                          "Lugar compartido por la comunidad como opción interesante para explorar."}
-                      </p>
-
-                      <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-orange-600">
-                        <span>Ver ficha completa</span>
-                        <span>→</span>
-                      </div>
+                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">🌿 Alternativa</span>
+                      <h3 className="mt-4 text-xl font-black text-slate-950">{lugar.nombre}</h3>
+                      <p className="mt-2 text-sm font-bold text-slate-500">📍 {lugar.ciudad}</p>
+                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{lugar.descripcion || "Una alternativa compartida por la comunidad."}</p>
                     </div>
                   </Link>
                 );
@@ -2084,10 +1874,67 @@ ${url}`;
         </section>
       )}
 
+      {/* COLABORADORES, MARCAS Y PARTNERS: MÁS COMPACTOS */}
+      <section className="border-y border-orange-100 bg-white/80 py-12 md:py-16">
+        <div className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6">
+          <div>
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🤝 Ecosistema Lugares Llenos</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Espacios y marcas que ya están dentro</h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">Programación directa de salas, colaboraciones y partners para completar la experiencia.</p>
+          </div>
+
+          {marcasColaboradoras.length > 0 && (
+            <div>
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <h3 className="text-lg font-black text-slate-950">✨ Marcas colaboradoras</h3>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {marcasColaboradoras.map((marca) => (
+                  <Link key={marca.id} href={marca.slug ? `/marcas/${marca.slug}` : marca.web_url || "#"} className="flex min-w-[250px] shrink-0 items-center gap-4 rounded-2xl border border-orange-100 bg-orange-50/70 p-4 transition hover:bg-orange-100">
+                    {marca.logo_url ? <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white p-2 shadow-sm"><img src={marca.logo_url} alt={`Logo ${marca.nombre}`} className="h-full w-full object-contain" /></span> : <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-2xl">🤝</span>}
+                    <span><span className="block font-black text-slate-900">{marca.nombre}</span>{marca.descripcion_corta && <span className="mt-1 block line-clamp-2 text-xs leading-5 text-slate-500">{marca.descripcion_corta}</span>}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+              <h3 className="text-lg font-black text-slate-950">🎵 {SALAS_DESTACADAS_COLABORADORAS.length} salas colaboradoras</h3>
+              <Link href="/colaboradores" className="text-sm font-black text-orange-600">Ver colaboradores →</Link>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {salasDestacadasConLogo.map((sala) => (
+                <Link key={sala.nombre} href="/colaboradores" className="inline-flex shrink-0 items-center gap-3 rounded-full border border-orange-100 bg-white px-4 py-2.5 text-sm font-black text-slate-800 shadow-sm transition hover:border-orange-200 hover:text-orange-700">
+                  {sala.logo ? <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-1"><img src={sala.logo} alt={`Logo ${sala.nombre}`} className="h-full w-full object-contain" /></span> : <span className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-50">🎵</span>}
+                  <span>{sala.nombre}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {partnersExperiencias.length > 0 && (
+            <div>
+              <h3 className="mb-3 text-lg font-black text-slate-950">🌍 Partners de experiencias</h3>
+              <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {partnersExperiencias.map((partner) => (
+                  <a key={partner.id} href={partner.url} target="_blank" rel="noopener noreferrer sponsored" className="flex min-w-[240px] shrink-0 items-center gap-4 rounded-2xl border border-orange-100 bg-white p-4 shadow-sm transition hover:border-orange-200 hover:bg-orange-50">
+                    {partner.logo_url ? <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white p-2"><img src={partner.logo_url} alt={`Logo ${partner.nombre}`} className="h-full w-full object-contain" /></span> : <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-xl">🌍</span>}
+                    <span><span className="block font-black text-slate-900">{partner.nombre}</span>{partner.descripcion && <span className="mt-1 block line-clamp-2 text-xs leading-5 text-slate-500">{partner.descripcion}</span>}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
       <section id="lugares" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-slate-900">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">📍 Explora lugares</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
               Lugares con experiencias reales
             </h2>
             <p className="mt-2 text-sm text-slate-500">
@@ -2504,7 +2351,7 @@ ${url}`;
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-500">
-                Haz crecer la comunidad
+                🚀 Haz crecer la comunidad
               </p>
               <h2 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
                 Comparte tus experiencias y ayuda a otros a viajar mejor
@@ -2542,7 +2389,8 @@ ${url}`;
         <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-3xl">
-              <h2 className="text-2xl font-bold text-slate-900">
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">📸 Tu experiencia cuenta</p>
+              <h2 className="mt-2 text-2xl font-black text-slate-950 md:text-3xl">
                 Comparte un lugar con la comunidad
               </h2>
               <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -2741,7 +2589,8 @@ ${url}`;
 
       <section id="mapa" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
         <div className="mb-5">
-          <h2 className="text-2xl font-bold text-slate-900">Mapa de lugares</h2>
+          <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🗺️ Explora visualmente</p>
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Mapa de lugares</h2>
           <p className="mt-2 text-sm text-slate-600">
             Explora visualmente los sitios compartidos por la comunidad.
           </p>
@@ -2758,36 +2607,61 @@ ${url}`;
         />
       </section>
 
-            <details className="group fixed bottom-5 right-5 z-40 md:hidden">
-        <div className="absolute bottom-[calc(100%+0.75rem)] right-0 flex min-w-[210px] flex-col gap-2 rounded-2xl border border-orange-100 bg-white p-2 shadow-2xl">
+      <details className="group fixed bottom-5 right-4 z-50 sm:bottom-6 sm:right-6">
+        <div className="absolute bottom-[calc(100%+0.8rem)] right-0 w-[min(290px,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-orange-100 bg-white/95 p-2 shadow-2xl shadow-slate-900/20 backdrop-blur-xl">
+          <div className="px-3 pb-2 pt-2">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-500">
+              ✨ Añade algo a la comunidad
+            </p>
+            <p className="mt-1 text-sm leading-5 text-slate-500">
+              ¿Quieres contar un plan o compartir un lugar?
+            </p>
+          </div>
+
           <Link
             href="/participa"
-            className="inline-flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-orange-50 hover:text-orange-600"
+            className="group/item flex items-center gap-3 rounded-2xl px-3 py-3 transition hover:bg-orange-50"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-400 text-xl text-white shadow-sm">
               🎟️
             </span>
-            <span>Compartir plan</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-black text-slate-900 group-hover/item:text-orange-700">
+                Compartir un plan
+              </span>
+              <span className="mt-0.5 block text-xs leading-4 text-slate-500">
+                Evento, concierto, feria o cualquier plan interesante.
+              </span>
+            </span>
+            <span className="text-orange-500">→</span>
           </Link>
 
           <a
             href="#participa"
-            className="inline-flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-orange-50 hover:text-orange-600"
+            className="group/item mt-1 flex items-center gap-3 rounded-2xl px-3 py-3 transition hover:bg-orange-50"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-xl text-white shadow-sm">
               📍
             </span>
-            <span>Compartir lugar</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-black text-slate-900 group-hover/item:text-orange-700">
+                Compartir un lugar
+              </span>
+              <span className="mt-0.5 block text-xs leading-4 text-slate-500">
+                Un rincón, monumento o sitio que merezca la pena.
+              </span>
+            </span>
+            <span className="text-orange-500">→</span>
           </a>
         </div>
 
-        <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-xl shadow-orange-300 transition hover:scale-[1.03] [&::-webkit-details-marker]:hidden">
-          <span className="text-lg transition-transform group-open:rotate-45">
+        <summary className="flex cursor-pointer list-none items-center gap-2 rounded-full border border-white/30 bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3.5 font-black text-white shadow-2xl shadow-orange-300/60 transition hover:-translate-y-0.5 hover:scale-[1.02] focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-200 [&::-webkit-details-marker]:hidden">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-lg leading-none transition-transform duration-200 group-open:rotate-45">
             ＋
           </span>
-          <span>Compartir</span>
+          <span className="whitespace-nowrap text-sm sm:text-base">Compartir un plan</span>
         </summary>
-            </details>
+      </details>
     </main>
   );
 }
