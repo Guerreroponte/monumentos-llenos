@@ -43,7 +43,7 @@ async function obtenerTodos(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://monumentosllenos.com";
+  const baseUrl = "https://www.monumentosllenos.com";
 
   const [eventos, lugares] = await Promise.all([
     obtenerTodos("eventos"),
