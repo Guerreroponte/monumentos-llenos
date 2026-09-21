@@ -46,6 +46,7 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
 
   const marca = data as MarcaColaboradora;
   const esVermutZarro = marca.slug === "vermut-zarro";
+  const esDaveiga = marca.slug === "daveiga";
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
@@ -194,38 +195,112 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <p className="text-3xl">🍷</p>
-            <h3 className="mt-4 text-xl font-extrabold text-slate-900">
-              Vermut y aperitivo
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Una marca vinculada al momento del aperitivo, los encuentros y los
-              planes que empiezan con una buena conversación.
-            </p>
-          </div>
+          {esDaveiga ? (
+            <>
+              <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+                <p className="text-3xl">🌊</p>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-900">
+                  Tradición gallega
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Las Mariñeiras® nacen de una tradición vinculada al mar y se
+                  elaboran en Galicia, conectando origen, territorio y producto.
+                </p>
+              </div>
 
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <p className="text-3xl">📍</p>
-            <h3 className="mt-4 text-xl font-extrabold text-slate-900">
-              Lugares con ambiente
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              La colaboración busca conectar la marca con espacios, salas y
-              planes locales donde pasan cosas de verdad.
-            </p>
-          </div>
+              <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+                <p className="text-3xl">🌾</p>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-900">
+                  Producción responsable
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Una apuesta por la proximidad, la economía social, el desarrollo
+                  rural y una forma responsable de crear y hacer crecer la marca.
+                </p>
+              </div>
 
-          <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-            <p className="text-3xl">📸</p>
-            <h3 className="mt-4 text-xl font-extrabold text-slate-900">
-              Contenido real
-            </h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Contenido pensado para que la comunidad descubra, participe y
-              comparta experiencias de forma natural.
-            </p>
-          </div>
+              <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+                <p className="text-3xl">📸</p>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-900">
+                  Experiencias y contenido
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Acciones junto a Lugares Llenos para acercar Daveiga a nuevos
+                  públicos mediante experiencias, contenidos y colaboraciones reales.
+                </p>
+              </div>
+            </>
+          ) : esVermutZarro ? (
+            <>
+              <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+                <p className="text-3xl">🍷</p>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-900">
+                  Vermut y aperitivo
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Una marca vinculada al momento del aperitivo, los encuentros y los
+                  planes que empiezan con una buena conversación.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+                <p className="text-3xl">📍</p>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-900">
+                  Lugares con ambiente
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  La colaboración busca conectar la marca con espacios, salas y
+                  planes locales donde pasan cosas de verdad.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+                <p className="text-3xl">📸</p>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-900">
+                  Contenido real
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Contenido pensado para que la comunidad descubra, participe y
+                  comparta experiencias de forma natural.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+                <p className="text-3xl">🤝</p>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-900">
+                  Colaboración real
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Una colaboración pensada para conectar la marca con personas,
+                  lugares y experiencias que ocurren de verdad.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+                <p className="text-3xl">📍</p>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-900">
+                  Experiencias locales
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Presencia vinculada a planes, eventos y espacios con identidad
+                  propia dentro de la comunidad de Lugares Llenos.
+                </p>
+              </div>
+
+              <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
+                <p className="text-3xl">📸</p>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-900">
+                  Contenido y visibilidad
+                </h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">
+                  Contenido útil y acciones conjuntas para acercar la marca a nuevos
+                  públicos de una forma natural.
+                </p>
+              </div>
+            </>
+          )}
         </div>
 
         {esVermutZarro && (
