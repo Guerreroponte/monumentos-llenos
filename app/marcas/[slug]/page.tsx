@@ -8,6 +8,9 @@ type MarcaColaboradora = {
   slug: string;
   logo_url: string | null;
   web_url: string | null;
+  instagram_url: string | null;
+  facebook_url: string | null;
+  tienda_url: string | null;
   descripcion: string | null;
   descripcion_corta: string | null;
   color: string | null;
@@ -31,7 +34,7 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
   const { data, error } = await supabase
     .from("marcas_colaboradoras")
     .select(
-      "id, nombre, slug, logo_url, web_url, descripcion, descripcion_corta, color, activa, destacada, orden, created_at"
+      "id, nombre, slug, logo_url, web_url, instagram_url, facebook_url, tienda_url, descripcion, descripcion_corta, color, activa, destacada, orden, created_at"
     )
     .eq("slug", slug)
     .eq("activa", true)
@@ -141,16 +144,51 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
                 🤝 Marca colaboradora oficial
               </div>
 
-              {marca.web_url && (
-                <a
-                  href={marca.web_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-6 inline-flex w-full justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-bold text-white shadow-md shadow-orange-100 transition hover:scale-[1.02]"
-                >
-                  Visitar web oficial →
-                </a>
-              )}
+              <div className="mt-6 grid gap-3">
+                {marca.web_url && (
+                  <a
+                    href={marca.web_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-bold text-white shadow-md shadow-orange-100 transition hover:scale-[1.02]"
+                  >
+                    🌐 Web oficial →
+                  </a>
+                )}
+
+                {marca.instagram_url && (
+                  <a
+                    href={marca.instagram_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full justify-center rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700"
+                  >
+                    📸 Instagram →
+                  </a>
+                )}
+
+                {marca.facebook_url && (
+                  <a
+                    href={marca.facebook_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full justify-center rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700"
+                  >
+                    📘 Facebook →
+                  </a>
+                )}
+
+                {marca.tienda_url && (
+                  <a
+                    href={marca.tienda_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full justify-center rounded-full border border-orange-200 bg-orange-50 px-5 py-3 text-sm font-bold text-orange-700 transition hover:border-orange-300 hover:bg-orange-100"
+                  >
+                    🛒 Tienda online →
+                  </a>
+                )}
+              </div>
             </aside>
           </div>
         </div>
