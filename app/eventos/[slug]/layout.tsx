@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 const BASE_URL = "https://www.monumentosllenos.com";
@@ -61,10 +62,24 @@ export async function generateMetadata({
   };
 }
 
-export default function EventoLayout({
+export default async function EventoLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{ slug: string }>;
 }>) {
+  const { slug } = await params;
+
+  const { data: evento, error } = await supabase
+    .from("eventos")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (!error && !evento) {
+    notFound();
+  }
+
   return children;
 }
