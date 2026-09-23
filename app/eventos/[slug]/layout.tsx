@@ -18,7 +18,7 @@ export async function generateMetadata({
 
   if (!evento) {
     return {
-      title: "Evento | Lugares Llenos",
+      title: "Evento",
       robots: {
         index: false,
         follow: false,
@@ -35,7 +35,7 @@ export async function generateMetadata({
     }.`;
 
   return {
-    title: `${evento.nombre} | Lugares Llenos`,
+    title: evento.nombre || "Evento",
     description: descripcion,
 
     alternates: {
@@ -43,7 +43,7 @@ export async function generateMetadata({
     },
 
     openGraph: {
-      title: evento.nombre || "Evento | Lugares Llenos",
+      title: evento.nombre || "Evento",
       description: descripcion,
       url: canonical,
       siteName: "Lugares Llenos",
@@ -54,7 +54,7 @@ export async function generateMetadata({
 
     twitter: {
       card: "summary_large_image",
-      title: evento.nombre || "Evento | Lugares Llenos",
+      title: evento.nombre || "Evento",
       description: descripcion,
       images: evento.imagen ? [evento.imagen] : [],
     },
