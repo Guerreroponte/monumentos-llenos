@@ -44,6 +44,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Rvbicón Bar",
   "Big Mama Ballroom",
   "Azkena Bilbo",
+  "Sala Mardi Gras",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
