@@ -1541,27 +1541,76 @@ ${url}`;
               </Link>
             </div>
 
-            <div className="flex gap-3 overflow-x-auto px-5 py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {salasDestacadasConLogo.slice(0, 12).map((sala) => (
-                <Link
-                  key={`confianza-${sala.nombre}`}
-                  href="/colaboradores"
-                  className="group inline-flex shrink-0 items-center gap-2.5 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:text-orange-700 hover:shadow-md"
-                >
-                  {sala.logo ? (
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-1">
-                      <img
-                        src={sala.logo}
-                        alt={`Logo ${sala.nombre}`}
-                        className="h-full w-full object-contain"
-                      />
-                    </span>
-                  ) : (
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-50 text-xs">🎵</span>
-                  )}
-                  <span className="whitespace-nowrap">{sala.nombre}</span>
-                </Link>
-              ))}
+            <div className="salas-marquee overflow-hidden py-4">
+              <div className="salas-marquee-track flex w-max">
+                {[0, 1].map((copia) => (
+                  <div
+                    key={`salas-marquee-${copia}`}
+                    className="flex shrink-0 gap-3 pr-3"
+                    aria-hidden={copia === 1}
+                  >
+                    {salasDestacadasConLogo.map((sala) => (
+                      <Link
+                        key={`confianza-${copia}-${sala.nombre}`}
+                        href="/colaboradores"
+                        tabIndex={copia === 1 ? -1 : undefined}
+                        className="group inline-flex shrink-0 items-center gap-2.5 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:text-orange-700 hover:shadow-md"
+                      >
+                        {sala.logo ? (
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-1">
+                            <img
+                              src={sala.logo}
+                              alt={copia === 0 ? `Logo ${sala.nombre}` : ""}
+                              className="h-full w-full object-contain"
+                            />
+                          </span>
+                        ) : (
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-50 text-xs">
+                            🎵
+                          </span>
+                        )}
+                        <span className="whitespace-nowrap">{sala.nombre}</span>
+                      </Link>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              <style jsx>{`
+                .salas-marquee-track {
+                  animation: salas-marquee 75s linear infinite;
+                  will-change: transform;
+                }
+
+                .salas-marquee:hover .salas-marquee-track {
+                  animation-play-state: paused;
+                }
+
+                @keyframes salas-marquee {
+                  from {
+                    transform: translateX(0);
+                  }
+
+                  to {
+                    transform: translateX(-50%);
+                  }
+                }
+
+                @media (prefers-reduced-motion: reduce) {
+                  .salas-marquee {
+                    overflow-x: auto;
+                    scrollbar-width: none;
+                  }
+
+                  .salas-marquee::-webkit-scrollbar {
+                    display: none;
+                  }
+
+                  .salas-marquee-track {
+                    animation: none;
+                  }
+                }
+              `}</style>
             </div>
           </div>
         </div>
