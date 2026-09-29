@@ -11,6 +11,7 @@ type CategoriaColaborador =
 
 type Colaborador = {
   id: string;
+  slug: string | null;
   nombre: string;
   ciudad: string | null;
   tipo: string | null;
@@ -69,9 +70,11 @@ function iconoPorCategoria(categoria: CategoriaColaborador | null) {
 
 function ColaboradorCard({
   colaborador,
+  fichaHref,
   eventosHref,
 }: {
   colaborador: Colaborador;
+  fichaHref?: string;
   eventosHref?: string;
 }) {
   const categoria = colaborador.categoria_colaborador || "sala";
@@ -114,9 +117,18 @@ function ColaboradorCard({
           </div>
 
           <div>
-            <h2 className="text-2xl font-extrabold text-slate-900">
-              {colaborador.nombre}
-            </h2>
+            {fichaHref ? (
+              <Link
+                href={fichaHref}
+                className="text-2xl font-extrabold text-slate-900 transition hover:text-orange-700"
+              >
+                {colaborador.nombre}
+              </Link>
+            ) : (
+              <h2 className="text-2xl font-extrabold text-slate-900">
+                {colaborador.nombre}
+              </h2>
+            )}
 
             <p className="mt-1 font-semibold text-orange-700">
               {colaborador.tipo || "Colaborador de Lugares Llenos"}
@@ -130,6 +142,15 @@ function ColaboradorCard({
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
+          {fichaHref && (
+            <Link
+              href={fichaHref}
+              className="inline-flex font-bold text-orange-600 hover:text-orange-700"
+            >
+              Ver ficha →
+            </Link>
+          )}
+
           {eventosHref && (
             <Link
               href={eventosHref}
@@ -171,6 +192,7 @@ export default async function ColaboradoresPage() {
     .from("colaboradores")
     .select(`
       id,
+      slug,
       nombre,
       ciudad,
       tipo,
@@ -263,6 +285,11 @@ export default async function ColaboradoresPage() {
                 <ColaboradorCard
                   key={colaborador.id}
                   colaborador={colaborador}
+                  fichaHref={
+                    colaborador.slug
+                      ? `/colaboradores/${colaborador.slug}`
+                      : undefined
+                  }
                   eventosHref={`/eventos?colaborador=${colaborador.id}`}
                 />
               ))}
@@ -290,6 +317,11 @@ export default async function ColaboradoresPage() {
                 <ColaboradorCard
                   key={colaborador.id}
                   colaborador={colaborador}
+                  fichaHref={
+                    colaborador.slug
+                      ? `/colaboradores/${colaborador.slug}`
+                      : undefined
+                  }
                 />
               ))}
             </div>
