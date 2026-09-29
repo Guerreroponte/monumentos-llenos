@@ -47,6 +47,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Sala Mardi Gras",
   "La Mecánica Live",
   "Sala Custom",
+  "El Sótano Cultural",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
