@@ -195,6 +195,7 @@ type FotoSeleccionada = {
 type SalaDestacadaUI = {
   nombre: string;
   logo?: string | null;
+  slug?: string | null;
 };
 
 type PartnerExperienciaUI = {
@@ -408,6 +409,7 @@ export default function Home() {
     SALAS_DESTACADAS_COLABORADORAS.map((nombre) => ({
       nombre,
       logo: null,
+      slug: null,
     }))
   );
   const [partnersExperiencias, setPartnersExperiencias] = useState<
@@ -678,7 +680,7 @@ export default function Home() {
   const cargarLogosSalasDestacadas = async () => {
     const { data, error } = await supabase
       .from("colaboradores")
-      .select("nombre, logo, logo_url")
+      .select("nombre, logo, logo_url, slug")
       .in("nombre", SALAS_DESTACADAS_COLABORADORAS);
 
     if (error) {
@@ -686,7 +688,10 @@ export default function Home() {
       return;
     }
 
-    const logosPorNombre = new Map<string, string | null>();
+    const datosPorNombre = new Map<
+      string,
+      { logo: string | null; slug: string | null }
+    >();
 
     for (const colaborador of data || []) {
       const nombre = colaborador.nombre as string | null;
@@ -694,16 +699,18 @@ export default function Home() {
         (colaborador.logo_url as string | null) ||
         (colaborador.logo as string | null) ||
         null;
+      const slug = (colaborador.slug as string | null) || null;
 
       if (nombre) {
-        logosPorNombre.set(nombre, logo);
+        datosPorNombre.set(nombre, { logo, slug });
       }
     }
 
     setSalasDestacadasConLogo(
       SALAS_DESTACADAS_COLABORADORAS.map((nombre) => ({
         nombre,
-        logo: logosPorNombre.get(nombre) || null,
+        logo: datosPorNombre.get(nombre)?.logo || null,
+        slug: datosPorNombre.get(nombre)?.slug || null,
       }))
     );
   };
@@ -1552,7 +1559,11 @@ ${url}`;
                     {salasDestacadasConLogo.map((sala) => (
                       <Link
                         key={`confianza-${copia}-${sala.nombre}`}
-                        href="/colaboradores"
+                        href={
+                          sala.slug
+                            ? `/colaboradores/${sala.slug}`
+                            : "/colaboradores"
+                        }
                         tabIndex={copia === 1 ? -1 : undefined}
                         className="group inline-flex shrink-0 items-center gap-2.5 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:text-orange-700 hover:shadow-md"
                       >
