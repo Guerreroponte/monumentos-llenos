@@ -7,10 +7,18 @@ export const revalidate = 0;
 
 const PAGE_SIZE = 1000;
 
-async function obtenerTodos(
-  tabla: string
-): Promise<{ slug: string | null; created_at: string | null }[]> {
-  let todos: { slug: string | null; created_at: string | null }[] = [];
+type RegistroBasico = {
+  slug: string | null;
+  created_at: string | null;
+};
+
+type EventoSitemap = RegistroBasico & {
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
+};
+
+async function obtenerTodos(tabla: string): Promise<RegistroBasico[]> {
+  let todos: RegistroBasico[] = [];
   let desde = 0;
 
   while (true) {
@@ -31,7 +39,6 @@ async function obtenerTodos(
 
     todos = [...todos, ...data];
 
-    // Si devuelve menos de 1000, ya hemos llegado al final
     if (data.length < PAGE_SIZE) {
       break;
     }
@@ -42,16 +49,70 @@ async function obtenerTodos(
   return todos;
 }
 
+async function obtenerEventos(): Promise<EventoSitemap[]> {
+  let todos: EventoSitemap[] = [];
+  let desde = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("eventos")
+      .select("slug, created_at, fecha_inicio, fecha_fin")
+      .order("created_at", { ascending: true })
+      .range(desde, desde + PAGE_SIZE - 1);
+
+    if (error) {
+      console.error("Error cargando eventos para sitemap:", error);
+      break;
+    }
+
+    if (!data || data.length === 0) {
+      break;
+    }
+
+    todos = [...todos, ...data];
+
+    if (data.length < PAGE_SIZE) {
+      break;
+    }
+
+    desde += PAGE_SIZE;
+  }
+
+  return todos;
+}
+
+function obtenerFechaHoyMadrid(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Madrid",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://www.monumentosllenos.com";
+  const hoy = obtenerFechaHoyMadrid();
 
   const [eventos, lugares] = await Promise.all([
-    obtenerTodos("eventos"),
+    obtenerEventos(),
     obtenerTodos("Monumentos"),
   ]);
 
   const eventosUrls: MetadataRoute.Sitemap = eventos
-    .filter((evento) => evento.slug)
+    .filter((evento) => {
+      if (!evento.slug) return false;
+
+      // Evento con fecha fin: se mantiene mientras no haya terminado
+      if (evento.fecha_fin) {
+        return evento.fecha_fin >= hoy;
+      }
+
+      // Evento de un solo día o sin fecha_fin
+      return Boolean(
+        evento.fecha_inicio && evento.fecha_inicio >= hoy
+      );
+    })
     .map((evento) => ({
       url: `${baseUrl}/eventos/${evento.slug}`,
       lastModified: evento.created_at
