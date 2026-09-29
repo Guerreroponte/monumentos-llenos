@@ -46,6 +46,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Azkena Bilbo",
   "Sala Mardi Gras",
   "La Mecánica Live",
+  "Sala Custom",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
