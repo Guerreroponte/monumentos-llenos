@@ -99,6 +99,45 @@ async function obtenerEventos(): Promise<EventoSitemap[]> {
   return todos;
 }
 
+async function obtenerColaboradores(): Promise<
+  RegistroBasico[]
+> {
+  let todos: RegistroBasico[] = [];
+  let desde = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("colaboradores")
+      .select("slug, created_at")
+      .eq("destacado", true)
+      .not("slug", "is", null)
+      .order("created_at", { ascending: true })
+      .range(desde, desde + PAGE_SIZE - 1);
+
+    if (error) {
+      console.error(
+        "Error cargando colaboradores para sitemap:",
+        error
+      );
+      break;
+    }
+
+    if (!data || data.length === 0) {
+      break;
+    }
+
+    todos = [...todos, ...data];
+
+    if (data.length < PAGE_SIZE) {
+      break;
+    }
+
+    desde += PAGE_SIZE;
+  }
+
+  return todos;
+}
+
 function obtenerFechaHoyMadrid(): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Madrid",
@@ -231,12 +270,17 @@ export default async function sitemap(): Promise<
 
   const hoy = obtenerFechaHoyMadrid();
 
-  const [eventos, lugares, ciudades] =
-    await Promise.all([
-      obtenerEventos(),
-      obtenerTodos("Monumentos"),
-      obtenerCiudadesQueHacer(),
-    ]);
+  const [
+    eventos,
+    lugares,
+    ciudades,
+    colaboradores,
+  ] = await Promise.all([
+    obtenerEventos(),
+    obtenerTodos("Monumentos"),
+    obtenerCiudadesQueHacer(),
+    obtenerColaboradores(),
+  ]);
 
   const eventosUrls: MetadataRoute.Sitemap =
     eventos
@@ -279,6 +323,16 @@ export default async function sitemap(): Promise<
       url: `${baseUrl}/que-hacer/${ciudad}`,
     }));
 
+  const colaboradoresUrls: MetadataRoute.Sitemap =
+    colaboradores
+      .filter((colaborador) => colaborador.slug)
+      .map((colaborador) => ({
+        url: `${baseUrl}/colaboradores/${colaborador.slug}`,
+        lastModified: colaborador.created_at
+          ? new Date(colaborador.created_at)
+          : undefined,
+      }));
+
   return [
     {
       url: baseUrl,
@@ -290,10 +344,14 @@ export default async function sitemap(): Promise<
       url: `${baseUrl}/que-hacer`,
     },
     {
+      url: `${baseUrl}/colaboradores`,
+    },
+    {
       url: `${baseUrl}/participa`,
     },
 
     ...ciudadesUrls,
+    ...colaboradoresUrls,
     ...eventosUrls,
     ...lugaresUrls,
   ];
