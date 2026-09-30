@@ -48,6 +48,7 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "La Mecánica Live",
   "Sala Custom",
   "El Sótano Cultural",
+  "MusikaBizi",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
