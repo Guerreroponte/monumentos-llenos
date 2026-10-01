@@ -3,10 +3,49 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 const STORAGE_BUCKET = "imagenes";
 const LUGARES_POR_PAGINA = 6;
+const CIUDADES_SUGERIDAS = ["Madrid", "Barcelona", "Granada", "Pamplona"];
+const CIUDADES_GUIA = [
+  ...CIUDADES_SUGERIDAS, "Valencia", "Sevilla", "Bilbao", "Málaga",
+  "Zaragoza", "A Coruña", "Vigo", "Murcia", "Santander", "Monachil",
+];
+
+function normalizarTexto(valor: string) {
+  return valor.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function getRutaCiudad(valor: string) {
+  const slug = normalizarTexto(valor).replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return slug ? `/que-hacer/${slug}` : null;
+}
+
+function filtrarCiudades(ciudades: string[], consulta: string) {
+  const texto = normalizarTexto(consulta);
+  if (!texto) return [];
+  return ciudades
+    .filter((opcion) => normalizarTexto(opcion).includes(texto))
+    .sort((a, b) => {
+      const aEmpieza = normalizarTexto(a).startsWith(texto);
+      const bEmpieza = normalizarTexto(b).startsWith(texto);
+      return Number(bEmpieza) - Number(aEmpieza) || a.localeCompare(b, "es");
+    })
+    .slice(0, 8);
+}
+
+function getFechaSubida(valor?: string | null) {
+  if (!valor) return null;
+  const fecha = new Date(valor);
+  if (Number.isNaN(fecha.getTime())) return null;
+  return fecha.toLocaleDateString("es-ES", {
+    day: "numeric", month: "short", year: "numeric", timeZone: "Europe/Madrid",
+  });
+}
 
 const SALAS_DESTACADAS_COLABORADORAS = [
   "Café La Palma",
@@ -398,9 +437,102 @@ function LugarGaleriaRotativa({
 }
 
 export default function Home() {
+  const router = useRouter();
+  const [ciudadHero, setCiudadHero] = useState("");
+  const [errorCiudadHero, setErrorCiudadHero] = useState("");
+  const [sugerenciasCiudadAbiertas, setSugerenciasCiudadAbiertas] = useState(false);
+  const [indiceCiudadActiva, setIndiceCiudadActiva] = useState(-1);
+
+  const seleccionarCiudadHero = (valor: string) => {
+    setCiudadHero(valor);
+    setErrorCiudadHero("");
+    setSugerenciasCiudadAbiertas(false);
+    setIndiceCiudadActiva(-1);
+  };
+
+  const abrirGuiaCiudad = (valor: string) => {
+    const ruta = getRutaCiudad(valor);
+    if (!ruta) {
+      setErrorCiudadHero("Escribe el nombre de una ciudad para ver sus planes.");
+      return;
+    }
+    setErrorCiudadHero("");
+    setSugerenciasCiudadAbiertas(false);
+    router.push(ruta);
+  };
   const [monumentos, setMonumentos] = useState<MonumentoUI[]>([]);
   const [eventosHoy, setEventosHoy] = useState<EventoUI[]>([]);
   const [eventosProximosHero, setEventosProximosHero] = useState<EventoUI[]>([]);
+  const [ciudadesDeLaAgenda, setCiudadesDeLaAgenda] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelado = false;
+
+    const cargarCiudadesDeLaAgenda = async () => {
+      const tamanoLote = 500;
+      let desde = 0;
+      const ciudades = new Set<string>();
+
+      try {
+        while (!cancelado) {
+          const { data, error } = await supabase
+            .from("eventos")
+            .select("ciudad")
+            .eq("reportado", false)
+            .order("id", { ascending: true })
+            .range(desde, desde + tamanoLote - 1);
+
+          if (cancelado) return;
+          if (error) {
+            console.error("Error cargando ciudades de la agenda:", error);
+            return;
+          }
+
+          const lote = (data || []) as { ciudad: string | null }[];
+          if (lote.length === 0) return;
+
+          for (const evento of lote) {
+            if (evento.ciudad?.trim()) ciudades.add(evento.ciudad.trim());
+          }
+          setCiudadesDeLaAgenda([...ciudades]);
+          // Avanzar por las filas recibidas también funciona si el servidor
+          // devuelve menos de 500 por su límite configurado.
+          desde += lote.length;
+        }
+      } catch (error) {
+        if (!cancelado) console.error("No se pudieron cargar las ciudades:", error);
+      }
+    };
+
+    void cargarCiudadesDeLaAgenda();
+    return () => { cancelado = true; };
+  }, []);
+
+  const ciudadesDisponiblesHero = useMemo(() => {
+    const unicas = new Map<string, string>();
+    const opciones = [
+      ...CIUDADES_GUIA,
+      ...ciudadesDeLaAgenda,
+      ...monumentos.map((lugar) => lugar.ciudad),
+      ...eventosHoy.map((evento) => evento.ciudad),
+      ...eventosProximosHero.map((evento) => evento.ciudad),
+    ];
+    for (const opcion of opciones) {
+      const valor = (opcion || "").trim().replace(/\s+/g, " ");
+      const clave = normalizarTexto(valor);
+      if (!clave || clave === "ciudad no especificada" || clave === "ciudad por confirmar" || clave === "varias ciudades") continue;
+      const existente = unicas.get(clave);
+      if (!existente || (!/[áéíóúüñ]/i.test(existente) && /[áéíóúüñ]/i.test(valor))) {
+        unicas.set(clave, valor);
+      }
+    }
+    return [...unicas.values()];
+  }, [ciudadesDeLaAgenda, monumentos, eventosHoy, eventosProximosHero]);
+  const sugerenciasCiudadHero = useMemo(
+    () => filtrarCiudades(ciudadesDisponiblesHero, ciudadHero),
+    [ciudadesDisponiblesHero, ciudadHero]
+  );
+  const mostrarSugerenciasCiudad = sugerenciasCiudadAbiertas && sugerenciasCiudadHero.length > 0;
   const [indiceHero, setIndiceHero] = useState(0);
   const [totalEventosPublicados, setTotalEventosPublicados] = useState(0);
   const [comentariosEventosConFoto, setComentariosEventosConFoto] = useState<
@@ -787,13 +919,11 @@ export default function Home() {
 
   const monumentosFiltrados = useMemo(() => {
     return monumentos.filter((m) => {
-      const coincideNombre = m.nombre
-        .toLowerCase()
-        .includes(busquedaNombre.toLowerCase());
+      const coincideNombre = normalizarTexto(m.nombre)
+        .includes(normalizarTexto(busquedaNombre));
 
-      const coincideCiudad = m.ciudad
-        .toLowerCase()
-        .includes(busquedaCiudad.toLowerCase());
+      const coincideCiudad = normalizarTexto(m.ciudad)
+        .includes(normalizarTexto(busquedaCiudad));
 
       return coincideNombre && coincideCiudad;
     });
@@ -1403,7 +1533,108 @@ ${url}`;
               tienes cerca si el plan no convence.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <form
+              role="search"
+              aria-label="Buscar planes por ciudad"
+              onSubmit={(e) => {
+                e.preventDefault();
+                abrirGuiaCiudad(ciudadHero);
+              }}
+              className="mt-7 max-w-xl"
+            >
+              <label htmlFor="ciudad-home" className="mb-2 block text-lg font-black text-slate-950">
+                ¿En qué ciudad buscas plan?
+              </label>
+              <div className="flex flex-col gap-2 rounded-3xl border border-orange-200 bg-white p-2 shadow-sm focus-within:ring-2 focus-within:ring-orange-300 sm:flex-row sm:items-center sm:rounded-full">
+                <div className="relative flex min-w-0 flex-1 items-center gap-2 px-3">
+                  <span aria-hidden="true" className="text-xl text-orange-500">📍</span>
+                  <input
+                    id="ciudad-home"
+                    name="ciudad"
+                    type="text"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-expanded={mostrarSugerenciasCiudad}
+                    aria-controls={mostrarSugerenciasCiudad ? "ciudades-home" : undefined}
+                    aria-activedescendant={mostrarSugerenciasCiudad && indiceCiudadActiva >= 0 && indiceCiudadActiva < sugerenciasCiudadHero.length ? `ciudad-home-opcion-${indiceCiudadActiva}` : undefined}
+                    value={ciudadHero}
+                    onChange={(e) => {
+                      setCiudadHero(e.target.value);
+                      setErrorCiudadHero("");
+                      setSugerenciasCiudadAbiertas(true);
+                      setIndiceCiudadActiva(-1);
+                    }}
+                    onFocus={() => setSugerenciasCiudadAbiertas(true)}
+                    onBlur={() => {
+                      setSugerenciasCiudadAbiertas(false);
+                      setIndiceCiudadActiva(-1);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.nativeEvent.isComposing) return;
+                      if (e.key === "Escape") {
+                        e.preventDefault();
+                        setSugerenciasCiudadAbiertas(false);
+                        setIndiceCiudadActiva(-1);
+                      } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && sugerenciasCiudadHero.length > 0) {
+                        e.preventDefault();
+                        setSugerenciasCiudadAbiertas(true);
+                        setIndiceCiudadActiva((actual) => {
+                          if (!mostrarSugerenciasCiudad || actual < 0 || actual >= sugerenciasCiudadHero.length) {
+                            return e.key === "ArrowDown" ? 0 : sugerenciasCiudadHero.length - 1;
+                          }
+                          return (actual + (e.key === "ArrowDown" ? 1 : -1) + sugerenciasCiudadHero.length) % sugerenciasCiudadHero.length;
+                        });
+                      } else if (e.key === "Enter" && mostrarSugerenciasCiudad && indiceCiudadActiva >= 0 && indiceCiudadActiva < sugerenciasCiudadHero.length) {
+                        e.preventDefault();
+                        seleccionarCiudadHero(sugerenciasCiudadHero[indiceCiudadActiva]);
+                      }
+                    }}
+                    placeholder="Escribe tu ciudad…"
+                    autoComplete="off"
+                    maxLength={100}
+                    aria-invalid={Boolean(errorCiudadHero)}
+                    aria-describedby={errorCiudadHero ? "error-ciudad-home" : undefined}
+                    className="min-h-[44px] min-w-0 w-full bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400"
+                  />
+                  {mostrarSugerenciasCiudad && (
+                    <ul id="ciudades-home" role="listbox" aria-label="Ciudades que coinciden" className="absolute left-0 right-0 top-full z-30 mt-3 overflow-hidden rounded-2xl border border-orange-100 bg-white p-1 shadow-xl shadow-slate-900/10">
+                      {sugerenciasCiudadHero.map((opcion, indice) => (
+                        <li key={opcion} role="presentation">
+                          <button
+                            id={`ciudad-home-opcion-${indice}`}
+                            type="button"
+                            role="option"
+                            aria-selected={indiceCiudadActiva === indice}
+                            tabIndex={-1}
+                            onPointerDown={(e) => e.preventDefault()}
+                            onClick={() => seleccionarCiudadHero(opcion)}
+                            className={`flex min-h-[44px] w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-bold transition hover:bg-orange-50 hover:text-orange-700 ${indiceCiudadActiva === indice ? "bg-orange-50 text-orange-700" : "text-slate-700"}`}
+                          >
+                            <span aria-hidden="true">📍</span>
+                            <span>{opcion}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <button type="submit" className="min-h-[44px] shrink-0 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-black text-white transition hover:from-orange-600 hover:to-amber-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200">
+                  Ver planes →
+                </button>
+              </div>
+              {errorCiudadHero && (
+                <p id="error-ciudad-home" role="alert" className="mt-2 text-sm font-semibold text-red-700">{errorCiudadHero}</p>
+              )}
+              <div className="mt-3 flex flex-wrap gap-2" aria-label="Ciudades populares">
+                {CIUDADES_SUGERIDAS.map((opcion) => (
+                  <Link key={opcion} href={getRutaCiudad(opcion)!} className="rounded-full border border-orange-100 bg-white/80 px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300">
+                    {opcion}
+                  </Link>
+                ))}
+              </div>
+            </form>
+
+            <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="#hoy-mismo"
                 className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-bold text-white shadow-lg shadow-orange-200 transition hover:-translate-y-0.5 hover:shadow-xl"
@@ -1540,7 +1771,7 @@ ${url}`;
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-orange-500">🤝 Confían en Lugares Llenos</p>
                 <p className="mt-1 text-base font-black text-slate-900 sm:text-lg">
-                  {SALAS_DESTACADAS_COLABORADORAS.length} salas ya comparten su programación con la comunidad
+                  {SALAS_DESTACADAS_COLABORADORAS.length} colaboradores musicales comparten sus propuestas
                 </p>
               </div>
               <Link
@@ -1635,7 +1866,7 @@ ${url}`;
         <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-3xl">
             <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">📸 Fotos reales</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">👀 Así están los planes ahora</h2>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">👀 Así se viven los planes</h2>
             <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">
               Imágenes subidas por la comunidad en lugares y eventos. Menos foto perfecta y más contexto real antes de decidir.
             </p>
@@ -1678,6 +1909,11 @@ ${url}`;
                     {item.nombre}
                   </h3>
                   <p className="mt-2 text-sm font-bold text-slate-500">📍 {item.ciudad}</p>
+                  <p className="mt-2 text-xs font-medium text-slate-500">
+                    {getFechaSubida(item.created_at) ? (
+                      <time dateTime={item.created_at || undefined}>Subida el {getFechaSubida(item.created_at)}</time>
+                    ) : "Fecha de subida no disponible"}
+                  </p>
                   <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">“{item.texto}”</p>
                   <div className="mt-5 inline-flex items-center gap-2 text-sm font-black text-orange-600">
                     <span>{item.origen === "lugar" ? "Ver lugar" : "Ver evento"}</span>
@@ -1783,8 +2019,8 @@ ${url}`;
           <a href="#asi-estan-los-planes" className="group rounded-[30px] border border-orange-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-2xl">📸</div>
             <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-blue-600">01 · Mira</p>
-            <h3 className="mt-2 text-xl font-black text-slate-950">Ve cómo está ahora</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">Fotos reales y recientes para entender ambiente, aforo o tipo de público.</p>
+            <h3 className="mt-2 text-xl font-black text-slate-950">Mira experiencias de la comunidad</h3>
+            <p className="mt-3 text-sm leading-6 text-slate-600">Fotos reales con fecha de subida para conocer el ambiente y tener más contexto.</p>
             <span className="mt-5 inline-flex text-sm font-black text-orange-600">Ver fotos <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
           </a>
 
@@ -1967,19 +2203,9 @@ ${url}`;
             </div>
           )}
 
-          <div>
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <h3 className="text-lg font-black text-slate-950">🎵 {SALAS_DESTACADAS_COLABORADORAS.length} salas colaboradoras</h3>
-              <Link href="/colaboradores" className="text-sm font-black text-orange-600">Ver colaboradores →</Link>
-            </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {salasDestacadasConLogo.map((sala) => (
-                <Link key={sala.nombre} href="/colaboradores" className="inline-flex shrink-0 items-center gap-3 rounded-full border border-orange-100 bg-white px-4 py-2.5 text-sm font-black text-slate-800 shadow-sm transition hover:border-orange-200 hover:text-orange-700">
-                  {sala.logo ? <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-orange-100 bg-white p-1"><img src={sala.logo} alt={`Logo ${sala.nombre}`} className="h-full w-full object-contain" /></span> : <span className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-50">🎵</span>}
-                  <span>{sala.nombre}</span>
-                </Link>
-              ))}
-            </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-100 bg-orange-50/60 p-5">
+            <p className="font-bold text-slate-900">🎵 Descubre nuestros espacios y colaboradores musicales</p>
+            <Link href="/colaboradores" className="rounded-full bg-white px-4 py-2 text-sm font-black text-orange-700 shadow-sm transition hover:bg-orange-100">Ver fichas y programación →</Link>
           </div>
 
           {partnersExperiencias.length > 0 && (
@@ -2085,7 +2311,7 @@ ${url}`;
                           </div>
                         </div>
 
-                        <p className="mt-5 text-base leading-7 text-slate-600">
+                        <p className="mt-5 line-clamp-3 text-base leading-7 text-slate-600">
                           {m.descripcion ||
                             "Lugar añadido por la comunidad. Aquí irán creciendo sus comentarios, fotos y experiencias reales."}
                         </p>
@@ -2277,7 +2503,11 @@ ${url}`;
                           </div>
                         )}
 
-                        <div className="mt-6 grid gap-4">
+                        <details className="mt-6 rounded-2xl border border-orange-100 p-4">
+                          <summary className="cursor-pointer text-sm font-bold text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300">
+                            Ver experiencias de visitantes ({m.resenas.length})
+                          </summary>
+                          <div className="mt-4 grid gap-4">
                           {m.resenas.length === 0 ? (
                             <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/40 p-4 text-sm text-slate-600">
                               <p className="font-semibold text-slate-900">
@@ -2357,7 +2587,8 @@ ${url}`;
                               </div>
                             ))
                           )}
-                        </div>
+                          </div>
+                        </details>
 
                         {m.fuente && (
                           <p className="mt-4 text-xs text-slate-400">
