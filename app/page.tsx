@@ -49,6 +49,8 @@ const SALAS_DESTACADAS_COLABORADORAS = [
   "Sala Custom",
   "El Sótano Cultural",
   "MusikaBizi",
+  "Zentral Pamplona",
+  "La Chistera",
 ];
 
 const Mapa = dynamic(() => import("./Mapa"), {
