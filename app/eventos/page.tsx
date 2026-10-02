@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -263,6 +263,8 @@ function textoComentarios(count: number) {
 }
 
 export default function EventosPage() {
+  const restauracionUrl = useRef<string | null>(null);
+  const [urlPreparada, setUrlPreparada] = useState(false);
   const [eventos, setEventos] = useState<EventoUI[]>([]);
   const [loading, setLoading] = useState(true);
   const [paginacion, setPaginacion] = useState({ clave: "", pagina: 1 });
@@ -279,6 +281,41 @@ export default function EventosPage() {
   );
 
   useEffect(() => {
+    const colaboradorInicial = new URLSearchParams(window.location.search).get("colaborador")?.trim() || "";
+    function restaurarUrl() {
+      const params = new URLSearchParams(window.location.search);
+      if ((params.get("colaborador")?.trim() || "") !== colaboradorInicial) {
+        window.location.reload();
+        return;
+      }
+      const texto = params.get("q") || "";
+      const fechaParam = params.get("fecha") || "";
+      const fecha = /^\d{4}-\d{2}-\d{2}$/.test(fechaParam) ? fechaParam : "";
+      const ciudad = params.get("ciudad")?.trim() || "";
+      const tipo = params.get("tipo")?.trim() || "";
+      const proximos = params.get("proximos") !== "0";
+      const vistaParam = params.get("vista");
+      const vista = vistaParam === "grandes" || vistaParam === "locales" ? vistaParam : "todos";
+      const paginaParam = Number(params.get("pagina") || "1");
+      const pagina = Number.isSafeInteger(paginaParam) && paginaParam > 0 ? paginaParam : 1;
+      const clave = JSON.stringify([texto, fecha, ciudad, tipo, proximos, vista, colaboradorInicial]);
+      restauracionUrl.current = JSON.stringify([clave, pagina]);
+      setBusqueda(texto);
+      setFechaSeleccionada(fecha);
+      setCiudadSeleccionada(ciudad);
+      setTipoSeleccionado(tipo);
+      setSoloProximos(proximos);
+      setModoVista(vista);
+      setColaboradorId(colaboradorInicial);
+      setPaginacion({ clave, pagina });
+      setUrlPreparada(true);
+    }
+    restaurarUrl();
+    window.addEventListener("popstate", restaurarUrl);
+    return () => window.removeEventListener("popstate", restaurarUrl);
+  }, []);
+
+  useEffect(() => {
     let activo = true;
 
     async function cargarEventos() {
@@ -286,12 +323,8 @@ export default function EventosPage() {
 
       const params = new URLSearchParams(window.location.search);
       const colaboradorParam = params.get("colaborador")?.trim() || "";
-      const ciudadParam = params.get("ciudad")?.trim() || "";
 
       setColaboradorId(colaboradorParam);
-      setCiudadSeleccionada(ciudadParam);
-      const tipoParam = params.get("tipo")?.trim() || "";
-      setTipoSeleccionado(tipoParam);
 
       const TAMANO_PAGINA = 1000;
       const eventosData: EventoDB[] = [];
@@ -578,6 +611,36 @@ export default function EventosPage() {
   );
   const inicioPagina = (paginaActual - 1) * eventosPorPagina;
   const eventosPagina = eventosFiltrados.slice(inicioPagina, inicioPagina + eventosPorPagina);
+
+  useEffect(() => {
+    if (!urlPreparada || loading) return;
+    const firma = JSON.stringify([claveFiltros, paginacion.pagina]);
+    if (restauracionUrl.current !== null) {
+      const restaurada = restauracionUrl.current === firma;
+      restauracionUrl.current = null;
+      if (restaurada) return;
+    }
+    const timer = window.setTimeout(() => {
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+      const guardar = (nombre: string, valor: string) => {
+        if (valor) params.set(nombre, valor);
+        else params.delete(nombre);
+      };
+      guardar("q", busqueda);
+      guardar("fecha", fechaSeleccionada);
+      guardar("ciudad", ciudadSeleccionada);
+      guardar("tipo", tipoSeleccionado);
+      guardar("proximos", soloProximos ? "" : "0");
+      guardar("vista", modoVista === "todos" ? "" : modoVista);
+      guardar("pagina", paginaActual > 1 ? String(paginaActual) : "");
+      if (url.href !== window.location.href) {
+        window.history.pushState(null, "", url);
+      }
+    }, 250);
+    return () => window.clearTimeout(timer);
+  }, [urlPreparada, loading, claveFiltros, paginacion.pagina, paginaActual,
+    busqueda, fechaSeleccionada, ciudadSeleccionada, tipoSeleccionado, soloProximos, modoVista]);
 
   function cambiarPagina(pagina: number) {
     setPaginacion({ clave: claveFiltros, pagina });
