@@ -47,10 +47,10 @@ type Props = {
 const TAMANO_PAGINA = 1000;
 
 const categorias = [
-  { label: "🎵 Conciertos", href: "#eventos" },
-  { label: "🎭 Teatro", href: "#eventos" },
-  { label: "😂 Monólogos", href: "#eventos" },
-  { label: "🍸 Tardeo", href: "#eventos" },
+  { label: "🎵 Conciertos", href: "#eventos", tipo: "Concierto" },
+  { label: "🎭 Teatro", href: "#eventos", tipo: "Teatro" },
+  { label: "😂 Monólogos", href: "#eventos", tipo: "Monólogo" },
+  { label: "🍸 Tardeo", href: "#eventos", tipo: "Tardeo" },
   { label: "🏛️ Monumentos", href: "#lugares" },
   { label: "🌳 Naturaleza", href: "#lugares" },
   { label: "👨‍👩‍👧‍👦 Planes en familia", href: "#lugares" },
@@ -394,7 +394,9 @@ export default async function CiudadPage({
                     categoria.label
                   }
                   href={
-                    categoria.href
+                    categoria.tipo
+                      ? `/eventos?ciudad=${encodeURIComponent(ciudadFormateada)}&tipo=${encodeURIComponent(categoria.tipo)}#seccion-todos`
+                      : categoria.href
                   }
                   className="rounded-full border border-orange-100 bg-[#fff7ed] px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-orange-50 hover:text-orange-600"
                 >

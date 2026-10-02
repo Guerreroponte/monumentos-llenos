@@ -265,6 +265,7 @@ function textoComentarios(count: number) {
 export default function EventosPage() {
   const [eventos, setEventos] = useState<EventoUI[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paginacion, setPaginacion] = useState({ clave: "", pagina: 1 });
   const [colaboradorId, setColaboradorId] = useState("");
   const [nombreColaborador, setNombreColaborador] = useState("");
 
@@ -289,7 +290,9 @@ export default function EventosPage() {
 
       setColaboradorId(colaboradorParam);
       setCiudadSeleccionada(ciudadParam);
-      setSoloProximos(Boolean(ciudadParam));
+      const tipoParam = params.get("tipo")?.trim() || "";
+      setTipoSeleccionado(tipoParam);
+      setSoloProximos(Boolean(ciudadParam || tipoParam));
 
       const TAMANO_PAGINA = 1000;
       const eventosData: EventoDB[] = [];
@@ -560,6 +563,27 @@ export default function EventosPage() {
     soloProximos,
     modoVista,
   ]);
+
+  const claveFiltros = JSON.stringify([
+    busqueda, fechaSeleccionada, ciudadSeleccionada, tipoSeleccionado,
+    soloProximos, modoVista, colaboradorId,
+  ]);
+  if (paginacion.clave !== claveFiltros) {
+    setPaginacion({ clave: claveFiltros, pagina: 1 });
+  }
+  const eventosPorPagina = 12;
+  const totalPaginas = Math.max(1, Math.ceil(eventosFiltrados.length / eventosPorPagina));
+  const paginaActual = Math.min(
+    paginacion.clave === claveFiltros ? paginacion.pagina : 1,
+    totalPaginas
+  );
+  const inicioPagina = (paginaActual - 1) * eventosPorPagina;
+  const eventosPagina = eventosFiltrados.slice(inicioPagina, inicioPagina + eventosPorPagina);
+
+  function cambiarPagina(pagina: number) {
+    setPaginacion({ clave: claveFiltros, pagina });
+    scrollToSection("seccion-todos");
+  }
 
   const hayFiltrosActivos =
     busqueda.trim() !== "" ||
@@ -974,7 +998,7 @@ export default function EventosPage() {
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {eventosFiltrados.map((evento) => (
+            {eventosPagina.map((evento) => (
               <Link
                 key={evento.id}
                 href={`/eventos/${evento.slug}`}
@@ -1067,6 +1091,24 @@ export default function EventosPage() {
               </Link>
             ))}
           </div>
+        )}
+
+        {eventosFiltrados.length > 0 && (
+          <nav aria-label="Páginas de eventos" className="mt-6 flex flex-wrap items-center justify-center gap-4">
+            <button type="button" disabled={paginaActual === 1}
+              onClick={() => cambiarPagina(paginaActual - 1)}
+              className="rounded-full border border-orange-200 bg-white px-5 py-2 font-semibold disabled:cursor-not-allowed disabled:opacity-40">
+              ← Anterior
+            </button>
+            <p aria-live="polite" className="text-sm text-slate-600">
+              Página {paginaActual} de {totalPaginas} · Mostrando {inicioPagina + 1}–{Math.min(inicioPagina + eventosPorPagina, eventosFiltrados.length)} de {eventosFiltrados.length}
+            </p>
+            <button type="button" disabled={paginaActual === totalPaginas}
+              onClick={() => cambiarPagina(paginaActual + 1)}
+              className="rounded-full border border-orange-200 bg-white px-5 py-2 font-semibold disabled:cursor-not-allowed disabled:opacity-40">
+              Siguiente →
+            </button>
+          </nav>
         )}
       </section>
 
