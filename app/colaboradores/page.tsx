@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { seoListado, type ParametrosListado } from "@/lib/listado-seo";
 import { supabase } from "@/lib/supabase";
 
 type CategoriaColaborador =
@@ -33,6 +35,18 @@ type Colaborador = {
 };
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ searchParams }: {
+  searchParams: Promise<ParametrosListado>;
+}): Promise<Metadata> {
+  const seo = seoListado("/colaboradores", await searchParams);
+  return {
+    title: "Salas y colaboradores",
+    alternates: { canonical: seo.canonical },
+    robots: { index: seo.index, follow: true },
+  };
+}
+
 
 function etiquetaCategoria(categoria: CategoriaColaborador | null) {
   switch (categoria) {
