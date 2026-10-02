@@ -99,6 +99,7 @@ const Mapa = dynamic(() => import("./Mapa"), {
     id: string;
     nombre: string;
     ciudad: string;
+    slug?: string | null;
     latitud?: number | null;
     longitud?: number | null;
   }[];
@@ -2900,6 +2901,7 @@ ${url}`;
             id: m.id,
             nombre: m.nombre,
             ciudad: m.ciudad,
+            slug: m.slug,
             latitud: m.latitud,
             longitud: m.longitud,
           }))}

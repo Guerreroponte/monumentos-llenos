@@ -2,6 +2,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -10,6 +11,7 @@ type MonumentoMapa = {
   id: string;
   nombre: string;
   ciudad: string;
+  slug?: string | null;
   latitud?: number | null;
   longitud?: number | null;
 };
@@ -89,9 +91,21 @@ export default function Mapa({
               icon={monumentoIcon}
             >
               <Popup>
-                <strong>{m.nombre}</strong>
-                <br />
-                {m.ciudad}
+                <div className="min-w-[180px]">
+                  <strong>{m.nombre}</strong>
+
+                  <div className="mt-1">{m.ciudad}</div>
+
+                  {m.slug?.trim() && (
+                    <Link
+                      href={`/lugar/${encodeURIComponent(m.slug.trim())}`}
+                      className="mt-3 inline-flex items-center justify-center rounded-full bg-orange-600 px-4 py-2 text-sm font-bold"
+                      style={{ color: "#ffffff", textDecoration: "none" }}
+                    >
+                      Ver ficha →
+                    </Link>
+                  )}
+                </div>
               </Popup>
             </Marker>
           ))}
