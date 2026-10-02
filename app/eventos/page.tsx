@@ -273,7 +273,7 @@ export default function EventosPage() {
   const [fechaSeleccionada, setFechaSeleccionada] = useState("");
   const [ciudadSeleccionada, setCiudadSeleccionada] = useState("");
   const [tipoSeleccionado, setTipoSeleccionado] = useState("");
-  const [soloProximos, setSoloProximos] = useState(false);
+  const [soloProximos, setSoloProximos] = useState(true);
   const [modoVista, setModoVista] = useState<"todos" | "grandes" | "locales">(
     "todos"
   );
@@ -292,7 +292,6 @@ export default function EventosPage() {
       setCiudadSeleccionada(ciudadParam);
       const tipoParam = params.get("tipo")?.trim() || "";
       setTipoSeleccionado(tipoParam);
-      setSoloProximos(Boolean(ciudadParam || tipoParam));
 
       const TAMANO_PAGINA = 1000;
       const eventosData: EventoDB[] = [];
@@ -614,7 +613,7 @@ export default function EventosPage() {
     setFechaSeleccionada("");
     setCiudadSeleccionada("");
     setTipoSeleccionado("");
-    setSoloProximos(false);
+    setSoloProximos(true);
     setModoVista("todos");
   }
 
