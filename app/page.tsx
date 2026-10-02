@@ -1872,7 +1872,7 @@ ${url}`;
             </p>
           </div>
           <Link
-            href="/buscar"
+            href="/#buscador"
             className="inline-flex w-fit items-center gap-2 rounded-full border border-orange-200 bg-white px-5 py-2.5 text-sm font-bold text-orange-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-orange-50"
           >
             Explorar más <span>→</span>
