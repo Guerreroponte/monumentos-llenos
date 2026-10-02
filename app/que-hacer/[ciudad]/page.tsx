@@ -534,9 +534,7 @@ export default async function CiudadPage({
             </div>
 
             <Link
-              href={`/lugar?ciudad=${encodeURIComponent(
-                ciudadFormateada
-              )}`}
+              href="/#lugares"
               className="text-sm font-bold text-orange-600 hover:text-orange-700"
             >
               Ver todos los lugares →
