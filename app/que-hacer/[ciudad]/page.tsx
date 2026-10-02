@@ -7,6 +7,7 @@ type Evento = {
   slug: string | null;
   ciudad: string | null;
   fecha_inicio: string | null;
+  fecha_fin: string | null;
   imagen: string | null;
   subtipo: string | null;
 };
@@ -107,27 +108,27 @@ function obtenerFechaHoyMadrid(): string {
 
 async function cargarEventosCiudad(
   ciudadNormalizada: string
-): Promise<Evento[]> {
+): Promise<{ items: Evento[]; total: number }> {
   const encontrados: Evento[] = [];
   let desde = 0;
 
   const hoy = obtenerFechaHoyMadrid();
 
-  while (encontrados.length < 8) {
+  while (true) {
     const hasta =
       desde + TAMANO_PAGINA - 1;
 
     const { data, error } = await supabase
       .from("eventos")
       .select(
-        "id,nombre,slug,ciudad,fecha_inicio,imagen,subtipo"
+        "id,nombre,slug,ciudad,fecha_inicio,fecha_fin,imagen,subtipo"
       )
       .eq("validado", true)
       .eq("reportado", false)
-      .gte("fecha_inicio", hoy)
       .order("fecha_inicio", {
         ascending: true,
       })
+      .order("id", { ascending: true })
       .range(desde, hasta);
 
     if (error) {
@@ -145,7 +146,8 @@ async function cargarEventosCiudad(
         (evento) =>
           evento.ciudad &&
           normalizarCiudad(evento.ciudad) ===
-            ciudadNormalizada
+            ciudadNormalizada &&
+          (evento.fecha_fin ?? evento.fecha_inicio ?? "") >= hoy
       )
     );
 
@@ -156,16 +158,16 @@ async function cargarEventosCiudad(
     desde += TAMANO_PAGINA;
   }
 
-  return encontrados.slice(0, 8);
+  return { items: encontrados.slice(0, 8), total: encontrados.length };
 }
 
 async function cargarLugaresCiudad(
   ciudadNormalizada: string
-): Promise<Lugar[]> {
+): Promise<{ items: Lugar[]; total: number }> {
   const encontrados: Lugar[] = [];
   let desde = 0;
 
-  while (encontrados.length < 8) {
+  while (true) {
     const hasta =
       desde + TAMANO_PAGINA - 1;
 
@@ -178,6 +180,7 @@ async function cargarLugaresCiudad(
       .order("created_at", {
         ascending: false,
       })
+      .order("id", { ascending: true })
       .range(desde, hasta);
 
     if (error) {
@@ -206,16 +209,16 @@ async function cargarLugaresCiudad(
     desde += TAMANO_PAGINA;
   }
 
-  return encontrados.slice(0, 8);
+  return { items: encontrados.slice(0, 8), total: encontrados.length };
 }
 
 async function cargarColaboradoresCiudad(
   ciudadNormalizada: string
-): Promise<Colaborador[]> {
+): Promise<{ items: Colaborador[]; total: number }> {
   const encontrados: Colaborador[] = [];
   let desde = 0;
 
-  while (encontrados.length < 8) {
+  while (true) {
     const hasta =
       desde + TAMANO_PAGINA - 1;
 
@@ -227,6 +230,7 @@ async function cargarColaboradoresCiudad(
       .order("nombre", {
         ascending: true,
       })
+      .order("id", { ascending: true })
       .range(desde, hasta);
 
     if (error) {
@@ -257,7 +261,7 @@ async function cargarColaboradoresCiudad(
     desde += TAMANO_PAGINA;
   }
 
-  return encontrados.slice(0, 8);
+  return { items: encontrados.slice(0, 8), total: encontrados.length };
 }
 
 export default async function CiudadPage({
@@ -269,9 +273,9 @@ export default async function CiudadPage({
     normalizarCiudad(ciudad);
 
   const [
-    eventos,
-    lugares,
-    colaboradores,
+    eventosCiudad,
+    lugaresCiudad,
+    colaboradoresCiudad,
   ] = await Promise.all([
     cargarEventosCiudad(ciudadSlug),
     cargarLugaresCiudad(ciudadSlug),
@@ -279,6 +283,10 @@ export default async function CiudadPage({
       ciudadSlug
     ),
   ]);
+
+  const eventos = eventosCiudad.items;
+  const lugares = lugaresCiudad.items;
+  const colaboradores = colaboradoresCiudad.items;
 
   const ciudadReal =
     eventos.find(
@@ -354,23 +362,21 @@ export default async function CiudadPage({
             href="#eventos"
             className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
-            🎵 {eventos.length} próximos
-            eventos
+            🎵 {eventosCiudad.total} {eventosCiudad.total === 1 ? "próximo evento" : "próximos eventos"}
           </a>
 
           <a
             href="#lugares"
             className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
-            🏛️ {lugares.length} lugares
+            🏛️ {lugaresCiudad.total} {lugaresCiudad.total === 1 ? "lugar" : "lugares"}
           </a>
 
           <a
             href="#colaboradores"
             className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
-            🤝 {colaboradores.length} salas
-            colaboradoras
+            🤝 {colaboradoresCiudad.total} {colaboradoresCiudad.total === 1 ? "sala colaboradora" : "salas colaboradoras"}
           </a>
         </div>
 
