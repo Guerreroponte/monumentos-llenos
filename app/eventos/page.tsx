@@ -285,8 +285,11 @@ export default function EventosPage() {
 
       const params = new URLSearchParams(window.location.search);
       const colaboradorParam = params.get("colaborador")?.trim() || "";
+      const ciudadParam = params.get("ciudad")?.trim() || "";
 
       setColaboradorId(colaboradorParam);
+      setCiudadSeleccionada(ciudadParam);
+      setSoloProximos(Boolean(ciudadParam));
 
       const TAMANO_PAGINA = 1000;
       const eventosData: EventoDB[] = [];
@@ -431,35 +434,38 @@ export default function EventosPage() {
 
   const eventosProximos = useMemo(() => {
     return eventos
-      .filter((e) => esEventoProximo(e.fechaInicio, e.fechaFin))
+      .filter((e) =>
+        esEventoProximo(e.fechaInicio, e.fechaFin) &&
+        (!ciudadSeleccionada || e.ciudad === ciudadSeleccionada)
+      )
       .sort((a, b) => {
         const aTime = a.fechaInicio ? new Date(a.fechaInicio).getTime() : Infinity;
         const bTime = b.fechaInicio ? new Date(b.fechaInicio).getTime() : Infinity;
         return aTime - bTime;
       });
-  }, [eventos]);
+  }, [eventos, ciudadSeleccionada]);
 
   const eventosGrandes = useMemo(() => {
-    const base = eventosProximos.length > 0 ? eventosProximos : eventos;
+    const base = ciudadSeleccionada || eventosProximos.length > 0 ? eventosProximos : eventos;
 
     return base
       .filter((e) => e.categoriaEvento === "grande")
       .sort((a, b) => eventoGrandeScore(b) - eventoGrandeScore(a));
-  }, [eventos, eventosProximos]);
+  }, [eventos, eventosProximos, ciudadSeleccionada]);
 
   const planesLocales = useMemo(() => {
-    const base = eventosProximos.length > 0 ? eventosProximos : eventos;
+    const base = ciudadSeleccionada || eventosProximos.length > 0 ? eventosProximos : eventos;
 
     return base
       .filter((e) => e.categoriaEvento === "local")
       .sort((a, b) => planLocalScore(b) - planLocalScore(a));
-  }, [eventos, eventosProximos]);
+  }, [eventos, eventosProximos, ciudadSeleccionada]);
 
   const heroEvento = useMemo(() => {
     if (eventosGrandes.length > 0) return eventosGrandes[0];
     if (planesLocales.length > 0) return planesLocales[0];
-    return eventos[0] ?? null;
-  }, [eventos, eventosGrandes, planesLocales]);
+    return ciudadSeleccionada ? null : eventos[0] ?? null;
+  }, [eventos, eventosGrandes, planesLocales, ciudadSeleccionada]);
 
   const eventosGrandesDestacados = useMemo(() => {
     return eventosGrandes.slice(0, 6);
@@ -592,7 +598,6 @@ export default function EventosPage() {
     const hoy = new Date().toISOString().slice(0, 10);
     setBusqueda("");
     setFechaSeleccionada(hoy);
-    setCiudadSeleccionada("");
     setTipoSeleccionado("");
     setSoloProximos(false);
     setModoVista("locales");
@@ -604,7 +609,6 @@ export default function EventosPage() {
     manana.setDate(manana.getDate() + 1);
     setBusqueda("");
     setFechaSeleccionada(manana.toISOString().slice(0, 10));
-    setCiudadSeleccionada("");
     setTipoSeleccionado("");
     setSoloProximos(false);
     setModoVista("locales");
@@ -614,7 +618,6 @@ export default function EventosPage() {
   function verProximos() {
     setBusqueda("");
     setFechaSeleccionada("");
-    setCiudadSeleccionada("");
     setTipoSeleccionado("");
     setSoloProximos(true);
     setModoVista("todos");
@@ -624,7 +627,6 @@ export default function EventosPage() {
   function verEventosGrandes() {
     setBusqueda("");
     setFechaSeleccionada("");
-    setCiudadSeleccionada("");
     setTipoSeleccionado("");
     setModoVista("grandes");
     setSoloProximos(true);
@@ -634,7 +636,6 @@ export default function EventosPage() {
   function verPlanesLocales() {
     setBusqueda("");
     setFechaSeleccionada("");
-    setCiudadSeleccionada("");
     setTipoSeleccionado("");
     setModoVista("locales");
     setSoloProximos(true);
@@ -685,7 +686,9 @@ export default function EventosPage() {
             <h1 className="max-w-3xl text-4xl font-extrabold leading-tight text-[#334155] md:text-5xl">
               {colaboradorId
                 ? `Eventos de ${nombreColaborador || "este colaborador"}`
-                : "Eventos grandes y planes reales para hoy en España"}
+                : ciudadSeleccionada
+                  ? `Eventos y planes en ${ciudadSeleccionada}`
+                  : "Eventos grandes y planes reales para hoy en España"}
             </h1>
 
             <p className="mt-4 max-w-2xl text-base leading-7 text-[#64748b] md:text-lg">
@@ -762,7 +765,7 @@ export default function EventosPage() {
               </p>
 
               <h2 className="mt-2 text-2xl font-bold text-[#334155]">
-                {heroEvento?.nombre || "Descubre los próximos eventos"}
+                {heroEvento?.nombre || (ciudadSeleccionada ? `No hay próximos eventos en ${ciudadSeleccionada}` : "Descubre los próximos eventos")}
               </h2>
 
               <p className="mt-2 text-sm text-[#64748b]">
@@ -770,7 +773,9 @@ export default function EventosPage() {
                   ? `${heroEvento.ciudad} · ${
                       formatFecha(heroEvento.fechaInicio) || "Fecha por confirmar"
                     }`
-                  : "Ferias, fiestas, festivales y planes con más ambiente."}
+                  : ciudadSeleccionada
+                    ? "Prueba otra ciudad o consulta los eventos anteriores desmarcando Solo próximos."
+                    : "Ferias, fiestas, festivales y planes con más ambiente."}
               </p>
             </div>
           </div>
