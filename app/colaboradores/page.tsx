@@ -187,7 +187,14 @@ function ColaboradorCard({
   );
 }
 
-export default async function ColaboradoresPage() {
+export default async function ColaboradoresPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ciudad?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const ciudadSeleccionada = (typeof params.ciudad === "string" ? params.ciudad : "").trim();
+  const normalizarCiudad = (ciudad: string) => ciudad.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
   const { data, error } = await supabase
     .from("colaboradores")
     .select(`
@@ -215,7 +222,12 @@ export default async function ColaboradoresPage() {
     .eq("destacado", true)
     .order("created_at", { ascending: true });
 
-  const colaboradores = ((data || []) as Colaborador[]).filter(Boolean);
+  const todosColaboradores = ((data || []) as Colaborador[]).filter(Boolean);
+  const ciudades = [...new Set(todosColaboradores.map(c => c.ciudad?.trim()).filter((c): c is string => Boolean(c)))].sort((a, b) => a.localeCompare(b, "es"));
+  const ciudadVisible = ciudades.find(c => normalizarCiudad(c) === normalizarCiudad(ciudadSeleccionada)) || ciudadSeleccionada;
+  const colaboradores = ciudadSeleccionada
+    ? todosColaboradores.filter(c => c.ciudad && normalizarCiudad(c.ciudad) === normalizarCiudad(ciudadSeleccionada))
+    : todosColaboradores;
 
   const colaboradoresMusicales = colaboradores.filter(
     (colaborador) =>
@@ -249,7 +261,7 @@ export default async function ColaboradoresPage() {
           </p>
 
           <h1 className="mt-3 text-4xl font-extrabold leading-tight text-slate-900 md:text-6xl">
-            {colaboradores.length} colaboradores que ayudan a mover planes reales
+            {ciudadSeleccionada ? `Colaboradores en ${ciudadVisible}` : `${colaboradores.length} colaboradores que ayudan a mover planes reales`}
           </h1>
 
           <p className="mt-6 text-lg leading-8 text-slate-600">
@@ -258,6 +270,20 @@ export default async function ColaboradoresPage() {
             más personas descubran música y planes con ambiente.
           </p>
         </div>
+
+        <form action="/colaboradores" method="get" className="mt-8 flex flex-wrap items-end gap-4 rounded-3xl border border-orange-100 bg-white p-5">
+          <div>
+            <label htmlFor="ciudad-colaboradores" className="mb-2 block text-sm font-semibold">Filtrar por ciudad</label>
+            <select key={ciudadVisible} id="ciudad-colaboradores" name="ciudad" defaultValue={ciudadVisible} className="rounded-xl border border-orange-200 bg-white px-4 py-3">
+              <option value="">Todas las ciudades</option>
+              {ciudadSeleccionada && !ciudades.includes(ciudadVisible) && <option value={ciudadVisible}>{ciudadVisible}</option>}
+              {ciudades.map(ciudad => <option key={ciudad} value={ciudad}>{ciudad}</option>)}
+            </select>
+          </div>
+          <button type="submit" className="rounded-full bg-orange-500 px-5 py-3 font-bold text-white">Ver colaboradores</button>
+          {ciudadSeleccionada && <Link href="/colaboradores" className="px-3 py-3 font-semibold text-orange-700">Ver todas las ciudades</Link>}
+          <p className="py-3 text-sm text-slate-600">{colaboradores.length} {colaboradores.length === 1 ? "colaborador" : "colaboradores"}</p>
+        </form>
 
         {error && (
           <div className="mt-8 rounded-3xl border border-red-100 bg-red-50 p-5 text-sm font-semibold text-red-700">
@@ -330,7 +356,7 @@ export default async function ColaboradoresPage() {
 
         {colaboradores.length === 0 && !error && (
           <div className="mt-10 rounded-3xl border border-orange-100 bg-white/95 p-6 text-slate-600 shadow-lg shadow-orange-100">
-            Todavía no hay colaboradores destacados visibles.
+            {ciudadSeleccionada ? `No hay colaboradores destacados visibles en ${ciudadVisible}. Prueba otra ciudad.` : "Todavía no hay colaboradores destacados visibles."}
           </div>
         )}
 
