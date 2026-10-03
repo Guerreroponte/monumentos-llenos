@@ -443,12 +443,33 @@ export default function Home() {
   const [errorCiudadHero, setErrorCiudadHero] = useState("");
   const [sugerenciasCiudadAbiertas, setSugerenciasCiudadAbiertas] = useState(false);
   const [indiceCiudadActiva, setIndiceCiudadActiva] = useState(-1);
+  const buscadorCiudadRef = useRef<HTMLDivElement>(null);
+  const inputCiudadRef = useRef<HTMLInputElement>(null);
+  const listaCiudadesRef = useRef<HTMLUListElement>(null);
 
-  const seleccionarCiudadHero = (valor: string) => {
+  useEffect(() => {
+    const cerrarSiEstaFuera = (event: Event) => {
+      if (event.target instanceof Node &&
+          !buscadorCiudadRef.current?.contains(event.target)) {
+        setSugerenciasCiudadAbiertas(false);
+        setIndiceCiudadActiva(-1);
+      }
+    };
+    // Mantener la lista al pasar del campo a una opción, también en táctil.
+    document.addEventListener("pointerdown", cerrarSiEstaFuera);
+    document.addEventListener("focusin", cerrarSiEstaFuera);
+    return () => {
+      document.removeEventListener("pointerdown", cerrarSiEstaFuera);
+      document.removeEventListener("focusin", cerrarSiEstaFuera);
+    };
+  }, []);
+
+  const seleccionarCiudadHero = (valor: string, desdeToque = false) => {
     setCiudadHero(valor);
     setErrorCiudadHero("");
     setSugerenciasCiudadAbiertas(false);
     setIndiceCiudadActiva(-1);
+    if (desdeToque) inputCiudadRef.current?.blur();
   };
 
   const abrirGuiaCiudad = (valor: string) => {
@@ -534,6 +555,18 @@ export default function Home() {
     [ciudadesDisponiblesHero, ciudadHero]
   );
   const mostrarSugerenciasCiudad = sugerenciasCiudadAbiertas && sugerenciasCiudadHero.length > 0;
+  useEffect(() => {
+    const lista = listaCiudadesRef.current;
+    const opcion = lista?.querySelector<HTMLElement>(
+      `#ciudad-home-opcion-${indiceCiudadActiva}`
+    );
+    if (!mostrarSugerenciasCiudad || !lista || !opcion) return;
+    const caja = lista.getBoundingClientRect();
+    const fila = opcion.getBoundingClientRect();
+    if (fila.bottom > caja.bottom) lista.scrollTop += fila.bottom - caja.bottom;
+    else if (fila.top < caja.top) lista.scrollTop -= caja.top - fila.top;
+  }, [indiceCiudadActiva, mostrarSugerenciasCiudad]);
+
   const [indiceHero, setIndiceHero] = useState(0);
   const [totalEventosPublicados, setTotalEventosPublicados] = useState(0);
   const [comentariosEventosConFoto, setComentariosEventosConFoto] = useState<
@@ -1547,9 +1580,11 @@ ${url}`;
                 ¿En qué ciudad buscas plan?
               </label>
               <div className="flex flex-col gap-2 rounded-3xl border border-orange-200 bg-white p-2 shadow-sm focus-within:ring-2 focus-within:ring-orange-300 sm:flex-row sm:items-center sm:rounded-full">
-                <div className="relative flex min-w-0 flex-1 items-center gap-2 px-3">
+                <div ref={buscadorCiudadRef} className="relative min-w-0 flex-1">
+                  <div className="flex items-center gap-2 px-3">
                   <span aria-hidden="true" className="text-xl text-orange-500">📍</span>
                   <input
+                    ref={inputCiudadRef}
                     id="ciudad-home"
                     name="ciudad"
                     type="text"
@@ -1566,10 +1601,6 @@ ${url}`;
                       setIndiceCiudadActiva(-1);
                     }}
                     onFocus={() => setSugerenciasCiudadAbiertas(true)}
-                    onBlur={() => {
-                      setSugerenciasCiudadAbiertas(false);
-                      setIndiceCiudadActiva(-1);
-                    }}
                     onKeyDown={(e) => {
                       if (e.nativeEvent.isComposing) return;
                       if (e.key === "Escape") {
@@ -1592,13 +1623,17 @@ ${url}`;
                     }}
                     placeholder="Escribe tu ciudad…"
                     autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    enterKeyHint="search"
                     maxLength={100}
                     aria-invalid={Boolean(errorCiudadHero)}
                     aria-describedby={errorCiudadHero ? "error-ciudad-home" : undefined}
-                    className="min-h-[44px] min-w-0 w-full bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400"
+                    className="min-h-[52px] min-w-0 w-full bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400"
                   />
+                  </div>
                   {mostrarSugerenciasCiudad && (
-                    <ul id="ciudades-home" role="listbox" aria-label="Ciudades que coinciden" className="absolute left-0 right-0 top-full z-30 mt-3 overflow-hidden rounded-2xl border border-orange-100 bg-white p-1 shadow-xl shadow-slate-900/10">
+                    <ul ref={listaCiudadesRef} id="ciudades-home" role="listbox" aria-label="Ciudades que coinciden" className="relative z-30 mt-2 max-h-[280px] touch-pan-y overflow-y-auto overscroll-contain rounded-2xl border border-orange-100 bg-white p-1 shadow-xl shadow-slate-900/10 sm:absolute sm:left-0 sm:right-0 sm:top-full sm:mt-3">
                       {sugerenciasCiudadHero.map((opcion, indice) => (
                         <li key={opcion} role="presentation">
                           <button
@@ -1607,9 +1642,15 @@ ${url}`;
                             role="option"
                             aria-selected={indiceCiudadActiva === indice}
                             tabIndex={-1}
-                            onPointerDown={(e) => e.preventDefault()}
-                            onClick={() => seleccionarCiudadHero(opcion)}
-                            className={`flex min-h-[44px] w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-bold transition hover:bg-orange-50 hover:text-orange-700 ${indiceCiudadActiva === indice ? "bg-orange-50 text-orange-700" : "text-slate-700"}`}
+                            onPointerDown={(e) => {
+                              // Con ratón conservamos el foco; el dedo puede desplazar la lista.
+                              if (e.pointerType === "mouse") e.preventDefault();
+                            }}
+                            onClick={() => {
+                              seleccionarCiudadHero(opcion, true);
+                              abrirGuiaCiudad(opcion);
+                            }}
+                            className={`flex min-h-[56px] w-full touch-manipulation items-center gap-3 rounded-xl px-4 py-3 text-left text-base font-bold transition hover:bg-orange-50 hover:text-orange-700 active:bg-orange-100 ${indiceCiudadActiva === indice ? "bg-orange-50 text-orange-700" : "text-slate-700"}`}
                           >
                             <span aria-hidden="true">📍</span>
                             <span>{opcion}</span>
@@ -1619,7 +1660,7 @@ ${url}`;
                     </ul>
                   )}
                 </div>
-                <button type="submit" className="min-h-[44px] shrink-0 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-black text-white transition hover:from-orange-600 hover:to-amber-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200">
+                <button type="submit" className="min-h-[52px] w-full shrink-0 rounded-full sm:w-auto bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-black text-white transition hover:from-orange-600 hover:to-amber-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-orange-200">
                   Ver planes →
                 </button>
               </div>
