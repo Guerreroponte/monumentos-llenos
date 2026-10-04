@@ -168,3 +168,25 @@ test('grouped categories preserve old exact filters and safely label ticket link
   assert.equal(etiquetaEnlace('https://entradium.com/en/events/swing'), 'Ver entradas');
   assert.equal(etiquetaEnlace('https://entradium.com.ejemplo.org'), 'Consultar programación');
 });
+
+test('place search validates pagination and preserves accents', () => {
+  const {leerBusquedaLugares} = load('lib/lugares-ui.ts');
+  assert.deepEqual(leerBusquedaLugares(new URLSearchParams('ciudad=Málaga&lugar=Faro&paginaLugares=3')), {ciudad:'Málaga',nombre:'Faro',pagina:3});
+  for (const value of ['-1','NaN','1.5','Infinity']) assert.equal(leerBusquedaLugares(new URLSearchParams('paginaLugares='+value)).pagina,1);
+});
+test('review dates never invent missing dates and directions preserve zero coordinates', () => {
+  const {fechaResena,enlaceComoLlegar} = load('lib/lugares-ui.ts');
+  assert.equal(fechaResena(null),'Fecha no disponible');
+  assert.equal(fechaResena('invalid'),'Fecha no disponible');
+  assert.match(fechaResena('2026-10-04T10:00:00Z'), /4 oct 2026/);
+  assert.match(enlaceComoLlegar({latitud:0,longitud:0}), /destination=0%2C0/);
+  assert.match(enlaceComoLlegar({nombre:'Faro',ciudad:'Madrid'}), /Faro%2C%20Madrid/);
+});
+test('map grouping preserves every point including overlapping positions', () => {
+  const {agruparPuntos} = load('lib/lugares-ui.ts');
+  const points = [{id:1,x:1,y:1},{id:2,x:1,y:1},{id:3,x:100,y:100}];
+  const groups = agruparPuntos(points,p=>p);
+  assert.equal(groups.length,2);
+  assert.deepEqual(groups.flat(),points);
+  assert.deepEqual(agruparPuntos([],p=>p),[]);
+});

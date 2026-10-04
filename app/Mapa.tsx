@@ -1,10 +1,11 @@
 // @ts-nocheck
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { agruparPuntos } from "@/lib/lugares-ui";
 import Link from "next/link";
 import L from "leaflet";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
 type MonumentoMapa = {
@@ -40,13 +41,37 @@ const monumentoIcon = L.divIcon({
   popupAnchor: [0, -30],
 });
 
+function Puntos({ monumentos }: { monumentos: MonumentoMapa[] }) {
+  const map = useMap();
+  const [zoom, setZoom] = useState(map.getZoom());
+  useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
+  const clave = monumentos.map(m => `${m.id}:${m.latitud}:${m.longitud}`).join("|");
+  useEffect(() => {
+    if (monumentos.length) map.fitBounds(monumentos.map(m => [m.latitud, m.longitud]), { padding: [35, 35], maxZoom: 14 });
+  }, [clave, map]);
+  const grupos = agruparPuntos(monumentos, m => map.project([m.latitud, m.longitud], zoom));
+  return grupos.map(grupo => {
+    const m = grupo[0];
+    const icon = grupo.length === 1 ? monumentoIcon : L.divIcon({
+      html: `<div style="width:40px;height:40px;border-radius:50%;background:#ea580c;color:white;border:3px solid white;display:flex;align-items:center;justify-content:center;font-weight:bold">${grupo.length}</div>`,
+      className: "", iconSize: [40,40], iconAnchor: [20,20],
+    });
+    return <Marker key={grupo.map(p => p.id).join("-")} position={[m.latitud, m.longitud]} icon={icon} title={grupo.length === 1 ? m.nombre : `${grupo.length} lugares cercanos`}>
+      <Popup><div className="max-h-64 min-w-[180px] overflow-y-auto">
+        {grupo.length > 1 && <button className="mb-3 font-bold" onClick={() => map.fitBounds(grupo.map(p => [p.latitud,p.longitud]), {padding:[35,35], maxZoom:18})}>Ampliar {grupo.length} lugares</button>}
+        {grupo.map(p => <div key={p.id} className="mb-3"><strong>{p.nombre}</strong><div>{p.ciudad}</div>{p.slug?.trim() && <Link href={`/lugar/${encodeURIComponent(p.slug.trim())}`} className="inline-block mt-2">Ver ficha →</Link>}</div>)}
+      </div></Popup>
+    </Marker>;
+  });
+}
+
 export default function Mapa({
   monumentos,
 }: {
   monumentos: MonumentoMapa[];
 }) {
   const monumentosConCoords = monumentos.filter(
-    (m) => typeof m.latitud === "number" && typeof m.longitud === "number"
+    (m) => typeof m.latitud === "number" && Number.isFinite(m.latitud) && Math.abs(m.latitud) <= 90 && typeof m.longitud === "number" && Number.isFinite(m.longitud) && Math.abs(m.longitud) <= 180
   );
 
   const center = useMemo<[number, number]>(() => {
@@ -75,6 +100,7 @@ export default function Mapa({
         </div>
       </div>
 
+      {!monumentosConCoords.length && <p className="mb-4">No hay lugares con ubicación para esta búsqueda.</p>}
       <div className="overflow-hidden rounded-3xl border border-orange-100 shadow-lg shadow-orange-100">
         <MapContainer
           center={center}
@@ -82,33 +108,9 @@ export default function Mapa({
           scrollWheelZoom={true}
           className="h-[500px] w-full"
         >
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-          {monumentosConCoords.map((m) => (
-            <Marker
-              key={m.id}
-              position={[m.latitud, m.longitud]}
-              icon={monumentoIcon}
-            >
-              <Popup>
-                <div className="min-w-[180px]">
-                  <strong>{m.nombre}</strong>
-
-                  <div className="mt-1">{m.ciudad}</div>
-
-                  {m.slug?.trim() && (
-                    <Link
-                      href={`/lugar/${encodeURIComponent(m.slug.trim())}`}
-                      className="mt-3 inline-flex items-center justify-center rounded-full bg-orange-600 px-4 py-2 text-sm font-bold"
-                      style={{ color: "#ffffff", textDecoration: "none" }}
-                    >
-                      Ver ficha →
-                    </Link>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+          <Puntos monumentos={monumentosConCoords} />
         </MapContainer>
       </div>
     </div>

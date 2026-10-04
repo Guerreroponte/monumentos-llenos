@@ -1,9 +1,17 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { fechaResena, enlaceComoLlegar } from "@/lib/lugares-ui";
 import { supabase } from "@/lib/supabase";
 
 export type Lugar = {
+  rating?: number | null;
+  precio?: string | null;
+  acepta_mascotas?: boolean | null;
+  parking_cerca?: boolean | null;
+  acceso_coche?: boolean | null;
+  latitud?: number | null;
+  longitud?: number | null;
   id: string;
   slug?: string | null;
   nombre?: string | null;
@@ -201,18 +209,6 @@ ${url}`;
     }
   };
 
-  function formatearFecha(fecha?: string | null) {
-    if (!fecha) return "";
-
-    const d = new Date(fecha);
-    if (Number.isNaN(d.getTime())) return "";
-
-    return d.toLocaleDateString("es-ES", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  }
 
   if (!lugar) {
     return (
@@ -288,6 +284,20 @@ ${url}`;
               <span>📲</span>
               <span>Compartir por WhatsApp</span>
             </button>
+
+            <section aria-label="Información práctica" className="mt-6 rounded-3xl border border-orange-100 bg-white p-5">
+              <h2 className="text-lg font-bold">Información práctica</h2>
+              <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
+                {[
+                  ["Valoración", lugar.rating == null ? "Sin valoración" : `⭐ ${lugar.rating}`],
+                  ["Acceso o precio", lugar.precio || "No especificado"],
+                  ["Acepta mascotas", lugar.acepta_mascotas],
+                  ["Parking cerca", lugar.parking_cerca],
+                  ["Acceso en coche", lugar.acceso_coche],
+                ].map(([titulo, valor]) => <div key={String(titulo)}><dt className="text-slate-500">{titulo}</dt><dd className="mt-1 font-semibold">{typeof valor === "boolean" ? valor ? "Sí" : "No" : valor ?? "No especificado"}</dd></div>)}
+              </dl>
+              <a href={enlaceComoLlegar(lugar)} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex rounded-full bg-orange-600 px-5 py-3 font-bold text-white">Cómo llegar ↗</a>
+            </section>
 
             <div className="mt-8 rounded-3xl border border-orange-100 bg-orange-50/50 p-5">
               <h2 className="text-lg font-bold text-slate-900">
@@ -571,11 +581,7 @@ ${url}`;
                         <p className="font-bold text-slate-900">
                           {resena.usuario || "Anónimo"}
                         </p>
-                        {resena.created_at && (
-                          <p className="text-xs text-slate-500">
-                            {formatearFecha(resena.created_at)}
-                          </p>
-                        )}
+                        <p className="text-xs text-slate-500">{fechaResena(resena.created_at)}</p>
                       </div>
                     </div>
 

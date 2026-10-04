@@ -1,5 +1,6 @@
 "use client";
 
+import { leerBusquedaLugares } from "@/lib/lugares-ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -399,9 +400,27 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
     };
   }, [fotosLugarSeleccionadas]);
 
+  const [busquedaRestaurada, setBusquedaRestaurada] = useState(false);
   useEffect(() => {
-    setPaginaActual(1);
-  }, [busquedaNombre, busquedaCiudad]);
+    const restaurar = () => {
+      const filtros = leerBusquedaLugares(new URLSearchParams(window.location.search));
+      setBusquedaNombre(filtros.nombre);
+      setBusquedaciudad(filtros.ciudad);
+      setPaginaActual(filtros.pagina);
+      setBusquedaRestaurada(true);
+    };
+    restaurar();
+    window.addEventListener("popstate", restaurar);
+    return () => window.removeEventListener("popstate", restaurar);
+  }, []);
+  useEffect(() => {
+    if (!busquedaRestaurada) return;
+    const url = new URL(window.location.href);
+    for (const [key, value] of [["lugar", busquedaNombre], ["ciudad", busquedaCiudad], ["paginaLugares", paginaActual > 1 ? String(paginaActual) : ""]]) {
+      if (value) url.searchParams.set(key, value); else url.searchParams.delete(key);
+    }
+    if (url.href !== window.location.href) window.history.replaceState(window.history.state, "", url);
+  }, [busquedaNombre, busquedaCiudad, paginaActual, busquedaRestaurada]);
 
   const monumentosFiltrados = useMemo(() => {
     return monumentos.filter((m) => {
@@ -609,6 +628,8 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
       Math.ceil(monumentosFiltrados.length / LUGARES_POR_PAGINA)
     );
   }, [monumentosFiltrados.length]);
+
+  if (paginaActual > totalPaginas) setPaginaActual(totalPaginas);
 
   const monumentosPaginados = useMemo(() => {
     const inicio = (paginaActual - 1) * LUGARES_POR_PAGINA;
@@ -1596,13 +1617,13 @@ ${url}`;
               <div className="rounded-2xl border border-orange-100 bg-white p-2 shadow-sm">
                 <div className="flex items-center gap-3 px-3">
                   <span className="text-xl">📍</span>
-                  <input type="text" value={busquedaNombre} onChange={(e) => setBusquedaNombre(e.target.value)} placeholder="Buscar lugar..." className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400" />
+                  <input type="text" value={busquedaNombre} onChange={(e) => { setBusquedaNombre(e.target.value); setPaginaActual(1); }} placeholder="Buscar lugar..." className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400" />
                 </div>
               </div>
               <div className="rounded-2xl border border-orange-100 bg-white p-2 shadow-sm">
                 <div className="flex items-center gap-3 px-3">
                   <span className="text-xl">🏙️</span>
-                  <input type="text" value={busquedaCiudad} onChange={(e) => setBusquedaciudad(e.target.value)} placeholder="Buscar ciudad..." className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400" />
+                  <input type="text" value={busquedaCiudad} onChange={(e) => { setBusquedaciudad(e.target.value); setPaginaActual(1); }} placeholder="Buscar ciudad..." className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400" />
                 </div>
               </div>
             </div>
@@ -2386,7 +2407,7 @@ ${url}`;
         </div>
 
         <Mapa
-          monumentos={monumentos.map((m) => ({
+          monumentos={monumentosFiltrados.map((m) => ({
             id: m.id,
             nombre: m.nombre,
             ciudad: m.ciudad,
@@ -2397,7 +2418,7 @@ ${url}`;
         />
       </section>
 
-      <details className="group fixed bottom-5 right-4 z-50 sm:bottom-6 sm:right-6">
+      <details className="group mt-6 mx-4 mb-8 sm:fixed sm:bottom-6 sm:right-6 sm:z-50 sm:m-0 relative">
         <div className="absolute bottom-[calc(100%+0.8rem)] right-0 w-[min(290px,calc(100vw-2rem))] overflow-hidden rounded-3xl border border-orange-100 bg-white/95 p-2 shadow-2xl shadow-slate-900/20 backdrop-blur-xl">
           <div className="px-3 pb-2 pt-2">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-500">

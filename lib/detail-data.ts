@@ -27,7 +27,7 @@ export async function getEventoDetail(slug: string) {
 }
 
 export async function getLugarDetail(slug: string) {
-  const { data, error } = await publicServer.from("Monumentos").select("id,slug,nombre,ciudad,descripcion,imagen,url_afiliado,video_url").eq("slug", slug).maybeSingle();
+  const { data, error } = await publicServer.from("Monumentos").select("id,slug,nombre,ciudad,descripcion,imagen,url_afiliado,video_url,rating,precio,acepta_mascotas,parking_cerca,acceso_coche,latitud,longitud").eq("slug", slug).maybeSingle();
   if (error) throw error;
   if (!data) notFound();
   const lugar = { ...data, imagen: publicImage("lugares", data.id, data.imagen) } as Lugar;
