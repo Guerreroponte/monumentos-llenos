@@ -2,81 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import type { EventoUI } from "@/lib/eventos-data";
+import { leerFiltrosEventos } from "@/lib/eventos-filters";
 import { seoListado } from "@/lib/listado-seo";
-
-type EventoDB = {
-  id: string;
-  colaborador_id?: string | null;
-  slug?: string | null;
-  created_at?: string | null;
-  nombre?: string | null;
-  ciudad?: string | null;
-  provincia?: string | null;
-  comunidad_autonoma?: string | null;
-  tipo?: string | null;
-  subtipo?: string | null;
-  categoria_evento?: string | null;
-  fecha_inicio?: string | null;
-  fecha_fin?: string | null;
-  hora_inicio?: string | null;
-  hora_fin?: string | null;
-  descripcion?: string | null;
-  imagen?: string | null;
-  enlace?: string | null;
-  destacado?: boolean | null;
-  ubicacion_detalle?: string | null;
-  precio?: string | null;
-  ambiente?: string | null;
-  dificil_bebida?: boolean | null;
-  parking?: boolean | null;
-  recomendable?: boolean | null;
-};
-
-type ComentarioEventoDB = {
-  id: string;
-  evento_id: string;
-};
-
-type CategoriaEvento = "grande" | "local";
-
-type EventoUI = {
-  id: string;
-  colaboradorId: string | null;
-  slug: string;
-  createdAt: string | null;
-  nombre: string;
-  ciudad: string;
-  provincia: string;
-  comunidad: string;
-  tipo: string;
-  subtipo: string;
-  categoriaEvento: CategoriaEvento;
-  fechaInicio: string | null;
-  fechaFin: string | null;
-  horaInicio: string | null;
-  horaFin: string | null;
-  descripcion: string;
-  imagen: string;
-  enlace: string;
-  destacado: boolean;
-  ubicacionDetalle: string;
-  precio: string;
-  ambiente: string;
-  dificilBebida: boolean;
-  parking: boolean;
-  recomendable: boolean;
-  comentariosCount: number;
-};
-
-const FALLBACKS_EVENTOS = [
-  "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1472653816316-3ad6f10a6592?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
-];
 
 const CIUDADES_TOP = [
   "Madrid",
@@ -90,10 +18,6 @@ const CIUDADES_TOP = [
   "Zaragoza",
   "Alicante",
 ];
-
-function normalizarTexto(valor?: string | null) {
-  return (valor ?? "").trim();
-}
 
 function formatFecha(fecha?: string | null) {
   if (!fecha) return "";
@@ -164,15 +88,6 @@ function esManana(fecha?: string | null) {
   d.setHours(0, 0, 0, 0);
 
   return manana.getTime() === d.getTime();
-}
-
-function getFallbackImagen(id: string) {
-  const index =
-    Math.abs(
-      id.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
-    ) % FALLBACKS_EVENTOS.length;
-
-  return FALLBACKS_EVENTOS[index];
 }
 
 function eventoGrandeScore(e: EventoUI) {
@@ -263,23 +178,25 @@ function textoComentarios(count: number) {
   return `${count} comentarios`;
 }
 
-export default function EventosPage() {
+type Props = {
+  initialData: { eventos: EventoUI[]; nombreColaborador: string };
+  initialFilters: ReturnType<typeof leerFiltrosEventos>;
+};
+
+export default function EventosPage({ initialData, initialFilters }: Props) {
   const restauracionUrl = useRef<string | null>(null);
   const [urlPreparada, setUrlPreparada] = useState(false);
-  const [eventos, setEventos] = useState<EventoUI[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [paginacion, setPaginacion] = useState({ clave: "", pagina: 1 });
-  const [colaboradorId, setColaboradorId] = useState("");
-  const [nombreColaborador, setNombreColaborador] = useState("");
-
-  const [busqueda, setBusqueda] = useState("");
-  const [fechaSeleccionada, setFechaSeleccionada] = useState("");
-  const [ciudadSeleccionada, setCiudadSeleccionada] = useState("");
-  const [tipoSeleccionado, setTipoSeleccionado] = useState("");
-  const [soloProximos, setSoloProximos] = useState(true);
-  const [modoVista, setModoVista] = useState<"todos" | "grandes" | "locales">(
-    "todos"
-  );
+  const eventos = initialData.eventos;
+  const loading = false;
+  const [paginacion, setPaginacion] = useState({ clave: initialFilters.clave, pagina: initialFilters.pagina });
+  const [colaboradorId, setColaboradorId] = useState(initialFilters.colaborador);
+  const nombreColaborador = initialData.nombreColaborador;
+  const [busqueda, setBusqueda] = useState(initialFilters.texto);
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(initialFilters.fecha);
+  const [ciudadSeleccionada, setCiudadSeleccionada] = useState(initialFilters.ciudad);
+  const [tipoSeleccionado, setTipoSeleccionado] = useState(initialFilters.tipo);
+  const [soloProximos, setSoloProximos] = useState(initialFilters.proximos);
+  const [modoVista, setModoVista] = useState<"todos" | "grandes" | "locales">(initialFilters.vista);
 
   useEffect(() => {
     const colaboradorInicial = new URLSearchParams(window.location.search).get("colaborador")?.trim() || "";
@@ -314,137 +231,6 @@ export default function EventosPage() {
     restaurarUrl();
     window.addEventListener("popstate", restaurarUrl);
     return () => window.removeEventListener("popstate", restaurarUrl);
-  }, []);
-
-  useEffect(() => {
-    let activo = true;
-
-    async function cargarEventos() {
-      setLoading(true);
-
-      const params = new URLSearchParams(window.location.search);
-      const colaboradorParam = params.get("colaborador")?.trim() || "";
-
-      setColaboradorId(colaboradorParam);
-
-      const TAMANO_PAGINA = 1000;
-      const eventosData: EventoDB[] = [];
-      let eventosError: unknown = null;
-      let desde = 0;
-
-      while (true) {
-        let consultaEventos = supabase
-          .from("eventos")
-          .select("*")
-          .order("fecha_inicio", { ascending: true })
-          .range(desde, desde + TAMANO_PAGINA - 1);
-
-        if (colaboradorParam) {
-          consultaEventos = consultaEventos.eq("colaborador_id", colaboradorParam);
-        }
-
-        const { data: bloqueEventos, error: errorBloque } = await consultaEventos;
-
-        if (errorBloque) {
-          eventosError = errorBloque;
-          break;
-        }
-
-        const bloque = (bloqueEventos as EventoDB[] | null) ?? [];
-        eventosData.push(...bloque);
-
-        if (bloque.length < TAMANO_PAGINA) {
-          break;
-        }
-
-        desde += TAMANO_PAGINA;
-      }
-
-      const { data: comentariosData, error: comentariosError } = await supabase
-        .from("comentarios_eventos")
-        .select("id, evento_id");
-
-      if (colaboradorParam) {
-        const { data: colaboradorData, error: colaboradorError } = await supabase
-          .from("colaboradores")
-          .select("nombre")
-          .eq("id", colaboradorParam)
-          .maybeSingle();
-
-        if (colaboradorError) {
-          console.error("Error cargando el colaborador:", colaboradorError);
-          setNombreColaborador("");
-        } else {
-          setNombreColaborador(
-            normalizarTexto(colaboradorData?.nombre) || "este colaborador"
-          );
-        }
-      } else {
-        setNombreColaborador("");
-      }
-
-      if (!activo) return;
-
-      if (eventosError) {
-        console.error("Error cargando eventos:", eventosError);
-        setEventos([]);
-        setLoading(false);
-        return;
-      }
-
-      if (comentariosError) {
-        console.error("Error cargando comentarios de eventos:", comentariosError);
-      }
-
-      const comentariosPorEvento = new Map<string, number>();
-
-      ((comentariosData as ComentarioEventoDB[] | null) ?? []).forEach((comentario) => {
-        const actual = comentariosPorEvento.get(comentario.evento_id) ?? 0;
-        comentariosPorEvento.set(comentario.evento_id, actual + 1);
-      });
-
-      const eventosMapeados: EventoUI[] = ((eventosData as EventoDB[] | null) ?? []).map(
-        (e) => ({
-          id: e.id,
-          colaboradorId: e.colaborador_id ?? null,
-          slug: normalizarTexto(e.slug) || e.id,
-          createdAt: e.created_at ?? null,
-          nombre: normalizarTexto(e.nombre) || "Evento sin nombre",
-          ciudad: normalizarTexto(e.ciudad) || "Ciudad por confirmar",
-          provincia: normalizarTexto(e.provincia),
-          comunidad: normalizarTexto(e.comunidad_autonoma),
-          tipo: normalizarTexto(e.tipo) || "Evento",
-          subtipo: normalizarTexto(e.subtipo),
-          categoriaEvento: e.categoria_evento === "local" ? "local" : "grande",
-          fechaInicio: e.fecha_inicio ?? null,
-          fechaFin: e.fecha_fin ?? null,
-          horaInicio: e.hora_inicio ?? null,
-          horaFin: e.hora_fin ?? null,
-          descripcion:
-            normalizarTexto(e.descripcion) ||
-            "Consulta este evento y descubre más detalles sobre el ambiente de la zona.",
-          imagen: normalizarTexto(e.imagen) || getFallbackImagen(e.id),
-          enlace: normalizarTexto(e.enlace),
-          destacado: Boolean(e.destacado),
-          ubicacionDetalle: normalizarTexto(e.ubicacion_detalle),
-          precio: normalizarTexto(e.precio),
-          ambiente: normalizarTexto(e.ambiente),
-          dificilBebida: Boolean(e.dificil_bebida),
-          parking: Boolean(e.parking),
-          recomendable: e.recomendable !== false,
-          comentariosCount: comentariosPorEvento.get(e.id) ?? 0,
-        })
-      );
-
-      setEventos(eventosMapeados);
-      setLoading(false);
-    }
-
-    cargarEventos();
-
-    return () => {
-      activo = false;
-    };
   }, []);
 
   function scrollToSection(id: string) {
@@ -784,7 +570,7 @@ export default function EventosPage() {
                 Programación del colaborador
               </p>
               <p className="mt-1 text-base font-bold text-[#334155]">
-                {nombreColaborador || "Cargando colaborador..."}
+                {nombreColaborador || "este colaborador"}
               </p>
             </div>
 
@@ -869,7 +655,7 @@ export default function EventosPage() {
 
           <div className="overflow-hidden rounded-3xl border border-[#fde7d7] bg-white shadow-sm">
             <img
-              src={heroEvento?.imagen || FALLBACKS_EVENTOS[0]}
+              src={heroEvento?.imagen || "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80"}
               alt={heroEvento?.nombre || "Eventos en España"}
               className="h-[280px] w-full object-cover"
             />

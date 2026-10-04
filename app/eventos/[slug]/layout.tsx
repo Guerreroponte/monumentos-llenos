@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { getEvento } from "@/lib/detail-data";
 
 const BASE_URL = "https://www.monumentosllenos.com";
 
@@ -11,11 +11,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
 
-  const { data: evento } = await supabase
-    .from("eventos")
-    .select("nombre, descripcion, imagen, ciudad, slug")
-    .eq("slug", slug)
-    .maybeSingle();
+  const evento = await getEvento(slug);
 
   if (!evento) {
     return {
@@ -71,13 +67,9 @@ export default async function EventoLayout({
 }>) {
   const { slug } = await params;
 
-  const { data: evento, error } = await supabase
-    .from("eventos")
-    .select("id")
-    .eq("slug", slug)
-    .maybeSingle();
+  const evento = await getEvento(slug);
 
-  if (!error && !evento) {
+  if (!evento) {
     notFound();
   }
 

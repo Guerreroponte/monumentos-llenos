@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { getEventosInitialData } from "@/lib/eventos-data";
+import { leerFiltrosEventos } from "@/lib/eventos-filters";
 import EventosClient from "./EventosClient";
 import { seoListado, type ParametrosListado } from "@/lib/listado-seo";
 
@@ -14,6 +16,14 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 }
 
-export default function EventosPage() {
-  return <EventosClient />;
+export default async function EventosPage({ searchParams }: Props) {
+  const values = await searchParams;
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(values)) {
+    const first = Array.isArray(value) ? value[0] : value;
+    if (first !== undefined) params.set(key, first);
+  }
+  const initialFilters = leerFiltrosEventos(params);
+  const initialData = await getEventosInitialData(initialFilters.colaborador);
+  return <EventosClient key={params.toString()} initialData={initialData} initialFilters={initialFilters} />;
 }

@@ -1,0 +1,618 @@
+"use client";
+
+import { useRef, useState } from "react";
+import { supabase } from "@/lib/supabase";
+
+export type Lugar = {
+  id: string;
+  slug?: string | null;
+  nombre?: string | null;
+  ciudad?: string | null;
+  descripcion?: string | null;
+  imagen?: string | null;
+  url_afiliado?: string | null;
+  video_url?: string | null;
+};
+
+export type Resena = {
+  id: string;
+  monumento_id: string;
+  usuario?: string | null;
+  comentario?: string | null;
+  foto?: string | null;
+  video_url?: string | null;
+  created_at?: string | null;
+  likes?: number | null;
+  reportado?: boolean | null;
+};
+
+const COMENTARIOS_RAPIDOS = [
+  "🔥 Muy lleno, mejor ir con tiempo",
+  "👍 Buen ambiente sin agobios",
+  "😌 Tranquilo, perfecto para desconectar",
+  "👀 Merece la pena si estás por la zona",
+  "⚠️ Está bien, pero no esperes mucho ambiente",
+  "🌅 Mejor al atardecer",
+];
+
+function limpiarNombreArchivo(nombre: string) {
+  return nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export default function LugarPage({ initialData }: { initialData: { lugar: Lugar; resenas: Resena[] } }) {
+
+  const lugar = initialData.lugar;
+  const [resenas, setResenas] = useState<Resena[]>(initialData.resenas);
+
+  const [usuario, setUsuario] = useState("");
+  const [comentario, setComentario] = useState("");
+  const [comentarioRapidoActivo, setComentarioRapidoActivo] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [mensajeOk, setMensajeOk] = useState("");
+  const [mensajeError, setMensajeError] = useState("");
+  const inputFotoRef = useRef<HTMLInputElement | null>(null);
+  const inputVideoRef = useRef<HTMLInputElement | null>(null);
+  const [fotoComentario, setFotoComentario] = useState<File | null>(null);
+  const [videoComentario, setVideoComentario] = useState<File | null>(null);
+
+  const compartirWhatsApp = () => {
+    if (typeof window === "undefined") return;
+
+    const url = window.location.href;
+    const texto = `Mira qué sitio tan chulo he encontrado en Lugares Llenos 👇
+${url}`;
+    const enlace = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+
+    window.open(enlace, "_blank", "noopener,noreferrer");
+  };
+
+  const usarComentarioRapido = (texto: string) => {
+    setComentario(texto);
+    setComentarioRapidoActivo(texto);
+    setMensajeError("");
+    setMensajeOk("");
+  };
+
+  const enviarComentario = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setMensajeOk("");
+    setMensajeError("");
+
+    if (!lugar?.id) {
+      setMensajeError("No se encontró el lugar.");
+      return;
+    }
+
+    if (!comentario.trim()) {
+      setMensajeError("Elige una opción rápida o escribe una frase.");
+      return;
+    }
+
+    setEnviando(true);
+
+    try {
+      let fotoUrl: string | null = null;
+      let videoUrl: string | null = null;
+
+      if (fotoComentario) {
+        const nombreFoto = limpiarNombreArchivo(
+          fotoComentario.name || "foto-comentario"
+        );
+        const rutaFoto = `comentarios-lugares/${lugar.id}/${Date.now()}-${nombreFoto}`;
+
+        const { error: errorFoto } = await supabase.storage
+          .from("imagenes")
+          .upload(rutaFoto, fotoComentario, {
+            contentType: fotoComentario.type || undefined,
+            upsert: false,
+          });
+
+        if (errorFoto) {
+          console.error("Error subiendo foto:", errorFoto);
+          setMensajeError("No se pudo subir la foto. Prueba con otra imagen.");
+          return;
+        }
+
+        const { data: fotoPublica } = supabase.storage
+          .from("imagenes")
+          .getPublicUrl(rutaFoto);
+
+        fotoUrl = fotoPublica.publicUrl;
+      }
+
+      if (videoComentario) {
+        const nombreVideo = limpiarNombreArchivo(
+          videoComentario.name || "video-comentario"
+        );
+        const rutaVideo = `comentarios-lugares/${lugar.id}/${Date.now()}-${nombreVideo}`;
+
+        const { error: errorVideo } = await supabase.storage
+          .from("videos")
+          .upload(rutaVideo, videoComentario, {
+            contentType: videoComentario.type || undefined,
+            upsert: false,
+          });
+
+        if (errorVideo) {
+          console.error("Error subiendo vídeo:", errorVideo);
+          setMensajeError("No se pudo subir el vídeo. Prueba con otro archivo.");
+          return;
+        }
+
+        const { data: videoPublico } = supabase.storage
+          .from("videos")
+          .getPublicUrl(rutaVideo);
+
+        videoUrl = videoPublico.publicUrl;
+      }
+
+      const { data, error } = await supabase
+        .from("resenas")
+        .insert([
+          {
+            monumento_id: lugar.id,
+            usuario: usuario.trim() || "Anónimo",
+            comentario: comentario.trim(),
+            foto: fotoUrl,
+            video_url: videoUrl,
+            likes: 0,
+            reportado: false,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error enviando comentario:", error);
+        setMensajeError("No se pudo enviar el comentario. Prueba otra vez.");
+        return;
+      }
+
+      if (data) {
+        setResenas((prev) => [data, ...prev]);
+        setUsuario("");
+        setComentario("");
+        setComentarioRapidoActivo("");
+        setFotoComentario(null);
+        setVideoComentario(null);
+
+        if (inputFotoRef.current) {
+          inputFotoRef.current.value = "";
+        }
+
+        if (inputVideoRef.current) {
+          inputVideoRef.current.value = "";
+        }
+
+        setMensajeOk("Comentario añadido. Gracias por aportar algo real 🙌");
+      }
+    } catch (error) {
+      console.error("Error publicando comentario:", error);
+      setMensajeError("No se pudo publicar el comentario. Prueba otra vez.");
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  function formatearFecha(fecha?: string | null) {
+    if (!fecha) return "";
+
+    const d = new Date(fecha);
+    if (Number.isNaN(d.getTime())) return "";
+
+    return d.toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  if (!lugar) {
+    return (
+      <main className="min-h-screen bg-[#fffaf3] px-4 py-10 text-slate-900">
+        <div className="mx-auto max-w-3xl">
+          <div className="rounded-3xl border border-orange-100 bg-white p-8 text-center shadow-sm">
+            <p className="text-xl font-bold text-slate-900">
+              Lugar no encontrado
+            </p>
+            <p className="mt-2 text-sm text-slate-600">
+              Puede que el enlace no sea correcto o que este lugar ya no esté
+              disponible.
+            </p>
+
+            <a
+              href="/"
+              className="mt-6 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md"
+            >
+              Volver al inicio
+            </a>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-[#fffaf3] px-4 py-10 text-slate-900">
+      <div className="mx-auto max-w-4xl">
+        <a
+          href="/"
+          className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
+        >
+          ← Volver a Lugares Llenos
+        </a>
+
+        <div className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100">
+          {lugar.imagen ? (
+            <img
+              src={lugar.imagen}
+              alt={lugar.nombre || "Lugar"}
+              className="h-[260px] w-full object-cover md:h-[420px]"
+            />
+          ) : (
+            <div className="flex h-[260px] w-full items-end bg-gradient-to-br from-orange-200 via-amber-100 to-rose-100 p-6 md:h-[420px]">
+              <div className="rounded-3xl bg-white/75 p-5 backdrop-blur">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
+                  {lugar.ciudad || "Ciudad no especificada"}
+                </p>
+                <h1 className="mt-2 text-3xl font-bold text-slate-900 md:text-4xl">
+                  {lugar.nombre || "Lugar sin nombre"}
+                </h1>
+                <p className="mt-3 text-sm text-slate-600">
+                  Este lugar todavía no tiene imagen principal.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="p-6 md:p-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-orange-500">
+              {lugar.ciudad || "Ciudad no especificada"}
+            </p>
+
+            <h1 className="mt-2 text-3xl font-bold leading-tight text-slate-900 md:text-4xl">
+              {lugar.nombre || "Lugar sin nombre"}
+            </h1>
+
+            <button
+              onClick={compartirWhatsApp}
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-green-500 px-5 py-3 font-semibold text-white shadow-md transition hover:bg-green-600"
+            >
+              <span>📲</span>
+              <span>Compartir por WhatsApp</span>
+            </button>
+
+            <div className="mt-8 rounded-3xl border border-orange-100 bg-orange-50/50 p-5">
+              <h2 className="text-lg font-bold text-slate-900">
+                Sobre este lugar
+              </h2>
+              <p className="mt-3 text-base leading-7 text-slate-700">
+                {lugar.descripcion ||
+                  "Este lugar todavía no tiene descripción disponible."}
+              </p>
+            </div>
+
+            {lugar.video_url?.trim() && (
+              <div className="mt-6 overflow-hidden rounded-3xl border border-orange-100 bg-slate-950 shadow-sm">
+                <div className="px-5 pb-4 pt-5 md:px-6">
+                  <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-400">
+                    🎥 Así es este lugar
+                  </p>
+
+                  <h2 className="mt-2 text-xl font-extrabold text-white">
+                    Descubre {lugar.nombre || "este lugar"}
+                  </h2>
+                </div>
+
+                <video
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="max-h-[720px] w-full bg-black object-contain"
+                >
+                  <source src={lugar.video_url.trim()} />
+                  Tu navegador no puede reproducir este vídeo.
+                </video>
+              </div>
+            )}
+
+            {lugar.url_afiliado && (
+              <div className="mt-6 rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-5 shadow-sm">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-orange-500">
+                      Actividades recomendadas
+                    </p>
+
+                    <h2 className="mt-2 text-xl font-extrabold text-slate-900">
+                      🎟️ Completa tu visita
+                    </h2>
+
+                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-700">
+                      Descubre visitas guiadas, entradas y experiencias
+                      relacionadas con este lugar.
+                    </p>
+                  </div>
+
+                  <a
+                    href={lugar.url_afiliado}
+                    target="_blank"
+                    rel="noopener noreferrer sponsored nofollow"
+                    className="inline-flex shrink-0 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:from-orange-600 hover:to-amber-600"
+                  >
+                    Ver actividades →
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <section className="mt-6 rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-extrabold text-slate-900">
+                Comentarios de visitantes
+              </h2>
+              <p className="mt-2 text-sm text-slate-600">
+                ¿Estaba lleno o se estaba a gusto? Cuéntalo en 1 frase.
+              </p>
+            </div>
+
+            <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-orange-600">
+              💬 {resenas.length} comentario(s)
+            </span>
+          </div>
+
+          <form
+            onSubmit={enviarComentario}
+            className="mt-6 rounded-3xl border border-orange-100 bg-[#fffaf3] p-5"
+          >
+            <p className="text-sm font-bold text-slate-900">
+              Respuesta rápida
+            </p>
+            <p className="mt-1 text-sm text-slate-600">
+              Pulsa una opción o escribe algo propio. Una frase real ya ayuda.
+            </p>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {COMENTARIOS_RAPIDOS.map((texto) => (
+                <button
+                  key={texto}
+                  type="button"
+                  onClick={() => usarComentarioRapido(texto)}
+                  className={`rounded-full border px-4 py-2 text-sm font-bold transition ${
+                    comentarioRapidoActivo === texto
+                      ? "border-orange-400 bg-orange-500 text-white shadow-sm"
+                      : "border-orange-100 bg-white text-slate-700 hover:border-orange-300 hover:bg-orange-50"
+                  }`}
+                >
+                  {texto}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <input
+                value={usuario}
+                onChange={(e) => setUsuario(e.target.value)}
+                placeholder="Tu nombre o alias (opcional)"
+                className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-400"
+              />
+
+              <input
+                value={comentario}
+                onChange={(e) => {
+                  setComentario(e.target.value);
+                  setComentarioRapidoActivo("");
+                }}
+                placeholder="Ej: Fui al atardecer y había ambiente sin agobios"
+                className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-400"
+              />
+            </div>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/50 p-4">
+                <p className="text-sm font-bold text-slate-900">
+                  📸 Añadir foto (opcional)
+                </p>
+
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Sube una foto para enseñar cómo estaba el lugar. Máximo 10 MB.
+                </p>
+
+                <input
+                  ref={inputFotoRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+
+                    if (file && file.size > 10 * 1024 * 1024) {
+                      setMensajeError("La foto no puede superar los 10 MB.");
+                      e.currentTarget.value = "";
+                      setFotoComentario(null);
+                      return;
+                    }
+
+                    setMensajeError("");
+                    setFotoComentario(file);
+                  }}
+                  className="mt-3 w-full text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-bold file:text-white"
+                />
+
+                {fotoComentario && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <p className="text-xs font-semibold text-green-700">
+                      Foto seleccionada: {fotoComentario.name}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFotoComentario(null);
+                        if (inputFotoRef.current) {
+                          inputFotoRef.current.value = "";
+                        }
+                      }}
+                      className="rounded-full border border-red-200 bg-white px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50"
+                    >
+                      Quitar foto
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/50 p-4">
+                <p className="text-sm font-bold text-slate-900">
+                  🎥 Añadir vídeo (opcional)
+                </p>
+
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Puedes subir un vídeo corto para enseñar cómo está realmente el
+                  lugar. Máximo 50 MB.
+                </p>
+
+                <input
+                  ref={inputVideoRef}
+                  type="file"
+                  accept="video/mp4,video/webm,video/quicktime"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+
+                    if (file && file.size > 50 * 1024 * 1024) {
+                      setMensajeError("El vídeo no puede superar los 50 MB.");
+                      e.currentTarget.value = "";
+                      setVideoComentario(null);
+                      return;
+                    }
+
+                    setMensajeError("");
+                    setVideoComentario(file);
+                  }}
+                  className="mt-3 w-full text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-slate-900 file:px-4 file:py-2 file:text-sm file:font-bold file:text-white"
+                />
+
+                {videoComentario && (
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <p className="text-xs font-semibold text-green-700">
+                      Vídeo seleccionado: {videoComentario.name}
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVideoComentario(null);
+                        if (inputVideoRef.current) {
+                          inputVideoRef.current.value = "";
+                        }
+                      }}
+                      className="rounded-full border border-red-200 bg-white px-3 py-2 text-xs font-bold text-red-600 transition hover:bg-red-50"
+                    >
+                      Quitar vídeo
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {mensajeError && (
+              <p className="mt-3 text-sm font-semibold text-red-600">
+                {mensajeError}
+              </p>
+            )}
+
+            {mensajeOk && (
+              <p className="mt-3 text-sm font-semibold text-green-700">
+                {mensajeOk}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={enviando}
+              className="mt-4 rounded-full bg-slate-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {enviando ? "Enviando..." : "Publicar comentario"}
+            </button>
+          </form>
+
+          <div className="mt-6 space-y-4">
+            {resenas.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-orange-200 bg-orange-50/50 p-5">
+                <p className="text-sm font-semibold text-slate-800">
+                  Nadie ha contado todavía cómo estaba.
+                </p>
+                <p className="mt-1 text-sm text-slate-600">
+                  Puedes ser la primera persona en decir si merece la pena, si
+                  hay ambiente o si conviene ir a otra hora.
+                </p>
+              </div>
+            ) : (
+              resenas.map((resena) => (
+                <article
+                  key={resena.id}
+                  className="rounded-3xl border border-orange-100 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-amber-400 text-lg font-black uppercase text-white">
+                        {(resena.usuario || "A").slice(0, 1)}
+                      </div>
+
+                      <div>
+                        <p className="font-bold text-slate-900">
+                          {resena.usuario || "Anónimo"}
+                        </p>
+                        {resena.created_at && (
+                          <p className="text-xs text-slate-500">
+                            {formatearFecha(resena.created_at)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <span className="rounded-full bg-rose-50 px-4 py-2 text-sm font-bold text-rose-600">
+                      ❤️ A {resena.likes || 0} personas les ha gustado
+                    </span>
+                  </div>
+
+                  <p className="mt-4 text-base leading-7 text-slate-700">
+                    {resena.comentario || "Sin comentario."}
+                  </p>
+
+                  {resena.foto && (
+                    <img
+                      src={resena.foto}
+                      alt={`Foto compartida por ${resena.usuario || "un visitante"}`}
+                      className="mt-4 max-h-[520px] w-full rounded-2xl object-cover"
+                    />
+                  )}
+
+                  {resena.video_url?.trim() && (
+                    <video
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="mt-4 max-h-[640px] w-full rounded-2xl bg-black object-contain"
+                    >
+                      <source src={resena.video_url.trim()} />
+                      Tu navegador no puede reproducir este vídeo.
+                    </video>
+                  )}
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
