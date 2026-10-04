@@ -140,3 +140,31 @@ test('image endpoint serves original image bytes with explicit safe content type
   assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
   assert.equal(await response.text(), 'hello');
 });
+
+test('comment counts include contributions beyond the API first page', async () => {
+  const comments = Array.from({length: 1204}, (_, i) => ({id: String(i), evento_id: i < 1200 ? 'old' : 'swing'}));
+  const db = database({eventos: [{id: 'swing'}], comentarios_eventos: comments});
+  const {getEventosInitialData} = load('lib/eventos-data.ts', db);
+  assert.equal((await getEventosInitialData('')).eventos[0].comentariosCount, 4);
+  assert.equal(db.reads.filter(r => r.table === 'comentarios_eventos').length, 3);
+});
+
+test('agenda prioritizes current short plans, then long-running plans, with missing dates last', () => {
+  const {compararAgenda, fechaAgenda, largaDuracion} = load('lib/agenda-ui.ts');
+  const rows = [{id:'long',inicio:'2026-01-01',fin:'2026-12-31'},{id:'tomorrow',inicio:'2026-10-05'},{id:'today',inicio:'2026-10-04'},{id:'ongoing',inicio:'2026-10-02',fin:'2026-10-06'},{id:'unknown'}];
+  rows.sort((a,b) => compararAgenda(a,b,'2026-10-04'));
+  assert.deepEqual(rows.map(r => r.id), ['ongoing','today','tomorrow','long','unknown']);
+  assert.equal(fechaAgenda('2026-07-07','2026-12-31','2026-10-04'), 'Hasta el 31 de diciembre de 2026');
+  assert.equal(largaDuracion('2026-10-02','2026-10-06'), false);
+});
+
+test('grouped categories preserve old exact filters and safely label ticket links', () => {
+  const {grupoTipo, coincideTipo, etiquetaEnlace} = load('lib/agenda-ui.ts');
+  assert.equal(grupoTipo('Concierto pequeño'), 'Música y conciertos');
+  assert(coincideTipo('Música','grupo:Música y conciertos'));
+  assert(coincideTipo('Monólogo','grupo:Humor y monólogos'));
+  assert(!coincideTipo('Música','Concierto'));
+  assert(coincideTipo('Concierto','Concierto'));
+  assert.equal(etiquetaEnlace('https://entradium.com/en/events/swing'), 'Ver entradas');
+  assert.equal(etiquetaEnlace('https://entradium.com.ejemplo.org'), 'Consultar programación');
+});

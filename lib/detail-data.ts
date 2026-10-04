@@ -18,7 +18,7 @@ export async function getEventoDetail(slug: string) {
   const [comments, collaborator] = await Promise.all([
     publicServer.from("comentarios_eventos").select("id,texto,autor,created_at,foto,video_url").eq("evento_id", evento.id).order("created_at", { ascending: false }),
     evento.colaborador_id
-      ? publicServer.from("colaboradores").select("id, nombre, categoria_colaborador, logo, logo_url").eq("id", evento.colaborador_id).maybeSingle()
+      ? publicServer.from("colaboradores").select("id, slug, nombre, categoria_colaborador, logo, logo_url").eq("id", evento.colaborador_id).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
   ]);
   if (comments.error) throw comments.error;

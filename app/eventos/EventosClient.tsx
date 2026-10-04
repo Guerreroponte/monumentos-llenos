@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { EventoUI } from "@/lib/eventos-data";
 import { leerFiltrosEventos } from "@/lib/eventos-filters";
+import { compararAgenda, fechaAgenda, grupoTipo, coincideTipo, largaDuracion } from "@/lib/agenda-ui";
 import { seoListado } from "@/lib/listado-seo";
 
 const CIUDADES_TOP = [
@@ -27,18 +28,6 @@ function formatFecha(fecha?: string | null) {
   return d.toLocaleDateString("es-ES", {
     day: "numeric",
     month: "long",
-    year: "numeric",
-  });
-}
-
-function formatFechaCorta(fecha?: string | null) {
-  if (!fecha) return "";
-  const d = new Date(fecha);
-  if (Number.isNaN(d.getTime())) return "";
-
-  return d.toLocaleDateString("es-ES", {
-    day: "2-digit",
-    month: "2-digit",
     year: "numeric",
   });
 }
@@ -249,7 +238,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
   }, [eventos]);
 
   const tiposDisponibles = useMemo(() => {
-    return [...new Set(eventos.map((e) => e.tipo).filter(Boolean))].sort((a, b) =>
+    return [...new Set(eventos.map((e) => grupoTipo(e.tipo)).filter(Boolean))].sort((a, b) =>
       a.localeCompare(b, "es")
     );
   }, [eventos]);
@@ -261,9 +250,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
         (!ciudadSeleccionada || e.ciudad === ciudadSeleccionada)
       )
       .sort((a, b) => {
-        const aTime = a.fechaInicio ? new Date(a.fechaInicio).getTime() : Infinity;
-        const bTime = b.fechaInicio ? new Date(b.fechaInicio).getTime() : Infinity;
-        return aTime - bTime;
+        return compararAgenda({ inicio: a.fechaInicio, fin: a.fechaFin }, { inicio: b.fechaInicio, fin: b.fechaFin });
       });
   }, [eventos, ciudadSeleccionada]);
 
@@ -364,14 +351,12 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
         }
 
         if (ciudadSeleccionada && e.ciudad !== ciudadSeleccionada) return false;
-        if (tipoSeleccionado && e.tipo !== tipoSeleccionado) return false;
+        if (!coincideTipo(e.tipo, tipoSeleccionado)) return false;
 
         return true;
       })
       .sort((a, b) => {
-        const aTime = a.fechaInicio ? new Date(a.fechaInicio).getTime() : Infinity;
-        const bTime = b.fechaInicio ? new Date(b.fechaInicio).getTime() : Infinity;
-        return aTime - bTime;
+        return compararAgenda({ inicio: a.fechaInicio, fin: a.fechaFin }, { inicio: b.fechaInicio, fin: b.fechaFin });
       });
   }, [
     eventos,
@@ -823,8 +808,9 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
               className="rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
             >
               <option value="">Todos los tipos</option>
+              {tipoSeleccionado && !tipoSeleccionado.startsWith("grupo:") && <option value={tipoSeleccionado}>{tipoSeleccionado}</option>}
               {tiposDisponibles.map((tipo) => (
-                <option key={tipo} value={tipo}>
+                <option key={tipo} value={`grupo:${tipo}`}>
                   {tipo}
                 </option>
               ))}
@@ -860,7 +846,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
               : "Todos los eventos y planes"}
           </h2>
           <p className="mt-1 text-sm text-[#64748b]">
-            Resultado en tiempo real según los filtros.
+            Primero los planes de hoy y próximos días; después, los de larga duración.
           </p>
         </div>
 
@@ -905,7 +891,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                           : "bg-[#fef3c7] text-[#92400e]"
                       }`}
                     >
-                      {evento.categoriaEvento === "local"
+                      {largaDuracion(evento.fechaInicio, evento.fechaFin) ? "Larga duración" : evento.categoriaEvento === "local"
                         ? "Plan local"
                         : "Evento grande"}
                     </span>
@@ -1445,9 +1431,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                         </h4>
 
                         <p className="mt-1 text-sm text-[#64748b]">
-                          {evento.fechaInicio
-                            ? formatFechaCorta(evento.fechaInicio)
-                            : "Fecha por confirmar"}
+                          {fechaAgenda(evento.fechaInicio, evento.fechaFin)}
                           {textoHoraEvento(evento) ? ` · ${textoHoraEvento(evento)}` : ""}
                         </p>
 

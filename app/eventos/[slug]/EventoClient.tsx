@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { etiquetaEnlace } from "@/lib/agenda-ui";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -15,6 +16,7 @@ export type Comentario = {
 
 export type ColaboradorEvento = {
   id: string;
+  slug?: string | null;
   nombre: string;
   categoria_colaborador?: string | null;
   logo?: string | null;
@@ -530,7 +532,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
 
                 {colaborador && (
                   <Link
-                    href="/colaboradores"
+                    href={colaborador.slug ? `/colaboradores/${encodeURIComponent(colaborador.slug)}` : `/eventos?colaborador=${encodeURIComponent(colaborador.id)}`}
                     className="ml-auto inline-flex rounded-full border border-[#fed7aa] bg-white px-4 py-2 text-xs font-bold text-[#ea580c] transition hover:bg-[#ffedd5]"
                   >
                     Ver colaborador →
@@ -713,7 +715,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
                     rel="noreferrer"
                     className="inline-flex rounded-full border border-[#fed7aa] px-5 py-3 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
                   >
-                    Ver enlace externo
+                    {etiquetaEnlace(evento.enlace)}
                   </a>
                 )}
             </div>

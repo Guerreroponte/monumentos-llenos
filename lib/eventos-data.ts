@@ -99,10 +99,16 @@ const getEventBatch = unstable_cache(async (colaborador: string, offset: number)
 }, ["eventos-batch-v1"], { revalidate: 60 });
 
 const getCommentCounts = unstable_cache(async () => {
-  const { data, error } = await publicServer.from("comentarios_eventos").select("id, evento_id");
-  if (error) throw error;
-  return (data || []) as ComentarioEventoDB[];
-}, ["eventos-comment-counts-v1"], { revalidate: 60 });
+  const result: ComentarioEventoDB[] = [];
+  for (let offset = 0; ; offset += BATCH_SIZE) {
+    const { data, error } = await publicServer.from("comentarios_eventos")
+      .select("id, evento_id").order("id", { ascending: true }).range(offset, offset + BATCH_SIZE - 1);
+    if (error) throw error;
+    const batch = (data || []) as ComentarioEventoDB[];
+    result.push(...batch);
+    if (batch.length < BATCH_SIZE) return result;
+  }
+}, ["eventos-comment-counts-v2"], { revalidate: 60 });
 
 const getCollaboratorName = unstable_cache(async (id: string) => {
   if (!id) return "";

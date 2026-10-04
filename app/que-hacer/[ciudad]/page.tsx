@@ -1,3 +1,4 @@
+import { compararAgenda, fechaAgenda } from "@/lib/agenda-ui";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -39,6 +40,7 @@ type Colaborador = {
 };
 
 type Props = {
+  searchParams: Promise<{ lugares?: string }>;
   params: Promise<{
     ciudad: string;
   }>;
@@ -51,9 +53,7 @@ const categorias = [
   { label: "🎭 Teatro", href: "#eventos", tipo: "Teatro" },
   { label: "😂 Monólogos", href: "#eventos", tipo: "Monólogo" },
   { label: "🍸 Tardeo", href: "#eventos", tipo: "Tardeo" },
-  { label: "🏛️ Monumentos", href: "#lugares" },
-  { label: "🌳 Naturaleza", href: "#lugares" },
-  { label: "👨‍👩‍👧‍👦 Planes en familia", href: "#lugares" },
+  { label: "🏛️ Lugares y rincones", href: "#lugares" },
   { label: "🤝 Salas colaboradoras", href: "#colaboradores" },
 ];
 
@@ -77,24 +77,6 @@ function formatearCiudadDesdeSlug(slug: string) {
         palabra.slice(1)
     )
     .join(" ");
-}
-
-function formatearFecha(fecha?: string | null) {
-  if (!fecha) {
-    return "Fecha por confirmar";
-  }
-
-  const d = new Date(fecha);
-
-  if (Number.isNaN(d.getTime())) {
-    return "Fecha por confirmar";
-  }
-
-  return d.toLocaleDateString("es-ES", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
 }
 
 function obtenerFechaHoyMadrid(): string {
@@ -158,11 +140,12 @@ async function cargarEventosCiudad(
     desde += TAMANO_PAGINA;
   }
 
-  return { items: encontrados.slice(0, 8), total: encontrados.length };
+  return { items: encontrados.sort((a, b) => compararAgenda({ inicio: a.fecha_inicio, fin: a.fecha_fin }, { inicio: b.fecha_inicio, fin: b.fecha_fin })).slice(0, 8), total: encontrados.length };
 }
 
 async function cargarLugaresCiudad(
-  ciudadNormalizada: string
+  ciudadNormalizada: string,
+  mostrarTodos = false
 ): Promise<{ items: Lugar[]; total: number }> {
   const encontrados: Lugar[] = [];
   let desde = 0;
@@ -209,7 +192,7 @@ async function cargarLugaresCiudad(
     desde += TAMANO_PAGINA;
   }
 
-  return { items: encontrados.slice(0, 8), total: encontrados.length };
+  return { items: mostrarTodos ? encontrados : encontrados.slice(0, 8), total: encontrados.length };
 }
 
 async function cargarColaboradoresCiudad(
@@ -265,9 +248,10 @@ async function cargarColaboradoresCiudad(
 }
 
 export default async function CiudadPage({
-  params,
+  params, searchParams,
 }: Props) {
   const { ciudad } = await params;
+  const mostrarTodosLugares = (await searchParams).lugares === "todos";
 
   const ciudadSlug =
     normalizarCiudad(ciudad);
@@ -278,7 +262,7 @@ export default async function CiudadPage({
     colaboradoresCiudad,
   ] = await Promise.all([
     cargarEventosCiudad(ciudadSlug),
-    cargarLugaresCiudad(ciudadSlug),
+    cargarLugaresCiudad(ciudadSlug, mostrarTodosLugares),
     cargarColaboradoresCiudad(
       ciudadSlug
     ),
@@ -509,9 +493,7 @@ export default async function CiudadPage({
 
                       <p className="mt-3 text-sm text-slate-600">
                         📅{" "}
-                        {formatearFecha(
-                          evento.fecha_inicio
-                        )}
+                        {fechaAgenda(evento.fecha_inicio, evento.fecha_fin)}
                       </p>
 
                       <p className="mt-4 text-sm font-semibold text-orange-600">
@@ -542,10 +524,10 @@ export default async function CiudadPage({
             </div>
 
             <Link
-              href="/#lugares"
+              href={`/que-hacer/${ciudadSlug}${mostrarTodosLugares ? "" : "?lugares=todos"}#lugares`}
               className="text-sm font-bold text-orange-600 hover:text-orange-700"
             >
-              Ver todos los lugares →
+              {mostrarTodosLugares ? "Ver selección de lugares →" : `Ver los ${lugaresCiudad.total} lugares →`}
             </Link>
           </div>
 
