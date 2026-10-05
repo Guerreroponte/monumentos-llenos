@@ -45,8 +45,10 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
   }
 
   const marca = data as MarcaColaboradora;
+
   const esVermutZarro = marca.slug === "vermut-zarro";
   const esDaveiga = marca.slug === "daveiga";
+  const esAlthaia = marca.slug === "cervezas-althaia";
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-amber-50 via-orange-50 to-white text-slate-900">
@@ -83,9 +85,11 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
                   <span className="rounded-full bg-white/20 px-4 py-2 text-sm font-bold text-white backdrop-blur">
                     🤝 Marca colaboradora
                   </span>
+
                   <span className="rounded-full bg-white/20 px-4 py-2 text-sm font-bold text-white backdrop-blur">
                     📍 Experiencias reales
                   </span>
+
                   <span className="rounded-full bg-white/20 px-4 py-2 text-sm font-bold text-white backdrop-blur">
                     🍸 Ocio local
                   </span>
@@ -199,9 +203,11 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
             <>
               <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
                 <p className="text-3xl">🌊</p>
+
                 <h3 className="mt-4 text-xl font-extrabold text-slate-900">
                   Tradición gallega
                 </h3>
+
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   Las Mariñeiras® nacen de una tradición vinculada al mar y se
                   elaboran en Galicia, conectando origen, territorio y producto.
@@ -210,23 +216,29 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
 
               <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
                 <p className="text-3xl">🌾</p>
+
                 <h3 className="mt-4 text-xl font-extrabold text-slate-900">
                   Producción responsable
                 </h3>
+
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Una apuesta por la proximidad, la economía social, el desarrollo
-                  rural y una forma responsable de crear y hacer crecer la marca.
+                  Una apuesta por la proximidad, la economía social, el
+                  desarrollo rural y una forma responsable de crear y hacer
+                  crecer la marca.
                 </p>
               </div>
 
               <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
                 <p className="text-3xl">📸</p>
+
                 <h3 className="mt-4 text-xl font-extrabold text-slate-900">
                   Experiencias y contenido
                 </h3>
+
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   Acciones junto a Lugares Llenos para acercar Daveiga a nuevos
-                  públicos mediante experiencias, contenidos y colaboraciones reales.
+                  públicos mediante experiencias, contenidos y colaboraciones
+                  reales.
                 </p>
               </div>
             </>
@@ -234,20 +246,24 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
             <>
               <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
                 <p className="text-3xl">🍷</p>
+
                 <h3 className="mt-4 text-xl font-extrabold text-slate-900">
                   Vermut y aperitivo
                 </h3>
+
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Una marca vinculada al momento del aperitivo, los encuentros y los
-                  planes que empiezan con una buena conversación.
+                  Una marca vinculada al momento del aperitivo, los encuentros y
+                  los planes que empiezan con una buena conversación.
                 </p>
               </div>
 
               <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
                 <p className="text-3xl">📍</p>
+
                 <h3 className="mt-4 text-xl font-extrabold text-slate-900">
                   Lugares con ambiente
                 </h3>
+
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   La colaboración busca conectar la marca con espacios, salas y
                   planes locales donde pasan cosas de verdad.
@@ -256,9 +272,11 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
 
               <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
                 <p className="text-3xl">📸</p>
+
                 <h3 className="mt-4 text-xl font-extrabold text-slate-900">
                   Contenido real
                 </h3>
+
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   Contenido pensado para que la comunidad descubra, participe y
                   comparta experiencias de forma natural.
@@ -269,9 +287,11 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
             <>
               <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
                 <p className="text-3xl">🤝</p>
+
                 <h3 className="mt-4 text-xl font-extrabold text-slate-900">
                   Colaboración real
                 </h3>
+
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   Una colaboración pensada para conectar la marca con personas,
                   lugares y experiencias que ocurren de verdad.
@@ -280,9 +300,11 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
 
               <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
                 <p className="text-3xl">📍</p>
+
                 <h3 className="mt-4 text-xl font-extrabold text-slate-900">
                   Experiencias locales
                 </h3>
+
                 <p className="mt-3 text-sm leading-6 text-slate-600">
                   Presencia vinculada a planes, eventos y espacios con identidad
                   propia dentro de la comunidad de Lugares Llenos.
@@ -291,12 +313,14 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
 
               <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
                 <p className="text-3xl">📸</p>
+
                 <h3 className="mt-4 text-xl font-extrabold text-slate-900">
                   Contenido y visibilidad
                 </h3>
+
                 <p className="mt-3 text-sm leading-6 text-slate-600">
-                  Contenido útil y acciones conjuntas para acercar la marca a nuevos
-                  públicos de una forma natural.
+                  Contenido útil y acciones conjuntas para acercar la marca a
+                  nuevos públicos de una forma natural.
                 </p>
               </div>
             </>
@@ -307,6 +331,7 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
           <div className="mt-10 rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-6 shadow-lg shadow-orange-100">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🍸</span>
+
               <h2 className="text-2xl font-extrabold text-slate-900">
                 Lugares Llenos × Vermut Zarro
               </h2>
@@ -323,6 +348,7 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
                 <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
                   Descubrir
                 </p>
+
                 <p className="mt-2 text-slate-700">
                   Dar visibilidad a lugares, planes y momentos donde disfrutar
                   del aperitivo de forma auténtica.
@@ -333,6 +359,7 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
                 <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
                   Compartir
                 </p>
+
                 <p className="mt-2 text-slate-700">
                   Crear contenido que los usuarios puedan compartir en redes y
                   que conecte la marca con experiencias reales.
@@ -343,11 +370,264 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
                 <p className="text-sm font-bold uppercase tracking-wide text-orange-600">
                   Activar
                 </p>
+
                 <p className="mt-2 text-slate-700">
                   Preparar futuras acciones como sorteos, experiencias con salas
                   colaboradoras y contenidos destacados.
                 </p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {esAlthaia && (
+          <div className="mt-10 overflow-hidden rounded-3xl border border-orange-200 bg-white/95 shadow-lg shadow-orange-100">
+            <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-white p-6 md:p-8">
+              <p className="text-sm font-bold uppercase tracking-[0.22em] text-orange-600">
+                Experiencia destacada
+              </p>
+
+              <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <h2 className="text-3xl font-extrabold text-slate-900 md:text-4xl">
+                    Visita y cata con maridaje
+                  </h2>
+
+                  <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">
+                    Descubre cómo se elaboran las cervezas de Althaia en su
+                    fábrica de Altea y disfruta de una experiencia guiada que
+                    combina cultura cervecera, producto local y una cata
+                    comentada en su Tap Room.
+                  </p>
+                </div>
+
+                <a
+                  href="https://cervezasalthaia.com/pages/visitas-y-catas"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex shrink-0 justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3 font-bold text-white shadow-md shadow-orange-100 transition hover:scale-[1.02]"
+                >
+                  Consultar y reservar en Althaia →
+                </a>
+              </div>
+            </div>
+
+            <div className="grid gap-4 border-t border-orange-100 p-6 sm:grid-cols-2 md:grid-cols-4 md:p-8">
+              <div className="rounded-2xl bg-orange-50 p-5">
+                <p className="text-2xl">💶</p>
+                <p className="mt-3 text-sm font-bold uppercase tracking-wide text-orange-600">
+                  Precio
+                </p>
+                <p className="mt-1 text-xl font-extrabold text-slate-900">
+                  28 €
+                </p>
+                <p className="text-sm text-slate-600">por persona</p>
+              </div>
+
+              <div className="rounded-2xl bg-orange-50 p-5">
+                <p className="text-2xl">⏱️</p>
+                <p className="mt-3 text-sm font-bold uppercase tracking-wide text-orange-600">
+                  Duración
+                </p>
+                <p className="mt-1 text-xl font-extrabold text-slate-900">
+                  1 h 30 min - 2 h
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-orange-50 p-5">
+                <p className="text-2xl">🍺</p>
+                <p className="mt-3 text-sm font-bold uppercase tracking-wide text-orange-600">
+                  Cata
+                </p>
+                <p className="mt-1 text-xl font-extrabold text-slate-900">
+                  4 cervezas
+                </p>
+                <p className="text-sm text-slate-600">cata comentada</p>
+              </div>
+
+              <div className="rounded-2xl bg-orange-50 p-5">
+                <p className="text-2xl">👥</p>
+                <p className="mt-3 text-sm font-bold uppercase tracking-wide text-orange-600">
+                  Aforo
+                </p>
+                <p className="mt-1 text-xl font-extrabold text-slate-900">
+                  Hasta 40
+                </p>
+                <p className="text-sm text-slate-600">
+                  grupos privados bajo consulta
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-6 border-t border-orange-100 p-6 md:grid-cols-2 md:p-8">
+              <div className="rounded-3xl border border-orange-100 bg-orange-50/60 p-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🍻</span>
+
+                  <h3 className="text-xl font-extrabold text-slate-900">
+                    Qué incluye
+                  </h3>
+                </div>
+
+                <div className="mt-5 grid gap-4">
+                  <div className="flex gap-3">
+                    <span>🏭</span>
+                    <p className="text-sm leading-6 text-slate-600">
+                      Visita guiada por la fábrica y aproximación al proceso de
+                      elaboración y a la cultura cervecera.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <span>🍺</span>
+                    <p className="text-sm leading-6 text-slate-600">
+                      Cata comentada de 4 cervezas Althaia.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <span>🌿</span>
+                    <p className="text-sm leading-6 text-slate-600">
+                      Degustación en el Tap Room, con terraza y vistas directas
+                      a la zona de producción.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <span>🧀</span>
+                    <p className="text-sm leading-6 text-slate-600">
+                      Maridaje gastronómico con quesos, embutidos locales, pan
+                      artesanal y alfajor.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🕒</span>
+
+                  <h3 className="text-xl font-extrabold text-slate-900">
+                    Horarios de visita
+                  </h3>
+                </div>
+
+                <div className="mt-5 grid gap-4">
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <p className="font-extrabold text-slate-900">Viernes</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      16:00 — Inglés
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      18:00 — Castellano
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <p className="font-extrabold text-slate-900">Sábado</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      12:00 — Castellano
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      16:00 — Inglés
+                    </p>
+                    <p className="text-sm text-slate-600">
+                      18:00 — Castellano
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <p className="font-extrabold text-slate-900">Domingo</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      12:00 — Castellano
+                    </p>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-xs leading-5 text-slate-500">
+                  Plazas según disponibilidad en la reserva oficial.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-6 border-t border-orange-100 bg-slate-50/60 p-6 md:grid-cols-2 md:p-8">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">📍</span>
+
+                  <h3 className="text-xl font-extrabold text-slate-900">
+                    Dónde
+                  </h3>
+                </div>
+
+                <p className="mt-4 text-base font-bold text-slate-900">
+                  Cervezas Althaia
+                </p>
+
+                <p className="mt-1 text-sm leading-6 text-slate-600">
+                  Partida el Planet 196
+                  <br />
+                  03590 Altea, Alicante
+                </p>
+
+                <a
+                  href="tel:+34965840605"
+                  className="mt-3 inline-flex text-sm font-bold text-orange-600 hover:text-orange-700"
+                >
+                  📞 965 840 605
+                </a>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">ℹ️</span>
+
+                  <h3 className="text-xl font-extrabold text-slate-900">
+                    Información práctica
+                  </h3>
+                </div>
+
+                <div className="mt-4 grid gap-3">
+                  <div className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-slate-600 shadow-sm">
+                    👨‍👩‍👧 Los niños pueden asistir y tienen acceso gratuito.
+                  </div>
+
+                  <div className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-slate-600 shadow-sm">
+                    🔞 La cata de cerveza es exclusivamente para mayores de 18
+                    años.
+                  </div>
+
+                  <div className="rounded-2xl bg-white px-4 py-3 text-sm leading-6 text-slate-600 shadow-sm">
+                    👥 Las visitas admiten hasta 40 personas y los grupos
+                    privados pueden consultarse directamente con Althaia.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-orange-100 bg-gradient-to-r from-orange-500 to-amber-500 p-6 text-center text-white md:p-8">
+              <p className="text-sm font-bold uppercase tracking-[0.22em] text-white/80">
+                Lugares Llenos × Cervezas Althaia
+              </p>
+
+              <h3 className="mt-2 text-2xl font-extrabold">
+                Descubre la cultura cervecera de Altea
+              </h3>
+
+              <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-white/90">
+                Una experiencia para conocer la fábrica, descubrir cómo se
+                elabora la cerveza y disfrutar de una cata con productos
+                locales.
+              </p>
+
+              <a
+                href="https://cervezasalthaia.com/pages/visitas-y-catas"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex rounded-full bg-white px-6 py-3 font-bold text-orange-600 shadow-md transition hover:scale-[1.02]"
+              >
+                Consultar y reservar en Althaia →
+              </a>
             </div>
           </div>
         )}
@@ -358,20 +638,24 @@ export default async function MarcaPage({ params }: MarcaPageProps) {
           </h2>
 
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-            Muy pronto este espacio podrá recoger sorteos, contenidos destacados,
-            experiencias patrocinadas y acciones conjuntas vinculadas a la marca.
+            Muy pronto este espacio podrá recoger sorteos, contenidos
+            destacados, experiencias patrocinadas y acciones conjuntas
+            vinculadas a la marca.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               🎁 Sorteos
             </span>
+
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               📣 Contenido destacado
             </span>
+
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               🎵 Acciones con salas
             </span>
+
             <span className="rounded-full bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700">
               🍸 Experiencias patrocinadas
             </span>
