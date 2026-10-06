@@ -1,3 +1,4 @@
+import { diaMadrid, eventoEnFecha } from "./agenda-ui";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { publicImage } from "./public-images";
 import { supabase } from "./supabase";
@@ -121,6 +122,7 @@ export type EventoUI = {
   nombre: string;
   ciudad: string;
   fecha_inicio?: string | null;
+  fecha_fin?: string | null;
   descripcion?: string | null;
   tipo?: string | null;
   imagen?: string | null;
@@ -313,7 +315,7 @@ export async function cargarTotalEventosPublicados(client: SupabaseClient = supa
   }
 
 export async function cargarEventosHoy(client: SupabaseClient = supabase) {
-    const hoy = new Date().toISOString().split("T")[0];
+    const hoy = diaMadrid();
 
     const { data, error } = await client
       .from("eventos")
@@ -322,13 +324,15 @@ export async function cargarEventosHoy(client: SupabaseClient = supabase) {
         nombre,
         ciudad,
         fecha_inicio,
+        fecha_fin,
         descripcion,
         tipo,
         imagen,
         slug,
         comentarios_eventos ( id )
       `)
-      .eq("fecha_inicio", hoy)
+      .lte("fecha_inicio", hoy)
+      .or(`fecha_fin.gte.${hoy},and(fecha_fin.is.null,fecha_inicio.eq.${hoy})`)
       .eq("reportado", false)
       .order("created_at", { ascending: false })
       .limit(6);
@@ -338,7 +342,7 @@ export async function cargarEventosHoy(client: SupabaseClient = supabase) {
       throw error;
     }
 
-    return ((data || []) as EventoUI[]).map((evento) => ({
+    return ((data || []) as EventoUI[]).filter((evento) => eventoEnFecha(evento.fecha_inicio, evento.fecha_fin, hoy)).map((evento) => ({
       ...evento,
       comentarios_eventos: evento.comentarios_eventos || [],
     }));

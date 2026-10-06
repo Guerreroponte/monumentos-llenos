@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { EventoUI } from "@/lib/eventos-data";
 import { leerFiltrosEventos } from "@/lib/eventos-filters";
-import { compararAgenda, fechaAgenda, grupoTipo, coincideTipo, largaDuracion } from "@/lib/agenda-ui";
+import { diaMadrid, mananaMadrid, eventoEnFecha, compararAgenda, fechaAgenda, grupoTipo, coincideTipo, largaDuracion } from "@/lib/agenda-ui";
 import { seoListado } from "@/lib/listado-seo";
 
 const CIUDADES_TOP = [
@@ -38,45 +38,15 @@ function formatHora(hora?: string | null) {
 }
 
 function esEventoProximo(fechaInicio?: string | null, fechaFin?: string | null) {
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-
-  const inicio = fechaInicio ? new Date(fechaInicio) : null;
-  const fin = fechaFin ? new Date(fechaFin) : null;
-
-  if (inicio && !Number.isNaN(inicio.getTime())) inicio.setHours(0, 0, 0, 0);
-  if (fin && !Number.isNaN(fin.getTime())) fin.setHours(0, 0, 0, 0);
-
-  if (fin) return fin >= hoy;
-  if (inicio) return inicio >= hoy;
-  return false;
+  return !!fechaInicio && (fechaFin || fechaInicio) >= diaMadrid();
 }
 
-function esHoy(fecha?: string | null) {
-  if (!fecha) return false;
-
-  const d = new Date(fecha);
-  if (Number.isNaN(d.getTime())) return false;
-
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-  d.setHours(0, 0, 0, 0);
-
-  return hoy.getTime() === d.getTime();
+function esHoy(inicio?: string | null, fin?: string | null) {
+  return eventoEnFecha(inicio, fin, diaMadrid());
 }
 
-function esManana(fecha?: string | null) {
-  if (!fecha) return false;
-
-  const d = new Date(fecha);
-  if (Number.isNaN(d.getTime())) return false;
-
-  const manana = new Date();
-  manana.setDate(manana.getDate() + 1);
-  manana.setHours(0, 0, 0, 0);
-  d.setHours(0, 0, 0, 0);
-
-  return manana.getTime() === d.getTime();
+function esManana(inicio?: string | null, fin?: string | null) {
+  return eventoEnFecha(inicio, fin, mananaMadrid());
 }
 
 function eventoGrandeScore(e: EventoUI) {
@@ -115,8 +85,8 @@ function eventoGrandeScore(e: EventoUI) {
 function planLocalScore(e: EventoUI) {
   let score = 0;
 
-  if (esHoy(e.fechaInicio)) score += 60;
-  else if (esManana(e.fechaInicio)) score += 40;
+  if (esHoy(e.fechaInicio, e.fechaFin)) score += 60;
+  else if (esManana(e.fechaInicio, e.fechaFin)) score += 40;
   else if (esEventoProximo(e.fechaInicio, e.fechaFin)) score += 20;
 
   if (CIUDADES_TOP.includes(e.ciudad)) score += 12;
@@ -293,14 +263,14 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
 
   const planesHoy = useMemo(() => {
     return planesLocales
-      .filter((e) => esHoy(e.fechaInicio))
+      .filter((e) => esHoy(e.fechaInicio, e.fechaFin))
       .sort((a, b) => planLocalScore(b) - planLocalScore(a))
       .slice(0, 6);
   }, [planesLocales]);
 
   const planesManana = useMemo(() => {
     return planesLocales
-      .filter((e) => esManana(e.fechaInicio))
+      .filter((e) => esManana(e.fechaInicio, e.fechaFin))
       .sort((a, b) => planLocalScore(b) - planLocalScore(a))
       .slice(0, 6);
   }, [planesLocales]);
@@ -346,8 +316,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
         }
 
         if (fechaSeleccionada) {
-          const fechaEvento = e.fechaInicio ? e.fechaInicio.slice(0, 10) : "";
-          if (fechaEvento !== fechaSeleccionada) return false;
+          if (!eventoEnFecha(e.fechaInicio, e.fechaFin, fechaSeleccionada)) return false;
         }
 
         if (ciudadSeleccionada && e.ciudad !== ciudadSeleccionada) return false;
@@ -482,24 +451,23 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
   }
 
   function filtrarHoy() {
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = diaMadrid();
     setBusqueda("");
     setFechaSeleccionada(hoy);
     setTipoSeleccionado("");
     setSoloProximos(false);
-    setModoVista("locales");
-    scrollToSection("seccion-hoy");
+    setModoVista("todos");
+    scrollToSection("seccion-todos");
   }
 
   function filtrarManana() {
-    const manana = new Date();
-    manana.setDate(manana.getDate() + 1);
+    const manana = mananaMadrid();
     setBusqueda("");
-    setFechaSeleccionada(manana.toISOString().slice(0, 10));
+    setFechaSeleccionada(manana);
     setTipoSeleccionado("");
     setSoloProximos(false);
-    setModoVista("locales");
-    scrollToSection("seccion-manana");
+    setModoVista("todos");
+    scrollToSection("seccion-todos");
   }
 
   function verProximos() {
@@ -896,13 +864,13 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                         : "Evento grande"}
                     </span>
 
-                    {esHoy(evento.fechaInicio) && (
+                    {esHoy(evento.fechaInicio, evento.fechaFin) && (
                       <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
                         Hoy
                       </span>
                     )}
 
-                    {esManana(evento.fechaInicio) && (
+                    {esManana(evento.fechaInicio, evento.fechaFin) && (
                       <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
                         Mañana
                       </span>
@@ -1288,13 +1256,13 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                       {evento.ciudad}
                     </span>
 
-                    {esHoy(evento.fechaInicio) && (
+                    {esHoy(evento.fechaInicio, evento.fechaFin) && (
                       <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
                         Hoy
                       </span>
                     )}
 
-                    {esManana(evento.fechaInicio) && (
+                    {esManana(evento.fechaInicio, evento.fechaFin) && (
                       <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
                         Mañana
                       </span>

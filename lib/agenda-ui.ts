@@ -1,6 +1,6 @@
 // Shared by the agenda and city guides. Date-only comparisons use Madrid's day.
-export function diaMadrid() {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+export function diaMadrid(ahora = new Date()) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' }).format(ahora);
 }
 export function largaDuracion(inicio?: string | null, fin?: string | null) {
   return !!inicio && !!fin && Date.parse(fin) - Date.parse(inicio) >= 30 * 86400000;
@@ -42,4 +42,15 @@ export function etiquetaEnlace(enlace: string) {
     const host = new URL(enlace).hostname.toLowerCase();
     return ['entradium.com', 'ticketmaster.es', 'ticketmaster.com', 'wegow.com', 'dice.fm', 'eventbrite.es', 'eventbrite.com'].some(d => host === d || host.endsWith('.' + d)) ? 'Ver entradas' : 'Consultar programación';
   } catch { return 'Consultar programación'; }
+}
+
+// Inclusive date range: a missing end date means a single-day event.
+export function eventoEnFecha(inicio: string | null | undefined, fin: string | null | undefined, dia: string) {
+  return !!inicio && inicio <= dia && (fin || inicio) >= dia;
+}
+
+export function mananaMadrid(ahora = new Date()) {
+  const dia = new Date(diaMadrid(ahora) + 'T12:00:00Z');
+  dia.setUTCDate(dia.getUTCDate() + 1);
+  return dia.toISOString().slice(0, 10);
 }

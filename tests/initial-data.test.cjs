@@ -190,3 +190,58 @@ test('map grouping preserves every point including overlapping positions', () =>
   assert.deepEqual(groups.flat(),points);
   assert.deepEqual(agruparPuntos([],p=>p),[]);
 });
+
+test('today includes each day of a multi-day event, with inclusive boundaries', () => {
+  const {eventoEnFecha} = load('lib/agenda-ui.ts');
+  for (const day of ['2026-10-06','2026-10-07','2026-10-08']) {
+    assert.equal(eventoEnFecha('2026-10-06','2026-10-08',day),true);
+  }
+  for (const day of ['2026-10-05','2026-10-09']) {
+    assert.equal(eventoEnFecha('2026-10-06','2026-10-08',day),false);
+  }
+  assert.equal(eventoEnFecha('2026-10-06',null,'2026-10-06'),true);
+  assert.equal(eventoEnFecha('2026-10-06',null,'2026-10-07'),false);
+  assert.equal(eventoEnFecha(null,'2026-10-08','2026-10-06'),false);
+});
+
+test('Madrid day and tomorrow handle UTC midnight, year rollover and daylight saving', () => {
+  const {diaMadrid,mananaMadrid} = load('lib/agenda-ui.ts');
+  assert.equal(diaMadrid(new Date('2026-10-05T22:30:00Z')),'2026-10-06');
+  assert.equal(mananaMadrid(new Date('2026-12-31T22:30:00Z')),'2027-01-01');
+  assert.equal(mananaMadrid(new Date('2026-03-28T23:30:00Z')),'2026-03-30');
+  assert.equal(mananaMadrid(new Date('2026-10-24T22:30:00Z')),'2026-10-26');
+});
+
+test('home today query retains ongoing events before limiting, excluding past, future and reported events', async () => {
+  const {diaMadrid} = load('lib/agenda-ui.ts');
+  const today = diaMadrid();
+  const fixtures = [
+    {id:'past',fecha_inicio:'2000-01-01',fecha_fin:'2000-01-02'},
+    {id:'future',fecha_inicio:'2099-01-01'},
+    {id:'unknown'},
+    {id:'ongoing',fecha_inicio:'2000-01-01',fecha_fin:'2099-01-01'},
+    {id:'today',fecha_inicio:today},
+    {id:'ends-today',fecha_inicio:'2000-01-01',fecha_fin:today},
+    {id:'reported',fecha_inicio:today,reportado:true},
+  ].map(row => ({reportado:false,...row}));
+  const db = {from(table) {
+    assert.equal(table,'eventos');
+    let rows = fixtures;
+    const query = {
+      select(columns) { assert.match(columns,/fecha_fin/); return query; },
+      lte(key,value) { rows=rows.filter(row => row[key] && row[key]<=value); return query; },
+      or(expression) {
+        assert.equal(expression,`fecha_fin.gte.${today},and(fecha_fin.is.null,fecha_inicio.eq.${today})`);
+        rows=rows.filter(row => row.fecha_fin ? row.fecha_fin>=today : row.fecha_inicio===today);
+        return query;
+      },
+      eq(key,value) { rows=rows.filter(row=>row[key]===value); return query; },
+      order() {return query;},
+      limit(n) {rows=rows.slice(0,n);return query;},
+      then(resolve) {return Promise.resolve({data:rows,error:null}).then(resolve);},
+    };
+    return query;
+  }};
+  const {cargarEventosHoy} = load('lib/home-data.ts',db);
+  assert.deepEqual((await cargarEventosHoy(db)).map(row=>row.id),['ongoing','today','ends-today']);
+});
