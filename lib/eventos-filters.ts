@@ -1,5 +1,14 @@
+// Acepta los formatos UUID de PostgreSQL y devuelve el formato canónico.
+export function normalizarColaborador(valor: string | null) {
+  const texto = (valor || "").trim();
+  const sinLlaves = texto.startsWith("{") && texto.endsWith("}") ? texto.slice(1, -1) : texto;
+  if (!/^[0-9a-f]{4}(?:-?[0-9a-f]{4}){7}$/i.test(sinLlaves)) return "";
+  const hex = sinLlaves.replace(/-/g, "").toLowerCase();
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
 export function leerFiltrosEventos(params: URLSearchParams) {
-  const colaborador = params.get("colaborador")?.trim() || "";
+  const colaborador = normalizarColaborador(params.get("colaborador"));
   const texto = params.get("q") || "";
   const fechaParam = params.get("fecha") || "";
   const fecha = /^\d{4}-\d{2}-\d{2}$/.test(fechaParam) ? fechaParam : "";

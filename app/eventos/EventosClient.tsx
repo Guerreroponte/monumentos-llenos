@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { EventoUI } from "@/lib/eventos-data";
-import { leerFiltrosEventos } from "@/lib/eventos-filters";
+import { leerFiltrosEventos, normalizarColaborador } from "@/lib/eventos-filters";
 import { diaMadrid, mananaMadrid, eventoEnFecha, compararAgenda, fechaAgenda, grupoTipo, coincideTipo, largaDuracion } from "@/lib/agenda-ui";
 import { seoListado } from "@/lib/listado-seo";
 
@@ -158,10 +158,10 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
   const [modoVista, setModoVista] = useState<"todos" | "grandes" | "locales">(initialFilters.vista);
 
   useEffect(() => {
-    const colaboradorInicial = new URLSearchParams(window.location.search).get("colaborador")?.trim() || "";
+    const colaboradorInicial = normalizarColaborador(new URLSearchParams(window.location.search).get("colaborador"));
     function restaurarUrl() {
       const params = new URLSearchParams(window.location.search);
-      if ((params.get("colaborador")?.trim() || "") !== colaboradorInicial) {
+      if (normalizarColaborador(params.get("colaborador")) !== colaboradorInicial) {
         window.location.reload();
         return;
       }
