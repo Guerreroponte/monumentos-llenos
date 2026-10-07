@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async redirects() {
+    return [
+      // Las consultas (incluida ciudad) se conservan en el destino.
+      { source: "/lugar", destination: "/#lugares", permanent: true },
+      { source: "/buscar", destination: "/#buscador", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
