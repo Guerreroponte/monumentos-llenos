@@ -1626,6 +1626,15 @@ ${url}`;
                   <input type="text" value={busquedaCiudad} onChange={(e) => { setBusquedaciudad(e.target.value); setPaginaActual(1); }} placeholder="Buscar ciudad..." className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400" />
                 </div>
               </div>
+              <a
+                href="#lugares"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-slate-950 px-6 py-3 text-sm font-black text-white transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-500 sm:col-span-2"
+              >
+                <span aria-live="polite" aria-atomic="true">
+                  Ver {monumentosFiltrados.length} {monumentosFiltrados.length === 1 ? "resultado" : "resultados"}
+                </span>
+                <span aria-hidden="true">↓</span>
+              </a>
             </div>
           </div>
         </div>
@@ -1739,7 +1748,7 @@ ${url}`;
         </div>
       </section>
 
-      <section id="lugares" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+      <section id="lugares" className="scroll-mt-28 mx-auto max-w-6xl px-4 pb-12 sm:px-6">
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">📍 Explora lugares</p>
