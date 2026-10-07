@@ -6,8 +6,8 @@ import { seoListado, type ParametrosListado } from "@/lib/listado-seo";
 
 type Props = { searchParams: Promise<ParametrosListado> };
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const seo = seoListado("/eventos", await searchParams);
+export function generateMetadata(): Metadata {
+  const seo = seoListado("/eventos");
   return {
     title: "Eventos y planes en España",
     description: "Descubre próximos conciertos, fiestas, ferias, festivales y planes en España con Lugares Llenos.",

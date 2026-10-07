@@ -284,11 +284,8 @@ export default async function CiudadPage({
         colaborador.ciudad
     )?.ciudad;
 
-  const ciudadFormateada =
-    ciudadReal ||
-    formatearCiudadDesdeSlug(
-      ciudadSlug
-    );
+  const ciudadFormateada = (ciudadReal || formatearCiudadDesdeSlug(ciudadSlug))
+    .trim().replace(/\s+/g, " ");
 
   return (
     <main className="bg-[#fff7ed] min-h-screen">

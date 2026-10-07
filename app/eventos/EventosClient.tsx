@@ -399,12 +399,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
 
   useEffect(() => {
     if (!urlPreparada || loading) return;
-    const params = {
-      ciudad: ciudadSeleccionada, tipo: tipoSeleccionado, q: busqueda,
-      fecha: fechaSeleccionada, colaborador: colaboradorId,
-      proximos: soloProximos ? "1" : "0", vista: modoVista, pagina: String(paginaActual),
-    };
-    const seo = seoListado("/eventos", params);
+    const seo = seoListado("/eventos");
     const canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     const robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
     if (canonical) canonical.href = seo.canonical;
