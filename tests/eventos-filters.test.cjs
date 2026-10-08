@@ -19,3 +19,15 @@ test("conserva UUID válidos y normaliza variantes aceptadas", () => {
   assert.equal(leerFiltrosEventos(new URLSearchParams()).colaborador, "");
   assert.equal(leerFiltrosEventos(new URLSearchParams("colaborador=prueba&colaborador=" + id)).colaborador, "");
 });
+
+
+test("el fin de semana conserva filtros, página y colaborador en enlaces compartidos", () => {
+  const filters = leerFiltrosEventos(new URLSearchParams({ periodo: "fin-de-semana", ciudad: "Madrid", tipo: "Concierto", colaborador: id, pagina: "2" }));
+  assert.equal(filters.periodo, "fin-de-semana");
+  assert.equal(filters.ciudad, "Madrid");
+  assert.equal(filters.tipo, "Concierto");
+  assert.equal(filters.colaborador, id);
+  assert.equal(filters.pagina, 2);
+  assert.equal(leerFiltrosEventos(new URLSearchParams("periodo=desconocido")).periodo, "");
+  assert.equal(leerFiltrosEventos(new URLSearchParams("fecha=2026-10-08&periodo=fin-de-semana")).periodo, "");
+});

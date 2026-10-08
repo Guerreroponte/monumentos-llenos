@@ -85,3 +85,18 @@ export function mananaMadrid(ahora = new Date()) {
   dia.setUTCDate(dia.getUTCDate() + 1);
   return dia.toISOString().slice(0, 10);
 }
+
+// De viernes a domingo; si ya es fin de semana, solo quedan hoy y los días siguientes.
+export function diasFinDeSemana(ahora = new Date()) {
+  const dia = new Date(diaMadrid(ahora) + 'T12:00:00Z');
+  const semana = dia.getUTCDay();
+  const hastaViernes = semana >= 1 && semana <= 4 ? 5 - semana : 0;
+  dia.setUTCDate(dia.getUTCDate() + hastaViernes);
+  const dias: string[] = [];
+  do {
+    dias.push(dia.toISOString().slice(0, 10));
+    if (dia.getUTCDay() === 0) break;
+    dia.setUTCDate(dia.getUTCDate() + 1);
+  } while (dias.length < 3);
+  return dias;
+}

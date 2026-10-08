@@ -12,6 +12,7 @@ export function leerFiltrosEventos(params: URLSearchParams) {
   const texto = params.get("q") || "";
   const fechaParam = params.get("fecha") || "";
   const fecha = /^\d{4}-\d{2}-\d{2}$/.test(fechaParam) ? fechaParam : "";
+  const periodo = !fecha && params.get("periodo") === "fin-de-semana" ? "fin-de-semana" : "";
   const ciudad = params.get("ciudad")?.trim() || "";
   const tipo = params.get("tipo")?.trim() || "";
   const proximos = params.get("proximos") !== "0";
@@ -19,6 +20,6 @@ export function leerFiltrosEventos(params: URLSearchParams) {
   const vista: "grandes" | "locales" | "todos" = vistaParam === "grandes" || vistaParam === "locales" ? vistaParam : "todos";
   const paginaParam = Number(params.get("pagina") || "1");
   const pagina = Number.isSafeInteger(paginaParam) && paginaParam > 0 ? paginaParam : 1;
-  const clave = JSON.stringify([texto, fecha, ciudad, tipo, proximos, vista, colaborador]);
-  return { colaborador, texto, fecha, ciudad, tipo, proximos, vista, pagina, clave };
+  const clave = JSON.stringify([texto, fecha, ciudad, tipo, proximos, vista, colaborador, periodo]);
+  return { colaborador, texto, fecha, periodo, ciudad, tipo, proximos, vista, pagina, clave };
 }

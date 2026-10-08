@@ -62,7 +62,7 @@ test('initial event filters retain deep links and pagination', () => {
   assert.equal(f.pagina, 3);
   assert.equal(f.proximos, false);
   assert.equal(f.colaborador, uuid);
-  assert.deepEqual(JSON.parse(f.clave), ['jazz', '2026-10-04', 'Madrid', 'Concierto', false, 'locales', uuid]);
+  assert.deepEqual(JSON.parse(f.clave), ['jazz', '2026-10-04', 'Madrid', 'Concierto', false, 'locales', uuid, '']);
   for (const pagina of ['0', '-1', 'bad', '1.5', 'Infinity']) {
     assert.equal(leerFiltrosEventos(new URLSearchParams({ pagina })).pagina, 1);
   }
@@ -268,4 +268,18 @@ test('unconfirmed seasons stay out of date-specific recommendations, including t
   assert.equal(eventoEnFecha('2026-10-08','2026-10-08','2026-10-08'),true);
   assert.equal(eventoEnFecha('2026-10-08','2026-10-07','2026-10-08'),false);
   assert.equal(calendarioEvento('toString'),undefined);
+});
+
+
+test('weekend dates use Madrid and keep only remaining Friday-to-Sunday sessions', () => {
+  const {diasFinDeSemana,eventoEnFecha,calendarioEvento} = load('lib/agenda-ui.ts');
+  assert.deepEqual(diasFinDeSemana(new Date('2026-10-08T10:00:00Z')),['2026-10-09','2026-10-10','2026-10-11']);
+  assert.deepEqual(diasFinDeSemana(new Date('2026-10-09T10:00:00Z')),['2026-10-09','2026-10-10','2026-10-11']);
+  assert.deepEqual(diasFinDeSemana(new Date('2026-10-09T22:30:00Z')),['2026-10-10','2026-10-11']);
+  assert.deepEqual(diasFinDeSemana(new Date('2026-10-11T10:00:00Z')),['2026-10-11']);
+  assert.deepEqual(diasFinDeSemana(new Date('2026-12-31T10:00:00Z')),['2027-01-01','2027-01-02','2027-01-03']);
+  assert.deepEqual(diasFinDeSemana(new Date('2026-10-24T22:30:00Z')),['2026-10-25']);
+  const dias = diasFinDeSemana(new Date('2026-10-08T10:00:00Z'));
+  assert.equal(dias.some(dia=>eventoEnFecha('2026-10-03','2026-10-31',dia,calendarioEvento('irun-zuzenean-zikloa-2026'))),true);
+  assert.equal(dias.some(dia=>eventoEnFecha('2026-10-08','2027-05-27',dia,calendarioEvento('conciertos-factoria-cruzcampo-sevilla-2026-2027'))),false);
 });
