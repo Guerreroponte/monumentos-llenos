@@ -400,6 +400,28 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
     };
   }, [fotosLugarSeleccionadas]);
 
+  const [sugerenciasLugaresAbiertas, setSugerenciasLugaresAbiertas] = useState(false);
+  const [indiceCiudadLugar, setIndiceCiudadLugar] = useState(-1);
+  const ciudadesLugares = useMemo(() => {
+    const unicas = new Map<string, string>();
+    for (const lugar of monumentos) {
+      const ciudad = (lugar.ciudad || "").trim().replace(/\s+/g, " ");
+      if (ciudad && !unicas.has(normalizarTexto(ciudad))) unicas.set(normalizarTexto(ciudad), ciudad);
+    }
+    return [...unicas.values()];
+  }, [monumentos]);
+  const sugerenciasLugares = useMemo(
+    () => filtrarCiudades(ciudadesLugares, busquedaCiudad),
+    [ciudadesLugares, busquedaCiudad]
+  );
+  const mostrarSugerenciasLugares = sugerenciasLugaresAbiertas && sugerenciasLugares.length > 0;
+  const seleccionarCiudadLugar = (ciudad: string) => {
+    setBusquedaciudad(ciudad);
+    setPaginaActual(1);
+    setSugerenciasLugaresAbiertas(false);
+    setIndiceCiudadLugar(-1);
+  };
+
   const [busquedaRestaurada, setBusquedaRestaurada] = useState(false);
   useEffect(() => {
     const restaurar = () => {
@@ -1613,18 +1635,82 @@ ${url}`;
               <p className="mt-3 text-sm leading-6 text-slate-600">Filtra la comunidad por nombre o ciudad y salta directamente a lo que te interesa.</p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid items-start gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-orange-100 bg-white p-2 shadow-sm">
                 <div className="flex items-center gap-3 px-3">
                   <span className="text-xl">📍</span>
                   <input type="text" value={busquedaNombre} onChange={(e) => { setBusquedaNombre(e.target.value); setPaginaActual(1); }} placeholder="Buscar lugar..." className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400" />
                 </div>
               </div>
-              <div className="rounded-2xl border border-orange-100 bg-white p-2 shadow-sm">
+              <div
+                className="rounded-2xl border border-orange-100 bg-white p-2 shadow-sm"
+                onBlur={(e) => {
+                  if (!e.currentTarget.contains(e.relatedTarget)) {
+                    setSugerenciasLugaresAbiertas(false);
+                    setIndiceCiudadLugar(-1);
+                  }
+                }}
+              >
                 <div className="flex items-center gap-3 px-3">
-                  <span className="text-xl">🏙️</span>
-                  <input type="text" value={busquedaCiudad} onChange={(e) => { setBusquedaciudad(e.target.value); setPaginaActual(1); }} placeholder="Buscar ciudad..." className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400" />
+                  <span aria-hidden="true" className="text-xl">🏙️</span>
+                  <input
+                    type="text"
+                    role="combobox"
+                    aria-label="Buscar ciudad de los lugares"
+                    aria-autocomplete="list"
+                    aria-expanded={mostrarSugerenciasLugares}
+                    aria-controls={mostrarSugerenciasLugares ? "ciudades-lugares" : undefined}
+                    aria-activedescendant={mostrarSugerenciasLugares && indiceCiudadLugar >= 0 ? `ciudad-lugar-${indiceCiudadLugar}` : undefined}
+                    autoComplete="off"
+                    value={busquedaCiudad}
+                    onChange={(e) => {
+                      setBusquedaciudad(e.target.value);
+                      setPaginaActual(1);
+                      setSugerenciasLugaresAbiertas(true);
+                      setIndiceCiudadLugar(-1);
+                    }}
+                    onFocus={() => setSugerenciasLugaresAbiertas(true)}
+                    onKeyDown={(e) => {
+                      if (e.nativeEvent.isComposing) return;
+                      if (e.key === "Escape") {
+                        setSugerenciasLugaresAbiertas(false);
+                        setIndiceCiudadLugar(-1);
+                      } else if ((e.key === "ArrowDown" || e.key === "ArrowUp") && sugerenciasLugares.length) {
+                        e.preventDefault();
+                        setSugerenciasLugaresAbiertas(true);
+                        setIndiceCiudadLugar((actual) => {
+                          if (!mostrarSugerenciasLugares || actual < 0) return e.key === "ArrowDown" ? 0 : sugerenciasLugares.length - 1;
+                          return (actual + (e.key === "ArrowDown" ? 1 : -1) + sugerenciasLugares.length) % sugerenciasLugares.length;
+                        });
+                      } else if (e.key === "Enter" && mostrarSugerenciasLugares && indiceCiudadLugar >= 0 && indiceCiudadLugar < sugerenciasLugares.length) {
+                        e.preventDefault();
+                        seleccionarCiudadLugar(sugerenciasLugares[indiceCiudadLugar]);
+                      }
+                    }}
+                    placeholder="Buscar ciudad..."
+                    className="w-full bg-transparent py-3 outline-none placeholder:text-slate-400"
+                  />
                 </div>
+                {mostrarSugerenciasLugares && (
+                  <ul id="ciudades-lugares" role="listbox" aria-label="Ciudades con lugares" className="mt-2 border-t border-orange-100 pt-2">
+                    {sugerenciasLugares.map((ciudad, indice) => (
+                      <li key={ciudad} role="presentation">
+                        <button
+                          id={`ciudad-lugar-${indice}`}
+                          type="button"
+                          role="option"
+                          aria-selected={indiceCiudadLugar === indice}
+                          tabIndex={-1}
+                          onPointerDown={(e) => { if (e.pointerType === "mouse") e.preventDefault(); }}
+                          onClick={() => seleccionarCiudadLugar(ciudad)}
+                          className={`min-h-11 w-full rounded-xl px-3 py-2 text-left font-semibold hover:bg-orange-50 ${indiceCiudadLugar === indice ? "bg-orange-50 text-orange-700" : "text-slate-700"}`}
+                        >
+                          {ciudad}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <a
                 href="#lugares"
