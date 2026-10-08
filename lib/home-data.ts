@@ -46,6 +46,7 @@ export const SALAS_DESTACADAS_COLABORADORAS = [
   "MusikaBizi",
   "Zentral Pamplona",
   "La Chistera",
+  "El Gran Café",
 ];
 
 export type MonumentoDB = {
