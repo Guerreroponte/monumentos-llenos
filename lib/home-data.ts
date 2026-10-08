@@ -1,4 +1,4 @@
-import { diaMadrid, eventoEnFecha } from "./agenda-ui";
+import { diaMadrid, eventoEnFecha, calendarioEvento } from "./agenda-ui";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { publicImage } from "./public-images";
 import { supabase } from "./supabase";
@@ -318,35 +318,31 @@ export async function cargarTotalEventosPublicados(client: SupabaseClient = supa
 export async function cargarEventosHoy(client: SupabaseClient = supabase) {
     const hoy = diaMadrid();
 
-    const { data, error } = await client
-      .from("eventos")
-      .select(`
-        id,
-        nombre,
-        ciudad,
-        fecha_inicio,
-        fecha_fin,
-        descripcion,
-        tipo,
-        imagen,
-        slug,
-        comentarios_eventos ( id )
-      `)
-      .lte("fecha_inicio", hoy)
-      .or(`fecha_fin.gte.${hoy},and(fecha_fin.is.null,fecha_inicio.eq.${hoy})`)
-      .eq("reportado", false)
-      .order("created_at", { ascending: false })
-      .limit(6);
+    // Filtrar sesiones antes de limitar a seis; los primeros candidatos pueden
+    // ser ciclos sin sesión hoy. Paginar evita el límite de filas del servidor.
+    const resultado: EventoUI[] = [];
+    const tamano = 100;
+    for (let offset = 0; ; offset += tamano) {
+      const { data, error } = await client
+        .from("eventos")
+        .select(`id,nombre,ciudad,fecha_inicio,fecha_fin,descripcion,tipo,imagen,slug,comentarios_eventos ( id )`)
+        .lte("fecha_inicio", hoy)
+        .or(`fecha_fin.gte.${hoy},and(fecha_fin.is.null,fecha_inicio.eq.${hoy})`)
+        .eq("reportado", false)
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: true })
+        .range(offset, offset + tamano - 1);
 
-    if (error) {
-      console.error("Error cargando eventos de hoy:", error);
-      throw error;
+      if (error) {
+        console.error("Error cargando eventos de hoy:", error);
+        throw error;
+      }
+      const candidatos = (data || []) as EventoUI[];
+      resultado.push(...candidatos.filter((evento) =>
+        eventoEnFecha(evento.fecha_inicio, evento.fecha_fin, hoy, calendarioEvento(evento.slug))
+      ).map((evento) => ({ ...evento, comentarios_eventos: evento.comentarios_eventos || [] })));
+      if (resultado.length >= 6 || candidatos.length < tamano) return resultado.slice(0, 6);
     }
-
-    return ((data || []) as EventoUI[]).filter((evento) => eventoEnFecha(evento.fecha_inicio, evento.fecha_fin, hoy)).map((evento) => ({
-      ...evento,
-      comentarios_eventos: evento.comentarios_eventos || [],
-    }));
   }
 
 export async function cargarEventosProximosHero(client: SupabaseClient = supabase) {

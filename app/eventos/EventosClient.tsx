@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { EventoUI } from "@/lib/eventos-data";
 import { leerFiltrosEventos, normalizarColaborador } from "@/lib/eventos-filters";
-import { diaMadrid, mananaMadrid, eventoEnFecha, compararAgenda, fechaAgenda, grupoTipo, coincideTipo, largaDuracion } from "@/lib/agenda-ui";
+import { diaMadrid, mananaMadrid, eventoEnFecha, calendarioEvento, compararAgenda, fechaAgenda, grupoTipo, coincideTipo, largaDuracion } from "@/lib/agenda-ui";
 import { seoListado } from "@/lib/listado-seo";
 
 const CIUDADES_TOP = [
@@ -41,12 +41,12 @@ function esEventoProximo(fechaInicio?: string | null, fechaFin?: string | null) 
   return !!fechaInicio && (fechaFin || fechaInicio) >= diaMadrid();
 }
 
-function esHoy(inicio?: string | null, fin?: string | null) {
-  return eventoEnFecha(inicio, fin, diaMadrid());
+function esHoy(e: EventoUI) {
+  return eventoEnFecha(e.fechaInicio, e.fechaFin, diaMadrid(), calendarioEvento(e.slug));
 }
 
-function esManana(inicio?: string | null, fin?: string | null) {
-  return eventoEnFecha(inicio, fin, mananaMadrid());
+function esManana(e: EventoUI) {
+  return eventoEnFecha(e.fechaInicio, e.fechaFin, mananaMadrid(), calendarioEvento(e.slug));
 }
 
 function eventoGrandeScore(e: EventoUI) {
@@ -85,8 +85,8 @@ function eventoGrandeScore(e: EventoUI) {
 function planLocalScore(e: EventoUI) {
   let score = 0;
 
-  if (esHoy(e.fechaInicio, e.fechaFin)) score += 60;
-  else if (esManana(e.fechaInicio, e.fechaFin)) score += 40;
+  if (esHoy(e)) score += 60;
+  else if (esManana(e)) score += 40;
   else if (esEventoProximo(e.fechaInicio, e.fechaFin)) score += 20;
 
   if (CIUDADES_TOP.includes(e.ciudad)) score += 12;
@@ -115,7 +115,7 @@ function textoFechaEvento(e: EventoUI) {
     const inicio = formatFecha(e.fechaInicio);
     const fin = formatFecha(e.fechaFin);
 
-    if (inicio && fin && inicio !== fin) return `${inicio} - ${fin}`;
+    if (inicio && fin && inicio !== fin) return `${inicio} - ${fin}${calendarioEvento(e.slug) ? "" : " · Consultar días y sesiones"}`;
     if (inicio) return inicio;
   }
 
@@ -263,14 +263,14 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
 
   const planesHoy = useMemo(() => {
     return planesLocales
-      .filter((e) => esHoy(e.fechaInicio, e.fechaFin))
+      .filter((e) => esHoy(e))
       .sort((a, b) => planLocalScore(b) - planLocalScore(a))
       .slice(0, 6);
   }, [planesLocales]);
 
   const planesManana = useMemo(() => {
     return planesLocales
-      .filter((e) => esManana(e.fechaInicio, e.fechaFin))
+      .filter((e) => esManana(e))
       .sort((a, b) => planLocalScore(b) - planLocalScore(a))
       .slice(0, 6);
   }, [planesLocales]);
@@ -316,7 +316,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
         }
 
         if (fechaSeleccionada) {
-          if (!eventoEnFecha(e.fechaInicio, e.fechaFin, fechaSeleccionada)) return false;
+          if (!eventoEnFecha(e.fechaInicio, e.fechaFin, fechaSeleccionada, calendarioEvento(e.slug))) return false;
         }
 
         if (ciudadSeleccionada && e.ciudad !== ciudadSeleccionada) return false;
@@ -859,13 +859,13 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                         : "Evento grande"}
                     </span>
 
-                    {esHoy(evento.fechaInicio, evento.fechaFin) && (
+                    {esHoy(evento) && (
                       <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
                         Hoy
                       </span>
                     )}
 
-                    {esManana(evento.fechaInicio, evento.fechaFin) && (
+                    {esManana(evento) && (
                       <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
                         Mañana
                       </span>
@@ -1251,13 +1251,13 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                       {evento.ciudad}
                     </span>
 
-                    {esHoy(evento.fechaInicio, evento.fechaFin) && (
+                    {esHoy(evento) && (
                       <span className="rounded-full bg-[#dcfce7] px-3 py-1 text-xs font-bold text-[#166534]">
                         Hoy
                       </span>
                     )}
 
-                    {esManana(evento.fechaInicio, evento.fechaFin) && (
+                    {esManana(evento) && (
                       <span className="rounded-full bg-[#dbeafe] px-3 py-1 text-xs font-bold text-[#1d4ed8]">
                         Mañana
                       </span>

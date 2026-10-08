@@ -58,11 +58,11 @@ const uuid = '11111111-1111-4111-8111-111111111111';
 
 test('initial event filters retain deep links and pagination', () => {
   const { leerFiltrosEventos } = load('lib/eventos-filters.ts');
-  const f = leerFiltrosEventos(new URLSearchParams('ciudad=Madrid&tipo=Concierto&pagina=3&vista=locales&proximos=0&colaborador=sala&q=jazz&fecha=2026-10-04'));
+  const f = leerFiltrosEventos(new URLSearchParams('ciudad=Madrid&tipo=Concierto&pagina=3&vista=locales&proximos=0&colaborador=11111111-1111-4111-8111-111111111111&q=jazz&fecha=2026-10-04'));
   assert.equal(f.pagina, 3);
   assert.equal(f.proximos, false);
-  assert.equal(f.colaborador, 'sala');
-  assert.deepEqual(JSON.parse(f.clave), ['jazz', '2026-10-04', 'Madrid', 'Concierto', false, 'locales', 'sala']);
+  assert.equal(f.colaborador, uuid);
+  assert.deepEqual(JSON.parse(f.clave), ['jazz', '2026-10-04', 'Madrid', 'Concierto', false, 'locales', uuid]);
   for (const pagina of ['0', '-1', 'bad', '1.5', 'Infinity']) {
     assert.equal(leerFiltrosEventos(new URLSearchParams({ pagina })).pagina, 1);
   }
@@ -191,13 +191,13 @@ test('map grouping preserves every point including overlapping positions', () =>
   assert.deepEqual(agruparPuntos([],p=>p),[]);
 });
 
-test('today includes each day of a multi-day event, with inclusive boundaries', () => {
+test('confirmed daily events have inclusive boundaries; unknown ranges do not imply sessions', () => {
   const {eventoEnFecha} = load('lib/agenda-ui.ts');
   for (const day of ['2026-10-06','2026-10-07','2026-10-08']) {
-    assert.equal(eventoEnFecha('2026-10-06','2026-10-08',day),true);
+    assert.equal(eventoEnFecha('2026-10-06','2026-10-08',day,{tipo:'diario'}),true);
   }
   for (const day of ['2026-10-05','2026-10-09']) {
-    assert.equal(eventoEnFecha('2026-10-06','2026-10-08',day),false);
+    assert.equal(eventoEnFecha('2026-10-06','2026-10-08',day,{tipo:'diario'}),false);
   }
   assert.equal(eventoEnFecha('2026-10-06',null,'2026-10-06'),true);
   assert.equal(eventoEnFecha('2026-10-06',null,'2026-10-07'),false);
@@ -212,15 +212,16 @@ test('Madrid day and tomorrow handle UTC midnight, year rollover and daylight sa
   assert.equal(mananaMadrid(new Date('2026-10-24T22:30:00Z')),'2026-10-26');
 });
 
-test('home today query retains ongoing events before limiting, excluding past, future and reported events', async () => {
+test('home scans beyond a page of unconfirmed ranges before limiting confirmed sessions', async () => {
   const {diaMadrid} = load('lib/agenda-ui.ts');
   const today = diaMadrid();
   const fixtures = [
     {id:'past',fecha_inicio:'2000-01-01',fecha_fin:'2000-01-02'},
     {id:'future',fecha_inicio:'2099-01-01'},
     {id:'unknown'},
+    ...Array.from({length:105},(_,i)=>({id:`unconfirmed-${i}`,fecha_inicio:'2000-01-01',fecha_fin:'2099-01-01'})),
     {id:'ongoing',fecha_inicio:'2000-01-01',fecha_fin:'2099-01-01'},
-    {id:'today',fecha_inicio:today},
+    ...Array.from({length:8},(_,i)=>({id:`today-${i}`,fecha_inicio:today})),
     {id:'ends-today',fecha_inicio:'2000-01-01',fecha_fin:today},
     {id:'reported',fecha_inicio:today,reportado:true},
   ].map(row => ({reportado:false,...row}));
@@ -237,11 +238,34 @@ test('home today query retains ongoing events before limiting, excluding past, f
       },
       eq(key,value) { rows=rows.filter(row=>row[key]===value); return query; },
       order() {return query;},
-      limit(n) {rows=rows.slice(0,n);return query;},
+      range(start,end) {rows=rows.slice(start,end+1);return query;},
       then(resolve) {return Promise.resolve({data:rows,error:null}).then(resolve);},
     };
     return query;
   }};
   const {cargarEventosHoy} = load('lib/home-data.ts',db);
-  assert.deepEqual((await cargarEventosHoy(db)).map(row=>row.id),['ongoing','today','ends-today']);
+  assert.deepEqual((await cargarEventosHoy(db)).map(row=>row.id),Array.from({length:6},(_,i)=>`today-${i}`));
+});
+
+
+test('weekly Cruzcampo and individual Irun sessions never appear on intervening days', () => {
+  const {eventoEnFecha,calendarioEvento} = load('lib/agenda-ui.ts');
+  const cruzcampo = calendarioEvento('conciertos-factoria-cruzcampo-sevilla-2026-2027');
+  for (const [day,expected] of [['2026-10-08',true],['2026-10-09',false],['2026-10-15',true],['2027-05-27',true],['2027-06-03',false]]) {
+    assert.equal(eventoEnFecha('2026-10-08','2027-05-27',day,cruzcampo),expected,day);
+  }
+  const irun = calendarioEvento('irun-zuzenean-zikloa-2026');
+  for (const [day,expected] of [['2026-10-08',false],['2026-10-09',false],['2026-10-10',true],['2026-10-31',true],['2026-11-07',false]]) {
+    assert.equal(eventoEnFecha('2026-10-03','2026-10-31',day,irun),expected,day);
+  }
+});
+
+test('unconfirmed seasons stay out of date-specific recommendations, including their first day', () => {
+  const {eventoEnFecha,calendarioEvento} = load('lib/agenda-ui.ts');
+  for (const day of ['2026-08-23','2026-10-08','2027-01-16']) {
+    assert.equal(eventoEnFecha('2026-08-23','2027-01-16',day),false);
+  }
+  assert.equal(eventoEnFecha('2026-10-08','2026-10-08','2026-10-08'),true);
+  assert.equal(eventoEnFecha('2026-10-08','2026-10-07','2026-10-08'),false);
+  assert.equal(calendarioEvento('toString'),undefined);
 });

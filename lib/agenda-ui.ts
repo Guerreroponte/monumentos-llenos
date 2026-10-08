@@ -44,9 +44,40 @@ export function etiquetaEnlace(enlace: string) {
   } catch { return 'Consultar programación'; }
 }
 
-// Inclusive date range: a missing end date means a single-day event.
-export function eventoEnFecha(inicio: string | null | undefined, fin: string | null | undefined, dia: string) {
-  return !!inicio && inicio <= dia && (fin || inicio) >= dia;
+// Calendarios editoriales: no inferir sesiones a partir de un intervalo o de texto libre.
+// Las reglas están acotadas a la edición revisada y a las fechas de la ficha.
+export type CalendarioEvento =
+  | { tipo: 'diario' }
+  | { tipo: 'semanal'; dias: number[] }
+  | { tipo: 'sesiones'; fechas: string[] };
+
+const calendarios: Record<string, CalendarioEvento> = {
+  // Fichas revisadas el 8-10-2026: cada jueves / los cinco sábados de octubre.
+  'conciertos-factoria-cruzcampo-sevilla-2026-2027': { tipo: 'semanal', dias: [4] },
+  'irun-zuzenean-zikloa-2026': {
+    tipo: 'sesiones',
+    fechas: ['2026-10-03', '2026-10-10', '2026-10-17', '2026-10-24', '2026-10-31'],
+  },
+};
+
+export function calendarioEvento(slug?: string | null) {
+  return slug && Object.hasOwn(calendarios, slug) ? calendarios[slug] : undefined;
+}
+
+export function eventoEnFecha(
+  inicio: string | null | undefined,
+  fin: string | null | undefined,
+  dia: string,
+  calendario?: CalendarioEvento,
+) {
+  if (!inicio || inicio > dia || (fin || inicio) < dia) return false;
+  if (calendario?.tipo === 'sesiones') return calendario.fechas.includes(dia);
+  if (calendario?.tipo === 'semanal') {
+    return calendario.dias.includes(new Date(dia + 'T12:00:00Z').getUTCDay());
+  }
+  if (calendario?.tipo === 'diario') return true;
+  // Un rango sin calendario solo acredita el periodo, no una sesión cada día.
+  return (!fin || fin === inicio) && inicio === dia;
 }
 
 export function mananaMadrid(ahora = new Date()) {
