@@ -21,3 +21,14 @@ export function agruparPuntos<T>(puntos: T[], proyectar: (p: T) => {x: number; y
   }
   return [...grupos.values()];
 }
+
+// Match the whole city: a partial search must not mix neighbouring municipalities.
+export function alternativasPorCiudad<T extends { ciudad: string; slug?: string | null; created_at?: string | null }>(lugares: T[], ciudad: string): T[] {
+  const normalizar = (valor: string) => valor.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLowerCase();
+  const buscada = normalizar(ciudad);
+  if (!buscada) return [];
+  return lugares
+    .filter(lugar => lugar.slug && normalizar(lugar.ciudad) === buscada)
+    .sort((a, b) => (Date.parse(b.created_at || '') || 0) - (Date.parse(a.created_at || '') || 0))
+    .slice(0, 3);
+}

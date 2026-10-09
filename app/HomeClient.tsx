@@ -1,6 +1,6 @@
 "use client";
 
-import { leerBusquedaLugares } from "@/lib/lugares-ui";
+import { alternativasPorCiudad, leerBusquedaLugares } from "@/lib/lugares-ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -614,35 +614,10 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
       .slice(0, 3);
   }, [monumentos]);
 
-  const lugaresAlternativos = useMemo(() => {
-    const palabrasClave = [
-      "jardin",
-      "jardín",
-      "parque",
-      "mirador",
-      "capricho",
-      "oeste",
-      "retiro",
-      "campo",
-      "rio",
-      "río",
-    ];
-
-    const filtrados = monumentos.filter((m) => {
-      const texto = `${m.nombre} ${m.descripcion || ""}`.toLowerCase();
-      return palabrasClave.some((palabra) => texto.includes(palabra));
-    });
-
-    const base = filtrados.length > 0 ? filtrados : monumentos;
-
-    return [...base]
-      .sort((a, b) => {
-        const fechaA = a.created_at ? new Date(a.created_at).getTime() : 0;
-        const fechaB = b.created_at ? new Date(b.created_at).getTime() : 0;
-        return fechaB - fechaA;
-      })
-      .slice(0, 3);
-  }, [monumentos]);
+  const lugaresAlternativos = useMemo(
+    () => alternativasPorCiudad(monumentos, busquedaCiudad),
+    [monumentos, busquedaCiudad]
+  );
 
   const totalPaginas = useMemo(() => {
     return Math.max(
@@ -1573,7 +1548,7 @@ ${url}`;
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-2xl">🧭</div>
             <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-orange-300">03 · Decide</p>
             <h3 className="mt-2 text-xl font-black">Ten siempre un plan B</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-300">Si está demasiado lleno o no te convence, descubre rincones y alternativas cercanas.</p>
+            <p className="mt-3 text-sm leading-6 text-slate-300">Si está demasiado lleno o no te convence, descubre otras opciones en la misma ciudad.</p>
             <span className="mt-5 inline-flex text-sm font-black text-orange-300">Descubrir alternativas <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
           </a>
         </div>
@@ -1755,18 +1730,34 @@ ${url}`;
       )}
 
       {/* ALTERNATIVAS */}
-      {lugaresAlternativos.length > 0 && (
         <section id="alternativas" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 md:pb-16">
           <div className="rounded-[34px] border border-orange-100 bg-gradient-to-br from-emerald-50 via-white to-orange-50 p-6 sm:p-8">
             <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div className="max-w-3xl">
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-600">🧭 Plan B inteligente</p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Rincones para ir con menos agobio</h2>
-                <p className="mt-3 text-sm leading-6 text-slate-600">Parques, miradores y lugares que pueden ser mejor idea que el plan típico.</p>
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-600">🧭 Tu plan B</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">{busquedaCiudad.trim() ? `Otras opciones en ${busquedaCiudad.trim()}` : "Encuentra un plan B en tu ciudad"}</h2>
+                <p className="mt-3 text-sm leading-6 text-slate-600">Lugares compartidos por la comunidad para cambiar de plan sin cambiar de ciudad. Consulta cada ficha para conocer su ubicación y las experiencias de visitantes.</p>
               </div>
-              <a href="#lugares" className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-white px-5 py-2.5 text-sm font-bold text-emerald-700 shadow-sm">Ver más lugares →</a>
+              {busquedaCiudad.trim() && <a href="#lugares" onClick={() => { setBusquedaNombre(""); setPaginaActual(1); }} className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-white px-5 py-2.5 text-sm font-bold text-emerald-700 shadow-sm">Ver lugares de esta ciudad →</a>}
             </div>
 
+            <label className="mb-6 flex max-w-sm flex-col gap-2 text-sm font-bold text-slate-700">
+              Ciudad para tu plan B
+              <select value={busquedaCiudad} onChange={(e) => seleccionarCiudadLugar(e.target.value)} className="min-h-11 w-full rounded-xl border border-emerald-200 bg-white px-3 py-2 font-normal">
+                <option value="">Elige una ciudad</option>
+                {busquedaCiudad && !ciudadesDisponiblesHero.includes(busquedaCiudad) && <option value={busquedaCiudad}>{busquedaCiudad}</option>}
+                {[...ciudadesDisponiblesHero].sort((a, b) => a.localeCompare(b, "es")).map((opcion) => <option key={opcion} value={opcion}>{opcion}</option>)}
+              </select>
+            </label>
+            {lugaresAlternativos.length < 3 && (
+              <p role="status" className="mb-5 rounded-2xl border border-emerald-100 bg-white p-4 text-sm leading-6 text-slate-600">
+                {!busquedaCiudad.trim()
+                  ? "Elige una ciudad para ver hasta tres alternativas."
+                  : lugaresAlternativos.length === 0
+                    ? "Todavía no tenemos lugares con ficha en esta ciudad. Puedes elegir otra o compartir un lugar que conozcas."
+                    : `Por ahora tenemos ${lugaresAlternativos.length === 1 ? "una alternativa" : "dos alternativas"} con ficha en esta ciudad. Puedes descubrirla${lugaresAlternativos.length === 1 ? "" : "s"} aquí.`}
+              </p>
+            )}
             <div className="grid gap-4 md:grid-cols-3">
               {lugaresAlternativos.map((lugar) => {
                 const hrefLugar = lugar.slug ? `/lugar/${lugar.slug}` : "#";
@@ -1786,7 +1777,6 @@ ${url}`;
             </div>
           </div>
         </section>
-      )}
 
       {/* COLABORADORES, MARCAS Y PARTNERS: MÁS COMPACTOS */}
       <section className="border-y border-orange-100 bg-white/80 py-12 md:py-16">

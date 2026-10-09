@@ -302,3 +302,23 @@ test('event comment prompts follow Madrid dates and preserve uncertain session g
   assert.equal(fase(ciclo, '2026-11-01'), 'despues');
   assert.equal(fase({ ...ciclo, slug: 'sin-calendario' }, '2026-10-10'), 'sin-confirmar');
 });
+
+test('plan B stays in the exact selected city, never fills gaps with distant places', () => {
+  const { alternativasPorCiudad } = load('lib/lugares-ui.ts', database({}));
+  const lugares = [
+    { ciudad: 'Madrid', slug: 'madrid-1', created_at: '2026-10-01' },
+    { ciudad: 'Vigo', slug: 'vigo', created_at: '2026-10-09' },
+    { ciudad: 'Alcalá de Henares', slug: 'alcala' },
+    { ciudad: 'Madrid', slug: 'madrid-2', created_at: '2026-10-02' },
+    { ciudad: 'Madrid', slug: 'madrid-3', created_at: '2026-10-03' },
+    { ciudad: 'Madrid', slug: 'madrid-4', created_at: '2026-10-04' },
+    { ciudad: 'Vigo', slug: null },
+  ];
+  assert.deepEqual(alternativasPorCiudad(lugares, '').map(x => x.slug), []);
+  assert.deepEqual(alternativasPorCiudad(lugares, 'Mad'), []);
+  assert.deepEqual(alternativasPorCiudad(lugares, 'Barcelona'), []);
+  assert.deepEqual(alternativasPorCiudad(lugares, '  MADRID ').map(x => x.slug), ['madrid-4', 'madrid-3', 'madrid-2']);
+  assert.deepEqual(alternativasPorCiudad(lugares, 'vigo').map(x => x.slug), ['vigo']);
+  assert.deepEqual(alternativasPorCiudad(lugares, 'alcala de henares').map(x => x.slug), ['alcala']);
+  assert.equal(lugares[0].slug, 'madrid-1');
+});
