@@ -388,7 +388,32 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                   } con los filtros seleccionados.`
                 : "No hemos encontrado eventos con esos filtros."}
             </p>
-            <button onClick={resetearFiltros} className="mt-4 min-h-11 rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-700">Limpiar filtros</button>
+            <p className="mt-3 text-sm leading-6 text-[#64748b]">
+              Prueba otra fecha{ciudadSeleccionada ? ` en ${ciudadSeleccionada}` : ""}. Conservaremos los demás filtros{colaboradorId ? " y el colaborador seleccionado" : ""}.
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              {fechaSeleccionada !== mananaMadrid() && (
+                <button onClick={() => elegirDia(mananaMadrid())} className="min-h-11 rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-700 hover:bg-orange-50">Ver mañana</button>
+              )}
+              {periodo !== "fin-de-semana" && (
+                <button onClick={elegirFinDeSemana} className="min-h-11 rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-700 hover:bg-orange-50">Ver este finde</button>
+              )}
+              {(fechaSeleccionada || periodo || !soloProximos) && (
+                <button onClick={() => elegirDia("")} className="min-h-11 rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-700 hover:bg-orange-50">Ver próximas fechas</button>
+              )}
+            </div>
+            {(busqueda || tipoSeleccionado || modoVista !== "todos") && (
+              <div className="mt-5 border-t border-[#f1f5f9] pt-4">
+                <p className="text-sm leading-6 text-[#64748b]">También puedes quitar la búsqueda y los filtros de actividad para ver los próximos planes{ciudadSeleccionada ? ` en ${ciudadSeleccionada}` : ""}{colaboradorId ? " de este colaborador" : ""}.</p>
+                <button onClick={() => {
+                  setBusqueda("");
+                  setTipoSeleccionado("");
+                  setModoVista("todos");
+                  elegirDia("");
+                }} className="mt-3 min-h-11 rounded-full bg-[#ea580c] px-5 py-2 font-semibold text-white hover:bg-[#c2410c]">Ampliar búsqueda{ciudadSeleccionada ? ` en ${ciudadSeleccionada}` : ""}</button>
+              </div>
+            )}
+            <button onClick={resetearFiltros} className="mt-4 min-h-11 px-3 py-2 text-sm font-semibold text-orange-700 underline underline-offset-4">Limpiar filtros</button>
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
