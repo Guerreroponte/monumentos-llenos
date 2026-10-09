@@ -194,7 +194,7 @@ async function resizeImageToBlob(file: File): Promise<Blob> {
   });
 }
 
-export default function EventoPage({ initialData }: { initialData: { evento: Evento; comentarios: Comentario[]; colaborador: ColaboradorEvento | null } }) {
+export default function EventoPage({ initialData, regreso = "/eventos" }: { initialData: { evento: Evento; comentarios: Comentario[]; colaborador: ColaboradorEvento | null }; regreso?: string }) {
   const botonPublicarRef = useRef<HTMLButtonElement | null>(null);
   const inputFotoRef = useRef<HTMLInputElement | null>(null);
   const inputVideoRef = useRef<HTMLInputElement | null>(null);
@@ -270,7 +270,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
   const compartirWhatsApp = () => {
     if (!evento) return;
 
-    const url = window.location.href;
+    const url = window.location.origin + window.location.pathname;
     const texto = `Mira este plan: ${evento.nombre} (${evento.ciudad}) 👉 ${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, "_blank");
   };
@@ -278,7 +278,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
   const compartirGeneral = async () => {
     if (!evento) return;
 
-    const url = window.location.href;
+    const url = window.location.origin + window.location.pathname;
     const titulo = evento.nombre || "Plan en Lugares Llenos";
     const texto = `Mira este plan en Lugares Llenos${
       evento.ciudad ? ` (${evento.ciudad})` : ""
@@ -509,7 +509,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
       <div className="mx-auto max-w-3xl">
         <div className="mb-4">
           <Link
-            href="/eventos"
+            href={regreso}
             className="inline-flex rounded-full border border-[#e2e8f0] bg-white px-4 py-2 text-sm font-semibold text-[#475569] transition hover:bg-[#f8fafc]"
           >
             ← Volver a eventos

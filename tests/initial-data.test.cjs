@@ -68,6 +68,19 @@ test('initial event filters retain deep links and pagination', () => {
   }
 });
 
+test('return to agenda preserves every filter and page but never leaves the site', () => {
+  const { regresoEventos } = load('lib/eventos-navigation.ts');
+  const query = new URLSearchParams({ciudad:'Madrid',tipo:'Música y conciertos',q:'jazz & soul',fecha:'2026-10-10',periodo:'fin-de-semana',colaborador:uuid,proximos:'0',vista:'locales',pagina:'3'});
+  const result = new URL(regresoEventos('/eventos?' + query + '#seccion-todos'), 'https://example.com');
+  assert.deepEqual([...result.searchParams], [...query]);
+  assert.equal(result.hash, '#seccion-todos');
+  assert.equal(regresoEventos('/eventos#seccion-todos'), '/eventos#seccion-todos');
+  for (const input of [undefined, ['x'], 'https://evil.test', '//evil.test', '/eventos/../admin-eventos', '/eventos-mal', 'javascript:alert(1)']) {
+    assert.equal(regresoEventos(input), '/eventos');
+  }
+  assert.equal(regresoEventos('/eventos?volver=https://evil.test&ciudad=Vigo'), '/eventos?ciudad=Vigo#seccion-todos');
+});
+
 test('legacy photos become URLs without changing normal image URLs or their bytes', () => {
   const { publicImage, decodePublicImage } = load('lib/public-images.ts');
   assert.equal(publicImage('resenas', uuid, image), `/api/imagenes-publicas/resenas/${uuid}`);

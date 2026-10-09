@@ -420,7 +420,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
             {eventosPagina.map((evento) => (
               <Link
                 key={evento.id}
-                href={`/eventos/${evento.slug}`}
+                href={`/eventos/${evento.slug}?volver=${encodeURIComponent(hrefPagina(paginaActual))}`}
                 className="group block overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <img
