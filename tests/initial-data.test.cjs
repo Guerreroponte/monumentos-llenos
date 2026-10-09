@@ -135,6 +135,27 @@ test('place detail contains reviews on first render and absent slugs return not 
   await assert.rejects(getLugarDetail('missing'), /NOT_FOUND/);
 });
 
+test('place gallery preserves cover, removes duplicates and keeps reviews on gallery failure', async () => {
+  const tables = {
+    Monumentos: [{ id: uuid, slug: 'lugar', imagen: image }],
+    resenas: [{ id: 'review', monumento_id: uuid, comentario: 'Conservado' }],
+    lugares_fotos: [
+      { lugar_id: uuid, imagen: image }, { lugar_id: uuid, imagen: 'https://example.com/second.jpg' },
+      { lugar_id: uuid, imagen: 'https://example.com/second.jpg' }, { lugar_id: uuid, imagen: ' ' },
+      { lugar_id: 'other', imagen: 'https://example.com/other.jpg' },
+    ],
+  };
+  const detail = await load('lib/detail-data.ts', database(tables)).getLugarDetail('lugar');
+  assert.deepEqual(detail.fotos, [`/api/imagenes-publicas/lugares/${uuid}`, 'https://example.com/second.jpg']);
+  const failed = await load('lib/detail-data.ts', database(tables, 'lugares_fotos')).getLugarDetail('lugar');
+  assert.deepEqual(failed.fotos, [`/api/imagenes-publicas/lugares/${uuid}`]);
+  assert.equal(failed.resenas[0].comentario, 'Conservado');
+  const noCover = await load('lib/detail-data.ts', database({ ...tables, Monumentos: [{id: uuid, slug: 'lugar'}] })).getLugarDetail('lugar');
+  assert.equal(noCover.fotos.length, 2);
+  const empty = await load('lib/detail-data.ts', database({Monumentos: [{id: uuid, slug: 'lugar'}]})).getLugarDetail('lugar');
+  assert.deepEqual(empty.fotos, []);
+});
+
 test('image endpoint rejects unsupported sources, missing and reported photos', async () => {
   const db = database({ resenas: [{ id: uuid, foto: image, reportado: true }] });
   const { GET } = load('app/api/imagenes-publicas/[origen]/[id]/route.ts', db);

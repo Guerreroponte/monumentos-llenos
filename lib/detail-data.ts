@@ -34,5 +34,12 @@ export async function getLugarDetail(slug: string) {
   const comments = await publicServer.from("resenas").select("id,monumento_id,usuario,comentario,foto,video_url,created_at,likes,reportado").eq("monumento_id", lugar.id)
     .or("reportado.is.null,reportado.eq.false").order("created_at", { ascending: false });
   if (comments.error) throw comments.error;
-  return { lugar, resenas: ((comments.data || []) as Resena[]).map(row => ({ ...row, foto: publicImage("resenas", row.id, row.foto) })) };
+  // La galería es complementaria: un fallo no debe impedir leer la ficha o comentar.
+  const gallery = await publicServer.from("lugares_fotos").select("imagen")
+    .eq("lugar_id", lugar.id).order("orden", { ascending: true })
+    .order("created_at", { ascending: true }).order("id", { ascending: true });
+  if (gallery.error) console.error("Error cargando galería del lugar:", gallery.error);
+  const fotos = [...new Set([lugar.imagen, ...(gallery.error ? [] : (gallery.data || []).map(row => row.imagen === data.imagen ? lugar.imagen : row.imagen))]
+    .filter((foto): foto is string => typeof foto === "string" && foto.trim().length > 0).map(foto => foto.trim()))];
+  return { lugar, fotos, resenas: ((comments.data || []) as Resena[]).map(row => ({ ...row, foto: publicImage("resenas", row.id, row.foto) })) };
 }

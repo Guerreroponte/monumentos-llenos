@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import GaleriaLugar from "./GaleriaLugar";
 import { fechaResena, enlaceComoLlegar } from "@/lib/lugares-ui";
 import { supabase } from "@/lib/supabase";
 
@@ -53,7 +54,7 @@ function limpiarNombreArchivo(nombre: string) {
     .replace(/^-|-$/g, "");
 }
 
-export default function LugarPage({ initialData }: { initialData: { lugar: Lugar; resenas: Resena[] } }) {
+export default function LugarPage({ initialData }: { initialData: { lugar: Lugar; resenas: Resena[]; fotos?: string[] } }) {
 
   const lugar = initialData.lugar;
   const [resenas, setResenas] = useState<Resena[]>(initialData.resenas);
@@ -246,12 +247,8 @@ ${url}`;
         </a>
 
         <div className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100">
-          {lugar.imagen ? (
-            <img
-              src={lugar.imagen}
-              alt={lugar.nombre || "Lugar"}
-              className="h-[260px] w-full object-cover md:h-[420px]"
-            />
+          {(initialData.fotos?.length || lugar.imagen) ? (
+            <GaleriaLugar fotos={initialData.fotos?.length ? initialData.fotos : [lugar.imagen!]} nombre={lugar.nombre || "Lugar"} />
           ) : (
             <div className="flex h-[260px] w-full items-end bg-gradient-to-br from-orange-200 via-amber-100 to-rose-100 p-6 md:h-[420px]">
               <div className="rounded-3xl bg-white/75 p-5 backdrop-blur">
