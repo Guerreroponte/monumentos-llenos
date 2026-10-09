@@ -90,13 +90,14 @@ function normalizarTexto(valor?: string | null) { return (valor ?? "").trim(); }
 const BATCH_SIZE = 500;
 const getEventBatch = unstable_cache(async (colaborador: string, offset: number) => {
   let query = publicServer.from("eventos").select("id,colaborador_id,slug,created_at,nombre,ciudad,provincia,comunidad_autonoma,tipo,subtipo,categoria_evento,fecha_inicio,fecha_fin,hora_inicio,hora_fin,descripcion,imagen,enlace,destacado,ubicacion_detalle,precio,ambiente,dificil_bebida,parking,recomendable")
+    .or("reportado.is.null,reportado.eq.false")
     .order("fecha_inicio", { ascending: true }).order("id", { ascending: true })
     .range(offset, offset + BATCH_SIZE - 1);
   if (colaborador) query = query.eq("colaborador_id", colaborador);
   const { data, error } = await query;
   if (error) throw error;
   return (data || []) as EventoDB[];
-}, ["eventos-batch-v1"], { revalidate: 60 });
+}, ["eventos-batch-v2"], { revalidate: 60 });
 
 const getCommentCounts = unstable_cache(async () => {
   const result: ComentarioEventoDB[] = [];

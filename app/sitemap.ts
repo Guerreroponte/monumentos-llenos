@@ -32,9 +32,11 @@ async function obtenerTodos(
   let desde = 0;
 
   while (true) {
-    const { data, error } = await supabase
+    let query = supabase
       .from(tabla)
-      .select("slug, created_at")
+      .select("slug, created_at");
+    if (tabla === "Monumentos") query = query.or("reportado.is.null,reportado.eq.false");
+    const { data, error } = await query
       .order("created_at", { ascending: true })
       .range(desde, desde + PAGE_SIZE - 1);
 
@@ -72,6 +74,7 @@ async function obtenerEventos(): Promise<EventoSitemap[]> {
       .select(
         "slug, created_at, fecha_inicio, fecha_fin"
       )
+      .or("reportado.is.null,reportado.eq.false")
       .order("created_at", { ascending: true })
       .range(desde, desde + PAGE_SIZE - 1);
 

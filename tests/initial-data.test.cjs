@@ -114,6 +114,18 @@ test('event batches keep all rows beyond 1,000 and preserve collaborator filteri
   assert(db.reads.every(read => read.end - read.start < 500));
 });
 
+test('agenda hides archived events while preserving legacy null flags and collaborator filters', async () => {
+  const db = database({ eventos: [
+    { id: 'visible', reportado: false, colaborador_id: 'sala' },
+    { id: 'legacy', reportado: null, colaborador_id: 'sala' },
+    { id: 'archived', reportado: true, colaborador_id: 'sala' },
+    { id: 'other', reportado: false, colaborador_id: 'other' },
+  ] });
+  const { getEventosInitialData } = load('lib/eventos-data.ts', db);
+  assert.deepEqual((await getEventosInitialData('')).eventos.map(e => e.id), ['visible', 'legacy', 'other']);
+  assert.deepEqual((await getEventosInitialData('sala')).eventos.map(e => e.id), ['visible', 'legacy']);
+});
+
 test('place detail contains reviews on first render and absent slugs return not found', async () => {
   const db = database({ Monumentos: [{ id: uuid, slug: 'lugar', imagen: image }], resenas: [{ id: uuid, monumento_id: uuid, foto: image }, { id: 'hidden', monumento_id: uuid, reportado: true }] });
   const { getLugarDetail } = load('lib/detail-data.ts', db);
