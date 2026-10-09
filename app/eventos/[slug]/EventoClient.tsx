@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { etiquetaEnlace } from "@/lib/agenda-ui";
+import { diaMadrid, etiquetaEnlace, faseComentariosEvento } from "@/lib/agenda-ui";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
@@ -60,6 +60,42 @@ const COMENTARIOS_RAPIDOS_EVENTO = [
   "❌ No merece mucho la pena",
   "🎶 Buen rollo y ambiente",
 ];
+
+const COMENTARIOS_DESPUES = [
+  "🔥 Estuvo llenísimo",
+  "👌 Hubo buen ambiente sin agobios",
+  "😌 Estuvo tranquilo",
+  "😐 Normal, ni fu ni fa",
+  "❌ No mereció mucho la pena",
+  "🎶 Hubo buen rollo y ambiente",
+];
+
+const TEXTOS_COMENTARIOS = {
+  antes: {
+    titulo: "¿Tienes alguna pregunta sobre este plan?",
+    ayuda: "El evento todavía no ha empezado. Comparte dudas o información útil para preparar la visita.",
+    ejemplo: "Ej: ¿A qué hora abren las puertas?",
+    boton: "Publicar comentario",
+  },
+  hoy: {
+    titulo: "¿Cómo está este plan?",
+    ayuda: "Si ya estás allí, cuenta cómo está el ambiente. Si todavía no has ido, puedes dejar una pregunta.",
+    ejemplo: "Ej: Estoy aquí y hay buen ambiente sin agobios",
+    boton: "Contar cómo está",
+  },
+  despues: {
+    titulo: "¿Qué tal estuvo?",
+    ayuda: "Comparte tu experiencia si asististe: el ambiente, la organización o lo que más te gustó.",
+    ejemplo: "Ej: Fui y hubo buen ambiente, aunque la entrada fue lenta",
+    boton: "Contar mi experiencia",
+  },
+  "sin-confirmar": {
+    titulo: "Comentarios y preguntas sobre este plan",
+    ayuda: "Comparte dudas o información útil. Si asististe a una sesión, indica qué día fue.",
+    ejemplo: "Escribe tu pregunta o indica la fecha de tu experiencia",
+    boton: "Publicar comentario",
+  },
+};
 
 function formatearFecha(fecha?: string | null) {
   if (!fecha) return "Fecha por confirmar";
@@ -165,6 +201,22 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
 
   const evento = initialData.evento;
   const colaborador = initialData.colaborador;
+  const [hoy, setHoy] = useState<string | null>(null);
+  const fase = faseComentariosEvento(evento, hoy);
+  const textos = TEXTOS_COMENTARIOS[fase];
+  const respuestasRapidas = fase === "hoy" ? COMENTARIOS_RAPIDOS_EVENTO : fase === "despues" ? COMENTARIOS_DESPUES : [];
+
+  useEffect(() => {
+    const actualizarDia = () => setHoy(diaMadrid());
+    actualizarDia();
+    const intervalo = setInterval(actualizarDia, 30_000);
+    window.addEventListener("focus", actualizarDia);
+    return () => {
+      clearInterval(intervalo);
+      window.removeEventListener("focus", actualizarDia);
+    };
+  }, []);
+
   const [comentarios, setComentarios] = useState<Comentario[]>(initialData.comentarios);
   const [textoComentario, setTextoComentario] = useState("");
   const [comentarioRapidoActivo, setComentarioRapidoActivo] = useState("");
@@ -240,8 +292,8 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
           url,
         });
         return;
-      } catch (error: any) {
-        if (error?.name === "AbortError") return;
+      } catch (error: unknown) {
+        if (error instanceof Error && error.name === "AbortError") return;
       }
     }
 
@@ -330,6 +382,12 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
   const usarComentarioRapido = async (texto: string) => {
     if (!evento?.id || enviandoComentario || comentarioRapidoActivo) return;
 
+    const faseActual = faseComentariosEvento(evento, diaMadrid());
+    const opciones = faseActual === "hoy" ? COMENTARIOS_RAPIDOS_EVENTO : faseActual === "despues" ? COMENTARIOS_DESPUES : [];
+    if (!opciones.includes(texto)) {
+      setHoy(diaMadrid());
+      return;
+    }
     setComentarioRapidoActivo(texto);
     setErrorComentario("");
     setComentarioEnviado(false);
@@ -378,7 +436,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
     setComentarioEnviado(false);
 
     if (!textoLimpio) {
-      setErrorComentario("Elige una opción rápida o escribe una frase.");
+      setErrorComentario("Escribe una pregunta o un comentario antes de publicar.");
       return;
     }
 
@@ -730,15 +788,15 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
 
         <div className="mt-6 rounded-3xl border border-[#fde7d7] bg-white p-6 shadow-sm">
           <h2 className="text-xl font-bold text-[#334155]">
-            ¿Cómo estaba este plan de verdad?
+            {textos.titulo}
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-[#64748b]">
-            ⚡ La gente está decidiendo ahora si ir. Tu comentario o foto puede ayudar mucho.
+            {textos.ayuda}
           </p>
 
           <form onSubmit={enviarComentario} className="mt-5 space-y-4">
-            <div>
+            {respuestasRapidas.length > 0 && <div>
               <p className="text-sm font-bold text-[#334155]">
                 Respuesta rápida
               </p>
@@ -747,7 +805,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
               </p>
 
               <div className="mt-3 flex flex-wrap gap-2">
-                {COMENTARIOS_RAPIDOS_EVENTO.map((texto) => (
+                {respuestasRapidas.map((texto) => (
                   <button
                     key={texto}
                     type="button"
@@ -763,7 +821,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
                   </button>
                 ))}
               </div>
-            </div>
+            </div>}
 
             <input
               type="text"
@@ -779,17 +837,17 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
                 setTextoComentario(e.target.value);
                 setComentarioRapidoActivo("");
               }}
-              placeholder="Ej: Fui ayer y estaba lleno pero buen ambiente"
+              placeholder={textos.ejemplo}
               rows={4}
               className="w-full rounded-2xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
             />
 
             <div className="rounded-2xl border border-dashed border-[#fed7aa] bg-[#fff7ed] p-4">
               <p className="text-sm font-bold text-[#334155]">
-                📸 Añadir foto del ambiente (opcional)
+                📸 Añadir foto (opcional)
               </p>
               <p className="mt-1 text-sm leading-6 text-[#64748b]">
-                Una foto ayuda mucho a ver si el plan estaba lleno, tranquilo o con buen ambiente.
+                Añade una foto relacionada con tu comentario. Si es de una visita, indica cuándo fue.
               </p>
 
               <input
@@ -830,10 +888,10 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
 
             <div className="rounded-2xl border border-dashed border-[#fed7aa] bg-[#fff7ed] p-4">
               <p className="text-sm font-bold text-[#334155]">
-                🎥 Añadir vídeo del ambiente (opcional)
+                🎥 Añadir vídeo (opcional)
               </p>
               <p className="mt-1 text-sm leading-6 text-[#64748b]">
-                Un vídeo corto puede enseñar todavía mejor cómo estaba el plan. Máximo 50 MB.
+                Añade un vídeo relacionado con tu comentario. Si es de una visita, indica cuándo fue. Máximo 50 MB.
               </p>
 
               <input
@@ -890,7 +948,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
                   Comentario enviado. Gracias por ayudar a decidir 🙌
                 </p>
                 <p className="mt-1 text-sm text-[#64748b]">
-                  👉 Compártelo para que más gente diga cómo estaba.
+                  Tu aportación ya aparece en los comentarios del plan.
                 </p>
               </div>
             )}
@@ -901,7 +959,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
               disabled={enviandoComentario}
               className="inline-flex rounded-full bg-[#f97316] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {enviandoComentario ? "Enviando..." : "Contar cómo estaba"}
+              {enviandoComentario ? "Enviando..." : textos.boton}
             </button>
           </form>
         </div>
@@ -913,7 +971,7 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
                 🔴 Comentarios recientes del plan
               </p>
               <h2 className="text-xl font-bold text-[#334155]">
-                Comentarios reales
+                Comentarios del plan
               </h2>
             </div>
 
@@ -925,10 +983,10 @@ export default function EventoPage({ initialData }: { initialData: { evento: Eve
           {comentarios.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#fed7aa] bg-[#fff7ed] p-4">
               <p className="text-sm font-semibold text-[#334155]">
-                Todavía nadie ha contado cómo estaba.
+                Todavía no hay comentarios.
               </p>
               <p className="mt-1 text-sm leading-6 text-[#64748b]">
-                Sé el primero en decir si había ambiente, si estaba lleno o si merece la pena ir 👇
+                {textos.ayuda}
               </p>
             </div>
           ) : (

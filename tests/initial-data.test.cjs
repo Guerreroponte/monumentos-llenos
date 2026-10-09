@@ -283,3 +283,22 @@ test('weekend dates use Madrid and keep only remaining Friday-to-Sunday sessions
   assert.equal(dias.some(dia=>eventoEnFecha('2026-10-03','2026-10-31',dia,calendarioEvento('irun-zuzenean-zikloa-2026'))),true);
   assert.equal(dias.some(dia=>eventoEnFecha('2026-10-08','2027-05-27',dia,calendarioEvento('conciertos-factoria-cruzcampo-sevilla-2026-2027'))),false);
 });
+
+test('event comment prompts follow Madrid dates and preserve uncertain session gaps', () => {
+  const { faseComentariosEvento: fase, diaMadrid } = load('lib/agenda-ui.ts', database({}));
+  const evento = { fecha_inicio: '2026-10-11' };
+  assert.equal(fase(evento, '2026-10-09'), 'antes');
+  assert.equal(fase(evento, '2026-10-11'), 'hoy');
+  assert.equal(fase(evento, '2026-10-12'), 'despues');
+  assert.equal(fase(evento, null), 'sin-confirmar');
+  assert.equal(fase({}, '2026-10-09'), 'sin-confirmar');
+  assert.equal(fase({ fecha_inicio: '2026-02-30' }, '2026-10-09'), 'sin-confirmar');
+  assert.equal(fase({ fecha_inicio: '2026-10-11', fecha_fin: '2026-10-10' }, '2026-10-09'), 'sin-confirmar');
+  assert.equal(fase(evento, diaMadrid(new Date('2026-10-10T22:05:00Z'))), 'hoy');
+  const ciclo = { fecha_inicio: '2026-10-03', fecha_fin: '2026-10-31', slug: 'irun-zuzenean-zikloa-2026' };
+  assert.equal(fase(ciclo, '2026-10-09'), 'sin-confirmar');
+  assert.equal(fase(ciclo, '2026-10-10'), 'hoy');
+  assert.equal(fase(ciclo, '2026-10-31'), 'hoy');
+  assert.equal(fase(ciclo, '2026-11-01'), 'despues');
+  assert.equal(fase({ ...ciclo, slug: 'sin-calendario' }, '2026-10-10'), 'sin-confirmar');
+});

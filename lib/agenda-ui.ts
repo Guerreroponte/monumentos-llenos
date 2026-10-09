@@ -100,3 +100,14 @@ export function diasFinDeSemana(ahora = new Date()) {
   } while (dias.length < 3);
   return dias;
 }
+
+// Unknown dates and gaps between sessions keep a neutral discussion prompt.
+export function faseComentariosEvento(evento: { fecha_inicio?: string | null; fecha_fin?: string | null; slug?: string | null }, hoy: string | null) {
+  const valida = (fecha?: string | null): fecha is string => !!fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha) && !Number.isNaN(Date.parse(fecha)) && new Date(fecha).toISOString().slice(0, 10) === fecha;
+  const inicio = evento.fecha_inicio;
+  const fin = evento.fecha_fin || inicio;
+  if (!valida(hoy) || !valida(inicio) || !valida(fin) || fin < inicio) return 'sin-confirmar';
+  if (hoy < inicio) return 'antes';
+  if (hoy > fin) return 'despues';
+  return eventoEnFecha(inicio, fin, hoy, calendarioEvento(evento.slug)) ? 'hoy' : 'sin-confirmar';
+}
