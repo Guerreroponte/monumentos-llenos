@@ -26,7 +26,7 @@ export async function getEventoDetail(slug: string) {
   return { evento, comentarios: (comments.data || []) as Comentario[], colaborador: collaborator.data as ColaboradorEvento | null };
 }
 
-export async function getLugarDetail(slug: string) {
+export const getLugarDetail = cache(async (slug: string) => {
   const { data, error } = await publicServer.from("Monumentos").select("id,slug,nombre,ciudad,descripcion,imagen,url_afiliado,video_url,rating,precio,acepta_mascotas,parking_cerca,acceso_coche,latitud,longitud").eq("slug", slug).maybeSingle();
   if (error) throw error;
   if (!data) notFound();
@@ -42,4 +42,4 @@ export async function getLugarDetail(slug: string) {
   const fotos = [...new Set([lugar.imagen, ...(gallery.error ? [] : (gallery.data || []).map(row => row.imagen === data.imagen ? lugar.imagen : row.imagen))]
     .filter((foto): foto is string => typeof foto === "string" && foto.trim().length > 0).map(foto => foto.trim()))];
   return { lugar, fotos, resenas: ((comments.data || []) as Resena[]).map(row => ({ ...row, foto: publicImage("resenas", row.id, row.foto) })) };
-}
+});
