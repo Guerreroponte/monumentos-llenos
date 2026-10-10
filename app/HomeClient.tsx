@@ -1014,9 +1014,9 @@ ${url}`;
         <div className="pointer-events-none absolute -left-24 top-10 -z-10 h-72 w-72 rounded-full bg-orange-300/20 blur-3xl" />
         <div className="pointer-events-none absolute -right-20 top-24 -z-10 h-96 w-96 rounded-full bg-amber-300/20 blur-3xl" />
 
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 pb-10 pt-12 sm:px-6 md:pb-14 md:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14">
+        <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-8 pt-5 sm:gap-10 sm:px-6 sm:pb-10 sm:pt-12 md:pb-14 md:pt-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-14">
           <div>
-            <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-orange-200 bg-white/90 px-4 py-2 text-sm font-bold text-orange-700 shadow-sm backdrop-blur">
+            <div className="hidden sm:inline-flex flex-wrap items-center gap-2 rounded-full border border-orange-200 bg-white/90 px-4 py-2 text-sm font-bold text-orange-700 shadow-sm backdrop-blur">
               <span>🔥 Planes reales</span>
               <span className="text-orange-300">•</span>
               <span>📸 Fotos de la comunidad</span>
@@ -1024,17 +1024,22 @@ ${url}`;
               <span>💬 Opiniones útiles</span>
             </div>
 
-            <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[1.04] tracking-[-0.04em] text-slate-950 sm:text-5xl md:text-6xl">
-              Qué hacer hoy y qué sitio
-              <span className="block bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 bg-clip-text text-transparent">
-                merece la pena de verdad.
+            <h1 className="mt-0 max-w-3xl text-4xl sm:mt-6 font-black leading-[1.04] tracking-[-0.04em] text-slate-950 sm:text-5xl md:text-6xl">
+              <span className="sm:hidden">Encuentra tu<br />
+                <span className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 bg-clip-text text-transparent">próximo plan.</span>
+              </span>
+              <span className="hidden sm:inline">Qué hacer hoy y qué sitio
+                <span className="block bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 bg-clip-text text-transparent">
+                  merece la pena de verdad.
+                </span>
               </span>
             </h1>
 
-            <p className="mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
-              Lugares Llenos junta planes, lugares, fotos y experiencias reales para
-              ayudarte a decidir mejor: qué ambiente hay, cuándo ir y qué alternativa
-              tienes cerca si el plan no convence.
+            <p className="mt-3 max-w-2xl text-base leading-6 text-slate-600 sm:mt-6 sm:text-lg sm:leading-8">
+              <span className="sm:hidden">Lugares y eventos con fotos y experiencias reales.</span>
+              <span className="hidden sm:inline">Lugares Llenos junta planes, lugares, fotos y experiencias reales para
+                ayudarte a decidir mejor: qué ambiente hay, cuándo ir y qué alternativa
+                tienes cerca si el plan no convence.</span>
             </p>
 
             <form
@@ -1044,7 +1049,7 @@ ${url}`;
                 e.preventDefault();
                 abrirGuiaCiudad(ciudadHero);
               }}
-              className="mt-7 max-w-xl"
+              className="mt-5 max-w-xl sm:mt-7"
             >
               <label htmlFor="ciudad-home" className="mb-2 block text-lg font-black text-slate-950">
                 ¿En qué ciudad buscas plan?
