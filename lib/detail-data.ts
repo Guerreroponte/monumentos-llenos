@@ -7,7 +7,7 @@ import type { Lugar, Resena } from "@/app/lugar/[slug]/LugarClient";
 import type { Evento, Comentario, ColaboradorEvento } from "@/app/eventos/[slug]/EventoClient";
 
 export const getEvento = cache(async (slug: string): Promise<Evento | null> => {
-  const { data, error } = await publicServer.from("eventos").select("id,slug,nombre,ciudad,ubicacion_detalle,fecha_inicio,fecha_fin,hora_inicio,hora_fin,descripcion,imagen,enlace,fever_url_afiliado,tipo,subtipo,categoria_evento,precio,ambiente,dificil_bebida,parking,recomendable,colaborador_id,creado_por,video_url").eq("slug", slug).maybeSingle();
+  const { data, error } = await publicServer.from("eventos").select("id,slug,nombre,ciudad,ubicacion_detalle,latitud,longitud,fecha_inicio,fecha_fin,hora_inicio,hora_fin,descripcion,imagen,enlace,fever_url_afiliado,tipo,subtipo,categoria_evento,precio,ambiente,dificil_bebida,parking,recomendable,colaborador_id,creado_por,video_url").eq("slug", slug).maybeSingle();
   if (error) throw error;
   return data;
 });

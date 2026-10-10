@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { diaMadrid, etiquetaEnlace, faseComentariosEvento } from "@/lib/agenda-ui";
 import Link from "next/link";
+import { enlaceComoLlegarEvento } from "@/lib/eventos-directions";
 import { supabase } from "@/lib/supabase";
 
 export type Comentario = {
@@ -29,6 +30,8 @@ export type Evento = {
   nombre?: string | null;
   ciudad?: string | null;
   ubicacion_detalle?: string | null;
+  latitud?: number | null;
+  longitud?: number | null;
   fecha_inicio?: string | null;
   fecha_fin?: string | null;
   hora_inicio?: string | null;
@@ -200,6 +203,7 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
   const inputVideoRef = useRef<HTMLInputElement | null>(null);
 
   const evento = initialData.evento;
+  const comoLlegar = enlaceComoLlegarEvento(evento);
   const colaborador = initialData.colaborador;
   const [hoy, setHoy] = useState<string | null>(null);
   const fase = faseComentariosEvento(evento, hoy);
@@ -616,6 +620,13 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
                   ? ` - ${formatearHora(evento.hora_fin)}`
                   : ""}
               </p>
+              {comoLlegar && (
+                <a href={comoLlegar} target="_blank" rel="noopener noreferrer"
+                  aria-label="Cómo llegar en Google Maps (se abre en otra pestaña)"
+                  className="inline-flex min-h-11 items-center rounded-full border border-orange-200 bg-orange-50 px-4 py-2 font-semibold text-orange-700 transition hover:bg-orange-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
+                  Cómo llegar ↗
+                </a>
+              )}
             </div>
 
             <p className="mt-5 text-base leading-7 text-[#475569]">
