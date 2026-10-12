@@ -645,12 +645,13 @@ export default function EditarEventoPage() {
 
             <div>
               <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                Publicado por
+                Autoría de la publicación
               </label>
 
               <input
                 value={creadoPor}
-                onChange={(e) => setCreadoPor(e.target.value)}
+                readOnly
+                aria-readonly="true"
                 className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
               />
             </div>

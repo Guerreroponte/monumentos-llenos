@@ -76,7 +76,7 @@ function generarSlugEvento(params: {
     .replace(/-+/g, "-");
 }
 
-export default function ParticipaPage({ colaboradores, fechaInicial, errorColaboradores = "" }: { colaboradores: ColaboradorOpcion[]; fechaInicial: string; errorColaboradores?: string }) {
+export default function ParticipaPage({ fechaInicial }: { fechaInicial: string }) {
   const [tipoParticipacion, setTipoParticipacion] =
     useState<TipoParticipacion>("plan_local");
 
@@ -98,9 +98,7 @@ export default function ParticipaPage({ colaboradores, fechaInicial, errorColabo
   const [precio, setPrecio] = useState("");
   const [ambiente, setAmbiente] = useState("");
   const [enlace, setEnlace] = useState("");
-  const [creadoPor, setCreadoPor] = useState("");
 
-  const [colaboradorId, setColaboradorId] = useState("");
 
   const [fotos, setFotos] = useState<FotoSeleccionada[]>([]);
   const [subiendoImagenes, setSubiendoImagenes] = useState(false);
@@ -126,52 +124,6 @@ export default function ParticipaPage({ colaboradores, fechaInicial, errorColabo
   const subtipoOptions = useMemo(() => {
     return categoriaEvento === "grande" ? SUBTIPOS_GRANDES : SUBTIPOS_LOCALES;
   }, [categoriaEvento]);
-
-  const colaboradorSeleccionado = useMemo(
-    () =>
-      colaboradores.find((colaborador) => colaborador.id === colaboradorId) ??
-      null,
-    [colaboradores, colaboradorId],
-  );
-
-  const colaboradoresAgrupados = useMemo(() => {
-    const grupos = {
-      salas: [] as ColaboradorOpcion[],
-      festivales: [] as ColaboradorOpcion[],
-      promotoras: [] as ColaboradorOpcion[],
-      medios: [] as ColaboradorOpcion[],
-      proyectos: [] as ColaboradorOpcion[],
-      instituciones: [] as ColaboradorOpcion[],
-      otros: [] as ColaboradorOpcion[],
-    };
-
-    colaboradores.forEach((colaborador) => {
-      switch (colaborador.categoria_colaborador?.toLowerCase()) {
-        case "sala":
-          grupos.salas.push(colaborador);
-          break;
-        case "festival":
-          grupos.festivales.push(colaborador);
-          break;
-        case "promotora":
-          grupos.promotoras.push(colaborador);
-          break;
-        case "medio":
-          grupos.medios.push(colaborador);
-          break;
-        case "proyecto":
-          grupos.proyectos.push(colaborador);
-          break;
-        case "institucion":
-          grupos.instituciones.push(colaborador);
-          break;
-        default:
-          grupos.otros.push(colaborador);
-      }
-    });
-
-    return grupos;
-  }, [colaboradores]);
 
   function seleccionarTipo(tipo: TipoParticipacion) {
     setTipoParticipacion(tipo);
@@ -340,8 +292,6 @@ export default function ParticipaPage({ colaboradores, fechaInicial, errorColabo
     setPrecio("");
     setAmbiente("");
     setEnlace("");
-    setCreadoPor("");
-    setColaboradorId("");
 
     fotos.forEach((foto) => {
       if (foto.preview) URL.revokeObjectURL(foto.preview);
@@ -431,8 +381,8 @@ export default function ParticipaPage({ colaboradores, fechaInicial, errorColabo
         video_url: videoUrl,
         enlace: enlace || null,
         creado_por:
-          creadoPor.trim() || colaboradorSeleccionado?.nombre || null,
-        colaborador_id: colaboradorId || null,
+          "Comunidad",
+        colaborador_id: null,
         slug: slugEvento,
         dificil_bebida: dificilBebida,
         parking,
@@ -837,103 +787,9 @@ export default function ParticipaPage({ colaboradores, fechaInicial, errorColabo
                   </p>
                 </div>
 
-                <div className="mt-4">
-                  <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                    Publicado por
-                  </label>
-
-                  <select
-                    value={colaboradorId}
-                    onChange={(e) => setColaboradorId(e.target.value)}
-
-                    className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c] disabled:cursor-not-allowed disabled:bg-[#f8fafc] disabled:text-[#94a3b8]"
-                  >
-                    <option value="">
-                      Comunidad / sin colaborador
-                    </option>
-
-                    {colaboradoresAgrupados.salas.length > 0 && (
-                      <optgroup label="🎵 Salas">
-                        {colaboradoresAgrupados.salas.map((colaborador) => (
-                          <option key={colaborador.id} value={colaborador.id}>
-                            {colaborador.nombre}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-
-                    {colaboradoresAgrupados.festivales.length > 0 && (
-                      <optgroup label="🎪 Festivales y ciclos">
-                        {colaboradoresAgrupados.festivales.map((colaborador) => (
-                          <option key={colaborador.id} value={colaborador.id}>
-                            {colaborador.nombre}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-
-                    {colaboradoresAgrupados.promotoras.length > 0 && (
-                      <optgroup label="🎟️ Promotoras">
-                        {colaboradoresAgrupados.promotoras.map((colaborador) => (
-                          <option key={colaborador.id} value={colaborador.id}>
-                            {colaborador.nombre}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-
-                    {colaboradoresAgrupados.medios.length > 0 && (
-                      <optgroup label="📰 Medios">
-                        {colaboradoresAgrupados.medios.map((colaborador) => (
-                          <option key={colaborador.id} value={colaborador.id}>
-                            {colaborador.nombre}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-
-                    {colaboradoresAgrupados.proyectos.length > 0 && (
-                      <optgroup label="🤝 Proyectos">
-                        {colaboradoresAgrupados.proyectos.map((colaborador) => (
-                          <option key={colaborador.id} value={colaborador.id}>
-                            {colaborador.nombre}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-
-                    {colaboradoresAgrupados.instituciones.length > 0 && (
-                      <optgroup label="🏛️ Instituciones">
-                        {colaboradoresAgrupados.instituciones.map((colaborador) => (
-                          <option key={colaborador.id} value={colaborador.id}>
-                            {colaborador.nombre}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-
-                    {colaboradoresAgrupados.otros.length > 0 && (
-                      <optgroup label="Otros colaboradores">
-                        {colaboradoresAgrupados.otros.map((colaborador) => (
-                          <option key={colaborador.id} value={colaborador.id}>
-                            {colaborador.nombre}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                  </select>
-
-                  <p className="mt-2 text-xs text-[#94a3b8]">
-                    Selecciona un colaborador solo cuando el evento lo publique en
-                    nombre de esa sala, medio, festival o proyecto.
-                  </p>
-
-                  {errorColaboradores && (
-                    <p className="mt-2 text-xs font-semibold text-[#b45309]">
-                      {errorColaboradores}
-                    </p>
-                  )}
-                </div>
+                <p className="mt-4 text-xs text-[#64748b]">
+                  Tu plan se publicará como aportación de la comunidad.
+                </p>
               </div>
 
               <div>
@@ -1131,17 +987,6 @@ export default function ParticipaPage({ colaboradores, fechaInicial, errorColabo
                       />
                     </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-[#334155]">
-                        Tu nombre o alias
-                      </label>
-                      <input
-                        value={creadoPor}
-                        onChange={(e) => setCreadoPor(e.target.value)}
-                        placeholder="Ej: Diego / Anónimo"
-                        className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
-                      />
-                    </div>
                   </div>
 
                   <div className="grid gap-3 md:grid-cols-3">
