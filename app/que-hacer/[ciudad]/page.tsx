@@ -1,5 +1,6 @@
 import { compararAgenda, fechaAgenda } from "@/lib/agenda-ui";
 import Link from "next/link";
+import GuiaValencia from "./GuiaValencia";
 import { supabase } from "@/lib/supabase";
 
 type Evento = {
@@ -733,6 +734,7 @@ export default async function CiudadPage({
             {ciudadFormateada}
           </h2>
 
+          {ciudadSlug === "valencia" ? <GuiaValencia /> : <>
           <p className="mt-5 text-base leading-8 text-slate-600">
             {ciudadFormateada} ofrece una
             gran variedad de planes para
@@ -759,6 +761,7 @@ export default async function CiudadPage({
             hoy, mañana, este fin de semana
             o en tus próximas visitas.
           </p>
+          </>}
         </section>
       </section>
     </main>
