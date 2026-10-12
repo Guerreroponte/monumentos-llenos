@@ -1589,7 +1589,7 @@ ${url}`;
                     <div className="p-5">
                       <div className="flex flex-wrap gap-2">
                         <span className="rounded-full bg-orange-400/15 px-3 py-1 text-xs font-black text-orange-200">💬 {lugar.resenas.length} comentario{lugar.resenas.length !== 1 ? "s" : ""}</span>
-                        <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-amber-200">⭐ {lugar.rating ?? "Sin nota"}</span>
+                        <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-amber-200">⭐ {lugar.rating ?? "Sin nota"}{lugar.rating_fuente === "Google Maps" ? " · Google Maps" : ""}</span>
                       </div>
                       <h3 className="mt-4 text-xl font-black leading-tight">{lugar.nombre}</h3>
                       <p className="mt-2 text-sm font-bold text-slate-400">📍 {lugar.ciudad}</p>
@@ -1908,7 +1908,7 @@ ${url}`;
                           </div>
 
                           <div className="rounded-full bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700">
-                            ⭐ {m.rating ?? "Sin nota"}
+                            ⭐ {m.rating ?? "Sin nota"}{m.rating_fuente === "Google Maps" ? " · Google Maps" : ""}
                           </div>
                         </div>
 

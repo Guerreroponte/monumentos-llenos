@@ -7,6 +7,9 @@ import { supabase } from "@/lib/supabase";
 
 export type Lugar = {
   rating?: number | null;
+  rating_fuente?: string | null;
+  rating_url?: string | null;
+  rating_consultada_el?: string | null;
   precio?: string | null;
   acepta_mascotas?: boolean | null;
   parking_cerca?: boolean | null;
@@ -286,13 +289,19 @@ ${url}`;
               <h2 className="text-lg font-bold">Información práctica</h2>
               <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
                 {[
-                  ["Valoración", lugar.rating == null ? "Sin valoración" : `⭐ ${lugar.rating}`],
+                  [lugar.rating_fuente === "Google Maps" ? "Valoración de Google Maps" : "Valoración", lugar.rating == null ? "Sin valoración" : `⭐ ${lugar.rating}`],
                   ["Acceso o precio", lugar.precio || "No especificado"],
                   ["Acepta mascotas", lugar.acepta_mascotas],
                   ["Parking cerca", lugar.parking_cerca],
                   ["Acceso en coche", lugar.acceso_coche],
                 ].map(([titulo, valor]) => <div key={String(titulo)}><dt className="text-slate-500">{titulo}</dt><dd className="mt-1 font-semibold">{typeof valor === "boolean" ? valor ? "Sí" : "No" : valor ?? "No especificado"}</dd></div>)}
               </dl>
+              {lugar.rating_fuente === "Google Maps" && lugar.rating_url && (
+                <p className="mt-4 text-xs text-slate-500">
+                  <a href={lugar.rating_url} target="_blank" rel="noopener noreferrer" className="underline">Consultar en Google Maps</a>
+                  {lugar.rating_consultada_el && ` · Consultada el ${lugar.rating_consultada_el.split("-").reverse().join("/")}`}. Puede cambiar.
+                </p>
+              )}
               <a href={enlaceComoLlegar(lugar)} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex rounded-full bg-orange-600 px-5 py-3 font-bold text-white">Cómo llegar ↗</a>
             </section>
 

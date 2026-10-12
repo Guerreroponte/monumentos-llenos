@@ -1,6 +1,7 @@
 import { compararAgenda, fechaAgenda } from "@/lib/agenda-ui";
 import Link from "next/link";
 import GuiaValencia from "./GuiaValencia";
+import GuiaBilbaoMalaga from "./GuiaBilbaoMalaga";
 import { supabase } from "@/lib/supabase";
 
 type Evento = {
@@ -23,6 +24,7 @@ type Lugar = {
   imagen_fullback: string | null;
   descripcion: string | null;
   rating: number | null;
+  rating_fuente?: string | null;
 };
 
 type Colaborador = {
@@ -158,7 +160,7 @@ async function cargarLugaresCiudad(
     const { data, error } = await supabase
       .from("Monumentos")
       .select(
-        "id,nombre,slug,ciudad,imagen,imagen_fullback,descripcion,rating"
+        "id,nombre,slug,ciudad,imagen,imagen_fullback,descripcion,rating,rating_fuente"
       )
       .eq("reportado", false)
       .order("created_at", {
@@ -570,7 +572,7 @@ export default async function CiudadPage({
 
                     {lugar.rating && (
                       <p className="mt-3 text-sm font-semibold text-slate-700">
-                        ⭐ {lugar.rating}
+                        ⭐ {lugar.rating}{lugar.rating_fuente === "Google Maps" ? " · Google Maps" : ""}
                       </p>
                     )}
 
@@ -734,7 +736,7 @@ export default async function CiudadPage({
             {ciudadFormateada}
           </h2>
 
-          {ciudadSlug === "valencia" ? <GuiaValencia /> : <>
+          {ciudadSlug === "valencia" ? <GuiaValencia /> : ciudadSlug === "bilbao" || ciudadSlug === "malaga" ? <GuiaBilbaoMalaga ciudad={ciudadSlug} /> : <>
           <p className="mt-5 text-base leading-8 text-slate-600">
             {ciudadFormateada} ofrece una
             gran variedad de planes para
