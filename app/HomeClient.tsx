@@ -12,7 +12,7 @@ import type { HomeInitialData } from "@/lib/initial-data";
 
 const STORAGE_BUCKET = "imagenes";
 const LUGARES_POR_PAGINA = 6;
-const CIUDADES_SUGERIDAS = ["Madrid", "Barcelona", "Granada", "Pamplona"];
+const CIUDADES_SUGERIDAS = ["Madrid", "Barcelona", "Granada", "Pamplona", "Zaragoza"];
 const CIUDADES_GUIA = [
   ...CIUDADES_SUGERIDAS, "Valencia", "Sevilla", "Bilbao", "Málaga",
   "Zaragoza", "A Coruña", "Vigo", "Murcia", "Santander", "Monachil",
@@ -1144,7 +1144,7 @@ ${url}`;
               )}
               <div className="mt-3 flex flex-wrap gap-2" aria-label="Ciudades populares">
                 {CIUDADES_SUGERIDAS.map((opcion) => (
-                  <Link key={opcion} href={getRutaCiudad(opcion)!} className="rounded-full border border-orange-100 bg-white/80 px-4 py-2 text-sm font-bold text-slate-700 transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300">
+                  <Link key={opcion} href={getRutaCiudad(opcion)!} className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700 transition hover:border-orange-300 hover:bg-orange-100 active:bg-orange-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300">
                     {opcion}
                   </Link>
                 ))}
