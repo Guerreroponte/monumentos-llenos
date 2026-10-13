@@ -2,6 +2,7 @@ import { compararAgenda, fechaAgenda } from "@/lib/agenda-ui";
 import Link from "next/link";
 import GuiaValencia from "./GuiaValencia";
 import GuiaBilbaoMalaga from "./GuiaBilbaoMalaga";
+import GuiaPamplonaZaragoza from "./GuiaPamplonaZaragoza";
 import { supabase } from "@/lib/supabase";
 
 type Evento = {
@@ -736,7 +737,7 @@ export default async function CiudadPage({
             {ciudadFormateada}
           </h2>
 
-          {ciudadSlug === "valencia" ? <GuiaValencia /> : ciudadSlug === "bilbao" || ciudadSlug === "malaga" ? <GuiaBilbaoMalaga ciudad={ciudadSlug} /> : <>
+          {ciudadSlug === "valencia" ? <GuiaValencia /> : ciudadSlug === "bilbao" || ciudadSlug === "malaga" ? <GuiaBilbaoMalaga ciudad={ciudadSlug} /> : ciudadSlug === "pamplona" || ciudadSlug === "zaragoza" ? <GuiaPamplonaZaragoza ciudad={ciudadSlug} /> : <>
           <p className="mt-5 text-base leading-8 text-slate-600">
             {ciudadFormateada} ofrece una
             gran variedad de planes para
