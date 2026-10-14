@@ -4,7 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { EventoUI } from "@/lib/eventos-data";
 import { leerFiltrosEventos, normalizarColaborador } from "@/lib/eventos-filters";
-import { diaMadrid, mananaMadrid, eventoEnFecha, calendarioEvento, compararAgenda, grupoTipo, coincideTipo, diasFinDeSemana } from "@/lib/agenda-ui";
+import { diaMadrid, eventoVigente, mananaMadrid, eventoEnFecha, calendarioEvento, compararAgenda, grupoTipo, coincideTipo, diasFinDeSemana } from "@/lib/agenda-ui";
+import { coincidePlan } from "@/lib/planes-rapidos";
 import { seoListado } from "@/lib/listado-seo";
 
 function formatFecha(fecha?: string | null) {
@@ -26,7 +27,7 @@ function formatHora(hora?: string | null) {
 }
 
 function esEventoProximo(fechaInicio?: string | null, fechaFin?: string | null) {
-  return !!fechaInicio && (fechaFin || fechaInicio) >= diaMadrid();
+  return eventoVigente(fechaInicio, fechaFin);
 }
 
 function esHoy(e: EventoUI) {
@@ -78,6 +79,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
   const nombreColaborador = initialData.nombreColaborador;
   const [busqueda, setBusqueda] = useState(initialFilters.texto);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(initialFilters.fecha);
+  const [plan, setPlan] = useState(initialFilters.plan);
   const [periodo, setPeriodo] = useState(initialFilters.periodo);
   const [ciudadSeleccionada, setCiudadSeleccionada] = useState(initialFilters.ciudad);
   const [tipoSeleccionado, setTipoSeleccionado] = useState(initialFilters.tipo);
@@ -92,11 +94,12 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
         window.location.reload();
         return;
       }
-      const { texto, fecha, ciudad, tipo, proximos, vista, pagina, clave, periodo } = leerFiltrosEventos(params);
+      const { texto, fecha, ciudad, tipo, proximos, vista, pagina, clave, periodo, plan } = leerFiltrosEventos(params);
       restauracionUrl.current = JSON.stringify([clave, pagina]);
       setBusqueda(texto);
       setFechaSeleccionada(fecha);
       setPeriodo(periodo);
+      setPlan(plan);
       setCiudadSeleccionada(ciudad);
       setTipoSeleccionado(tipo);
       setSoloProximos(proximos);
@@ -137,7 +140,8 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
 
     return eventos
       .filter((e) => {
-        if (soloProximos && !esEventoProximo(e.fechaInicio, e.fechaFin)) {
+        if (!coincidePlan(e, plan)) return false;
+        if (!esEventoProximo(e.fechaInicio, e.fechaFin)) {
           return false;
         }
 
@@ -188,6 +192,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
     busqueda,
     fechaSeleccionada,
     periodo,
+    plan,
     ciudadSeleccionada,
     tipoSeleccionado,
     soloProximos,
@@ -196,7 +201,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
 
   const claveFiltros = JSON.stringify([
     busqueda, fechaSeleccionada, ciudadSeleccionada, tipoSeleccionado,
-    soloProximos, modoVista, colaboradorId, periodo,
+    soloProximos, modoVista, colaboradorId, periodo, plan,
   ]);
   if (paginacion.clave !== claveFiltros) {
     setPaginacion({ clave: claveFiltros, pagina: 1 });
@@ -228,6 +233,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
       guardar("q", busqueda);
       guardar("fecha", fechaSeleccionada);
       guardar("periodo", periodo);
+      guardar("plan", plan);
       guardar("ciudad", ciudadSeleccionada);
       guardar("tipo", tipoSeleccionado);
       guardar("proximos", soloProximos ? "" : "0");
@@ -239,7 +245,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
     }, 250);
     return () => window.clearTimeout(timer);
   }, [urlPreparada, claveFiltros, paginacion.pagina, paginaActual,
-    busqueda, fechaSeleccionada, periodo, ciudadSeleccionada, tipoSeleccionado, soloProximos, modoVista]);
+    busqueda, fechaSeleccionada, periodo, plan, ciudadSeleccionada, tipoSeleccionado, soloProximos, modoVista]);
 
   function hrefPagina(pagina: number) {
     const params = new URLSearchParams();
@@ -247,6 +253,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
     if (tipoSeleccionado) params.set("tipo", tipoSeleccionado);
     if (busqueda) params.set("q", busqueda);
     if (fechaSeleccionada) params.set("fecha", fechaSeleccionada);
+    if (plan) params.set("plan", plan);
     if (periodo) params.set("periodo", periodo);
     if (colaboradorId) params.set("colaborador", colaboradorId);
     if (!soloProximos) params.set("proximos", "0");
@@ -272,6 +279,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
   }
 
   function resetearFiltros() {
+    setPlan("");
     setBusqueda("");
     setFechaSeleccionada("");
     setPeriodo("");
@@ -284,7 +292,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
   function elegirDia(fecha: string) {
     setFechaSeleccionada(fecha);
     setPeriodo("");
-    setSoloProximos(!fecha);
+    setSoloProximos(true);
   }
 
   function elegirFinDeSemana() {
@@ -318,12 +326,13 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
               Ciudad
               <select value={ciudadSeleccionada} onChange={(e) => setCiudadSeleccionada(e.target.value)} className="min-h-11 w-full rounded-xl border border-[#cbd5e1] bg-white px-3 py-2 font-normal">
                 <option value="">Todas las ciudades</option>
+                {ciudadSeleccionada && !ciudadesDisponibles.includes(ciudadSeleccionada) && <option value={ciudadSeleccionada}>{ciudadSeleccionada}</option>}
                 {ciudadesDisponibles.map((ciudad) => <option key={ciudad} value={ciudad}>{ciudad}</option>)}
               </select>
             </label>
             <label className="flex min-w-0 flex-col gap-2 text-sm font-semibold text-[#334155]">
               Elegir fecha
-              <input type="date" value={fechaSeleccionada} onChange={(e) => elegirDia(e.target.value)} className="min-h-11 w-full min-w-0 rounded-xl border border-[#cbd5e1] bg-white px-3 py-2 font-normal" />
+              <input type="date" min={diaMadrid()} value={fechaSeleccionada} onChange={(e) => elegirDia(e.target.value)} className="min-h-11 w-full min-w-0 rounded-xl border border-[#cbd5e1] bg-white px-3 py-2 font-normal" />
             </label>
             <label className="flex min-w-0 flex-col gap-2 text-sm font-semibold text-[#334155] col-span-2 lg:col-span-1">
               Buscar
@@ -336,7 +345,7 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
             <button aria-pressed={fechaSeleccionada === mananaMadrid()} className={botonFecha(fechaSeleccionada === mananaMadrid())} onClick={() => elegirDia(mananaMadrid())}>Mañana</button>
             <button aria-pressed={periodo === "fin-de-semana"} className={botonFecha(periodo === "fin-de-semana")} onClick={elegirFinDeSemana}>Este finde</button>
           </div>
-          <details className="mt-4 border-t border-[#f1f5f9] pt-3" open={tipoSeleccionado !== "" || modoVista !== "todos" || (!soloProximos && !fechaSeleccionada && !periodo) || undefined}>
+          <details className="mt-4 border-t border-[#f1f5f9] pt-3" open={!!plan || tipoSeleccionado !== "" || modoVista !== "todos" || (!soloProximos && !fechaSeleccionada && !periodo) || undefined}>
             <summary className="cursor-pointer py-1 text-sm font-semibold text-[#475569]">Más filtros</summary>
             <div className="mt-3 grid gap-4 sm:grid-cols-2">
               <label className="flex flex-col gap-2 text-sm font-semibold text-[#334155]">Tipo de actividad
@@ -351,11 +360,17 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                   <option value="todos">Todos los planes</option><option value="grandes">Eventos grandes</option><option value="locales">Planes locales</option>
                 </select>
               </label>
-              <label className="flex min-h-11 items-center gap-2 text-sm text-[#475569]"><input type="checkbox" checked={soloProximos} onChange={(e) => setSoloProximos(e.target.checked)} />Mostrar solo próximos eventos</label>
+              <label className="flex flex-col gap-2 text-sm font-semibold text-[#334155]">Preferencias del plan
+                <select value={plan} onChange={(e) => setPlan(e.target.value as typeof plan)} className="min-h-11 rounded-xl border border-[#cbd5e1] bg-white px-3 py-2 font-normal">
+                  <option value="">Cualquier plan</option><option value="gratis">Planes gratis</option><option value="familia">En familia</option>
+                </select>
+                {plan && <span className="text-xs font-normal leading-5 text-[#64748b]">{plan === "gratis" ? "Solo entradas indicadas como gratuitas, sin condiciones de edad o compra." : "Planes identificados como familiares o infantiles en su ficha."}</span>}
+              </label>
+              <p className="flex min-h-11 items-center text-sm text-[#475569]">Solo eventos en curso o futuros.</p>
             </div>
           </details>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-            <p role="status" className="text-sm font-semibold text-[#475569]">{eventosFiltrados.length} {eventosFiltrados.length === 1 ? "evento" : "eventos"}{periodo === "fin-de-semana" ? " · Este finde" : ""}</p>
+            <p role="status" className="text-sm font-semibold text-[#475569]">{eventosFiltrados.length} {eventosFiltrados.length === 1 ? "evento" : "eventos"}{periodo === "fin-de-semana" ? " · Este finde" : ""}{plan === "gratis" ? " · Planes gratis" : plan === "familia" ? " · En familia" : ""}</p>
             <button onClick={resetearFiltros} className="min-h-11 px-2 text-sm font-semibold text-[#c2410c] underline underline-offset-4">Limpiar filtros</button>
           </div>
         </div>
@@ -402,10 +417,11 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                 <button onClick={() => elegirDia("")} className="min-h-11 rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-700 hover:bg-orange-50">Ver próximas fechas</button>
               )}
             </div>
-            {(busqueda || tipoSeleccionado || modoVista !== "todos") && (
+            {(plan || busqueda || tipoSeleccionado || modoVista !== "todos") && (
               <div className="mt-5 border-t border-[#f1f5f9] pt-4">
                 <p className="text-sm leading-6 text-[#64748b]">También puedes quitar la búsqueda y los filtros de actividad para ver los próximos planes{ciudadSeleccionada ? ` en ${ciudadSeleccionada}` : ""}{colaboradorId ? " de este colaborador" : ""}.</p>
                 <button onClick={() => {
+                  setPlan("");
                   setBusqueda("");
                   setTipoSeleccionado("");
                   setModoVista("todos");

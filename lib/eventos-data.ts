@@ -1,4 +1,5 @@
 import "server-only";
+import { eventoVigente } from "./agenda-ui";
 import { unstable_cache } from "next/cache";
 import { publicServer } from "./supabase-public-server";
 
@@ -174,5 +175,5 @@ export async function getEventosInitialData(colaboradorParam: string) {
         })
       );
 
-  return { eventos: eventosMapeados, nombreColaborador };
+  return { eventos: eventosMapeados.filter(e => eventoVigente(e.fechaInicio, e.fechaFin)), nombreColaborador };
 }

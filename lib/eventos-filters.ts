@@ -15,11 +15,13 @@ export function leerFiltrosEventos(params: URLSearchParams) {
   const periodo = !fecha && params.get("periodo") === "fin-de-semana" ? "fin-de-semana" : "";
   const ciudad = params.get("ciudad")?.trim() || "";
   const tipo = params.get("tipo")?.trim() || "";
-  const proximos = params.get("proximos") !== "0";
+  const planParam = params.get("plan");
+  const plan = planParam === "gratis" || planParam === "familia" ? planParam : "";
+  const proximos = true; // Los enlaces antiguos no pueden reactivar eventos pasados.
   const vistaParam = params.get("vista");
   const vista: "grandes" | "locales" | "todos" = vistaParam === "grandes" || vistaParam === "locales" ? vistaParam : "todos";
   const paginaParam = Number(params.get("pagina") || "1");
   const pagina = Number.isSafeInteger(paginaParam) && paginaParam > 0 ? paginaParam : 1;
-  const clave = JSON.stringify([texto, fecha, ciudad, tipo, proximos, vista, colaborador, periodo]);
-  return { colaborador, texto, fecha, periodo, ciudad, tipo, proximos, vista, pagina, clave };
+  const clave = JSON.stringify([texto, fecha, ciudad, tipo, proximos, vista, colaborador, periodo, plan]);
+  return { colaborador, texto, fecha, periodo, ciudad, tipo, proximos, vista, pagina, clave, plan };
 }

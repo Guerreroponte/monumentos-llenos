@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { diaMadrid, eventoVigente, filtroEventosVigentes } from "@/lib/agenda-ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -179,7 +180,7 @@ export default async function ColaboradorPage({
     notFound();
   }
 
-  const hoy = new Date().toISOString().split("T")[0];
+  const hoy = diaMadrid();
 
   const { data: eventosData } = await supabase
     .from("eventos")
@@ -198,11 +199,11 @@ export default async function ColaboradorPage({
     `)
     .eq("colaborador_id", colaborador.id)
     .eq("reportado", false)
-    .gte("fecha_inicio", hoy)
+    .or(filtroEventosVigentes(hoy))
     .order("fecha_inicio", { ascending: true })
     .limit(24);
 
-  const eventos = (eventosData || []) as Evento[];
+  const eventos = ((eventosData || []) as Evento[]).filter(e => eventoVigente(e.fecha_inicio, e.fecha_fin, hoy));
   const logo = colaborador.logo_url || colaborador.logo;
   const categoria = colaborador.categoria_colaborador || "sala";
 

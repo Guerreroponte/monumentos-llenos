@@ -5,7 +5,7 @@ export function regresoEventos(valor?: string | string[]) {
     const url = new URL(valor, "https://www.monumentosllenos.com");
     if (url.origin !== "https://www.monumentosllenos.com" || url.pathname !== "/eventos") return "/eventos";
     const params = new URLSearchParams();
-    for (const clave of ["ciudad", "tipo", "q", "fecha", "periodo", "colaborador", "proximos", "vista", "pagina"]) {
+    for (const clave of ["ciudad", "tipo", "q", "fecha", "periodo", "plan", "colaborador", "proximos", "vista", "pagina"]) {
       const contenido = url.searchParams.get(clave);
       if (contenido) params.set(clave, contenido);
     }

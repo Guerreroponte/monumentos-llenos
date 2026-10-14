@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { diaMadrid, etiquetaEnlace, faseComentariosEvento } from "@/lib/agenda-ui";
+import { diaMadrid, eventoVigente, etiquetaEnlace, faseComentariosEvento } from "@/lib/agenda-ui";
 import Link from "next/link";
 import { enlaceComoLlegarEvento } from "@/lib/eventos-directions";
 import { supabase } from "@/lib/supabase";
@@ -693,7 +693,15 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
               )}
             </div>
 
+            {fase === "despues" && (
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <p className="font-bold text-slate-800">Este evento ya ha finalizado.</p>
+                <Link href="/eventos" className="mt-2 inline-block font-semibold text-orange-700 underline">Descubrir eventos en curso y próximos</Link>
+              </div>
+            )}
+
             {(() => {
+              if (!hoy || !eventoVigente(evento.fecha_inicio, evento.fecha_fin, hoy)) return null;
               const urlEntradas =
                 evento.fever_url_afiliado?.trim() ||
                 evento.enlace?.trim() ||
@@ -784,7 +792,7 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
                     rel="noreferrer"
                     className="inline-flex rounded-full border border-[#fed7aa] px-5 py-3 text-sm font-semibold text-[#ea580c] transition hover:bg-[#fff7ed]"
                   >
-                    {etiquetaEnlace(evento.enlace)}
+                    {fase === "despues" ? "Consultar fuente original" : etiquetaEnlace(evento.enlace)}
                   </a>
                 )}
             </div>

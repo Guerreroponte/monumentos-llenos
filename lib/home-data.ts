@@ -1,4 +1,4 @@
-import { diaMadrid, eventoEnFecha, calendarioEvento } from "./agenda-ui";
+import { diaMadrid, compararAgenda, eventoVigente, filtroEventosVigentes, eventoEnFecha, calendarioEvento } from "./agenda-ui";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { publicImage } from "./public-images";
 import { supabase } from "./supabase";
@@ -144,12 +144,18 @@ export type ComentarioEventoFotoUI = {
         ciudad?: string | null;
         slug?: string | null;
         tipo?: string | null;
+        fecha_inicio?: string | null;
+        fecha_fin?: string | null;
+        reportado?: boolean | null;
       }
     | {
         nombre?: string | null;
         ciudad?: string | null;
         slug?: string | null;
         tipo?: string | null;
+        fecha_inicio?: string | null;
+        fecha_fin?: string | null;
+        reportado?: boolean | null;
       }[]
     | null;
 };
@@ -175,6 +181,7 @@ export type HeroItemUI = {
   href: string;
   tipo?: string | null;
   fecha_inicio?: string | null;
+  fecha_fin?: string | null;
 };
 
 export type FotoSeleccionada = {
@@ -349,58 +356,45 @@ export async function cargarEventosHoy(client: SupabaseClient = supabase) {
   }
 
 export async function cargarEventosProximosHero(client: SupabaseClient = supabase) {
-    const hoy = new Date().toISOString().split("T")[0];
-
-    const { data, error } = await client
-      .from("eventos")
-      .select(`
-        id,
-        nombre,
-        ciudad,
-        fecha_inicio,
-        tipo,
-        imagen,
-        slug
-      `)
-      .gte("fecha_inicio", hoy)
-      .eq("reportado", false)
-      .not("imagen", "is", null)
-      .order("fecha_inicio", { ascending: true })
-      .limit(12);
-
-    if (error) {
-      console.error("Error cargando próximos eventos del hero:", error);
-      throw error;
+    const hoy = diaMadrid();
+    const candidatos: EventoUI[] = [];
+    for (let desde = 0; ; desde += 500) {
+      const { data, error } = await client.from("eventos")
+        .select("id,nombre,ciudad,fecha_inicio,fecha_fin,tipo,imagen,slug")
+        .or(filtroEventosVigentes(hoy))
+        .eq("reportado", false)
+        .not("imagen", "is", null)
+        .order("fecha_inicio", { ascending: true }).order("id", { ascending: true })
+        .range(desde, desde + 499);
+      if (error) throw error;
+      const pagina = (data || []) as EventoUI[];
+      candidatos.push(...pagina.filter(e => eventoVigente(e.fecha_inicio, e.fecha_fin, hoy)));
+      if (pagina.length < 500) break;
     }
-
-    return (data || []) as EventoUI[];
+    return candidatos.sort((a, b) => compararAgenda(
+      { inicio: a.fecha_inicio, fin: a.fecha_fin },
+      { inicio: b.fecha_inicio, fin: b.fecha_fin }, hoy
+    )).slice(0, 12);
   }
 
 export async function cargarComentariosEventosConFoto(client: SupabaseClient = supabase) {
-    const { data, error } = await client
-      .from("comentarios_eventos")
-      .select(`
-        id,
-        texto,
-        foto,
-        created_at,
-        eventos (
-          nombre,
-          ciudad,
-          slug,
-          tipo
-        )
-      `)
-      .not("foto", "is", null)
-      .order("created_at", { ascending: false })
-      .limit(6);
-
-    if (error) {
-      console.error("Error cargando fotos de comentarios de eventos:", error);
-      throw error;
+    const resultado: ComentarioEventoFotoUI[] = [];
+    const hoy = diaMadrid();
+    // Filtrar antes de limitar: las últimas seis fotos podrían ser de eventos pasados.
+    for (let desde = 0; ; desde += 100) {
+      const { data, error } = await client.from("comentarios_eventos")
+        .select("id,texto,foto,created_at,eventos(nombre,ciudad,slug,tipo,fecha_inicio,fecha_fin,reportado)")
+        .not("foto", "is", null)
+        .order("created_at", { ascending: false }).order("id", { ascending: true })
+        .range(desde, desde + 99);
+      if (error) throw error;
+      const pagina = (data || []) as ComentarioEventoFotoUI[];
+      resultado.push(...pagina.filter(comentario => {
+        const evento = Array.isArray(comentario.eventos) ? comentario.eventos[0] : comentario.eventos;
+        return evento && evento.reportado !== true && eventoVigente(evento.fecha_inicio, evento.fecha_fin, hoy);
+      }));
+      if (resultado.length >= 6 || pagina.length < 100) return resultado.slice(0, 6);
     }
-
-    return (data || []) as ComentarioEventoFotoUI[];
   }
 
 export async function cargarLogosSalasDestacadas(client: SupabaseClient = supabase) {

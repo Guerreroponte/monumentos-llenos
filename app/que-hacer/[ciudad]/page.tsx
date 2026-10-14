@@ -1,4 +1,4 @@
-import { compararAgenda, fechaAgenda } from "@/lib/agenda-ui";
+import { compararAgenda, fechaAgenda, eventoVigente } from "@/lib/agenda-ui";
 import Link from "next/link";
 import GuiaValencia from "./GuiaValencia";
 import GuiaBilbaoMalaga from "./GuiaBilbaoMalaga";
@@ -137,7 +137,7 @@ async function cargarEventosCiudad(
           evento.ciudad &&
           normalizarCiudad(evento.ciudad) ===
             ciudadNormalizada &&
-          (evento.fecha_fin ?? evento.fecha_inicio ?? "") >= hoy
+          eventoVigente(evento.fecha_inicio, evento.fecha_fin, hoy)
       )
     );
 

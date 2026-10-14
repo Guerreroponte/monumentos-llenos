@@ -4,6 +4,8 @@ import { alternativasPorCiudad, leerBusquedaLugares } from "@/lib/lugares-ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { eventoVigente, diaMadrid, fechaAgenda } from "@/lib/agenda-ui";
+import AccesosRapidos from "@/components/AccesosRapidos";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { cargarDatos as obtenerLugares, SALAS_DESTACADAS_COLABORADORAS } from "@/lib/home-data";
@@ -474,7 +476,10 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
 
   const fotosReales = useMemo<FotoRealUI[]>(() => {
     const fotosEventos: FotoRealUI[] = comentariosEventosConFoto
-      .filter((comentario) => Boolean(comentario.foto))
+      .filter((comentario) => {
+        const evento = getEventoRelacionado(comentario);
+        return Boolean(comentario.foto) && evento?.reportado !== true && eventoVigente(evento?.fecha_inicio, evento?.fecha_fin);
+      })
       .map((comentario) => {
         const eventoRelacionado = getEventoRelacionado(comentario);
         const href = eventoRelacionado?.slug
@@ -532,7 +537,7 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
     }));
 
     const itemsEventos: HeroItemUI[] = eventosProximosHero
-      .filter((evento) => Boolean(evento.imagen))
+      .filter((evento) => Boolean(evento.imagen) && eventoVigente(evento.fecha_inicio, evento.fecha_fin))
       .map((evento) => ({
         id: `proximo-${evento.id}`,
         origen: "evento-futuro" as const,
@@ -542,6 +547,7 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
         href: evento.slug ? `/eventos/${evento.slug}` : "/eventos",
         tipo: evento.tipo || "Evento",
         fecha_inicio: evento.fecha_inicio || null,
+        fecha_fin: evento.fecha_fin || null,
       }));
 
     // Intercalamos fotos reales con eventos próximos para que el hero
@@ -1151,6 +1157,8 @@ ${url}`;
               </div>
             </form>
 
+            <AccesosRapidos ciudad={ciudadesDisponiblesHero.find((ciudad) => normalizarTexto(ciudad) === normalizarTexto(ciudadHero)) || ""} />
+
             <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="#hoy-mismo"
@@ -1191,12 +1199,7 @@ ${url}`;
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {heroItemsVisibles.map((item, index) => {
                   const esEventoFuturo = item.origen === "evento-futuro";
-                  const fechaEvento = item.fecha_inicio
-                    ? new Date(`${item.fecha_inicio}T12:00:00`).toLocaleDateString(
-                        "es-ES",
-                        { day: "numeric", month: "short" }
-                      )
-                    : null;
+                  const fechaEvento = item.fecha_inicio ? fechaAgenda(item.fecha_inicio, item.fecha_fin) : null;
 
                   return (
                     <Link
@@ -1219,7 +1222,7 @@ ${url}`;
 
                       <div className="absolute left-3 top-3 flex flex-wrap gap-2 sm:left-4 sm:top-4">
                         <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-extrabold text-slate-800 shadow-sm backdrop-blur">
-                          {esEventoFuturo ? "🗓️ Próximo plan" : "📸 Foto real"}
+                          {esEventoFuturo ? (item.fecha_inicio && item.fecha_inicio < diaMadrid() ? "🗓️ En curso" : "🗓️ Próximo plan") : "📸 Foto real"}
                         </span>
                         <span className="rounded-full bg-orange-500/95 px-3 py-1 text-[11px] font-extrabold text-white shadow-sm backdrop-blur">
                           {esEventoFuturo

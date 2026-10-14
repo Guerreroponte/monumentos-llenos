@@ -111,3 +111,14 @@ export function faseComentariosEvento(evento: { fecha_inicio?: string | null; fe
   if (hoy > fin) return 'despues';
   return eventoEnFecha(inicio, fin, hoy, calendarioEvento(evento.slug)) ? 'hoy' : 'sin-confirmar';
 }
+
+// Una fecha desconocida o un intervalo inválido no acredita un plan vigente.
+export function eventoVigente(inicio?: string | null, fin?: string | null, hoy = diaMadrid()) {
+  const valida = (fecha?: string | null): fecha is string => !!fecha && /^\d{4}-\d{2}-\d{2}$/.test(fecha) && !Number.isNaN(Date.parse(fecha)) && new Date(fecha).toISOString().slice(0, 10) === fecha;
+  return valida(inicio) && (!fin || (valida(fin) && fin >= inicio)) && (fin || inicio) >= hoy;
+}
+
+// Se combina con los filtros de visibilidad y colaborador ya existentes.
+export function filtroEventosVigentes(hoy = diaMadrid()) {
+  return `fecha_fin.gte.${hoy},and(fecha_fin.is.null,fecha_inicio.gte.${hoy})`;
+}

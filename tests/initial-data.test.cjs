@@ -60,9 +60,9 @@ test('initial event filters retain deep links and pagination', () => {
   const { leerFiltrosEventos } = load('lib/eventos-filters.ts');
   const f = leerFiltrosEventos(new URLSearchParams('ciudad=Madrid&tipo=Concierto&pagina=3&vista=locales&proximos=0&colaborador=11111111-1111-4111-8111-111111111111&q=jazz&fecha=2026-10-04'));
   assert.equal(f.pagina, 3);
-  assert.equal(f.proximos, false);
+  assert.equal(f.proximos, true);
   assert.equal(f.colaborador, uuid);
-  assert.deepEqual(JSON.parse(f.clave), ['jazz', '2026-10-04', 'Madrid', 'Concierto', false, 'locales', uuid, '']);
+  assert.deepEqual(JSON.parse(f.clave), ['jazz', '2026-10-04', 'Madrid', 'Concierto', true, 'locales', uuid, '', '']);
   for (const pagina of ['0', '-1', 'bad', '1.5', 'Infinity']) {
     assert.equal(leerFiltrosEventos(new URLSearchParams({ pagina })).pagina, 1);
   }
@@ -70,9 +70,9 @@ test('initial event filters retain deep links and pagination', () => {
 
 test('return to agenda preserves every filter and page but never leaves the site', () => {
   const { regresoEventos } = load('lib/eventos-navigation.ts');
-  const query = new URLSearchParams({ciudad:'Madrid',tipo:'Música y conciertos',q:'jazz & soul',fecha:'2026-10-10',periodo:'fin-de-semana',colaborador:uuid,proximos:'0',vista:'locales',pagina:'3'});
+  const query = new URLSearchParams({ciudad:'Madrid',tipo:'Música y conciertos',q:'jazz & soul',fecha:'2026-10-10',periodo:'fin-de-semana',colaborador:uuid,proximos:'0',vista:'locales',pagina:'3',plan:'familia'});
   const result = new URL(regresoEventos('/eventos?' + query + '#seccion-todos'), 'https://example.com');
-  assert.deepEqual([...result.searchParams], [...query]);
+  assert.deepEqual([...result.searchParams].sort(), [...query].sort());
   assert.equal(result.hash, '#seccion-todos');
   assert.equal(regresoEventos('/eventos#seccion-todos'), '/eventos#seccion-todos');
   for (const input of [undefined, ['x'], 'https://evil.test', '//evil.test', '/eventos/../admin-eventos', '/eventos-mal', 'javascript:alert(1)']) {
@@ -115,7 +115,7 @@ test('failed data loads reject instead of masquerading as an empty catalogue', a
 });
 
 test('event batches keep all rows beyond 1,000 and preserve collaborator filtering', async () => {
-  const eventos = Array.from({ length: 1001 }, (_, i) => ({ id: String(i), nombre: `Plan ${i}`, colaborador_id: i < 2 ? 'sala' : 'other', categoria_evento: 'local' }));
+  const eventos = Array.from({ length: 1001 }, (_, i) => ({ id: String(i), nombre: `Plan ${i}`, colaborador_id: i < 2 ? 'sala' : 'other', categoria_evento: 'local', fecha_inicio: '2099-01-01' }));
   const db = database({ eventos, comentarios_eventos: [{ id: 'c', evento_id: '0' }], colaboradores: [{ id: 'sala', nombre: 'Sala de prueba' }] });
   const { getEventosInitialData } = load('lib/eventos-data.ts', db);
   const all = await getEventosInitialData('');
@@ -129,10 +129,10 @@ test('event batches keep all rows beyond 1,000 and preserve collaborator filteri
 
 test('agenda hides archived events while preserving legacy null flags and collaborator filters', async () => {
   const db = database({ eventos: [
-    { id: 'visible', reportado: false, colaborador_id: 'sala' },
-    { id: 'legacy', reportado: null, colaborador_id: 'sala' },
-    { id: 'archived', reportado: true, colaborador_id: 'sala' },
-    { id: 'other', reportado: false, colaborador_id: 'other' },
+    { id: 'visible', fecha_inicio: '2099-01-01', reportado: false, colaborador_id: 'sala' },
+    { id: 'legacy', fecha_inicio: '2099-01-01', reportado: null, colaborador_id: 'sala' },
+    { id: 'archived', fecha_inicio: '2099-01-01', reportado: true, colaborador_id: 'sala' },
+    { id: 'other', fecha_inicio: '2099-01-01', reportado: false, colaborador_id: 'other', fecha_inicio: '2099-01-01' },
   ] });
   const { getEventosInitialData } = load('lib/eventos-data.ts', db);
   assert.deepEqual((await getEventosInitialData('')).eventos.map(e => e.id), ['visible', 'legacy', 'other']);
@@ -155,7 +155,7 @@ test('place gallery preserves cover, removes duplicates and keeps reviews on gal
     lugares_fotos: [
       { lugar_id: uuid, imagen: image }, { lugar_id: uuid, imagen: 'https://example.com/second.jpg' },
       { lugar_id: uuid, imagen: 'https://example.com/second.jpg' }, { lugar_id: uuid, imagen: ' ' },
-      { lugar_id: 'other', imagen: 'https://example.com/other.jpg' },
+      { lugar_id: 'other', fecha_inicio: '2099-01-01', imagen: 'https://example.com/other.jpg' },
     ],
   };
   const detail = await load('lib/detail-data.ts', database(tables)).getLugarDetail('lugar');
@@ -189,7 +189,7 @@ test('image endpoint serves original image bytes with explicit safe content type
 
 test('comment counts include contributions beyond the API first page', async () => {
   const comments = Array.from({length: 1204}, (_, i) => ({id: String(i), evento_id: i < 1200 ? 'old' : 'swing'}));
-  const db = database({eventos: [{id: 'swing'}], comentarios_eventos: comments});
+  const db = database({eventos: [{id: 'swing', fecha_inicio: '2099-01-01'}], comentarios_eventos: comments});
   const {getEventosInitialData} = load('lib/eventos-data.ts', db);
   assert.equal((await getEventosInitialData('')).eventos[0].comentariosCount, 4);
   assert.equal(db.reads.filter(r => r.table === 'comentarios_eventos').length, 3);
@@ -367,4 +367,56 @@ test('plan B stays in the exact selected city, never fills gaps with distant pla
   assert.deepEqual(alternativasPorCiudad(lugares, 'vigo').map(x => x.slug), ['vigo']);
   assert.deepEqual(alternativasPorCiudad(lugares, 'alcala de henares').map(x => x.slug), ['alcala']);
   assert.equal(lugares[0].slug, 'madrid-1');
+});
+
+test('public agenda excludes expired, undated and invalid events but keeps ongoing events', async () => {
+  const { diaMadrid } = load('lib/agenda-ui.ts');
+  const today = diaMadrid();
+  const rows = [
+    {id:'past',fecha_inicio:'2000-01-01'},
+    {id:'ended',fecha_inicio:'2000-01-01',fecha_fin:'2000-02-01'},
+    {id:'today',fecha_inicio:today},
+    {id:'ongoing',fecha_inicio:'2000-01-01',fecha_fin:'2099-01-01'},
+    {id:'future',fecha_inicio:'2099-01-01'},
+    {id:'unknown'},
+    {id:'invalid',fecha_inicio:'2099-02-30'},
+    {id:'reversed',fecha_inicio:'2099-02-01',fecha_fin:'2099-01-01'},
+  ];
+  const { getEventosInitialData } = load('lib/eventos-data.ts', database({eventos: rows}));
+  assert.deepEqual((await getEventosInitialData('')).eventos.map(e=>e.id), ['today','ongoing','future']);
+});
+
+test('community photos skip expired events before limiting and handle both relationship shapes', async () => {
+  const expired = Array.from({length:105},(_,i)=>({id:`past-${i}`,foto:'photo.jpg',eventos:{fecha_inicio:'2000-01-01'}}));
+  const event = {fecha_inicio:'2000-01-01',fecha_fin:'2099-01-01'};
+  const comments = [...expired,
+    {id:'missing',foto:'photo.jpg',eventos:null},
+    {id:'hidden',foto:'photo.jpg',eventos:{...event,reportado:true}},
+    {id:'ongoing',foto:'photo.jpg',eventos:event},
+    {id:'future',foto:'photo.jpg',eventos:[{fecha_inicio:'2099-01-01'}]},
+  ];
+  const db = database({comentarios_eventos:comments});
+  const { cargarComentariosEventosConFoto } = load('lib/home-data.ts',db);
+  assert.deepEqual((await cargarComentariosEventosConFoto(db)).map(e=>e.id), ['ongoing','future']);
+  assert.equal(db.reads.length,2);
+});
+
+test('hero keeps ongoing and future events, rejects ended and undated candidates', async () => {
+  const db = database({eventos:[
+    {id:'past',fecha_inicio:'2000-01-01'},
+    {id:'ongoing',fecha_inicio:'2000-01-01',fecha_fin:'2099-01-01'},
+    {id:'future',fecha_inicio:'2099-01-01'},
+    {id:'unknown'},
+  ].map(e=>({...e,reportado:false,imagen:'photo.jpg'}))});
+  const { cargarEventosProximosHero } = load('lib/home-data.ts',db);
+  assert.deepEqual((await cargarEventosProximosHero(db)).map(e=>e.id), ['future','ongoing']);
+});
+
+test('validity follows the Madrid day at midnight and includes the last day', () => {
+  const {eventoVigente,diaMadrid} = load('lib/agenda-ui.ts');
+  const today = diaMadrid(new Date('2026-10-14T22:30:00Z'));
+  assert.equal(today,'2026-10-15');
+  assert.equal(eventoVigente('2026-10-14',null,today),false);
+  assert.equal(eventoVigente('2026-10-01','2026-10-15',today),true);
+  assert.equal(eventoVigente(null,'2026-10-20',today),false);
 });
