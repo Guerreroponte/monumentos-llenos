@@ -148,6 +148,161 @@ const guias = {
         "https://leon.es/que-ver/monumentos-de-leon/"
       ]
     ]
+  },
+  "oviedo": {
+    "intro": "En Oviedo puedes combinar el casco antiguo y el Campo de San Francisco en un paseo por el centro. El Naranco merece un plan aparte: calcula el desplazamiento y la vuelta antes de enlazarlo con un concierto o una función.",
+    "sections": [
+      [
+        "La Catedral y las calles del casco antiguo",
+        "Empieza junto a la [Catedral de San Salvador](/lugar/catedral-de-san-salvador-oviedo) y recorre las calles de su entorno. La plaza permite disfrutar del exterior; si quieres entrar al templo o conocer la Cámara Santa, revisa las modalidades de visita y reserva tiempo para el recorrido. Respeta los horarios de culto."
+      ],
+      [
+        "Una pausa en el Campo de San Francisco",
+        "El [Campo de San Francisco](/lugar/campo-de-san-francisco-oviedo) permite cambiar las calles por paseos arbolados sin salir del centro. Puedes buscar la escultura de Mafalda o elegir un recorrido corto entre sus jardines. Es una parada cómoda para descansar antes de continuar con la agenda cultural."
+      ],
+      [
+        "Santa María del Naranco, con margen",
+        "La visita a [Santa María del Naranco](/lugar/santa-maria-del-naranco-oviedo) lleva a la ladera del monte y al patrimonio prerrománico asturiano. Comprueba cómo llegar y las condiciones para visitar el interior. Evita ajustar el regreso a la hora de apertura de puertas de tu evento; el desplazamiento forma parte del plan."
+      ],
+      [
+        "Del paseo a tu evento",
+        "Comprueba si el recinto está en el centro o necesita un desplazamiento adicional. Para moverte en autobús, consulta el servicio del día y la última salida de vuelta. Usa «Cómo llegar» en la ficha del evento y deja tiempo para recoger entradas, acceder al recinto y encontrar tu localidad."
+      ]
+    ],
+    "sources": [
+      [
+        "Oviedo en Turismo Asturias",
+        "https://www.turismoasturias.es/organiza-tu-viaje/donde-ir/comarcas/oviedo"
+      ],
+      [
+        "visita a Santa María del Naranco",
+        "https://www.turismoasturias.es/descubre/cultura/prerromanico/santa-maria-del-naranco"
+      ]
+    ]
+  },
+  "badajoz": {
+    "intro": "Badajoz permite enlazar el patrimonio de su zona alta con un paseo hacia el Guadiana. Organiza la Alcazaba y la Plaza Alta juntas, y reserva otro tramo para Puerta de Palmas antes de dirigirte al recinto de tu evento.",
+    "sections": [
+      [
+        "La Alcazaba y sus accesos",
+        "Recorre el entorno de la [Alcazaba de Badajoz](/lugar/alcazaba-de-badajoz) para descubrir puertas, torres y vistas sobre la ciudad. Lleva calzado cómodo para las pendientes y consulta los espacios abiertos al público. En días calurosos, elige las horas más suaves y lleva agua."
+      ],
+      [
+        "Una parada en Plaza Alta",
+        "La [Plaza Alta](/lugar/plaza-alta-badajoz) es una continuación natural del paseo por el entorno de la Alcazaba. Detente bajo sus soportales y observa las fachadas decoradas. Puedes disfrutar del espacio exterior y seguir por las calles del casco histórico; si hay una actividad en la plaza, comprueba su programación y accesos."
+      ],
+      [
+        "Puerta de Palmas y el Guadiana",
+        "Acércate a la [Puerta de Palmas](/lugar/puerta-de-palmas-badajoz), frente al puente del mismo nombre, para cambiar el paisaje del casco antiguo por el entorno del río. La parada propuesta es exterior. Utiliza las zonas peatonales y los pasos habilitados, y calcula el trayecto de vuelta antes de alargar el paseo."
+      ],
+      [
+        "Cómo organizar la llegada al concierto",
+        "La ubicación de cada sala puede cambiar por completo el final de la ruta. Comprueba la dirección exacta, el acceso y la apertura de puertas; si necesitas transporte, revisa también la vuelta. Usa el enlace «Cómo llegar» del evento y deja margen para bajar desde la zona alta de la ciudad."
+      ]
+    ],
+    "sources": [
+      [
+        "Alcazaba y murallas en Turismo de Badajoz",
+        "https://turismo.aytobadajoz.es/alcazaba-y-murallas/"
+      ],
+      [
+        "Puerta de Palmas en el Ayuntamiento",
+        "https://www.aytobadajoz.es/es/ayto/monumentos/puerta-de-palmas"
+      ]
+    ]
+  },
+  "logrono": {
+    "intro": "En Logroño puedes combinar la Concatedral, la historia del vino en Ruavieja y un paseo junto al Ebro. El centro permite enlazar estas paradas, pero conviene consultar primero los horarios de las visitas interiores y la ubicación de tu evento.",
+    "sections": [
+      [
+        "La Redonda y la plaza del Mercado",
+        "La [Concatedral de Santa María de la Redonda](/lugar/concatedral-de-santa-maria-de-la-redonda-logrono) es una buena referencia para empezar por el casco antiguo. Contempla sus torres desde la plaza y continúa por las calles cercanas. Para visitar el interior, comprueba el horario del templo y las celebraciones religiosas."
+      ],
+      [
+        "El vino bajo la calle Ruavieja",
+        "El [Calado de San Gregorio](/lugar/calado-de-san-gregorio-logrono) acerca al pasado vitivinícola de la ciudad desde una bodega histórica. Consulta las condiciones de acceso y su relación con la visita al Espacio Lagares. No presupongas que cualquier hora del paseo sirve para entrar: los horarios cambian según la temporada."
+      ],
+      [
+        "Una pausa junto al Ebro",
+        "El [Parque del Ebro](/lugar/parque-del-ebro-logrono) ofrece un tramo verde cerca del casco antiguo. Elige un recorrido junto al río según el tiempo que tengas, sin necesidad de prolongarlo por toda la ribera. Atiende a la meteorología y a las indicaciones municipales antes de bajar a los paseos."
+      ],
+      [
+        "De la ruta al recinto",
+        "Sitúa la sala o el teatro en el mapa antes de decidir dónde terminar el paseo. Comprueba la hora de apertura de puertas y el transporte de regreso, especialmente si el evento acaba tarde. El enlace «Cómo llegar» de cada ficha permite calcular el desplazamiento desde tu última parada."
+      ]
+    ],
+    "sources": [
+      [
+        "patrimonio en Visit Logroño",
+        "https://visitalogrono.com/-/concatedral-de-santa-maria-de-la-redonda"
+      ],
+      [
+        "Calado de San Gregorio en el Ayuntamiento",
+        "https://logrono.es/-/calado-de-san-gregorio"
+      ]
+    ]
+  },
+  "soria": {
+    "intro": "Soria ofrece dos ritmos: el paseo céntrico por La Dehesa y las visitas junto al Duero. Reserva tiempo para desplazarte entre el centro y la ribera, y ajusta la ruta a los horarios de los monumentos y de tu evento.",
+    "sections": [
+      [
+        "San Juan de Duero: mirar sus arcos",
+        "El [Monasterio de San Juan de Duero](/lugar/monasterio-de-san-juan-de-duero-soria) conserva una iglesia y un claustro con arcos de formas muy distintas. Recorre sus lados con calma y comprueba el horario de temporada antes de ir. La visita al recinto y el paseo exterior por el río tienen condiciones diferentes."
+      ],
+      [
+        "El paseo hasta San Saturio",
+        "La [ermita de San Saturio](/lugar/ermita-de-san-saturio-soria) combina el paisaje del Duero con un recorrido interior entre grutas y salas. Ten en cuenta los desniveles y escaleras, y consulta el último acceso. Calcula tanto la ida como el regreso al centro antes de combinarla con una función."
+      ],
+      [
+        "La Dehesa, sin salir del centro",
+        "La [Alameda de Cervantes](/lugar/alameda-de-cervantes-soria), conocida como La Dehesa, permite hacer una pausa cerca de la plaza de Mariano Granados. Sus paseos, fuentes y zonas arboladas encajan en una ruta corta. Elige un recorrido acorde con la estación y el tiempo disponible."
+      ],
+      [
+        "Cómo llegar a tiempo al evento",
+        "No calcules el trayecto desde la ribera como si estuvieras ya en el centro. Comprueba la dirección del recinto, la apertura de puertas y el medio de transporte de vuelta. Usa «Cómo llegar» en la ficha y reserva margen para el regreso, especialmente al anochecer o con mal tiempo."
+      ]
+    ],
+    "sources": [
+      [
+        "San Saturio en Turismo Soria",
+        "https://www.turismosoria.es/que-ver/monumentos/ermita-de-san-saturio/"
+      ],
+      [
+        "San Juan de Duero en Turismo de Castilla y León",
+        "https://www.turismocastillayleon.com/es/patrimonio-cultura/monasterio-san-juan-duero"
+      ]
+    ]
+  },
+  "albacete": {
+    "intro": "En Albacete puedes combinar arquitectura del centro, la tradición cuchillera y un paseo por el Parque Abelardo Sánchez. Organiza primero la visita al museo y deja las paradas exteriores para completar el recorrido antes de tu evento.",
+    "sections": [
+      [
+        "Lodares: mirar hacia arriba",
+        "El [Pasaje de Lodares](/lugar/pasaje-de-lodares-albacete) invita a detenerse bajo su cubierta de cristal y observar balcones, columnas y detalles decorativos. Es una galería comercial con espacios privados: respeta los accesos y distingue el horario del pasaje del de sus establecimientos."
+      ],
+      [
+        "El oficio que identifica a Albacete",
+        "El [Museo de la Cuchillería](/lugar/museo-de-la-cuchilleria-albacete), en la Casa de Hortelano junto a la Catedral, permite conocer herramientas, piezas y técnicas de este oficio. Comprueba las tarifas y los horarios antes de ir. La fachada del edificio también merece una parada en el paseo por el centro."
+      ],
+      [
+        "Descansar en Abelardo Sánchez",
+        "El [Parque Abelardo Sánchez](/lugar/parque-abelardo-sanchez-albacete) ofrece senderos arbolados y espacios para hacer una pausa. Puedes elegir un paseo breve o ampliarlo según el tiempo disponible. Si quieres entrar al Museo de Albacete, situado dentro del parque, consulta su horario por separado."
+      ],
+      [
+        "Del centro a la sala",
+        "Confirma la dirección exacta del teatro o sala: tener un evento en Albacete no significa que esté junto a estas visitas. Usa «Cómo llegar» en la ficha, comprueba la apertura de puertas y calcula el regreso si dependes del transporte público. Deja margen para terminar el paseo y acceder al recinto."
+      ]
+    ],
+    "sources": [
+      [
+        "Museo de la Cuchillería",
+        "https://www.museocuchilleria.es/"
+      ],
+      [
+        "Pasaje de Lodares en Turismo de Castilla-La Mancha",
+        "https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/monumentos/albacete/pasaje-de-lodares"
+      ]
+    ]
   }
 } as const;
 
