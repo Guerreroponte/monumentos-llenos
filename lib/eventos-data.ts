@@ -1,3 +1,4 @@
+import { nombreCiudad } from "./ciudad-identidad";
 import "server-only";
 import { eventoVigente } from "./agenda-ui";
 import { unstable_cache } from "next/cache";
@@ -149,7 +150,7 @@ export async function getEventosInitialData(colaboradorParam: string) {
           slug: normalizarTexto(e.slug) || e.id,
           createdAt: e.created_at ?? null,
           nombre: normalizarTexto(e.nombre) || "Evento sin nombre",
-          ciudad: normalizarTexto(e.ciudad) || "Ciudad por confirmar",
+          ciudad: nombreCiudad(e.ciudad) || "Ciudad por confirmar",
           provincia: normalizarTexto(e.provincia),
           comunidad: normalizarTexto(e.comunidad_autonoma),
           tipo: normalizarTexto(e.tipo) || "Evento",

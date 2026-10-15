@@ -1,3 +1,4 @@
+import { nombreCiudad } from "./ciudad-identidad";
 import "server-only";
 import { publicServer } from "./supabase-public-server";
 export const ciudadesRespaldo = [
@@ -39,7 +40,7 @@ function slugCiudad(ciudad: string) {
 }
 
 function limpiarCiudad(ciudad: string) {
-  return ciudad.replace(/\s+/g, " ").trim();
+  return nombreCiudad(ciudad);
 }
 
 async function obtenerTodasLasCiudades(

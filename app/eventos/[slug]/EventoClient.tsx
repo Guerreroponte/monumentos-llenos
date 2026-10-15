@@ -521,14 +521,18 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
         </div>
 
         <div className="overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm">
+          <a href={/^https?:\/\//i.test(evento.imagen || "") ? evento.imagen! : undefined} className="block" target="_blank" rel="noopener noreferrer" aria-label="Abrir imagen del evento a tamaño completo (se abre en otra pestaña)">
           <img
             src={
               evento.imagen ||
               "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80"
             }
             alt={evento.nombre || "Evento"}
-            className="h-72 w-full object-cover"
+            className="max-h-[70vh] w-full bg-slate-50 object-contain"
           />
+
+            {/^https?:\/\//i.test(evento.imagen || "") && <span className="block bg-slate-50 py-2 text-center text-sm font-semibold text-orange-700 underline">Ampliar imagen ↗</span>}
+          </a>
 
           <div className="p-6 md:p-8">
             <div className="mb-3 flex flex-wrap gap-2">

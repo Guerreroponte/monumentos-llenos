@@ -24,7 +24,7 @@ function load(relative, db) {
       if (id.endsWith('/supabase-public-server')) return { publicServer: db };
       if (id === './supabase') return { supabase: db };
       const resolved = id.startsWith('@/') ? path.join(root, id.slice(2)) : path.resolve(path.dirname(filename), id);
-      return moduleAt(resolved + '.ts');
+      return moduleAt(resolved.endsWith('.ts') ? resolved : resolved + '.ts');
     }
     new Function('require', 'module', 'exports', output)(mockedRequire, compiledModule, compiledModule.exports);
     return compiledModule.exports;
@@ -419,4 +419,27 @@ test('validity follows the Madrid day at midnight and includes the last day', ()
   assert.equal(eventoVigente('2026-10-14',null,today),false);
   assert.equal(eventoVigente('2026-10-01','2026-10-15',today),true);
   assert.equal(eventoVigente(null,'2026-10-20',today),false);
+});
+
+
+test('city aliases combine search results while keeping distinct municipalities separate', () => {
+  const { nombreCiudad, claveCiudad } = load('lib/ciudad-identidad.ts');
+  const { leerFiltrosEventos } = load('lib/eventos-filters.ts');
+  const { alternativasPorCiudad } = load('lib/lugares-ui.ts');
+  for (const [old, canonical] of [['Palma de Mallorca', 'Palma'], ['San Sebastián', 'Donostia-San Sebastián']]) {
+    assert.equal(nombreCiudad(old), canonical);
+    assert.equal(claveCiudad(old), claveCiudad(canonical));
+    assert.equal(leerFiltrosEventos(new URLSearchParams({ciudad:old})).ciudad, canonical);
+    assert.equal(alternativasPorCiudad([{ciudad:old,slug:'a'},{ciudad:canonical,slug:'b'}],old).length,2);
+  }
+  assert.notEqual(claveCiudad('San Sebastián de los Reyes'), claveCiudad('San Sebastián'));
+  assert.notEqual(claveCiudad('Las Palmas de Gran Canaria'), claveCiudad('Palma'));
+});
+
+test('Las Médulas only appears as happening today on confirmed performance dates', () => {
+  const { calendarioEvento, eventoEnFecha } = load('lib/agenda-ui.ts');
+  const calendar = calendarioEvento('festival-otono-las-medulas-2026');
+  assert.equal(eventoEnFecha('2026-09-26','2026-10-24','2026-10-15',calendar),false);
+  assert.equal(eventoEnFecha('2026-09-26','2026-10-24','2026-10-16',calendar),true);
+  assert.equal(eventoEnFecha('2026-09-26','2026-10-24','2026-10-25',calendar),false);
 });

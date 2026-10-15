@@ -1,5 +1,7 @@
 "use client";
 
+import FuenteLugar from "@/components/FuenteLugar";
+import { nombreCiudad } from "@/lib/ciudad-identidad";
 import { alternativasPorCiudad, leerBusquedaLugares } from "@/lib/lugares-ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
@@ -26,13 +28,13 @@ function normalizarTexto(valor: string) {
 }
 
 function getRutaCiudad(valor: string) {
-  const slug = normalizarTexto(valor).replace(/[^a-z0-9]+/g, "-")
+  const slug = normalizarTexto(nombreCiudad(valor)).replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
   return slug ? `/que-hacer/${slug}` : null;
 }
 
 function filtrarCiudades(ciudades: string[], consulta: string) {
-  const texto = normalizarTexto(consulta);
+  const texto = normalizarTexto(nombreCiudad(consulta));
   if (!texto) return [];
   return ciudades
     .filter((opcion) => normalizarTexto(opcion).includes(texto))
@@ -173,9 +175,12 @@ function LugarGaleriaRotativa({
 
   const [indiceActual, setIndiceActual] = useState(0);
 
-  useEffect(() => {
+  const claveGaleria = `${monumento.id}:${imagenes.length}`;
+  const [galeriaAnterior, setGaleriaAnterior] = useState(claveGaleria);
+  if (galeriaAnterior !== claveGaleria) {
+    setGaleriaAnterior(claveGaleria);
     setIndiceActual(0);
-  }, [imagenes.length, monumento.id]);
+  }
 
   useEffect(() => {
     if (imagenes.length <= 1) return;
@@ -296,7 +301,7 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
       ...eventosProximosHero.map((evento) => evento.ciudad),
     ];
     for (const opcion of opciones) {
-      const valor = (opcion || "").trim().replace(/\s+/g, " ");
+      const valor = nombreCiudad(opcion);
       const clave = normalizarTexto(valor);
       if (!clave || clave === "ciudad no especificada" || clave === "ciudad por confirmar" || clave === "varias ciudades") continue;
       const existente = unicas.get(clave);
@@ -407,7 +412,7 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
   const ciudadesLugares = useMemo(() => {
     const unicas = new Map<string, string>();
     for (const lugar of monumentos) {
-      const ciudad = (lugar.ciudad || "").trim().replace(/\s+/g, " ");
+      const ciudad = nombreCiudad(lugar.ciudad);
       if (ciudad && !unicas.has(normalizarTexto(ciudad))) unicas.set(normalizarTexto(ciudad), ciudad);
     }
     return [...unicas.values()];
@@ -452,7 +457,7 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
         .includes(normalizarTexto(busquedaNombre));
 
       const coincideCiudad = normalizarTexto(m.ciudad)
-        .includes(normalizarTexto(busquedaCiudad));
+        .includes(normalizarTexto(nombreCiudad(busquedaCiudad)));
 
       return coincideNombre && coincideCiudad;
     });
@@ -820,7 +825,7 @@ ${url}`;
       if (error || !monumentoInsertado) {
         console.error("Error al guardar lugar:", error);
         alert(
-          `Error al guardar el lugar: ${error?.message || "Error desconocido"}`
+          `Error al guardar el lugar: ${error instanceof Error ? error.message : "Error desconocido"}`
         );
         setGuardandoMonumento(false);
         setSubiendoFotosLugar(false);
@@ -847,11 +852,11 @@ ${url}`;
       limpiarFormularioLugar();
       await cargarDatos();
       setPaginaActual(1);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error subiendo fotos del lugar:", error);
       alert(
         `No se pudo guardar el lugar o subir sus fotos: ${
-          error?.message || "Error desconocido"
+          error instanceof Error ? error.message : "Error desconocido"
         }`
       );
     }
@@ -996,7 +1001,7 @@ ${url}`;
     valor: boolean | null | undefined,
     emoji: string
   ) => {
-    let texto = "Prefirió no indicarlo";
+    let texto = "Sin información";
 
     if (valor === true) texto = "Sí";
     if (valor === false) texto = "No";
@@ -2196,7 +2201,7 @@ ${url}`;
 
                         {m.fuente && (
                           <p className="mt-4 text-xs text-slate-400">
-                            Fuente: {m.fuente}
+                            <FuenteLugar fuente={m.fuente} />
                           </p>
                         )}
                       </div>

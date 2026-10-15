@@ -52,6 +52,11 @@ export type CalendarioEvento =
   | { tipo: 'sesiones'; fechas: string[] };
 
 const calendarios: Record<string, CalendarioEvento> = {
+  // Programa oficial: https://xn--festivaldeotooenlasmedulas-trc.com/ (15-10-2026).
+  'festival-otono-las-medulas-2026': {
+    tipo: 'sesiones',
+    fechas: ['2026-09-26', '2026-10-02', '2026-10-09', '2026-10-10', '2026-10-16', '2026-10-17', '2026-10-24'],
+  },
   // Fichas revisadas el 8-10-2026: cada jueves / los cinco sábados de octubre.
   'conciertos-factoria-cruzcampo-sevilla-2026-2027': { tipo: 'semanal', dias: [4] },
   'irun-zuzenean-zikloa-2026': {

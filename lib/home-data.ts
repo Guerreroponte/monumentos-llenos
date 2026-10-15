@@ -1,3 +1,4 @@
+import { nombreCiudad } from "./ciudad-identidad";
 import { diaMadrid, compararAgenda, eventoVigente, filtroEventosVigentes, eventoEnFecha, calendarioEvento } from "./agenda-ui";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { publicImage } from "./public-images";
@@ -284,7 +285,7 @@ export async function cargarDatos(client: SupabaseClient = supabase) {
     const resultado: MonumentoUI[] = monumentosBase.map((m) => ({
       id: m.id,
       nombre: m.nombre || "Lugar sin nombre",
-      ciudad: m.ciudad || "Ciudad no especificada",
+      ciudad: nombreCiudad(m.ciudad) || "Ciudad no especificada",
       provincia: m.provincia || null,
       comunidad_autonoma: m.comunidad_autonoma || null,
       rating: typeof m.rating === "number" ? m.rating : null,

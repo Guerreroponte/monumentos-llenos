@@ -1,3 +1,4 @@
+import { nombreCiudad, claveCiudad } from "@/lib/ciudad-identidad";
 import GuiaCiudades, { tieneGuiaCiudad } from "./GuiaCiudades";
 import { compararAgenda, fechaAgenda, eventoVigente } from "@/lib/agenda-ui";
 import Link from "next/link";
@@ -67,13 +68,7 @@ const categorias = [
 ];
 
 function normalizarCiudad(texto: string) {
-  return decodeURIComponent(texto)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  return claveCiudad(decodeURIComponent(texto));
 }
 
 function formatearCiudadDesdeSlug(slug: string) {
@@ -293,8 +288,7 @@ export default async function CiudadPage({
         colaborador.ciudad
     )?.ciudad;
 
-  const ciudadFormateada = (ciudadReal || formatearCiudadDesdeSlug(ciudadSlug))
-    .trim().replace(/\s+/g, " ");
+  const ciudadFormateada = nombreCiudad(ciudadReal || formatearCiudadDesdeSlug(ciudadSlug));
 
   return (
     <main className="bg-[#fff7ed] min-h-screen">

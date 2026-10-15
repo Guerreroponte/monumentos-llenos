@@ -1,3 +1,4 @@
+import { nombreCiudad } from "./ciudad-identidad.ts";
 // Acepta los formatos UUID de PostgreSQL y devuelve el formato canónico.
 export function normalizarColaborador(valor: string | null) {
   const texto = (valor || "").trim();
@@ -13,7 +14,7 @@ export function leerFiltrosEventos(params: URLSearchParams) {
   const fechaParam = params.get("fecha") || "";
   const fecha = /^\d{4}-\d{2}-\d{2}$/.test(fechaParam) ? fechaParam : "";
   const periodo = !fecha && params.get("periodo") === "fin-de-semana" ? "fin-de-semana" : "";
-  const ciudad = params.get("ciudad")?.trim() || "";
+  const ciudad = nombreCiudad(params.get("ciudad"));
   const tipo = params.get("tipo")?.trim() || "";
   const planParam = params.get("plan");
   const plan = planParam === "gratis" || planParam === "familia" ? planParam : "";
