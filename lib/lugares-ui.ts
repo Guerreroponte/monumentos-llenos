@@ -32,3 +32,20 @@ export function alternativasPorCiudad<T extends { ciudad: string; slug?: string 
     .sort((a, b) => (Date.parse(b.created_at || '') || 0) - (Date.parse(a.created_at || '') || 0))
     .slice(0, 3);
 }
+
+// Primera, última y vecinas de la página actual; los huecos no son botones.
+export function paginasVisibles(actual: number, total: number): (number | "…")[] {
+  const seleccion = new Set([1, total]);
+  const inicio = Math.max(2, Math.min(actual - 1, total - 3));
+  const fin = Math.min(total - 1, Math.max(actual + 1, 4));
+  for (let pagina = inicio; pagina <= fin; pagina++) seleccion.add(pagina);
+  const paginas = [...seleccion].filter(p => p >= 1 && p <= total).sort((a, b) => a - b);
+  const resultado: (number | "…")[] = [];
+  paginas.forEach((pagina, indice) => {
+    const anterior = paginas[indice - 1];
+    if (anterior && pagina - anterior === 2) resultado.push(anterior + 1);
+    else if (anterior && pagina - anterior > 2) resultado.push("…");
+    resultado.push(pagina);
+  });
+  return resultado;
+}

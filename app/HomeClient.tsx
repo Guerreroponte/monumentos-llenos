@@ -2,7 +2,7 @@
 
 import FuenteLugar from "@/components/FuenteLugar";
 import { nombreCiudad } from "@/lib/ciudad-identidad";
-import { alternativasPorCiudad, leerBusquedaLugares } from "@/lib/lugares-ui";
+import { alternativasPorCiudad, leerBusquedaLugares, paginasVisibles } from "@/lib/lugares-ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -2222,8 +2222,8 @@ ${url}`;
             </div>
 
             {renderPaginacion && (
-              <div className="mt-8 flex flex-col items-center gap-4">
-                <div className="flex flex-wrap items-center justify-center gap-3">
+              <nav aria-label="Páginas de lugares" className="mt-8 flex flex-col items-center gap-4">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                   <button
                     onClick={() => setPaginaActual((prev) => Math.max(1, prev - 1))}
                     disabled={paginaActual === 1}
@@ -2232,10 +2232,12 @@ ${url}`;
                     Anterior
                   </button>
 
-                  {Array.from({ length: totalPaginas }, (_, i) => i + 1).map(
-                    (pagina) => (
+                  {paginasVisibles(paginaActual, totalPaginas).map(
+                    (pagina, indice) => pagina === "…" ? <span key={`salto-${indice}`} className="px-1 text-slate-500" aria-hidden="true">…</span> : (
                       <button
                         key={pagina}
+                        aria-label={`Página ${pagina}`}
+                        aria-current={paginaActual === pagina ? "page" : undefined}
                         onClick={() => setPaginaActual(pagina)}
                         className={`h-11 min-w-[44px] rounded-full px-4 text-sm font-bold transition ${
                           paginaActual === pagina
@@ -2258,7 +2260,7 @@ ${url}`;
                     Siguiente
                   </button>
                 </div>
-              </div>
+              </nav>
             )}
           </>
         )}
