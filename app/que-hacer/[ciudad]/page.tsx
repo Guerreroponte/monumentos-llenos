@@ -356,11 +356,14 @@ export default async function CiudadPage({
             🏛️ {lugaresCiudad.total} {lugaresCiudad.total === 1 ? "lugar" : "lugares"}
           </a>
 
-          <a
+          {colaboradores.length > 0 && <a
             href="#colaboradores"
             className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             🤝 {colaboradoresCiudad.total} {colaboradoresCiudad.total === 1 ? "sala colaboradora" : "salas colaboradoras"}
+          </a>}
+          <a href="#guia-local" className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            📖 Guía local
           </a>
         </div>
 
@@ -371,7 +374,7 @@ export default async function CiudadPage({
           </h2>
 
           <div className="mt-5 flex flex-wrap gap-3">
-            {categorias.map(
+            {categorias.filter((categoria) => categoria.href !== "#colaboradores" || colaboradores.length > 0).map(
               (categoria) => (
                 <a
                   key={
@@ -586,7 +589,7 @@ export default async function CiudadPage({
           </div>
         </section>
 
-        <section
+        {colaboradores.length > 0 && <section
           id="colaboradores"
           className="scroll-mt-32 mt-20"
         >
@@ -724,9 +727,9 @@ export default async function CiudadPage({
               }
             )}
           </div>
-        </section>
+        </section>}
 
-        <section className="mt-20 rounded-3xl border border-orange-100 bg-white p-8 shadow-sm">
+        <section id="guia-local" className="scroll-mt-32 mt-20 rounded-3xl border border-orange-100 bg-white p-8 shadow-sm">
           <p className="text-orange-600 font-bold uppercase tracking-[0.18em] text-xs">
             Guía local
           </p>

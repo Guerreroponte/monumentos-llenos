@@ -383,51 +383,21 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
     }
   };
 
-  const usarComentarioRapido = async (texto: string) => {
-    if (!evento?.id || enviandoComentario || comentarioRapidoActivo) return;
-
+  const usarComentarioRapido = (texto: string) => {
+    if (!evento?.id || enviandoComentario || comentarioRapidoActivo === texto) return;
     const faseActual = faseComentariosEvento(evento, diaMadrid());
     const opciones = faseActual === "hoy" ? COMENTARIOS_RAPIDOS_EVENTO : faseActual === "despues" ? COMENTARIOS_DESPUES : [];
     if (!opciones.includes(texto)) {
       setHoy(diaMadrid());
       return;
     }
+    // Las sugerencias solo preparan el borrador; publica el formulario.
+    setTextoComentario((actual) => actual === comentarioRapidoActivo || !actual.trim()
+      ? texto
+      : `${actual.trimEnd()}\n${texto}`);
     setComentarioRapidoActivo(texto);
     setErrorComentario("");
     setComentarioEnviado(false);
-
-    const { data, error } = await supabase
-      .from("comentarios_eventos")
-      .insert([
-        {
-          evento_id: evento.id,
-          texto,
-          autor: null,
-          foto: null,
-          video_url: null,
-        },
-      ])
-      .select()
-      .single();
-
-    if (error) {
-      setErrorComentario("No se pudo enviar el comentario.");
-      setComentarioRapidoActivo("");
-      return;
-    }
-
-    if (data) {
-      setComentarios((prev) => [data, ...prev]);
-      limpiarFormularioComentario();
-      setComentarioEnviado(true);
-
-      setTimeout(() => {
-        botonPublicarRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-      }, 100);
-    }
   };
 
   const enviarComentario = async (e: React.FormEvent) => {
@@ -824,7 +794,7 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
                 Respuesta rápida
               </p>
               <p className="mt-1 text-sm text-[#64748b]">
-                Pulsa una opción y se publica al momento. Una frase real ya ayuda.
+                Elige una frase, revísala y pulsa el botón de publicar cuando esté lista.
               </p>
 
               <div className="mt-3 flex flex-wrap gap-2">
@@ -832,7 +802,8 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
                   <button
                     key={texto}
                     type="button"
-                    disabled={!!comentarioRapidoActivo || enviandoComentario}
+                    disabled={enviandoComentario}
+                    aria-pressed={comentarioRapidoActivo === texto}
                     onClick={() => usarComentarioRapido(texto)}
                     className={`rounded-full border px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-70 ${
                       comentarioRapidoActivo === texto
@@ -840,7 +811,7 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
                         : "border-[#fed7aa] bg-[#fff7ed] text-[#9a3412] hover:bg-[#ffedd5]"
                     }`}
                   >
-                    {comentarioRapidoActivo === texto ? "Enviando..." : texto}
+                    {texto}
                   </button>
                 ))}
               </div>
