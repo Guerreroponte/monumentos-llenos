@@ -1543,40 +1543,11 @@ ${url}`;
         </div>
       </section>
 
-      {/* CÓMO FUNCIONA / PROPUESTA DE VALOR */}
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
-        <div className="mb-7 max-w-3xl">
-          <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">⚡ En menos de un minuto</p>
-          <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">Decidir un plan debería ser más fácil</h2>
-          <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">Tres señales rápidas para saber si ese sitio o evento encaja contigo antes de salir de casa.</p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <a href="#asi-estan-los-planes" className="group rounded-[30px] border border-orange-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-2xl">📸</div>
-            <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-blue-600">01 · Mira</p>
-            <h3 className="mt-2 text-xl font-black text-slate-950">Mira experiencias de la comunidad</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">Fotos reales con fecha de subida para conocer el ambiente y tener más contexto.</p>
-            <span className="mt-5 inline-flex text-sm font-black text-orange-600">Ver fotos <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
-          </a>
-
-          <a href="#comentado" className="group rounded-[30px] border border-orange-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-2xl">💬</div>
-            <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-rose-600">02 · Comprueba</p>
-            <h3 className="mt-2 text-xl font-black text-slate-950">Lee experiencias reales</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">Consejos sobre horarios, colas, ambiente y detalles que una ficha turística no suele contar.</p>
-            <span className="mt-5 inline-flex text-sm font-black text-orange-600">Ver comunidad <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
-          </a>
-
-          <a href="#alternativas" className="group rounded-[30px] border border-orange-100 bg-slate-950 p-6 text-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-2xl">🧭</div>
-            <p className="mt-5 text-xs font-black uppercase tracking-[0.18em] text-orange-300">03 · Decide</p>
-            <h3 className="mt-2 text-xl font-black">Ten siempre un plan B</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-300">Si está demasiado lleno o no te convence, descubre otras opciones en la misma ciudad.</p>
-            <span className="mt-5 inline-flex text-sm font-black text-orange-300">Descubrir alternativas <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
-          </a>
-        </div>
-      </section>
+      <nav aria-label="Explorar la comunidad" className="mx-auto flex max-w-6xl flex-wrap gap-3 px-4 py-6 sm:px-6">
+        <a href="#asi-estan-los-planes" className="rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-orange-50">📸 Fotos de la comunidad</a>
+        <a href="#comentado" className="rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-orange-50">💬 Lugares más comentados</a>
+        <a href="#alternativas" className="rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-orange-50">🧭 Un plan B en tu ciudad</a>
+      </nav>
 
       {/* MÁS COMENTADOS */}
       {lugaresMasComentados.length > 0 && (
@@ -2281,43 +2252,25 @@ ${url}`;
         )}
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
-        <div className="rounded-[32px] border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-500">
-                🚀 Haz crecer la comunidad
-              </p>
-              <h2 className="mt-2 text-2xl font-bold text-slate-900 md:text-3xl">
-                Comparte tus experiencias y ayuda a otros a viajar mejor
-              </h2>
-              <p className="mt-3 text-sm leading-7 text-slate-600 md:text-base">
-                Invita a otras personas a contar sus consejos, recomendaciones y
-                experiencias reales. Cuantas más aportaciones haya, más útil será
-                la web para todo el mundo.
-              </p>
-            </div>
-
-            <div className="flex w-full max-w-md flex-col gap-3">
-              <button
-                onClick={copiarInvitacion}
-                className="rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-6 py-3.5 font-semibold text-white shadow-lg shadow-orange-200 transition hover:scale-[1.02]"
-              >
-                Copiar enlace para invitar
-              </button>
-
-              <p className="text-sm text-slate-500">
-                Comparte el enlace con alguien que pueda aportar una experiencia útil.
-              </p>
-
-              {mensajeCopiado && (
-                <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm font-medium text-orange-700">
-                  {mensajeCopiado}
-                </div>
-              )}
-            </div>
-          </div>
+      <section id="mapa" className="scroll-mt-28 mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+        <div className="mb-5">
+          <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🗺️ Explora visualmente</p>
+          <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Mapa de lugares</h2>
+          <p className="mt-2 text-sm text-slate-600">
+            Explora visualmente los sitios compartidos por la comunidad.
+          </p>
         </div>
+
+        <Mapa
+          monumentos={monumentosFiltrados.map((m) => ({
+            id: m.id,
+            nombre: m.nombre,
+            ciudad: m.ciudad,
+            slug: m.slug,
+            latitud: m.latitud,
+            longitud: m.longitud,
+          }))}
+        />
       </section>
 
       <section id="participa" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
@@ -2339,6 +2292,12 @@ ${url}`;
               <span className="font-semibold text-slate-900">Consejo:</span>{" "}
               los lugares con foto y descripción invitan mucho más a comentar.
             </div>
+          </div>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-orange-100 pt-5">
+            <p className="text-sm text-slate-600">¿Conoces a alguien con sitios que recomendar?</p>
+            <button onClick={copiarInvitacion} className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2.5 text-sm font-semibold text-orange-800 hover:bg-orange-100">Copiar enlace para invitar</button>
+            {mensajeCopiado && <p role="status" className="text-sm font-medium text-orange-700">{mensajeCopiado}</p>}
           </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -2520,27 +2479,6 @@ ${url}`;
             </p>
           </div>
         </div>
-      </section>
-
-      <section id="mapa" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
-        <div className="mb-5">
-          <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🗺️ Explora visualmente</p>
-          <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Mapa de lugares</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Explora visualmente los sitios compartidos por la comunidad.
-          </p>
-        </div>
-
-        <Mapa
-          monumentos={monumentosFiltrados.map((m) => ({
-            id: m.id,
-            nombre: m.nombre,
-            ciudad: m.ciudad,
-            slug: m.slug,
-            latitud: m.latitud,
-            longitud: m.longitud,
-          }))}
-        />
       </section>
 
       <details className="group mt-6 mx-4 mb-8 sm:fixed sm:bottom-6 sm:right-6 sm:z-50 sm:m-0 relative">

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import { claveCiudad, nombreCiudad } from "@/lib/ciudad-identidad";
 import GaleriaLugar from "./GaleriaLugar";
 import { fechaResena, enlaceComoLlegar } from "@/lib/lugares-ui";
 import { supabase } from "@/lib/supabase";
@@ -61,6 +62,8 @@ function limpiarNombreArchivo(nombre: string) {
 export default function LugarPage({ initialData, regreso = "/" }: { regreso?: string; initialData: { lugar: Lugar; resenas: Resena[]; fotos?: string[] } }) {
 
   const lugar = initialData.lugar;
+  const ciudad = nombreCiudad(lugar?.ciudad);
+  const ciudadSlug = claveCiudad(ciudad);
   const [resenas, setResenas] = useState<Resena[]>(initialData.resenas);
 
   const [usuario, setUsuario] = useState("");
@@ -277,6 +280,17 @@ ${url}`;
             <h1 className="mt-2 text-3xl font-bold leading-tight text-slate-900 md:text-4xl">
               {lugar.nombre || "Lugar sin nombre"}
             </h1>
+
+            {ciudadSlug && (
+              <nav aria-label={`Descubrir ${ciudad}`} className="mt-5 flex flex-wrap gap-3">
+                <Link href={`/que-hacer/${ciudadSlug}`} className="rounded-full border border-orange-200 bg-orange-50 px-4 py-2.5 text-sm font-semibold text-orange-800 transition hover:bg-orange-100">
+                  Qué hacer en {ciudad} →
+                </Link>
+                <Link href={`/?${new URLSearchParams({ ciudad })}#lugares`} className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                  Más lugares en {ciudad} →
+                </Link>
+              </nav>
+            )}
 
             <button
               onClick={compartirWhatsApp}

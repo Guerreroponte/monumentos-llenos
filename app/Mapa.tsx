@@ -91,9 +91,8 @@ export default function Mapa({
   }, [monumentosConCoords]);
 
   return (
-    <div className="mt-12">
+    <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-2xl font-bold">🗺️ Mapa de lugares</h3>
 
         <div className="rounded-full border border-orange-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm">
           {monumentosConCoords.length} de {monumentos.length} con ubicación
