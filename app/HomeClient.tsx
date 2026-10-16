@@ -1842,6 +1842,14 @@ ${url}`;
           </div>
         </div>
 
+        {(busquedaNombre || busquedaCiudad) && (
+          <div aria-label="Filtros de lugares activos" className="mb-5 flex flex-wrap items-center gap-2 text-sm">
+            {busquedaCiudad && <span className="max-w-full break-words rounded-xl bg-orange-50 px-3 py-2 text-orange-900">Ciudad: {nombreCiudad(busquedaCiudad)}</span>}
+            {busquedaNombre && <span className="max-w-full break-words rounded-xl bg-orange-50 px-3 py-2 text-orange-900">Nombre: {busquedaNombre}</span>}
+            {busquedaNombre && <button onClick={() => { setBusquedaNombre(""); setPaginaActual(1); }} className="min-h-11 px-3 font-semibold text-orange-800 underline">Quitar filtro de nombre</button>}
+          </div>
+        )}
+
         {monumentosFiltrados.length === 0 ? (
           <div className="rounded-3xl border border-orange-100 bg-white p-8 text-slate-600 shadow-sm">
             <p className="text-lg font-semibold text-slate-900">
@@ -1851,6 +1859,10 @@ ${url}`;
               Prueba con otra ciudad, otro nombre o sé la primera persona en
               compartir un lugar nuevo con la comunidad.
             </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {busquedaNombre && <button onClick={() => { setBusquedaNombre(""); setPaginaActual(1); }} className="min-h-11 rounded-full bg-orange-600 px-5 py-2 font-semibold text-white hover:bg-orange-700">{busquedaCiudad ? `Ver lugares en ${nombreCiudad(busquedaCiudad)}` : "Ver todos los lugares"}</button>}
+              {busquedaCiudad && <button onClick={() => { setBusquedaNombre(""); setBusquedaciudad(""); setPaginaActual(1); }} className="min-h-11 rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-800 hover:bg-orange-50">Ver todas las ciudades</button>}
+            </div>
             <a
               href="#participa"
               className="mt-5 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md"

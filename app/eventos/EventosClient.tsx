@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { claveCiudad } from "@/lib/ciudad-identidad";
 import type { EventoUI } from "@/lib/eventos-data";
 import { leerFiltrosEventos, normalizarColaborador } from "@/lib/eventos-filters";
 import { diaMadrid, eventoVigente, mananaMadrid, eventoEnFecha, calendarioEvento, compararAgenda, grupoTipo, coincideTipo, diasFinDeSemana } from "@/lib/agenda-ui";
@@ -67,10 +68,11 @@ function textoComentarios(count: number) {
 
 type Props = {
   initialData: { eventos: EventoUI[]; nombreColaborador: string };
+  ciudadesLugares?: string[];
   initialFilters: ReturnType<typeof leerFiltrosEventos>;
 };
 
-export default function EventosPage({ initialData, initialFilters }: Props) {
+export default function EventosPage({ initialData, initialFilters, ciudadesLugares = [] }: Props) {
   const restauracionUrl = useRef<string | null>(null);
   const [urlPreparada, setUrlPreparada] = useState(false);
   const eventos = initialData.eventos;
@@ -278,12 +280,12 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
     scrollToSection("seccion-todos");
   }
 
-  function resetearFiltros() {
+  function resetearFiltros(conservarCiudad = false) {
     setPlan("");
     setBusqueda("");
     setFechaSeleccionada("");
     setPeriodo("");
-    setCiudadSeleccionada("");
+    if (!conservarCiudad) setCiudadSeleccionada("");
     setTipoSeleccionado("");
     setSoloProximos(true);
     setModoVista("todos");
@@ -300,6 +302,16 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
     setPeriodo("fin-de-semana");
     setSoloProximos(true);
   }
+
+  const filtrosVisibles = [
+    ciudadSeleccionada ? `Ciudad: ${ciudadSeleccionada}` : "Todas las ciudades",
+    fechaSeleccionada ? `Fecha: ${formatFecha(fechaSeleccionada)}` : periodo ? "Este fin de semana" : "Próximos eventos",
+    busqueda.trim() ? `Búsqueda: ${busqueda.trim()}` : "",
+    tipoSeleccionado ? `Tipo: ${tipoSeleccionado}` : "",
+    plan === "gratis" ? "Planes gratis" : plan === "familia" ? "En familia" : "",
+    modoVista === "grandes" ? "Grandes eventos" : modoVista === "locales" ? "Planes locales" : "",
+    colaboradorId ? `Colaborador: ${nombreColaborador || "seleccionado"}` : "",
+  ].filter(Boolean);
 
   const botonFecha = (activo: boolean) => `min-h-11 rounded-full border px-2 py-2 text-xs font-semibold transition sm:px-4 sm:text-sm ${activo ? "border-[#ea580c] bg-[#ea580c] text-white" : "border-[#e2e8f0] bg-white text-[#475569] hover:bg-[#fff7ed]"}`;
 
@@ -371,8 +383,11 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
           </details>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
             <p role="status" className="text-sm font-semibold text-[#475569]">{eventosFiltrados.length} {eventosFiltrados.length === 1 ? "evento" : "eventos"}{periodo === "fin-de-semana" ? " · Este finde" : ""}{plan === "gratis" ? " · Planes gratis" : plan === "familia" ? " · En familia" : ""}</p>
-            <button onClick={resetearFiltros} className="min-h-11 px-2 text-sm font-semibold text-[#c2410c] underline underline-offset-4">Limpiar filtros</button>
+            <button onClick={() => resetearFiltros()} className="min-h-11 px-2 text-sm font-semibold text-[#c2410c] underline underline-offset-4">Limpiar filtros y ciudad</button>
           </div>
+          <ul aria-label="Filtros activos" className="mt-3 flex flex-wrap gap-2">
+            {filtrosVisibles.map(filtro => <li key={filtro} className="max-w-full break-words rounded-xl bg-orange-50 px-3 py-2 text-sm text-orange-900">{filtro}</li>)}
+          </ul>
         </div>
       </section>
       {/* Conserva destinos de enlaces antiguos sin repetir los eventos. */}
@@ -414,22 +429,22 @@ export default function EventosPage({ initialData, initialFilters }: Props) {
                 <button onClick={elegirFinDeSemana} className="min-h-11 rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-700 hover:bg-orange-50">Ver este finde</button>
               )}
               {(fechaSeleccionada || periodo || !soloProximos) && (
-                <button onClick={() => elegirDia("")} className="min-h-11 rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-700 hover:bg-orange-50">Ver próximas fechas</button>
+                <button onClick={() => elegirDia("")} className="min-h-11 rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-700 hover:bg-orange-50">Ver próximos eventos</button>
               )}
             </div>
             {(plan || busqueda || tipoSeleccionado || modoVista !== "todos") && (
               <div className="mt-5 border-t border-[#f1f5f9] pt-4">
                 <p className="text-sm leading-6 text-[#64748b]">También puedes quitar la búsqueda y los filtros de actividad para ver los próximos planes{ciudadSeleccionada ? ` en ${ciudadSeleccionada}` : ""}{colaboradorId ? " de este colaborador" : ""}.</p>
-                <button onClick={() => {
-                  setPlan("");
-                  setBusqueda("");
-                  setTipoSeleccionado("");
-                  setModoVista("todos");
-                  elegirDia("");
-                }} className="mt-3 min-h-11 rounded-full bg-[#ea580c] px-5 py-2 font-semibold text-white hover:bg-[#c2410c]">Ampliar búsqueda{ciudadSeleccionada ? ` en ${ciudadSeleccionada}` : ""}</button>
+                <button onClick={() => resetearFiltros(true)} className="mt-3 min-h-11 rounded-full bg-[#ea580c] px-5 py-2 font-semibold text-white hover:bg-[#c2410c]">Quitar filtros{ciudadSeleccionada ? ` y seguir en ${ciudadSeleccionada}` : " de búsqueda"}</button>
               </div>
             )}
-            <button onClick={resetearFiltros} className="mt-4 min-h-11 px-3 py-2 text-sm font-semibold text-orange-700 underline underline-offset-4">Limpiar filtros</button>
+            {ciudadSeleccionada && ciudadesLugares.includes(claveCiudad(ciudadSeleccionada)) && (
+              <div className="mt-5 border-t border-slate-100 pt-4">
+                <p className="text-sm text-slate-600">También puedes descubrir lugares para visitar en esta ciudad.</p>
+                <Link href={`/?${new URLSearchParams({ ciudad: ciudadSeleccionada })}#lugares`} className="mt-3 inline-flex min-h-11 items-center rounded-full border border-orange-200 px-5 py-2 font-semibold text-orange-800 hover:bg-orange-50">Ver lugares en {ciudadSeleccionada} →</Link>
+              </div>
+            )}
+            <button onClick={() => resetearFiltros()} className="mt-4 min-h-11 px-3 py-2 text-sm font-semibold text-orange-700 underline underline-offset-4">Limpiar filtros y ciudad</button>
           </div>
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">

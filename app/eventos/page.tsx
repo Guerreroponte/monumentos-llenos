@@ -1,3 +1,4 @@
+import { ciudadesConLugares } from "@/lib/ciudades-con-lugares";
 import type { Metadata } from "next";
 import { getEventosInitialData } from "@/lib/eventos-data";
 import { leerFiltrosEventos } from "@/lib/eventos-filters";
@@ -24,6 +25,6 @@ export default async function EventosPage({ searchParams }: Props) {
     if (first !== undefined) params.set(key, first);
   }
   const initialFilters = leerFiltrosEventos(params);
-  const initialData = await getEventosInitialData(initialFilters.colaborador);
-  return <EventosClient key={params.toString()} initialData={initialData} initialFilters={initialFilters} />;
+  const [initialData, ciudadesLugares] = await Promise.all([getEventosInitialData(initialFilters.colaborador), ciudadesConLugares()]);
+  return <EventosClient ciudadesLugares={ciudadesLugares} key={params.toString()} initialData={initialData} initialFilters={initialFilters} />;
 }
