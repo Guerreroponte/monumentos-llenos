@@ -2,6 +2,37 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "benavente": {
+    "intro": "Benavente permite enlazar patrimonio religioso y arquitectura civil por el centro antes de un evento. Organiza las visitas interiores según su apertura y deja el paseo por las plazas para el resto del recorrido.",
+    "sections": [
+        [
+            "Santa María del Azogue: empezar por la plaza",
+            "La [iglesia de Santa María del Azogue](/lugar/iglesia-santa-maria-del-azogue-benavente) es una primera parada para observar el exterior y decidir si entrar. Comprueba el horario turístico de tu día; las celebraciones religiosas pueden alterar el acceso."
+        ],
+        [
+            "San Juan del Mercado: otra mirada al románico",
+            "Continúa hacia [San Juan del Mercado](/lugar/iglesia-san-juan-del-mercado-benavente) y fíjate en su portada de la Epifanía. Consulta la entrada conjunta de las dos iglesias y confirma las condiciones antes de organizar las visitas."
+        ],
+        [
+            "Casa del Cervato y plaza del Grano",
+            "La [Casa del Cervato](/lugar/casa-del-cervato-benavente) aporta una parada de arquitectura civil: balcones, miradores y una veleta singular. Esta propuesta se centra en la fachada; el acceso al interior requiere confirmación."
+        ],
+        [
+            "Llegar al evento con margen",
+            "Comprueba la dirección del recinto y la apertura de puertas en la ficha del evento. Si viajas en coche, organiza el aparcamiento por separado: no se ha confirmado una plaza de estacionamiento asociada a estos monumentos. Para dudas sobre visitas y festivos, contacta con Turismo de Benavente, 980 634 211."
+        ]
+    ],
+    "sources": [
+        [
+            "horarios de Turismo de Benavente",
+            "https://turismobenavente.es/prepara-tu-visita/horarios/"
+        ],
+        [
+            "visita a San Juan del Mercado en Turismo de Castilla y León",
+            "https://www.turismocastillayleon.com/es/patrimonio-cultura/iglesias-ermitas/iglesia-san-juan-mercado"
+        ]
+    ]
+},
   "valladolid": {
     "intro": "En Valladolid puedes combinar el centro histórico, una visita de museo y una pausa en el Campo Grande antes de tu evento. Escoge el recorrido según el tiempo disponible y comprueba dónde está el recinto para organizar el final del día.",
     "sections": [
