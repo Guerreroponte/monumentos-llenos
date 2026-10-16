@@ -1,5 +1,6 @@
 "use client";
 
+import { enlaceFichaLugar } from "@/lib/lugares-navigation";
 import FuenteLugar from "@/components/FuenteLugar";
 import { nombreCiudad } from "@/lib/ciudad-identidad";
 import { alternativasPorCiudad, leerBusquedaLugares, paginasVisibles } from "@/lib/lugares-ui";
@@ -450,6 +451,16 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
     }
     if (url.href !== window.location.href) window.history.replaceState(window.history.state, "", url);
   }, [busquedaNombre, busquedaCiudad, paginaActual, busquedaRestaurada]);
+
+  // Esperar a que se hayan aplicado los filtros antes de buscar la tarjeta.
+  useEffect(() => {
+    if (!busquedaRestaurada || !/^#lugar-(lista|destacado|alternativa)-[a-zA-Z0-9-]+$/.test(window.location.hash)) return;
+    const frame = requestAnimationFrame(() => {
+      const tarjeta = document.getElementById(window.location.hash.slice(1));
+      (tarjeta || document.getElementById("lugares"))?.scrollIntoView({ block: "start" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [busquedaRestaurada]);
 
   const monumentosFiltrados = useMemo(() => {
     return monumentos.filter((m) => {
@@ -1582,10 +1593,11 @@ ${url}`;
 
             <div className="grid gap-4 md:grid-cols-3">
               {lugaresMasComentados.map((lugar) => {
-                const hrefLugar = lugar.slug ? `/lugar/${lugar.slug}` : "#";
+                const anclaLugar = `lugar-destacado-${lugar.id}`;
+                const hrefLugar = lugar.slug ? enlaceFichaLugar(lugar.slug, busquedaNombre, busquedaCiudad, paginaActual, anclaLugar) : "#";
                 const imagenCard = lugar.imagen || lugar.fotosLugar[0] || lugar.resenas.find((r) => r.foto)?.foto || null;
                 return (
-                  <Link key={lugar.id} href={hrefLugar} className="group overflow-hidden rounded-[28px] border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:bg-white/10">
+                  <Link key={lugar.id} id={anclaLugar} href={hrefLugar} className="scroll-mt-28 group overflow-hidden rounded-[28px] border border-white/10 bg-white/5 transition hover:-translate-y-1 hover:bg-white/10">
                     {imagenCard ? (
                       <div className="relative h-52 overflow-hidden">
                         <img loading="lazy" src={imagenCard} alt={lugar.nombre} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
@@ -1777,10 +1789,11 @@ ${url}`;
             )}
             <div className="grid gap-4 md:grid-cols-3">
               {lugaresAlternativos.map((lugar) => {
-                const hrefLugar = lugar.slug ? `/lugar/${lugar.slug}` : "#";
+                const anclaLugar = `lugar-alternativa-${lugar.id}`;
+                const hrefLugar = lugar.slug ? enlaceFichaLugar(lugar.slug, busquedaNombre, busquedaCiudad, paginaActual, anclaLugar) : "#";
                 const imagenCard = lugar.imagen || lugar.fotosLugar[0] || lugar.resenas.find((r) => r.foto)?.foto || null;
                 return (
-                  <Link key={lugar.id} href={hrefLugar} className="group overflow-hidden rounded-[26px] border border-white bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                  <Link key={lugar.id} id={anclaLugar} href={hrefLugar} className="scroll-mt-28 group overflow-hidden rounded-[26px] border border-white bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
                     {imagenCard ? <img loading="lazy" src={imagenCard} alt={lugar.nombre} className="h-48 w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-48 bg-gradient-to-br from-emerald-200 via-amber-100 to-orange-200" />}
                     <div className="p-5">
                       <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">🌿 Alternativa</span>
@@ -1894,12 +1907,14 @@ ${url}`;
                 ].filter(Boolean) as string[];
 
                 const fotosUnicas = [...new Set(fotosValidas)].slice(0, 4);
-                const hrefLugar = m.slug ? `/lugar/${m.slug}` : "#";
+                const anclaLugar = `lugar-lista-${m.id}`;
+                const hrefLugar = m.slug ? enlaceFichaLugar(m.slug, busquedaNombre, busquedaCiudad, paginaActual, anclaLugar) : "#";
 
                 return (
                   <div
                     key={m.id}
-                    className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100"
+                    id={anclaLugar}
+                    className="scroll-mt-28 overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100"
                   >
                     <div className="grid md:grid-cols-[1.08fr_1fr]">
                       <Link href={hrefLugar} className="relative block">

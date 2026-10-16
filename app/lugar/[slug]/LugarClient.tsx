@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import GaleriaLugar from "./GaleriaLugar";
 import { fechaResena, enlaceComoLlegar } from "@/lib/lugares-ui";
 import { supabase } from "@/lib/supabase";
@@ -57,7 +58,7 @@ function limpiarNombreArchivo(nombre: string) {
     .replace(/^-|-$/g, "");
 }
 
-export default function LugarPage({ initialData }: { initialData: { lugar: Lugar; resenas: Resena[]; fotos?: string[] } }) {
+export default function LugarPage({ initialData, regreso = "/" }: { regreso?: string; initialData: { lugar: Lugar; resenas: Resena[]; fotos?: string[] } }) {
 
   const lugar = initialData.lugar;
   const [resenas, setResenas] = useState<Resena[]>(initialData.resenas);
@@ -76,7 +77,7 @@ export default function LugarPage({ initialData }: { initialData: { lugar: Lugar
   const compartirWhatsApp = () => {
     if (typeof window === "undefined") return;
 
-    const url = window.location.href;
+    const url = `${window.location.origin}${window.location.pathname}`;
     const texto = `Mira qué sitio tan chulo he encontrado en Lugares Llenos 👇
 ${url}`;
     const enlace = `https://wa.me/?text=${encodeURIComponent(texto)}`;
@@ -227,12 +228,12 @@ ${url}`;
               disponible.
             </p>
 
-            <a
+            <Link
               href="/"
               className="mt-6 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-semibold text-white shadow-md"
             >
               Volver al inicio
-            </a>
+            </Link>
           </div>
         </div>
       </main>
@@ -243,7 +244,7 @@ ${url}`;
     <main className="min-h-screen bg-[#fffaf3] px-4 py-10 text-slate-900">
       <div className="mx-auto max-w-4xl">
         <a
-          href="/"
+          href={regreso}
           className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
         >
           ← Volver a Lugares Llenos

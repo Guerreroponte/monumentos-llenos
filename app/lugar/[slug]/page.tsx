@@ -1,3 +1,4 @@
+import { regresoLugares } from "@/lib/lugares-navigation";
 import type { Metadata } from "next";
 import LugarClient from "./LugarClient";
 import { getLugarDetail } from "@/lib/detail-data";
@@ -11,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return metadataLugar({ ...lugar, imagen: lugar.imagen || fotos[0] }, slug);
 }
 
-export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+export default async function Page({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ volver?: string | string[] }> }) {
   const { slug } = await params;
-  return <LugarClient key={slug} initialData={await getLugarDetail(slug)} />;
+  return <LugarClient regreso={regresoLugares((await searchParams).volver)} key={slug} initialData={await getLugarDetail(slug)} />;
 }
