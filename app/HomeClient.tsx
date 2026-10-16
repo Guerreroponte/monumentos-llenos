@@ -1049,7 +1049,7 @@ ${url}`;
             <p className="mt-3 max-w-2xl text-base leading-6 text-slate-600 sm:mt-6 sm:text-lg sm:leading-8">
               <span className="sm:hidden">Lugares y eventos con fotos y experiencias reales.</span>
               <span className="hidden sm:inline">Lugares Llenos junta planes, lugares, fotos y experiencias reales para
-                ayudarte a decidir mejor: qué ambiente hay, cuándo ir y qué alternativa
+                ayudarte a decidir mejor: qué cuentan otros visitantes, cuándo ir y qué alternativa
                 tienes cerca si el plan no convence.</span>
             </p>
 
@@ -1720,6 +1720,7 @@ ${url}`;
           <div className="mb-6">
             <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🗣️ La comunidad habla</p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Últimas experiencias contadas</h2>
+            <p className="mt-2 text-sm text-slate-600">La fecha indica cuándo se compartió la experiencia; el ambiente puede haber cambiado.</p>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {ultimosAportes.map((aporte) => (
@@ -1735,6 +1736,9 @@ ${url}`;
                     <p className="text-sm font-medium text-slate-500">📍 {aporte.lugar}, {aporte.ciudad}</p>
                   </div>
                 </div>
+                <p className="mt-3 text-xs font-medium text-slate-500">
+                  {getFechaSubida(aporte.created_at) ? <time dateTime={aporte.created_at || undefined}>Compartida el {getFechaSubida(aporte.created_at)}</time> : "Fecha de publicación no disponible"}
+                </p>
                 <p className="mt-4 line-clamp-4 text-sm leading-6 text-slate-700">“{aporte.comentario || "Compartió su experiencia con la comunidad."}”</p>
               </div>
             ))}
@@ -1957,6 +1961,11 @@ ${url}`;
                           </button>
                         </div>
 
+                        <p className="mt-4 text-sm text-slate-600">💬 {m.resenas.length} {m.resenas.length === 1 ? "experiencia compartida" : "experiencias compartidas"}</p>
+                        <details className="mt-5 border-t border-orange-100 pt-4">
+                          <summary className="cursor-pointer rounded-lg py-2 text-sm font-bold text-orange-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-600">
+                            Detalles, fotos y comentarios de {m.nombre}
+                          </summary>
                         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                           <div className="rounded-2xl bg-orange-50 px-4 py-3 text-sm">
                             <p className="text-slate-500">Acceso o precio</p>
@@ -2204,6 +2213,7 @@ ${url}`;
                             <FuenteLugar fuente={m.fuente} />
                           </p>
                         )}
+                        </details>
                       </div>
                     </div>
                   </div>

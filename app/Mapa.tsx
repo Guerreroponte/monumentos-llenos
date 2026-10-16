@@ -96,10 +96,15 @@ export default function Mapa({
         <h3 className="text-2xl font-bold">🗺️ Mapa de lugares</h3>
 
         <div className="rounded-full border border-orange-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm">
-          {monumentosConCoords.length} con ubicación
+          {monumentosConCoords.length} de {monumentos.length} con ubicación
         </div>
       </div>
 
+      {monumentosConCoords.length < monumentos.length && (
+        <p className="mb-4 text-sm text-slate-600">
+          {monumentos.length - monumentosConCoords.length} {monumentos.length - monumentosConCoords.length === 1 ? "lugar todavía no tiene" : "lugares todavía no tienen"} ubicación en el mapa. Puedes consultar sus fichas en <a href="#lugares" className="font-semibold text-orange-700 underline">la lista de lugares</a>.
+        </p>
+      )}
       {!monumentosConCoords.length && <p className="mb-4">No hay lugares con ubicación para esta búsqueda.</p>}
       <div className="overflow-hidden rounded-3xl border border-orange-100 shadow-lg shadow-orange-100">
         <MapContainer
