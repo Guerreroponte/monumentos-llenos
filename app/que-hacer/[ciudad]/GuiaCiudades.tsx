@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "caceres": {
+  "intro": "Cáceres permite enlazar plazas y patrimonio en un paseo por el casco histórico antes de tu evento. Empieza por la Plaza Mayor y organiza las visitas interiores según su disponibilidad: Bujaco y el museo tienen avisos de cierre que conviene comprobar antes de salir.",
+  "sections": [
+    [
+      "Plaza Mayor y el exterior de Bujaco",
+      "Empieza en la [Plaza Mayor](/lugar/plaza-mayor-caceres), observa los soportales y acércate a la [Torre de Bujaco](/lugar/torre-de-bujaco-caceres). Puedes disfrutar de su exterior; Google Maps indica cierre temporal del interior en la consulta del 17/10/2026. Confirma la reapertura antes de planear la subida."
+    ],
+    [
+      "Santa María: una visita con entrada propia",
+      "Continúa hacia la [Concatedral de Santa María](/lugar/concatedral-santa-maria-caceres). Revisa el horario turístico y distingue la visita con audioguía de las modalidades especiales. Las celebraciones religiosas pueden afectar al acceso; comprueba también las condiciones si quieres subir al campanario."
+    ],
+    [
+      "Las Veletas y el museo: comprobar las obras",
+      "El [Museo de Cáceres y su aljibe](/lugar/museo-de-caceres) añaden una parada patrimonial al recorrido. Hay avisos de cierre y obras: llama al 927 010 877 para confirmar las salas disponibles y el acceso al aljibe. Si no abre, puedes contemplar el entorno exterior de la plaza de las Veletas."
+    ],
+    [
+      "Del paseo al evento, con margen",
+      "Consulta la dirección exacta del recinto y la apertura de puertas antes de elegir tu última parada. Usa «Cómo llegar» en la ficha del evento y reserva tiempo para desplazarte. Si necesitas un itinerario sin escalones, confirma los accesos de los monumentos; no todas las visitas interiores ofrecen las mismas condiciones."
+    ]
+  ],
+  "sources": [
+    [
+      "patrimonio en Vive Cáceres",
+      "https://vivecaceres.com/plaza-mayor-caceres.php"
+    ],
+    [
+      "visitas a la concatedral",
+      "https://concatedralcaceres.com/horarios-y-precios-de-la-visita/"
+    ],
+    [
+      "aviso del Museo de Cáceres en Spain.info",
+      "https://www.spain.info/es/lugares-interes/museo-caceres/"
+    ]
+  ]
+},
   "benavente": {
     "intro": "Benavente permite enlazar patrimonio religioso y arquitectura civil por el centro antes de un evento. Organiza las visitas interiores según su apertura y deja el paseo por las plazas para el resto del recorrido.",
     "sections": [
