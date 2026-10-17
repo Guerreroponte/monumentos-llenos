@@ -2,6 +2,80 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "barcelona": {
+  "intro": "En Barcelona puedes combinar arquitectura de Gaudí, jardines y miradores, pero conviene elegir una zona y reservar las visitas con hora antes de organizar el día. Montjuïc y el Turó de la Rovira son salidas distintas: calcula sus desplazamientos y deja margen para llegar a tu evento.",
+  "sections": [
+    [
+      "Sagrada Família y Park Güell: organizar las reservas",
+      "La [Sagrada Família](/lugar/sagrada-familia-barcelona) y el [Park Güell](/lugar/park-guell-barcelona) tienen entradas y condiciones de acceso propias. Reserva en sus webs oficiales y comprueba el día, la franja y la modalidad elegida. No están uno junto al otro: deja tiempo para el traslado y evita encadenar dos reservas demasiado ajustadas."
+    ],
+    [
+      "Montjuïc: jardines de cactus y vistas al mar",
+      "Los [jardines de Mossèn Costa i Llobera](/lugar/jardines-de-mossen-costa-i-llobera-el-desierto-con-vistas-al-mar-barcelona) son una opción para dedicar el paseo a la ladera de Montjuïc. Observa la colección de cactus y otras plantas suculentas y el paisaje del puerto. Consulta los accesos y el horario del jardín; lleva agua y adapta el recorrido al calor y a las pendientes."
+    ],
+    [
+      "Turó de la Rovira: historia y vistas con horario",
+      "El [Turó de la Rovira](/lugar/bunkers-del-carmel-turo-de-la-rovira-barcelona), conocido por sus antiguas baterías antiaéreas, combina memoria histórica y vistas de la ciudad. Consulta el horario vigente del recinto del MUHBA antes de subir: no es un mirador abierto toda la noche. Respeta las indicaciones y el descanso del vecindario; el atardecer no garantiza que el acceso siga abierto."
+    ],
+    [
+      "Llegar a la sala sin prisas",
+      "Comprueba dónde está el recinto y calcula el trayecto desde la última visita, especialmente si estás en una de las colinas. Revisa las conexiones de metro y autobús y el servicio de regreso para el día del evento. Usa «Cómo llegar» en su ficha y distingue la apertura de puertas del inicio del espectáculo."
+    ]
+  ],
+  "sources": [
+    [
+      "entradas oficiales de la Sagrada Família",
+      "https://sagradafamilia.org/es/tickets"
+    ],
+    [
+      "acceso y reservas del Park Güell",
+      "https://parkguell.barcelona/index.php/es/planifica-la-visita/faqs"
+    ],
+    [
+      "Turó de la Rovira en el Ayuntamiento",
+      "https://ajuntament.barcelona.cat/gracia/es/guia-del-distrito/equipamientos-por-temas/listado/muhba-museu-dhistoria-de-barcelona-turo-de-la-rovira-99400267435"
+    ],
+    [
+      "jardines de Mossèn Costa i Llobera",
+      "https://guia.barcelona.cat/ca/detall/jardins-de-mossen-costa-i-llobera_99400181025.html"
+    ]
+  ]
+},
+  "madrid": {
+  "intro": "Madrid se disfruta mejor escogiendo una zona para cada tramo del día. Puedes combinar jardines, patrimonio y una visita interior antes del concierto, dejando tiempo para llegar al recinto: las distancias entre barrios hacen poco práctico intentar verlo todo en un solo paseo.",
+  "sections": [
+    [
+      "La Latina y los jardines junto al Palacio Real",
+      "Haz una parada en el [Jardín del Príncipe de Anglona](/lugar/jardin-del-principe-de-angola-madrid), junto a la plaza de la Paja. Si continúas hacia los [Jardines del Campo del Moro](/lugar/jardines-del-campo-del-moro-madrid), consulta los accesos abiertos y el horario: estar junto al Palacio Real no significa que puedas entrar al jardín por cualquier lado."
+    ],
+    [
+      "La Florida: Goya y un paseo junto al río",
+      "La [Ermita de San Antonio de la Florida](/lugar/ermita-de-san-antonio-de-la-florida-madrid) permite acercarte a los frescos de Goya y enlazar la visita con el entorno de Príncipe Pío y el Manzanares. Comprueba la apertura del museo antes de salir y reserva después un tramo para pasear, sin ajustar la visita al comienzo de tu evento."
+    ],
+    [
+      "Debod y Parque del Oeste",
+      "El [Templo de Debod](/lugar/templo-de-debod-madrid) y la [Rosaleda del Parque del Oeste](/lugar/rosaleda-del-parque-del-oeste-madrid) ofrecen dos paradas distintas en esta zona. Separa el paseo exterior de la visita al templo, cuyo aforo es limitado y requiere consultar la reserva. La floración de la rosaleda depende de la época; no planifiques la visita esperando encontrarla siempre en flor."
+    ],
+    [
+      "Cómo llegar al concierto y volver",
+      "Consulta la dirección exacta de la sala, la apertura de puertas y la hora del espectáculo. Elige el último lugar del paseo en función de ese trayecto y comprueba Metro, Cercanías o autobús para tu fecha, también a la vuelta. Usa «Cómo llegar» en la ficha del evento; los recintos del área de Madrid pueden estar lejos del centro."
+    ]
+  ],
+  "sources": [
+    [
+      "accesos del Campo del Moro en Turismo de Madrid",
+      "https://www.esmadrid.com/informacion-turistica/campo-del-moro"
+    ],
+    [
+      "visita al Templo de Debod",
+      "https://citycard.esmadrid.com/business/view/templo-de-debod"
+    ],
+    [
+      "Ermita de San Antonio de la Florida",
+      "https://citycard.esmadrid.com/negocio/ver/san-antonio-de-la-florida"
+    ]
+  ]
+},
   "caceres": {
   "intro": "Cáceres permite enlazar plazas y patrimonio en un paseo por el casco histórico antes de tu evento. Empieza por la Plaza Mayor y organiza las visitas interiores según su disponibilidad: Bujaco y el museo tienen avisos de cierre que conviene comprobar antes de salir.",
   "sections": [
