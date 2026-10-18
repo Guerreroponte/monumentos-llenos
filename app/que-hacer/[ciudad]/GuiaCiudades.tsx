@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "palencia": {
+  "intro": "Palencia permite combinar la catedral, las calles del centro y un descanso entre los árboles de Huerta de Guadián antes de un evento. Organiza primero las visitas con horario y reserva margen para pasear entre las distintas zonas, sin ajustar la última entrada a la apertura de puertas de tu concierto o espectáculo.",
+  "sections": [
+    [
+      "Catedral y paseo por el centro",
+      "Empieza por la [Catedral de San Antolín](/lugar/catedral-san-antolin-palencia) y su entorno. Para visitar el interior, comprueba el calendario y el último acceso; la visita guiada y la subida al triforio tienen condiciones propias. Continúa después hacia la Calle Mayor y la Plaza Mayor."
+    ],
+    [
+      "San Miguel y la Casa del Cordón",
+      "La [Iglesia de San Miguel](/lugar/iglesia-san-miguel-palencia) y el [Museo de Palencia](/lugar/museo-palencia-casa-del-cordon) permiten combinar arquitectura y arqueología. Respeta las celebraciones del templo y organiza el museo según su horario: los domingos la apertura publicada es solo de mañana."
+    ],
+    [
+      "Huerta de Guadián: una pausa entre árboles",
+      "El [Parque Huerta de Guadián](/lugar/parque-huerta-guadian-palencia) es una opción para descansar o pasear. En su interior encontrarás la iglesia de San Juan Bautista y el Punto de Información del Románico. Consulta por separado la apertura de ese espacio; el jardín y la visita interior no comparten necesariamente horario."
+    ],
+    [
+      "De la visita al evento",
+      "Comprueba la dirección de la sala y usa «Cómo llegar» en la ficha del evento para calcular el trayecto desde tu última parada. Distingue la apertura de puertas del inicio del espectáculo. Si dependes del tren o del autobús, revisa la hora de regreso antes de organizar el recorrido."
+    ]
+  ],
+  "sources": [
+    [
+      "visitas a la catedral",
+      "https://catedraldepalencia.org/"
+    ],
+    [
+      "horarios del Museo de Palencia",
+      "https://turismo.aytopalencia.es/es/poi/museo-de-palencia-casa-del-cordon"
+    ],
+    [
+      "Punto de Información del Románico",
+      "https://turismo.aytopalencia.es/es/node/punto-de-informacion-del-romanico-en-palencia"
+    ]
+  ]
+},
   "ourense": {
   "intro": "Ourense permite combinar las fuentes de As Burgas, el casco histórico y un paseo junto al Miño antes de un evento. Organiza primero las visitas con horario y deja las paradas al aire libre para completar el recorrido. El baño termal requiere comprobar por separado qué instalaciones están disponibles.",
   "sections": [
