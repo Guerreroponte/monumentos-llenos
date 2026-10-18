@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "ourense": {
+  "intro": "Ourense permite combinar las fuentes de As Burgas, el casco histórico y un paseo junto al Miño antes de un evento. Organiza primero las visitas con horario y deja las paradas al aire libre para completar el recorrido. El baño termal requiere comprobar por separado qué instalaciones están disponibles.",
+  "sections": [
+    [
+      "As Burgas y el casco histórico",
+      "Empieza en [As Burgas](/lugar/as-burgas-ourense) y continúa hacia la Praza Maior. Las fuentes y su entorno permiten conocer la ciudad termal; visitar esta zona no garantiza que la piscina esté abierta. Confirma el estado del recinto si tu plan incluye bañarte."
+    ],
+    [
+      "Catedral: reservar tiempo para el interior",
+      "La [Catedral de San Martiño](/lugar/catedral-san-martino-ourense) reúne el Pórtico del Paraíso y la Capilla del Santo Cristo. Consulta la visita cultural y accede por el Patín de Juan de Austria. Comprueba el último acceso y distingue la entrada general de las visitas especiales a las cubiertas."
+    ],
+    [
+      "San Francisco y el paseo hasta el Miño",
+      "El [Claustro de San Francisco](/lugar/claustro-san-francisco-ourense) merece una parada para observar sus capiteles; verifica el horario antes de subir. Si te queda tiempo, organiza otro tramo hacia [Ponte Vella](/lugar/ponte-vella-ourense) y las orillas del Miño. Calcula los desplazamientos entre ambas zonas."
+    ],
+    [
+      "Llegar al evento con margen",
+      "Comprueba la dirección exacta del recinto y la apertura de puertas. Usa «Cómo llegar» en la ficha del evento para calcular el trayecto desde tu última visita. Si llegas a Ourense en tren o autobús, incluye el desplazamiento desde la estación y revisa también las opciones de regreso."
+    ]
+  ],
+  "sources": [
+    [
+      "visita cultural de la catedral",
+      "https://catedralourense.com/tarifas-y-horarios-de-la-visita/"
+    ],
+    [
+      "As Burgas en Turismo de Galicia",
+      "https://www.turismo.gal/recurso/-/detalle/17641/as-burgas?langId=es_ES"
+    ],
+    [
+      "Ponte Vella en Turismo de Galicia",
+      "https://www.turismo.gal/recurso/-/detalle/7387/ponte-vella?langId=es_ES"
+    ]
+  ]
+},
   "cartagena": {
   "intro": "Cartagena permite combinar arqueología y vistas del puerto antes de un evento. Escoge dos o tres visitas según el tiempo disponible y organiza las entradas por separado: el teatro, el foro, la muralla y el castillo tienen recorridos y condiciones propios.",
   "sections": [
