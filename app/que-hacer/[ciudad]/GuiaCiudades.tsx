@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "lugo": {
+  "intro": "En Lugo puedes combinar un paseo por la muralla con la catedral y la arqueología del casco histórico antes de un evento. Organiza primero las visitas de interior según su apertura y deja margen para recorrer las plazas y llegar a la sala. La cercanía entre estos lugares permite elegir pocas paradas y disfrutarlas con calma.",
+  "sections": [
+    [
+      "Un tramo de la muralla y la catedral",
+      "Empieza por la [Muralla romana](/lugar/muralla-romana-lugo) y escoge un tramo del adarve. Respeta los avisos de conservación y comprueba dónde subir y bajar. Continúa hacia la [Catedral de Santa María](/lugar/catedral-santa-maria-lugo): la visita cultural tiene entrada y calendario propios, y puede variar por las celebraciones religiosas."
+    ],
+    [
+      "La ciudad romana bajo tus pies",
+      "La [Domus del Mitreo](/lugar/domus-mitreo-lugo), junto a la catedral, permite conocer restos de una vivienda y un espacio de culto romano. Comprueba el horario y reserva si buscas una visita guiada. Los lunes cierra y los domingos la apertura ordinaria es solo de mañana."
+    ],
+    [
+      "Casa de los Mosaicos: confirma la apertura",
+      "La [Casa de los Mosaicos](/lugar/casa-mosaicos-lugo) conserva restos de otra vivienda romana en Rúa Doutor Castro. Google Maps indica cierre temporal en la consulta del 19/10/2026, aunque la web municipal mantiene horarios habituales. Confirma la reapertura antes de incluir la visita interior en tu plan; mientras tanto, puedes pasear por las calles y plazas del casco histórico."
+    ],
+    [
+      "Del casco histórico al evento",
+      "Comprueba la dirección exacta del recinto: no todos los eventos se celebran dentro de la muralla. Usa «Cómo llegar» en la ficha para calcular el trayecto desde tu última parada y distingue la apertura de puertas del comienzo del espectáculo. Revisa también el regreso si dependes del autobús, el tren o un taxi."
+    ]
+  ],
+  "sources": [
+    [
+      "visita cultural a la catedral",
+      "https://catedraldelugo.es/horarios-y-precios-de-la-visita/"
+    ],
+    [
+      "horarios de la Domus del Mitreo",
+      "https://adomusdomitreo.com/horarios-y-tarifas-2/"
+    ],
+    [
+      "Casa de los Mosaicos en el Concello",
+      "https://concellodelugo.gal/es/localizaciones/casa-de-los-mosaicos"
+    ]
+  ]
+},
   "palencia": {
   "intro": "Palencia permite combinar la catedral, las calles del centro y un descanso entre los árboles de Huerta de Guadián antes de un evento. Organiza primero las visitas con horario y reserva margen para pasear entre las distintas zonas, sin ajustar la última entrada a la apertura de puertas de tu concierto o espectáculo.",
   "sections": [
