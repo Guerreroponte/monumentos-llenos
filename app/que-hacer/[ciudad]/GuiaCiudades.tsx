@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "cartagena": {
+  "intro": "Cartagena permite combinar arqueología y vistas del puerto antes de un evento. Escoge dos o tres visitas según el tiempo disponible y organiza las entradas por separado: el teatro, el foro, la muralla y el castillo tienen recorridos y condiciones propios.",
+  "sections": [
+    [
+      "Del museo al Teatro Romano",
+      "Empieza en el [Museo del Teatro Romano](/lugar/museo-teatro-romano-cartagena), con entrada por la plaza del Ayuntamiento. El recorrido conduce hasta el teatro; reserva tiempo para las salas y comprueba el horario del domingo, que es más corto que el de otros días."
+    ],
+    [
+      "Foro Romano y Muralla Púnica",
+      "El [Museo Foro Romano Molinete](/lugar/museo-foro-romano-molinete-cartagena) y la [Muralla Púnica](/lugar/muralla-punica-cartagena) permiten acercarte a dos etapas de la ciudad. Elige el orden según la apertura y tu punto de llegada. Revisa los abonos oficiales si quieres visitar varios centros."
+    ],
+    [
+      "Castillo de la Concepción: prever la subida",
+      "El [Castillo de la Concepción](/lugar/castillo-de-la-concepcion-cartagena) añade vistas del puerto y una visita histórica. Distingue la entrada al castillo de la modalidad con ascensor y consulta los avisos del día: el tiempo o una actividad especial pueden modificar el servicio y el cierre."
+    ],
+    [
+      "Del casco histórico al evento",
+      "Deja margen entre la última visita y la apertura de puertas. Comprueba la dirección exacta de la sala y usa «Cómo llegar» en la ficha del evento; no todos los recintos están junto al casco histórico. Si dependes de transporte público, revisa también el servicio de regreso."
+    ]
+  ],
+  "sources": [
+    [
+      "horarios, tarifas y abonos oficiales",
+      "https://puertodeculturas.cartagena.es/horarios_tarifas.asp"
+    ],
+    [
+      "visita al Teatro Romano",
+      "https://puertodeculturas.cartagena.es/ficha_teatro_romano.asp"
+    ],
+    [
+      "acceso al Castillo de la Concepción",
+      "https://puertodeculturas.cartagena.es/ficha_castillo.asp"
+    ]
+  ]
+},
   "barcelona": {
   "intro": "En Barcelona puedes combinar arquitectura de Gaudí, jardines y miradores, pero conviene elegir una zona y reservar las visitas con hora antes de organizar el día. Montjuïc y el Turó de la Rovira son salidas distintas: calcula sus desplazamientos y deja margen para llegar a tu evento.",
   "sections": [
