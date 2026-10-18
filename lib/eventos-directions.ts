@@ -6,7 +6,7 @@ type UbicacionEvento = {
 };
 
 const normalizar = (texto: string) => texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-const imprecisa = /\b(varios|varias|diversos|diversas|distintos|distintas|multiples|multisede|itinerante|online|virtual|por confirmar|por determinar|pendiente|consultar|sin confirmar|no especificad[oa])\b/;
+const imprecisa = /\b((?:otros|otras)\s+(?:espacios|sedes|recintos|ubicaciones)|varios|varias|diversos|diversas|distintos|distintas|multiples|multisede|itinerante|online|virtual|por confirmar|por determinar|pendiente|consultar|sin confirmar|no especificad[oa])\b/;
 
 export function enlaceComoLlegarEvento(evento: UbicacionEvento): string | null {
   const ubicacion = evento.ubicacion_detalle?.trim() || "";

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import OpcionesTransporte from "@/components/OpcionesTransporte";
 import { claveCiudad, nombreCiudad } from "@/lib/ciudad-identidad";
 import GaleriaLugar from "./GaleriaLugar";
 import { fechaResena, enlaceComoLlegar } from "@/lib/lugares-ui";
@@ -318,6 +319,7 @@ ${url}`;
                 </p>
               )}
               <a href={enlaceComoLlegar(lugar)} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex rounded-full bg-orange-600 px-5 py-3 font-bold text-white">Cómo llegar ↗</a>
+              <OpcionesTransporte comoLlegar={enlaceComoLlegar(lugar)} nombreDestino={[lugar.nombre, lugar.ciudad].filter(Boolean).join(", ")} />
             </section>
 
             <div className="mt-8 rounded-3xl border border-orange-100 bg-orange-50/50 p-5">

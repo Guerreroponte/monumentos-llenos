@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { diaMadrid, eventoVigente, etiquetaEnlace, faseComentariosEvento } from "@/lib/agenda-ui";
 import Link from "next/link";
+import OpcionesTransporte from "@/components/OpcionesTransporte";
 import { enlaceComoLlegarEvento } from "@/lib/eventos-directions";
 import { supabase } from "@/lib/supabase";
 
@@ -204,6 +205,10 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
 
   const evento = initialData.evento;
   const comoLlegar = enlaceComoLlegarEvento(evento);
+  const ubicacionTransporte = evento.ubicacion_detalle?.trim() || "";
+  const destinoTransporte = ubicacionTransporte
+    ? [ubicacionTransporte, evento.ciudad && !ubicacionTransporte.toLocaleLowerCase().includes(evento.ciudad.toLocaleLowerCase()) ? evento.ciudad : null].filter(Boolean).join(", ")
+    : "";
   const colaborador = initialData.colaborador;
   const [hoy, setHoy] = useState<string | null>(null);
   const fase = faseComentariosEvento(evento, hoy);
@@ -601,6 +606,7 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
                   Cómo llegar ↗
                 </a>
               )}
+              <OpcionesTransporte comoLlegar={comoLlegar} nombreDestino={destinoTransporte} />
             </div>
 
             <p className="mt-5 text-base leading-7 text-[#475569]">

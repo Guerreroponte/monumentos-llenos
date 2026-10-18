@@ -14,7 +14,7 @@ test("directions prefer valid coordinates including zero and encode addresses sa
 });
 
 test("directions stay hidden for missing, city-only, uncertain and multi-venue locations", () => {
-  for (const ubicacion_detalle of ["", "Madrid", "Centro urbano", "Por confirmar", "Diversos espacios de Madrid", "Varias sedes", "Consultar programación", "Evento online"]) {
+  for (const ubicacion_detalle of ["", "Madrid", "Centro urbano", "Por confirmar", "Diversos espacios de Madrid", "Varias sedes", "Consultar programación", "Evento online", "Auditorio El Batel y otros espacios de Cartagena", "Sala principal y otras sedes"]) {
     assert.equal(enlaceComoLlegarEvento({ciudad:"Madrid",ubicacion_detalle}), null, ubicacion_detalle);
   }
   assert.equal(enlaceComoLlegarEvento({ubicacion_detalle:"Teatro Eslava"}), null);
