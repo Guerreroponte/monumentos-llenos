@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "zamora": {
+  "intro": "Zamora permite combinar la catedral, la fortaleza y la escultura de Baltasar Lobo en una misma zona del casco histórico. Si quieres bajar hacia el Duero, reserva margen para los desniveles y para volver al centro antes de tu evento. Organiza primero las visitas con horario y deja el paseo entre plazas para los huecos del día.",
+  "sections": [
+    [
+      "La catedral y las calles del casco histórico",
+      "Empieza por la [Catedral del Salvador](/lugar/catedral-salvador-zamora) y continúa por el [casco histórico](/lugar/casco-historico-zamora-zamora). Comprueba el calendario de la visita cultural y las celebraciones religiosas. La entrada conjunta anunciada incluye el Museo Diocesano, pero está en Santo Tomé y tiene su propio horario; no lo confundas con el Museo Catedralicio."
+    ],
+    [
+      "Castillo y Museo Baltasar Lobo",
+      "El [Castillo de Zamora](/lugar/castillo-zamora) y el [Museo Baltasar Lobo](/lugar/museo-baltasar-lobo-zamora) permiten combinar patrimonio y escultura sin cambiar de zona. Puedes añadir un paseo por los jardines. El acceso al recinto y a la Casa de los Gigantes depende del horario: no presupongas que están abiertos porque puedas pasear por el exterior."
+    ],
+    [
+      "El Duero y las Aceñas de Olivares",
+      "Las [Aceñas de Olivares](/lugar/acenas-olivares-zamora) muestran la relación de Zamora con los molinos del río. Google Maps indica cierre temporal en la consulta del 19/10/2026: confirma la reapertura antes de planear la visita interior. Para pasear por la ribera, respeta los avisos por el nivel del agua y cuenta con el desnivel de regreso al casco histórico."
+    ],
+    [
+      "Del paseo a tu concierto o espectáculo",
+      "Comprueba la dirección exacta del recinto y usa «Cómo llegar» en la ficha del evento. Deja margen entre la última visita y la apertura de puertas, especialmente si bajas al río. Si regresas en transporte público, revisa el último servicio antes de organizar el día; las estaciones y las salas no tienen por qué quedar junto a las visitas del casco histórico."
+    ]
+  ],
+  "sources": [
+    [
+      "visita a la catedral",
+      "https://catedralzamora.com/visita/"
+    ],
+    [
+      "horarios municipales actualizados",
+      "https://www.turismo-zamora.com/horarios-y-entradas-a-museos-y-monumentos.html"
+    ],
+    [
+      "Museo Baltasar Lobo",
+      "https://museobaltasarlobo.es/visita/"
+    ]
+  ]
+},
   "lugo": {
   "intro": "En Lugo puedes combinar un paseo por la muralla con la catedral y la arqueología del casco histórico antes de un evento. Organiza primero las visitas de interior según su apertura y deja margen para recorrer las plazas y llegar a la sala. La cercanía entre estos lugares permite elegir pocas paradas y disfrutarlas con calma.",
   "sections": [
