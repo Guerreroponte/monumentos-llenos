@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "teruel": {
+  "intro": "En Teruel puedes enlazar el mudéjar, la historia de los Amantes y un paseo por el Óvalo sin salir del centro. Organiza primero las entradas con pase horario y deja tiempo entre visitas para disfrutar de la plaza del Torico. Si llegas en tren, ten en cuenta el desnivel entre la estación y el casco histórico.",
+  "sections": [
+    [
+      "Del Óvalo a la Torre de El Salvador",
+      "La [Escalinata del Óvalo](/lugar/escalinata-ovalo-teruel) permite entrar al casco histórico disfrutando de su arquitectura neomudéjar. Desde el paseo puedes continuar hacia la [Torre de El Salvador](/lugar/torre-salvador-teruel). La visita a la torre incluye escaleras y requiere tiempo: su web recomienda un mínimo de 45 minutos."
+    ],
+    [
+      "Los Amantes y San Pedro, con la entrada adecuada",
+      "Reserva tu visita al [Mausoleo de los Amantes y conjunto de San Pedro](/lugar/mausoleo-amantes-teruel) según el pase disponible. Comprueba qué espacios incluye la modalidad elegida: la torre y el ándito forman parte de la visita completa. Consulta el recorrido accesible con la Fundación si necesitas evitar escalones."
+    ],
+    [
+      "La plaza del Torico por encima y por debajo",
+      "Dedica un rato a la plaza del Torico y sus fachadas antes de entrar en los [Aljibes medievales](/lugar/aljibes-medievales-teruel), cuyo acceso está en Ramón y Cajal. La taquilla cierra media hora antes que el recinto; no ajustes la llegada al final del horario. Consulta las excepciones de apertura durante las fiestas."
+    ],
+    [
+      "Cómo llegar a tu evento",
+      "Usa «Cómo llegar» en la ficha del evento y comprueba la dirección exacta de la sala: no todos los recintos están dentro del casco histórico. Calcula el trayecto desde tu última visita y distingue apertura de puertas de comienzo del espectáculo. Si dependes de tren o autobús, revisa el regreso y deja margen para los desniveles."
+    ]
+  ],
+  "sources": [
+    [
+      "visitas a la Torre de El Salvador",
+      "https://www.teruelmudejar.com/"
+    ],
+    [
+      "entradas de los Amantes",
+      "https://amantesdeteruel.es/entradas/"
+    ],
+    [
+      "horarios de los Aljibes",
+      "https://www.aljibemedieval.com/"
+    ]
+  ]
+},
   "zamora": {
   "intro": "Zamora permite combinar la catedral, la fortaleza y la escultura de Baltasar Lobo en una misma zona del casco histórico. Si quieres bajar hacia el Duero, reserva margen para los desniveles y para volver al centro antes de tu evento. Organiza primero las visitas con horario y deja el paseo entre plazas para los huecos del día.",
   "sections": [
