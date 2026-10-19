@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getEvento } from "@/lib/detail-data";
 
+import { eventoJsonLd, serializarJsonLd } from "@/lib/evento-jsonld";
 import { metadataEvento } from "@/lib/evento-metadata";
 
 export async function generateMetadata({
@@ -41,5 +42,9 @@ export default async function EventoLayout({
     notFound();
   }
 
-  return children;
+  const datos = eventoJsonLd(evento, evento.slug || slug);
+  return <>
+    {datos && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializarJsonLd(datos) }} />}
+    {children}
+  </>;
 }
