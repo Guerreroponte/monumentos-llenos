@@ -1,5 +1,7 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
+import { claveCiudad } from "@/lib/ciudad-identidad";
+import { eventoVigente, filtroEventosVigentes } from "@/lib/agenda-ui";
 
 // Fuerza a generar el sitemap siempre con los datos actuales de Supabase
 export const dynamic = "force-dynamic";
@@ -19,6 +21,8 @@ type EventoSitemap = RegistroBasico & {
 
 type CiudadEvento = {
   ciudad: string | null;
+  fecha_inicio: string | null;
+  fecha_fin: string | null;
 };
 
 type CiudadLugar = {
@@ -38,6 +42,7 @@ async function obtenerTodos(
     if (tabla === "Monumentos") query = query.or("reportado.is.null,reportado.eq.false");
     const { data, error } = await query
       .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
       .range(desde, desde + PAGE_SIZE - 1);
 
     if (error) {
@@ -45,7 +50,7 @@ async function obtenerTodos(
         `Error cargando ${tabla} para sitemap:`,
         error
       );
-      break;
+      throw new Error("No se pudo generar el sitemap completo");
     }
 
     if (!data || data.length === 0) {
@@ -76,6 +81,7 @@ async function obtenerEventos(): Promise<EventoSitemap[]> {
       )
       .or("reportado.is.null,reportado.eq.false")
       .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
       .range(desde, desde + PAGE_SIZE - 1);
 
     if (error) {
@@ -83,7 +89,7 @@ async function obtenerEventos(): Promise<EventoSitemap[]> {
         "Error cargando eventos para sitemap:",
         error
       );
-      break;
+      throw new Error("No se pudo generar el sitemap completo");
     }
 
     if (!data || data.length === 0) {
@@ -115,6 +121,7 @@ async function obtenerColaboradores(): Promise<
       .eq("destacado", true)
       .not("slug", "is", null)
       .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
       .range(desde, desde + PAGE_SIZE - 1);
 
     if (error) {
@@ -122,7 +129,7 @@ async function obtenerColaboradores(): Promise<
         "Error cargando colaboradores para sitemap:",
         error
       );
-      break;
+      throw new Error("No se pudo generar el sitemap completo");
     }
 
     if (!data || data.length === 0) {
@@ -150,33 +157,24 @@ function obtenerFechaHoyMadrid(): string {
   }).format(new Date());
 }
 
-function normalizarCiudad(texto: string): string {
-  return texto
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 async function obtenerCiudadesQueHacer(): Promise<
   string[]
 > {
   const hoy = obtenerFechaHoyMadrid();
   const ciudades = new Set<string>();
 
-  // Ciudades con eventos futuros válidos
+  // Ciudades con eventos en curso o futuros válidos
   let desdeEventos = 0;
 
   while (true) {
     const { data, error } = await supabase
       .from("eventos")
-      .select("ciudad")
+      .select("ciudad, fecha_inicio, fecha_fin")
       .eq("validado", true)
       .eq("reportado", false)
-      .gte("fecha_inicio", hoy)
+      .or(filtroEventosVigentes(hoy))
       .order("fecha_inicio", { ascending: true })
+      .order("id", { ascending: true })
       .range(
         desdeEventos,
         desdeEventos + PAGE_SIZE - 1
@@ -187,7 +185,7 @@ async function obtenerCiudadesQueHacer(): Promise<
         "Error cargando ciudades de eventos:",
         error
       );
-      break;
+      throw new Error("No se pudo generar el sitemap completo");
     }
 
     if (!data || data.length === 0) {
@@ -197,8 +195,8 @@ async function obtenerCiudadesQueHacer(): Promise<
     const pagina = data as CiudadEvento[];
 
     for (const evento of pagina) {
-      if (evento.ciudad) {
-        const slugCiudad = normalizarCiudad(
+      if (evento.ciudad && eventoVigente(evento.fecha_inicio, evento.fecha_fin, hoy)) {
+        const slugCiudad = claveCiudad(
           evento.ciudad
         );
 
@@ -224,6 +222,7 @@ async function obtenerCiudadesQueHacer(): Promise<
       .select("ciudad")
       .eq("reportado", false)
       .order("created_at", { ascending: true })
+      .order("id", { ascending: true })
       .range(
         desdeLugares,
         desdeLugares + PAGE_SIZE - 1
@@ -234,7 +233,7 @@ async function obtenerCiudadesQueHacer(): Promise<
         "Error cargando ciudades de lugares:",
         error
       );
-      break;
+      throw new Error("No se pudo generar el sitemap completo");
     }
 
     if (!data || data.length === 0) {
@@ -245,7 +244,7 @@ async function obtenerCiudadesQueHacer(): Promise<
 
     for (const lugar of pagina) {
       if (lugar.ciudad) {
-        const slugCiudad = normalizarCiudad(
+        const slugCiudad = claveCiudad(
           lugar.ciudad
         );
 
@@ -292,17 +291,7 @@ export default async function sitemap(): Promise<
           return false;
         }
 
-        // Evento con fecha fin:
-        // permanece mientras no haya terminado
-        if (evento.fecha_fin) {
-          return evento.fecha_fin >= hoy;
-        }
-
-        // Evento de un solo día
-        return Boolean(
-          evento.fecha_inicio &&
-            evento.fecha_inicio >= hoy
-        );
+        return eventoVigente(evento.fecha_inicio, evento.fecha_fin, hoy);
       })
       .map((evento) => ({
         url: `${baseUrl}/eventos/${evento.slug}`,
