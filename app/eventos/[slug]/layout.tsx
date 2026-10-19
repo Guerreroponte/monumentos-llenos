@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getEvento } from "@/lib/detail-data";
 
-const BASE_URL = "https://www.monumentosllenos.com";
+import { metadataEvento } from "@/lib/evento-metadata";
 
 export async function generateMetadata({
   params,
@@ -23,39 +23,7 @@ export async function generateMetadata({
     };
   }
 
-  const canonical = `${BASE_URL}/eventos/${evento.slug}`;
-
-  const descripcion =
-    evento.descripcion ||
-    `Descubre ${evento.nombre} en ${
-      evento.ciudad || "Lugares Llenos"
-    }.`;
-
-  return {
-    title: evento.nombre || "Evento",
-    description: descripcion,
-
-    alternates: {
-      canonical,
-    },
-
-    openGraph: {
-      title: evento.nombre || "Evento",
-      description: descripcion,
-      url: canonical,
-      siteName: "Lugares Llenos",
-      locale: "es_ES",
-      type: "website",
-      images: evento.imagen ? [evento.imagen] : [],
-    },
-
-    twitter: {
-      card: "summary_large_image",
-      title: evento.nombre || "Evento",
-      description: descripcion,
-      images: evento.imagen ? [evento.imagen] : [],
-    },
-  };
+  return metadataEvento(evento, evento.slug || slug);
 }
 
 export default async function EventoLayout({
