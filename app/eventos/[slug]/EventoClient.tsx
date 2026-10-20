@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { diaMadrid, eventoVigente, etiquetaEnlace, faseComentariosEvento } from "@/lib/agenda-ui";
 import Link from "next/link";
+import { claveCiudad, nombreCiudad } from "@/lib/ciudad-identidad";
 import OpcionesTransporte from "@/components/OpcionesTransporte";
 import { enlaceComoLlegarEvento } from "@/lib/eventos-directions";
 import { supabase } from "@/lib/supabase";
@@ -204,6 +205,8 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
   const inputVideoRef = useRef<HTMLInputElement | null>(null);
 
   const evento = initialData.evento;
+  const ciudad = nombreCiudad(evento.ciudad);
+  const ciudadSlug = claveCiudad(ciudad);
   const comoLlegar = enlaceComoLlegarEvento(evento);
   const ubicacionTransporte = evento.ubicacion_detalle?.trim() || "";
   const destinoTransporte = ubicacionTransporte
@@ -608,6 +611,15 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
               )}
               <OpcionesTransporte comoLlegar={comoLlegar} nombreDestino={destinoTransporte} />
             </div>
+
+            {ciudadSlug && (
+              <nav aria-label={`Descubrir ${ciudad}`} className="mt-5 flex flex-wrap">
+                <Link href={`/que-hacer/${ciudadSlug}`} prefetch={false}
+                  className="inline-flex min-h-11 items-center rounded-full border border-orange-200 bg-orange-50 px-4 py-2.5 text-sm font-semibold text-orange-800 transition hover:bg-orange-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
+                  Más planes y lugares en {ciudad} →
+                </Link>
+              </nav>
+            )}
 
             <p className="mt-5 text-base leading-7 text-[#475569]">
               {evento.descripcion || "Sin descripción disponible."}
