@@ -8,7 +8,8 @@ test('structured event preserves the visible venue and local time without invent
   assert.equal(data.location.address,'Teatro Marín, Teruel');
   assert.equal(data.image[0],'https://www.monumentosllenos.com/cartel.jpg');
   assert.equal(data.url,'https://www.monumentosllenos.com/eventos/concierto');
-  for (const key of ['offers','eventStatus','organizer','endDate']) assert.equal(data[key],undefined);
+  assert.equal(data.eventStatus,'https://schema.org/EventScheduled');
+  for (const key of ['offers','organizer','endDate']) assert.equal(data[key],undefined);
 });
 test('missing required data and invalid dates omit markup without affecting the page', () => {
   for (const patch of [{nombre:null},{ciudad:null},{ubicacion_detalle:null},{ubicacion_detalle:'teruel'},{fecha_inicio:'2026-02-30'},{fecha_inicio:'invalid'}]) {
@@ -27,4 +28,17 @@ test('untrusted text cannot close the script and unsafe image protocols are omit
   assert(!serialized.includes('<'));
   assert.deepEqual(JSON.parse(serialized),data);
   assert.equal(data.image,undefined);
+});
+
+test('known end dates survive missing end times and known same-day times fill endDate', () => {
+  assert.equal(eventoJsonLd({...evento,fecha_fin: '2026-10-24'},'evento').endDate,'2026-10-24');
+  assert.equal(eventoJsonLd({...evento,hora_fin:'22:00:00'},'evento').endDate,'2026-10-24T22:00:00');
+  for (const patch of [{hora_fin:'01:00'},{hora_fin:'25:00'},{hora_inicio:null,hora_fin:'22:00'},{fecha_fin:'invalid',hora_fin:'22:00'}]) {
+    assert.equal(eventoJsonLd({...evento,...patch},'evento').endDate,undefined);
+  }
+});
+test('content announcing a status change never gets an explicit scheduled status', () => {
+  for (const descripcion of ['Evento cancelado','Aplazado hasta nueva fecha','Actuación suspendida','Concierto reprogramado']) {
+    assert.equal(eventoJsonLd({...evento,descripcion},'evento').eventStatus,undefined);
+  }
 });
