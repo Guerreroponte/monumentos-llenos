@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { publicImage } from "./public-images";
 import { supabase } from "./supabase";
 
+
 export const SALAS_DESTACADAS_COLABORADORAS = [
   "Café La Palma",
   "Loco Club",
@@ -49,7 +50,9 @@ export const SALAS_DESTACADAS_COLABORADORAS = [
   "La Chistera",
   "El Gran Café",
   "Es Gremi Centre Musical",
+  "Canarias en Vivo",
 ];
+
 
 export type MonumentoDB = {
   id: string;
