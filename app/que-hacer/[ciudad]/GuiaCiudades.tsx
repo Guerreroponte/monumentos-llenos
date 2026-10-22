@@ -2,6 +2,34 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "cordoba": {
+    intro: "Córdoba en un día: combina la Mezquita, las calles de la Judería y las plazas de la Axerquía, reservando primero las visitas con horario. Si quieres conocer también los patios de Viana, elige qué interiores te interesan y deja margen para caminar entre zonas. Aquí tienes un recorrido flexible para enlazar patrimonio y los eventos de la agenda.",
+    sections: [
+      [
+        "Mañana entre la Judería y la Mezquita",
+        "Empieza por la [Judería de Córdoba](/lugar/juderia-de-cordoba), entre la Puerta de Almodóvar y el entorno de la [Mezquita-Catedral](/lugar/mezquita-catedral-de-cordoba-cordoba). Si quieres entrar en la Sinagoga de la calle Judíos, organiza primero esa parada: su horario ordinario publicado es de martes a domingo de 9:00 a 15:00, con excepciones festivas. Para la Mezquita, consulta el calendario del día y reserva la modalidad de visita que prefieras; la torre y la visita nocturna tienen entradas distintas."
+      ],
+      [
+        "Del Guadalquivir a las plazas",
+        "Acércate al [Puente Romano](/lugar/puente-romano-de-cordoba-cordoba) para ver el conjunto del río y la Mezquita. La Junta anunció obras de adecuación en septiembre de 2026: comprueba los avisos y la señalización antes de cruzar. Continúa hacia la [Plaza del Potro](/lugar/plaza-del-potro-cordoba) y la [Corredera](/lugar/plaza-de-la-corredera-cordoba). El paseo por estas plazas es gratuito; los museos y las consumiciones se pagan aparte cuando corresponda."
+      ],
+      [
+        "Una tarde de patios en Viana",
+        "El [Palacio de Viana](/lugar/palacio-de-viana-cordoba), en la plaza de Don Gome, permite elegir entre patios, interior o visita combinada. De septiembre a diciembre anuncia apertura de martes a sábado hasta las 19:00 y domingos y festivos hasta las 15:00, con excepciones. Reserva el interior si te interesa y consulta el recorrido adaptado. Sus patios son una visita distinta del Festival de los Patios de mayo."
+      ],
+      [
+        "Completa el día con un concierto o un plan",
+        "Consulta los eventos de Córdoba que aparecen en esta página y entra en la ficha para comprobar fecha, sala y entradas. Usa «Cómo llegar» para preparar el trayecto desde tu última visita: deja margen entre una entrada con horario y el comienzo del espectáculo. Antes de reservar, revisa también el transporte de vuelta."
+      ]
+    ],
+    sources: [
+      ["visitas de la Mezquita-Catedral", "https://mezquita-catedraldecordoba.es/organiza-la-visita/entradas-y-horarios/"],
+      ["Sinagoga de Córdoba", "https://www.juntadeandalucia.es/aaiicc/enclaves/enclave-monumental-sinagoga-de-cordoba"],
+      ["visitas al Palacio de Viana", "https://www.palaciodeviana.com/visitas/"],
+      ["Turismo de Córdoba", "https://www.turismodecordoba.org/que-visitar"],
+      ["aviso de obras del Puente Romano", "https://www.juntadeandalucia.es/organismos/fomentoymovilidad/servicios/actualidad/noticias/detalle/684199.html"]
+    ]
+  },
   "teruel": {
   "intro": "En Teruel puedes enlazar el mudéjar, la historia de los Amantes y un paseo por el Óvalo sin salir del centro. Organiza primero las entradas con pase horario y deja tiempo entre visitas para disfrutar de la plaza del Torico. Si llegas en tren, ten en cuenta el desnivel entre la estación y el casco histórico.",
   "sections": [
