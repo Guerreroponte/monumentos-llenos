@@ -2,6 +2,33 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "segovia": {
+    intro: "Segovia en un día: recorre el casco histórico desde el Acueducto hasta el Alcázar, con paradas en la Calle Real, la Judería y la Catedral. Elige primero las visitas interiores que te interesan y deja margen para las pendientes y el empedrado. Puedes disfrutar de las calles y las fachadas sin entrar en todos los monumentos.",
+    sections: [
+      [
+        "Del Acueducto a San Martín",
+        "Empieza junto al [Acueducto](/lugar/acueducto-de-segovia-segovia) y sube por el recorrido de la Calle Real. Detente ante la fachada de la [Casa de los Picos](/lugar/casa-de-los-picos-segovia), que alberga una escuela de arte: consulta su programación si quieres acceder al interior. Continúa hacia la [Iglesia de San Martín](/lugar/iglesia-de-san-martin-segovia) y la plaza de Medina del Campo para observar los capiteles y las galerías porticadas. La visita interior del templo depende de su apertura y del culto."
+      ],
+      [
+        "Un desvío por la Judería",
+        "Desde el entorno del Corpus Christi puedes recorrer la [Judería de Segovia](/lugar/juderia-de-segovia), pasar por Judería Vieja y acercarte a la Puerta de San Andrés. El paseo por las calles es gratuito; el Centro Didáctico, la antigua Sinagoga Mayor y las visitas guiadas tienen condiciones propias. El mapa de la ficha señala el Centro Didáctico como punto de referencia. Si bajas hacia la muralla, cuenta también con la subida de regreso y adapta el itinerario a tu movilidad."
+      ],
+      [
+        "Catedral y Alcázar: organiza las entradas",
+        "Vuelve hacia la Plaza Mayor para visitar la [Catedral de Segovia](/lugar/catedral-de-segovia). La entrada general incluye el Palacio Episcopal, en otro edificio y para el mismo día; la subida guiada a la torre tiene una modalidad propia y escaleras de caracol. Continúa después hacia el [Alcázar](/lugar/alcazar-de-segovia-segovia). Comprueba qué incluye tu entrada y si permite subir a la Torre de Juan II. El Patronato recomienda reservar con antelación, especialmente en fines de semana y festivos."
+      ],
+      [
+        "Deja tiempo para la agenda y la vuelta",
+        "Consulta los eventos de Segovia en esta página y abre la ficha del plan elegido para confirmar fecha, recinto y entradas. Calcula el trayecto desde tu última visita y el tiempo para regresar. Si llegas en tren de alta velocidad, ten en cuenta que Segovia-Guiomar está fuera del casco histórico: revisa el enlace con el centro y el horario del transporte de vuelta. No ajustes una visita con hora al último minuto."
+      ]
+    ],
+    sources: [
+      ["Turismo de Segovia", "https://www.turismodesegovia.com/es"],
+      ["la Judería", "https://www.turismodesegovia.com/es/juderia/la-juderia-de-segovia"],
+      ["entradas de la Catedral", "https://tickets.catedralsegovia.es/"],
+      ["Alcázar de Segovia", "https://www.alcazardesegovia.com/"]
+    ]
+  },
   "toledo": {
     intro: "Toledo en un día: enlaza el entorno del Cristo de la Luz, la Catedral y la judería, eligiendo qué interiores quieres visitar. El casco histórico tiene pendientes y calles empedradas: lleva calzado cómodo y deja tiempo entre paradas. Esta ruta es una propuesta flexible para combinar patrimonio y los eventos de la agenda.",
     sections: [
