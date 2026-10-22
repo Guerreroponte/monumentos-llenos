@@ -2,6 +2,33 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "salamanca": {
+    intro: "Salamanca en un día: empieza en la Plaza Mayor, recorre el centro universitario y termina junto al Tormes. Elige primero qué interiores quieres visitar y encaja sus horarios antes de añadir un concierto o un plan de la agenda. Puedes disfrutar del paseo exterior sin convertir cada parada en una visita de pago.",
+    sections: [
+      [
+        "De la Plaza Mayor a la Casa de las Conchas",
+        "Empieza bajo los soportales de la [Plaza Mayor](/lugar/plaza-mayor-salamanca) y continúa hacia la [Casa de las Conchas](/lugar/casa-de-las-conchas-salamanca). El patio se visita gratuitamente durante su apertura, pero el edificio también funciona como biblioteca: respeta las zonas de lectura. Comprueba el horario del fin de semana y consulta el acceso si necesitas evitar escalones."
+      ],
+      [
+        "Universidad y catedrales: elige tus interiores",
+        "Dedica tiempo a la fachada del [Edificio Histórico de la Universidad](/lugar/universidad-salamanca-edificio-historico) antes de decidir si entras. El Cielo de Salamanca es otra visita, gratuita y con horario propio. Continúa hacia las [catedrales Vieja y Nueva](/lugar/catedrales-vieja-nueva-salamanca): la visita cultural reúne ambos templos, mientras que las torres de Ieronimus tienen un recorrido diferente. Revisa qué incluye cada entrada y deja margen para el último acceso."
+      ],
+      [
+        "Casa Lis y el paseo hacia el Tormes",
+        "La [Casa Lis](/lugar/casa-lis-museo-salamanca) propone una parada de artes decorativas y vidrieras antes de bajar hacia el [Puente Romano](/lugar/puente-romano-salamanca). El museo tiene horarios estacionales y una franja gratuita los jueves; comprueba la web oficial y sus normas sobre fotografías. Desde el puente puedes continuar por la ribera y observar el perfil monumental de la ciudad. Calcula también el tiempo de regreso al centro."
+      ],
+      [
+        "Cómo combinar la ruta con un evento",
+        "Consulta los próximos eventos de Salamanca en esta página y abre la ficha para comprobar fecha, recinto y entradas. Usa «Cómo llegar» para organizar el trayecto desde tu última parada y distingue la apertura de puertas del inicio del espectáculo. Si llegas en transporte público, revisa el horario de vuelta antes de reservar una visita de tarde."
+      ]
+    ],
+    sources: [
+      ["Turismo de Salamanca", "https://salamanca.es/que-ver/monumentos"],
+      ["visitas a la Universidad", "https://museo.usal.es/estaticas/precios/"],
+      ["visita cultural de las catedrales", "https://catedralsalamanca.org/visita-cultural/"],
+      ["horarios y normas de Casa Lis", "https://www.museocasalis.org/informacion-general/"]
+    ]
+  },
   "cordoba": {
     intro: "Córdoba en un día: combina la Mezquita, las calles de la Judería y las plazas de la Axerquía, reservando primero las visitas con horario. Si quieres conocer también los patios de Viana, elige qué interiores te interesan y deja margen para caminar entre zonas. Aquí tienes un recorrido flexible para enlazar patrimonio y los eventos de la agenda.",
     sections: [
