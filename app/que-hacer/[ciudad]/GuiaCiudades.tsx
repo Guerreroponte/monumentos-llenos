@@ -2,6 +2,33 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "toledo": {
+    intro: "Toledo en un día: enlaza el entorno del Cristo de la Luz, la Catedral y la judería, eligiendo qué interiores quieres visitar. El casco histórico tiene pendientes y calles empedradas: lleva calzado cómodo y deja tiempo entre paradas. Esta ruta es una propuesta flexible para combinar patrimonio y los eventos de la agenda.",
+    sections: [
+      [
+        "Del Cristo de la Luz al centro histórico",
+        "Empieza por la [Mezquita del Cristo de la Luz](/lugar/mezquita-cristo-de-la-luz-toledo), donde merece la pena detenerse en sus bóvedas, y continúa hacia Zocodover. Desde allí puedes acercarte a la [Catedral Primada](/lugar/catedral-primada-de-toledo). Si quieres entrar, consulta primero sus horarios y modalidades de visita: el culto puede condicionar el acceso. Ajusta el orden del paseo a las entradas que hayas reservado."
+      ],
+      [
+        "El Greco y la memoria sefardí",
+        "Continúa hacia [Santo Tomé](/lugar/iglesia-santo-tome-toledo) para contemplar El entierro del Señor de Orgaz. Después puedes acercarte a la [Sinagoga del Tránsito y Museo Sefardí](/lugar/sinagoga-transito-museo-sefardi-toledo). El museo cierra habitualmente los lunes y publica avisos de cierres parciales: revísalos antes de organizar la jornada. Las entradas individuales se adquieren en taquilla; consulta también las franjas gratuitas y las condiciones de acceso."
+      ],
+      [
+        "Santa María la Blanca y San Juan de los Reyes",
+        "Enlaza la visita a [Santa María la Blanca](/lugar/sinagoga-santa-maria-la-blanca-toledo) con el [Monasterio de San Juan de los Reyes](/lugar/monasterio-san-juan-de-los-reyes-toledo). Compara los arcos y la decoración de la antigua sinagoga con las galerías del claustro. Son visitas próximas, pero cada recinto tiene su acceso y último horario de entrada. Si necesitas un recorrido sin escalones, consulta las condiciones de cada espacio y del trayecto antes de salir."
+      ],
+      [
+        "Entradas y tiempo para un evento",
+        "Santo Tomé, Cristo de la Luz, Santa María la Blanca y San Juan de los Reyes forman parte de la pulsera de siete monumentos de Toledo Monumental. La Catedral y el Museo Sefardí tienen entradas independientes. Compara el precio de la pulsera con las visitas que realmente quieres hacer y comprueba su validez y qué servicios incluye. Para terminar con un concierto u otro plan, consulta la agenda de esta página y calcula el trayecto al recinto y el transporte de regreso."
+      ]
+    ],
+    sources: [
+      ["Turismo de Toledo", "https://turismo.toledo.es/recursos/list5-los-10-imprescindibles-de-toledo.html"],
+      ["Toledo Monumental", "https://toledomonumental.com/pulsera-turistica/"],
+      ["Museo Sefardí", "https://www.cultura.gob.es/msefardi/visita/"],
+      ["Catedral Primada", "https://www.catedralprimada.es/"]
+    ]
+  },
   "salamanca": {
     intro: "Salamanca en un día: empieza en la Plaza Mayor, recorre el centro universitario y termina junto al Tormes. Elige primero qué interiores quieres visitar y encaja sus horarios antes de añadir un concierto o un plan de la agenda. Puedes disfrutar del paseo exterior sin convertir cada parada en una visita de pago.",
     sections: [
