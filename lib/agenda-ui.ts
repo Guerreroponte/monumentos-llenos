@@ -1,6 +1,8 @@
 // Shared by the agenda and city guides. Date-only comparisons use Madrid's day.
+const formatoDiaMadrid = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' });
+
 export function diaMadrid(ahora = new Date()) {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Madrid', year: 'numeric', month: '2-digit', day: '2-digit' }).format(ahora);
+  return formatoDiaMadrid.format(ahora);
 }
 export function largaDuracion(inicio?: string | null, fin?: string | null) {
   return !!inicio && !!fin && Date.parse(fin) - Date.parse(inicio) >= 30 * 86400000;
