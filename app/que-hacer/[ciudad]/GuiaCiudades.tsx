@@ -2,6 +2,35 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "avila": {
+    intro: "Ávila en un día: combina la muralla, el centro histórico y una panorámica desde los Cuatro Postes. Elige primero los interiores que quieres visitar y deja margen para los desplazamientos fuera del recinto amurallado. Puedes disfrutar de las plazas y los paseos exteriores sin comprar entradas para todos los monumentos.",
+    sections: [
+      [
+        "San Vicente y la muralla",
+        "Empieza por la [Basílica de San Vicente](/lugar/basilica-san-vicente-avila), con su portada y galería porticada, y acércate a la [Muralla de Ávila](/lugar/muralla-de-avila). Pasear por fuera es distinto de subir al adarve, que tiene entrada y accesos concretos. Comprueba el horario de temporada y el último acceso: en invierno se reduce la apertura y hay cierres los lunes con excepciones. Consulta el tramo adaptado si necesitas evitar escaleras."
+      ],
+      [
+        "Catedral y Mercado Chico",
+        "Continúa hacia la [Catedral de Ávila](/lugar/catedral-de-avila): su cabecera forma parte del recinto defensivo. Si quieres entrar, encaja primero el horario de la visita cultural y las posibles celebraciones. Después recorre las calles del centro hasta la [Plaza del Mercado Chico](/lugar/plaza-mercado-chico-avila), donde puedes detenerte bajo los soportales y contemplar la fachada del Ayuntamiento. El paseo por la plaza es gratuito; las consumiciones se pagan aparte."
+      ],
+      [
+        "Una visita con tiempo a Santo Tomás",
+        "El [Real Monasterio de Santo Tomás](/lugar/real-monasterio-santo-tomas-avila) amplía la ruta fuera de la muralla con su iglesia y tres claustros. Reserva margen para llegar desde el casco histórico y confirma qué espacios y colecciones incluye la entrada. Si dispones de pocas horas, elige entre esta visita y otros interiores para no convertir el día en una carrera."
+      ],
+      [
+        "Cuatro Postes y un plan para terminar",
+        "Acércate al [Mirador de los Cuatro Postes](/lugar/mirador-cuatro-postes-avila), al otro lado del Adaja, para observar la ciudad amurallada. Calcula el desnivel y el regreso si vas andando, especialmente al final del día. Para completar la jornada, consulta los eventos de esta página y comprueba fecha, recinto y entradas en cada ficha; deja tiempo para el trayecto y revisa el transporte de vuelta."
+      ]
+    ],
+    sources: [
+      ["Muralla de Ávila: visitas", "https://www.avilaturismo.com/que-ver/la-muralla-de-avila"],
+      ["Catedral de Ávila", "https://www.avilaturismo.com/que-ver/catedral-de-avila"],
+      ["Basílica de San Vicente", "https://www.avilaturismo.com/que-ver/basilica-de-san-vicente"],
+      ["Real Monasterio de Santo Tomás", "https://www.avilaturismo.com/que-ver/real-monaterio-de-santo-tomas"],
+      ["Cuatro Postes", "https://www.avilaturismo.com/que-ver/los-cuatro-postes"],
+      ["Mercado Chico", "https://www.avilaturismo.com/que-ver/ayuntamiento-y-plaza-del-mercado-chico"]
+    ]
+  },
   "toledo": {
     intro: "Toledo en un día: enlaza el entorno del Cristo de la Luz, la Catedral y la judería, eligiendo qué interiores quieres visitar. El casco histórico tiene pendientes y calles empedradas: lleva calzado cómodo y deja tiempo entre paradas. Esta ruta es una propuesta flexible para combinar patrimonio y los eventos de la agenda.",
     sections: [
