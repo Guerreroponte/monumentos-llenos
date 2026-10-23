@@ -35,7 +35,7 @@ function load(relative, db) {
 function database(tables, failingTable) {
   const reads = [];
   return { reads, from(table) {
-    let rows = [...(tables[table] || [])], single = false;
+    let rows = [...(tables[table === 'resenas_publicas_ligeras' ? 'resenas' : table] || [])], single = false;
     const query = {
       select() { return query; },
       eq(key, value) { rows = rows.filter(row => row[key] === value); return query; },

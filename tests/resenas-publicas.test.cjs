@@ -25,32 +25,29 @@ function client(responses) {
   });
   return { db, requests };
 }
-test('reviews retain order, text, flags, remote URLs and absent photos', async () => {
+test('lightweight review read preserves all returned data and requests only selected places', async () => {
   const rows = [
-    { id: 'inline', comentario: 'Foto real', reportado: false },
-    { id: 'empty', comentario: 'Sin foto', reportado: null },
-    { id: 'remote', comentario: 'URL', reportado: false },
-    { id: 'reported', comentario: 'Conservar indicador', reportado: true },
+    { id: 'inline', comentario: 'Foto real', reportado: false, foto: '/api/imagenes-publicas/resenas/inline' },
+    { id: 'empty', comentario: 'Sin foto', reportado: null, foto: null },
+    { id: 'remote', comentario: 'URL', reportado: false, foto: 'https://example.com/photo.jpg' },
+    { id: 'reported', comentario: 'Conservar indicador', reportado: true, foto: null },
   ];
-  const { db, requests } = client([
-    { body: rows },
-    { kind: 'urls', body: [{ id: 'remote', foto: 'https://example.com/photo.jpg' }] },
-    { kind: 'inline', body: [{ id: 'inline' }] },
-  ]);
+  const { db, requests } = client([{ body: rows }]);
   const result = await cargarResenasPublicas(db, ['place']);
   assert.equal(result.error, null);
-  assert.deepEqual(result.data, rows.map(row => ({ ...row, foto: row.id === 'inline' ? '/api/imagenes-publicas/resenas/inline' : row.id === 'remote' ? 'https://example.com/photo.jpg' : null })));
-  assert(!requests[0].searchParams.get('select').includes('foto'));
-  assert.equal(requests.find(url => url.searchParams.get('select') === 'id,foto').searchParams.getAll('foto').length, 5);
-  assert(requests.some(url => url.searchParams.get('select') === 'id'));
+  assert.deepEqual(result.data, rows);
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].pathname, '/rest/v1/resenas_publicas_ligeras');
+  assert.equal(requests[0].searchParams.get('monumento_id'), 'in.(place)');
+  assert.equal(requests[0].searchParams.get('order'), 'created_at.desc');
 });
-test('photo lookup errors reject the load instead of silently hiding photos', async () => {
-  const { db } = client([{ body: [{ id: 'one' }] }, { kind: 'urls', status: 400, body: { message: 'photo lookup failed' } }, { kind: 'inline', body: [] }]);
+test('query failures remain visible instead of silently hiding reviews', async () => {
+  const { db } = client([{ status: 400, body: { message: 'review lookup failed' } }]);
   const result = await cargarResenasPublicas(db, ['place']);
   assert.equal(result.data, null);
-  assert.equal(result.error.message, 'photo lookup failed');
+  assert.equal(result.error.message, 'review lookup failed');
 });
-test('empty reviews do not request photo data', async () => {
+test('empty reviews remain empty without additional queries', async () => {
   const { db, requests } = client([{ body: [] }]);
   assert.deepEqual((await cargarResenasPublicas(db, ['place'])).data, []);
   assert.equal(requests.length, 1);
