@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "burgos": {
+    "intro": "Burgos en uno o dos días: combina la Catedral y el casco histórico con el paseo junto al Arlanzón y el Museo de la Evolución Humana. Si quieres visitar también Las Huelgas y Miraflores, reserva tiempo para sus desplazamientos y organiza primero las entradas con horario. Esta propuesta permite elegir interiores sin renunciar a disfrutar del paseo por la ciudad.",
+    "sections": [
+        [
+            "Catedral y Arco de Santa María",
+            "Empieza por la [Catedral de Burgos](/lugar/catedral-de-burgos-burgos) y decide si quieres dedicar la mañana a su visita cultural. Consulta los avisos del día: el culto puede modificar el acceso y la visita nocturna tiene una modalidad distinta. Continúa hacia el [Arco de Santa María](/lugar/arco-santa-maria-burgos), donde la fachada reúne personajes de la historia local. El paseo exterior es libre; comprueba la apertura de sus espacios culturales si quieres entrar."
+        ],
+        [
+            "Del Espolón al Museo de la Evolución",
+            "Recorre el [Paseo del Espolón](/lugar/paseo-espolon-burgos), junto al río, y deja tiempo para descansar bajo sus árboles. Después cruza hacia el [Museo de la Evolución Humana](/lugar/museo-evolucion-humana-burgos). El MEH está en la ciudad: la visita a los yacimientos de Atapuerca y al CAREX es diferente y requiere reserva. Revisa el horario y las franjas gratuitas del museo antes de decidir cuándo entrar."
+        ],
+        [
+            "Las Huelgas: reserva tu visita guiada",
+            "El [Monasterio de Las Huelgas](/lugar/monasterio-las-huelgas-burgos) merece una parada propia fuera del centro histórico. La visita es guiada y el aforo limitado: elige un pase y calcula el desplazamiento antes de reservar otra actividad. Cierra habitualmente los lunes y el último acceso es anterior a la hora de cierre. Consulta las excepciones del calendario y las condiciones de gratuidad en Patrimonio Nacional."
+        ],
+        [
+            "Miraflores y tiempo para la agenda",
+            "La [Cartuja de Miraflores](/lugar/cartuja-miraflores-burgos), hacia Fuentes Blancas, completa la ruta con su retablo y escultura funeraria. Organiza la ida y la vuelta y comprueba los horarios de iglesia y exposiciones; no la plantees como una parada inmediata junto a la Catedral. Si solo dispones de un día, puedes elegir entre Miraflores y Las Huelgas. Para terminar con un concierto u otro plan, consulta los eventos de esta página y deja margen para llegar al recinto."
+        ]
+    ],
+    "sources": [
+        [
+            "visitas de la Catedral",
+            "https://catedraldeburgos.es/visitas"
+        ],
+        [
+            "Arco de Santa María",
+            "https://www.vueltaburgos.com/es/project/arco-de-santa-maria-2/"
+        ],
+        [
+            "Paseo del Espolón",
+            "https://www.vueltaburgos.com/es/project/paseo-del-espolon/"
+        ],
+        [
+            "visitas al MEH y Atapuerca",
+            "https://museoevolucionhumana.com/es/informacion-y-reservas"
+        ],
+        [
+            "Patrimonio Nacional: Las Huelgas",
+            "https://www.patrimonionacional.es/visita/monasterio-de-santa-maria-la-real-de-las-huelgas"
+        ],
+        [
+            "Cartuja de Miraflores",
+            "https://www.cartuja.org/iglesia-y-exposiciones/"
+        ]
+    ]
+},
   "avila": {
     intro: "Ávila en un día: combina la muralla, el centro histórico y una panorámica desde los Cuatro Postes. Elige primero los interiores que quieres visitar y deja margen para los desplazamientos fuera del recinto amurallado. Puedes disfrutar de las plazas y los paseos exteriores sin comprar entradas para todos los monumentos.",
     sections: [
