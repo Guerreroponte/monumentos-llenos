@@ -1,6 +1,6 @@
 import { nombreCiudad } from "./ciudad-identidad";
 import "server-only";
-import { eventoVigente } from "./agenda-ui";
+import { diaMadrid, eventoVigente, filtroEventosVigentes } from "./agenda-ui";
 import { unstable_cache } from "next/cache";
 import { publicServer } from "./supabase-public-server";
 
@@ -90,16 +90,16 @@ function normalizarTexto(valor?: string | null) { return (valor ?? "").trim(); }
 
 // Cache bounded batches: the full catalogue exceeds Next's 2 MB cache entry limit.
 const BATCH_SIZE = 500;
-const getEventBatch = unstable_cache(async (colaborador: string, offset: number) => {
+const getEventBatch = unstable_cache(async (colaborador: string, offset: number, hoy: string) => {
   let query = publicServer.from("eventos").select("id,colaborador_id,slug,created_at,nombre,ciudad,provincia,comunidad_autonoma,tipo,subtipo,categoria_evento,fecha_inicio,fecha_fin,hora_inicio,hora_fin,descripcion,imagen,enlace,destacado,ubicacion_detalle,precio,ambiente,dificil_bebida,parking,recomendable")
-    .or("reportado.is.null,reportado.eq.false")
+    .or(`and(or(reportado.is.null,reportado.eq.false),or(${filtroEventosVigentes(hoy)}))`)
     .order("fecha_inicio", { ascending: true }).order("id", { ascending: true })
     .range(offset, offset + BATCH_SIZE - 1);
   if (colaborador) query = query.eq("colaborador_id", colaborador);
   const { data, error } = await query;
   if (error) throw error;
   return (data || []) as EventoDB[];
-}, ["eventos-batch-v2"], { revalidate: 60 });
+}, ["eventos-batch-v3"], { revalidate: 60 });
 
 const getCommentCounts = unstable_cache(async () => {
   const result: ComentarioEventoDB[] = [];
@@ -120,11 +120,11 @@ const getCollaboratorName = unstable_cache(async (id: string) => {
   return normalizarTexto(data?.nombre) || "este colaborador";
 }, ["eventos-collaborator-name-v1"], { revalidate: 60 });
 
-async function getAllEvents(colaborador: string) {
+async function getAllEvents(colaborador: string, hoy: string) {
   const result: EventoDB[] = [];
   let offset = 0;
   while (true) {
-    const batch = await getEventBatch(colaborador, offset);
+    const batch = await getEventBatch(colaborador, offset, hoy);
     result.push(...batch);
     if (batch.length < BATCH_SIZE) return result;
     offset += batch.length;
@@ -132,8 +132,10 @@ async function getAllEvents(colaborador: string) {
 }
 
 export async function getEventosInitialData(colaboradorParam: string) {
+  // Include Madrid's day in every batch cache key, including across midnight.
+  const hoy = diaMadrid();
   const [eventosData, comentariosData, nombreColaborador] = await Promise.all([
-    getAllEvents(colaboradorParam), getCommentCounts(), getCollaboratorName(colaboradorParam),
+    getAllEvents(colaboradorParam, hoy), getCommentCounts(), getCollaboratorName(colaboradorParam),
   ]);
 
       const comentariosPorEvento = new Map<string, number>();
@@ -176,5 +178,5 @@ export async function getEventosInitialData(colaboradorParam: string) {
         })
       );
 
-  return { eventos: eventosMapeados.filter(e => eventoVigente(e.fechaInicio, e.fechaFin)), nombreColaborador };
+  return { eventos: eventosMapeados.filter(e => eventoVigente(e.fechaInicio, e.fechaFin, hoy)), nombreColaborador };
 }
