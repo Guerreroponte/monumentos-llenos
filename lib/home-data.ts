@@ -1,3 +1,4 @@
+import { cargarResenasPublicas } from "./resenas-publicas";
 import { nombreCiudad } from "./ciudad-identidad";
 import { diaMadrid, compararAgenda, eventoVigente, filtroEventosVigentes, eventoEnFecha, calendarioEvento } from "./agenda-ui";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -249,9 +250,7 @@ export async function cargarDatos(client: SupabaseClient = supabase) {
 
     if (ids.length > 0) {
       const [resenas, fotos] = await Promise.all([
-        client.from("resenas")
-          .select("id, monumento_id, usuario, comentario, foto, created_at, likes, reportado")
-          .in("monumento_id", ids).order("created_at", { ascending: false }),
+        cargarResenasPublicas(client, ids),
         client.from("lugares_fotos").select("id, lugar_id, imagen, orden, created_at")
           .in("lugar_id", ids).order("orden", { ascending: true }),
       ]);
