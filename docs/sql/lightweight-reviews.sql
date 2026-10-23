@@ -1,4 +1,5 @@
--- Proposed only: requires approval before application to production.
+-- Applied to Supabase on 2026-10-23 after explicit approval.
+-- Migration: add_lightweight_public_reviews.
 -- Deploy this additive view before deploying the application change.
 -- Existing rows, photos, table permissions and RLS policies are unchanged.
 create view public.resenas_publicas_ligeras
