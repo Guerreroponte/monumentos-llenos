@@ -1,4 +1,5 @@
--- Pending application. Apply and verify before deploying the dependent app.
+-- Applied to Supabase on 2026-10-24 after explicit approval.
+-- Migration: lightweight_places_and_review_videos.
 -- Additive, read-only projections: no original images, rows or RLS are changed.
 begin;
 set local lock_timeout = '3s';
