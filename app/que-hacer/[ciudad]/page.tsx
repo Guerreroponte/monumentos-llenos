@@ -10,6 +10,7 @@ import GuiaCorunaGranada from "./GuiaCorunaGranada";
 import GuiaVigoSantander from "./GuiaVigoSantander";
 import GuiaPontevedra from "./GuiaPontevedra";
 import { supabase } from "@/lib/supabase";
+import { cargarLugaresDeCiudad, type LugarCiudad as Lugar } from "@/lib/lugares-ciudad";
 
 type Evento = {
   id: string;
@@ -20,18 +21,6 @@ type Evento = {
   fecha_fin: string | null;
   imagen: string | null;
   subtipo: string | null;
-};
-
-type Lugar = {
-  id: string;
-  nombre: string | null;
-  slug: string | null;
-  ciudad: string | null;
-  imagen: string | null;
-  imagen_fullback: string | null;
-  descripcion: string | null;
-  rating: number | null;
-  rating_fuente?: string | null;
 };
 
 type Colaborador = {
@@ -151,52 +140,12 @@ async function cargarLugaresCiudad(
   ciudadNormalizada: string,
   mostrarTodos = false
 ): Promise<{ items: Lugar[]; total: number }> {
-  const encontrados: Lugar[] = [];
-  let desde = 0;
-
-  while (true) {
-    const hasta =
-      desde + TAMANO_PAGINA - 1;
-
-    const { data, error } = await supabase
-      .from("Monumentos")
-      .select(
-        "id,nombre,slug,ciudad,imagen,imagen_fullback,descripcion,rating,rating_fuente"
-      )
-      .eq("reportado", false)
-      .order("created_at", {
-        ascending: false,
-      })
-      .order("id", { ascending: true })
-      .range(desde, hasta);
-
-    if (error) {
-      console.error(
-        "Error cargando lugares de la ciudad:",
-        error
-      );
-      break;
-    }
-
-    const pagina = (data || []) as Lugar[];
-
-    encontrados.push(
-      ...pagina.filter(
-        (lugar) =>
-          lugar.ciudad &&
-          normalizarCiudad(lugar.ciudad) ===
-            ciudadNormalizada
-      )
-    );
-
-    if (pagina.length < TAMANO_PAGINA) {
-      break;
-    }
-
-    desde += TAMANO_PAGINA;
+  try {
+    return await cargarLugaresDeCiudad(supabase, ciudadNormalizada, mostrarTodos);
+  } catch (error) {
+    console.error("Error cargando lugares de la ciudad:", error);
+    return { items: [], total: 0 };
   }
-
-  return { items: mostrarTodos ? encontrados : encontrados.slice(0, 8), total: encontrados.length };
 }
 
 async function cargarColaboradoresCiudad(

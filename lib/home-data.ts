@@ -230,8 +230,8 @@ export type MarcaColaboradoraUI = {
 export async function cargarDatos(client: SupabaseClient = supabase) {
 
     const { data: monumentosData, error: errorMonumentos } = await client
-      .from("Monumentos")
-      .select("*")
+      .from("lugares_publicos_ligeros")
+      .select("id,created_at,nombre,ciudad,provincia,comunidad_autonoma,rating,rating_fuente,precio,imagen,descripcion,acepta_mascotas,acceso_coche,parking_cerca,latitud,longitud,slug,fuente,es_seed,reportado")
       .order("created_at", { ascending: false });
 
     if (errorMonumentos) {

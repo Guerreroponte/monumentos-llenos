@@ -31,7 +31,7 @@ export const getLugarDetail = cache(async (slug: string) => {
   if (error) throw error;
   if (!data) notFound();
   const lugar = { ...data, imagen: publicImage("lugares", data.id, data.imagen) } as Lugar;
-  const comments = await publicServer.from("resenas").select("id,monumento_id,usuario,comentario,foto,video_url,created_at,likes,reportado").eq("monumento_id", lugar.id)
+  const comments = await publicServer.from("resenas_publicas_ligeras").select("id,monumento_id,usuario,comentario,foto,video_url,created_at,likes,reportado").eq("monumento_id", lugar.id)
     .or("reportado.is.null,reportado.eq.false").order("created_at", { ascending: false });
   if (comments.error) throw comments.error;
   // La galería es complementaria: un fallo no debe impedir leer la ficha o comentar.

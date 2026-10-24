@@ -35,7 +35,7 @@ function load(relative, db) {
 function database(tables, failingTable) {
   const reads = [];
   return { reads, from(table) {
-    let rows = [...(tables[table === 'resenas_publicas_ligeras' ? 'resenas' : table] || [])], single = false;
+    let rows = [...(tables[table === 'resenas_publicas_ligeras' ? 'resenas' : table === 'lugares_publicos_ligeros' ? 'Monumentos' : table] || [])], single = false;
     const query = {
       select() { return query; },
       eq(key, value) { rows = rows.filter(row => row[key] === value); return query; },
@@ -109,7 +109,7 @@ test('home preserves visibility, reviews, gallery deduplication and zero ratings
 });
 
 test('failed data loads reject instead of masquerading as an empty catalogue', async () => {
-  const db = database({}, 'Monumentos');
+  const db = database({}, 'lugares_publicos_ligeros');
   const { cargarDatos } = load('lib/home-data.ts', db);
   await assert.rejects(cargarDatos(db), /offline/);
 });
@@ -140,10 +140,12 @@ test('agenda hides archived events while preserving legacy null flags and collab
 });
 
 test('place detail contains reviews on first render and absent slugs return not found', async () => {
-  const db = database({ Monumentos: [{ id: uuid, slug: 'lugar', imagen: image }], resenas: [{ id: uuid, monumento_id: uuid, foto: image }, { id: 'hidden', monumento_id: uuid, reportado: true }] });
+  const db = database({ Monumentos: [{ id: uuid, slug: 'lugar', imagen: image }], resenas: [{ id: uuid, monumento_id: uuid, foto: image, video_url: 'https://example.com/video.mp4', likes: 5 }, { id: 'hidden', monumento_id: uuid, reportado: true }] });
   const { getLugarDetail } = load('lib/detail-data.ts', db);
   const result = await getLugarDetail('lugar');
   assert.equal(result.resenas.length, 1);
+  assert.equal(result.resenas[0].video_url, 'https://example.com/video.mp4');
+  assert.equal(result.resenas[0].likes, 5);
   assert(!JSON.stringify(result).includes('data:image'));
   await assert.rejects(getLugarDetail('missing'), /NOT_FOUND/);
 });
