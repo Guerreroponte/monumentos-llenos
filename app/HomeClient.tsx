@@ -1,6 +1,7 @@
 "use client";
 
 import { enlaceFichaLugar } from "@/lib/lugares-navigation";
+import { destinosUnicos } from "@/lib/home-seleccion";
 import FuenteLugar from "@/components/FuenteLugar";
 import { nombreCiudad } from "@/lib/ciudad-identidad";
 import { alternativasPorCiudad, leerBusquedaLugares, paginasVisibles } from "@/lib/lugares-ui";
@@ -531,12 +532,12 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
         }))
     );
 
-    return [...fotosEventos, ...fotosLugares]
+    return destinosUnicos([...fotosEventos, ...fotosLugares]
       .sort((a, b) => {
         const fechaA = a.created_at ? new Date(a.created_at).getTime() : 0;
         const fechaB = b.created_at ? new Date(b.created_at).getTime() : 0;
         return fechaB - fechaA;
-      })
+      }))
       .slice(0, 6);
   }, [comentariosEventosConFoto, monumentos]);
 
@@ -576,7 +577,7 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
       if (itemsEventos[i]) mezclados.push(itemsEventos[i]);
     }
 
-    return mezclados;
+    return destinosUnicos(mezclados);
   }, [fotosReales, eventosProximosHero]);
 
   const heroItemsVisibles = useMemo(() => {
@@ -2317,6 +2318,7 @@ ${url}`;
               type="text"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
+              aria-label="Nombre del lugar"
               placeholder="Nombre del lugar"
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
@@ -2325,6 +2327,7 @@ ${url}`;
               type="text"
               value={ciudad}
               onChange={(e) => setCiudad(e.target.value)}
+              aria-label="Ciudad"
               placeholder="Ciudad"
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
@@ -2336,6 +2339,7 @@ ${url}`;
               step="0.1"
               value={rating}
               onChange={(e) => setRating(e.target.value)}
+              aria-label="Valoración de 0 a 5"
               placeholder="Valoración de 0 a 5"
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
@@ -2344,11 +2348,13 @@ ${url}`;
               type="text"
               value={precio}
               onChange={(e) => setPrecio(e.target.value)}
+              aria-label="Precio o acceso"
               placeholder="Precio o acceso"
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
             />
 
             <select
+              aria-label="Acepta mascotas"
               value={aceptaMascotas}
               onChange={(e) => setAceptaMascotas(e.target.value)}
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
@@ -2359,6 +2365,7 @@ ${url}`;
             </select>
 
             <select
+              aria-label="Parking cerca"
               value={parkingCerca}
               onChange={(e) => setParkingCerca(e.target.value)}
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none"
@@ -2369,6 +2376,7 @@ ${url}`;
             </select>
 
             <select
+              aria-label="Acceso en coche"
               value={accesoCoche}
               onChange={(e) => setAccesoCoche(e.target.value)}
               className="w-full rounded-2xl border border-orange-100 bg-white px-4 py-3 outline-none md:col-span-2"
@@ -2379,6 +2387,7 @@ ${url}`;
             </select>
 
             <textarea
+              aria-label="Descripción del lugar"
               value={descripcionMonumento}
               onChange={(e) => setDescripcionMonumento(e.target.value)}
               placeholder="Describe por qué merece la pena, qué te gustó o qué debería saber otra persona antes de ir"

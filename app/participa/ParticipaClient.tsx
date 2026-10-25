@@ -591,20 +591,20 @@ export default function ParticipaPage({ fechaInicial }: { fechaInicial: string }
             </p>
 
             <h2 className="mt-2 text-2xl font-bold text-[#334155]">
-              Para subir un lugar, usa la sección principal
+              Comparte un lugar con la comunidad
             </h2>
 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#64748b]">
               Este formulario está optimizado para planes y eventos. Si quieres
-              añadir un lugar, entra a la sección principal y súbelo desde allí.
+              añadir un lugar, abre el formulario de lugares para compartir tus fotos y recomendaciones.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
-                href="/"
+                href="/#participa"
                 className="inline-flex rounded-full bg-[#f97316] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c]"
               >
-                Ir a lugares
+                Abrir formulario de lugares
               </Link>
 
               <button
@@ -778,7 +778,9 @@ export default function ParticipaPage({ fechaInicial }: { fechaInicial: string }
                   <textarea
                     value={descripcion}
                     onChange={(e) => setDescripcion(e.target.value)}
-                    placeholder="Ej: Suele haber ambiente entre semana, mejor ir sobre las 20:00. No es fiesta, pero se está a gusto."
+                    placeholder={categoriaEvento === "grande"
+                      ? "Ej: Concierto en el auditorio. Indica la programación, apertura de puertas y dónde consultar las entradas."
+                      : "Ej: Suele haber ambiente entre semana, mejor ir sobre las 20:00. No es fiesta, pero se está a gusto."}
                     rows={4}
                     className="w-full rounded-xl border border-[#e2e8f0] bg-white px-4 py-3 text-sm outline-none transition focus:border-[#fb923c]"
                   />

@@ -165,6 +165,24 @@ export default function QueHacerPage({ ciudadesDisponibles, errorCiudades = fals
           )}
         </div>
 
+        <section className="mt-16" aria-labelledby="guias-destacadas">
+          <h2 id="guias-destacadas" className="text-3xl font-bold text-slate-900">
+            Guías para recorrer la ciudad
+          </h2>
+          <p className="mt-3 text-slate-600">
+            Ideas de rutas, visitas y consejos prácticos para combinar con tu próximo plan.
+          </p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {["Burgos", "Ávila", "Toledo", "Salamanca"].map((ciudad) => (
+              <Link key={ciudad} href={`/que-hacer/${slugCiudad(ciudad)}#guia-local`}
+                className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm transition hover:border-orange-400 hover:shadow-md">
+                <h3 className="text-xl font-bold text-slate-900">{ciudad}</h3>
+                <p className="mt-3 font-semibold text-orange-700">Ver guía y lugares →</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <div className="mt-20">
           <h2 className="text-3xl font-bold text-slate-900">
             Ciudades populares
