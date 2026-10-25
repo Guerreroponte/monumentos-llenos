@@ -2274,6 +2274,7 @@ ${url}`;
           </p>
         </div>
 
+        <div className="relative z-0 min-h-[650px]">
         <Mapa
           monumentos={monumentosFiltrados.map((m) => ({
             id: m.id,
@@ -2284,9 +2285,10 @@ ${url}`;
             longitud: m.longitud,
           }))}
         />
+        </div>
       </section>
 
-      <section id="participa" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+      <section id="participa" className="scroll-mt-28 mx-auto max-w-6xl px-4 pb-12 sm:px-6">
         <div className="rounded-3xl border border-orange-100 bg-white/95 p-6 shadow-lg shadow-orange-100">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-3xl">
