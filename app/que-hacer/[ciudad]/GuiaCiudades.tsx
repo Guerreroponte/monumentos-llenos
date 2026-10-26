@@ -2,6 +2,49 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "huesca": {
+  "intro": "Huesca en un día: combina el casco histórico, una visita cultural y un descanso en el parque Miguel Servet. Elige los interiores según sus horarios y deja el CDAN como una extensión con desplazamiento propio. El Museo Pedagógico permanece cerrado por reformas según el aviso oficial consultado el 25 de octubre de 2026; no cuentes con visitar su interior hasta que anuncie la reapertura.",
+  "sections": [
+    [
+      "Catedral y Museo de Huesca",
+      "Empieza por la [Catedral de Huesca](/lugar/catedral-de-huesca), en la parte alta del casco histórico, y comprueba qué incluye la entrada cultural antes de elegir museo o torre. Después puedes acercarte al [Museo de Huesca](/lugar/museo-de-huesca), en la plaza de la Universidad: su entrada es gratuita y reúne arqueología y bellas artes. Revisa las salas disponibles y recuerda que habitualmente cierra los lunes no festivos."
+    ],
+    [
+      "San Pedro el Viejo y las plazas del centro",
+      "Continúa hacia el [Monasterio de San Pedro el Viejo](/lugar/monasterio-san-pedro-el-viejo-huesca) para conocer su iglesia, claustro y panteón real. Consulta los horarios y la modalidad conjunta con la Catedral si quieres visitar ambos. Cerca está la plaza Luis López Allué y el [Museo Pedagógico de Aragón](/lugar/museo-pedagogico-aragon-huesca), actualmente cerrado por reformas. Puedes disfrutar del paseo por la plaza, pero deja la visita al museo para cuando confirme su reapertura."
+    ],
+    [
+      "Una pausa en el parque Miguel Servet",
+      "El [Parque Miguel Servet](/lugar/parque-miguel-servet-huesca) permite alternar monumentos con un paseo entre árboles. Busca Las Pajaritas de Ramón Acín y el entorno de la casita de Blancanieves. Pasear es gratuito; no presupongas que los servicios o actividades infantiles estén abiertos. Respeta las zonas señalizadas por obras y consulta los avisos municipales si hay meteorología adversa."
+    ],
+    [
+      "CDAN: una extensión fuera del casco histórico",
+      "Si te interesa el arte contemporáneo, añade el [CDAN – Centro de Arte y Naturaleza](/lugar/cdan-huesca), en la avenida del Doctor Artero. Organiza la ida y la vuelta como un trayecto aparte. El centro anuncia entrada gratuita y apertura de jueves a domingo: jueves y domingo hasta las 15:00, viernes y sábado hasta las 18:00. No lo reserves automáticamente para el final de la tarde. Comprueba excepciones y actividades, y consulta la agenda de esta página para completar el día."
+    ]
+  ],
+  "sources": [
+    [
+      "Catedral y San Pedro: visitas",
+      "https://www.museodiocesanohuesca.com/inicio"
+    ],
+    [
+      "Museo de Huesca",
+      "https://museodehuesca.es/horario/"
+    ],
+    [
+      "Aviso del Museo Pedagógico",
+      "https://museopedagogicodearagon.com/"
+    ],
+    [
+      "Parque Miguel Servet",
+      "https://turismo.hoyadehuesca.es/la-hoya-de-huesca/con-ninos/10-ideas-para-descubrir-con-ninos/8-los-secretos-del-parque-miguel-servet"
+    ],
+    [
+      "CDAN: horarios",
+      "https://www.cdan.es/horario/"
+    ]
+  ]
+},
   "burgos": {
     "intro": "Burgos en uno o dos días: combina la Catedral y el casco histórico con el paseo junto al Arlanzón y el Museo de la Evolución Humana. Si quieres visitar también Las Huelgas y Miraflores, reserva tiempo para sus desplazamientos y organiza primero las entradas con horario. Esta propuesta permite elegir interiores sin renunciar a disfrutar del paseo por la ciudad.",
     "sections": [
