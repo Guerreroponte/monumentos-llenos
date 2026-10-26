@@ -2,6 +2,49 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "tarragona": {
+  "intro": "Tarragona en uno o dos días: combina los restos de Tarraco con la Catedral, las calles de la Part Alta y un paseo junto al Mediterráneo. Organiza primero los recintos con entrada y deja el acueducto de les Ferreres como una salida aparte. Si viajas en lunes, consulta las aperturas antes de cerrar tu recorrido: varios monumentos municipales cierran habitualmente ese día.",
+  "sections": [
+    [
+      "Del anfiteatro al Circo y el Pretorio",
+      "Empieza por el [Anfiteatro romano](/lugar/anfiteatro-romano-tarragona), situado junto al mar, y continúa hacia el [Circo romano y el Pretorio](/lugar/circo-romano-pretorio-tarragona). Son visitas distintas que permiten conocer los espacios de espectáculos y el entorno monumental de Tarraco. Las entradas individuales cuestan 5 euros; si vas a recorrer varios recintos, compara la entrada conjunta de 15 euros del Museu d’Història. Consulta qué incluye y las condiciones vigentes antes de comprar."
+    ],
+    [
+      "Catedral y murallas en la Part Alta",
+      "Recorre las calles de la Part Alta y acércate a la [Catedral de Tarragona](/lugar/catedral-de-tarragona). Su entrada cultural es independiente de la conjunta municipal; elige la modalidad según los espacios que quieras conocer. Los domingos la visita turística comienza por la tarde. Reserva también tiempo para las [Murallas y el Paseo Arqueológico](/lugar/murallas-paseo-arqueologico-tarragona), un recorrido de pago entre jardines y vestigios de la ciudad romana. Comprueba los horarios estacionales y llega con margen respecto al último acceso."
+    ],
+    [
+      "Una pausa en el Balcón del Mediterráneo",
+      "Baja hacia la Rambla Nova y termina el paseo en el [Balcón del Mediterráneo](/lugar/balcon-mediterraneo-tarragona). Este mirador gratuito permite descansar con vistas al mar y acercarse a la barandilla de la tradición de tocar ferro. Puedes continuar por el paseo de les Palmeres. Es una parada flexible para alternar con los interiores y disfrutar de la ciudad sin llenar cada hora de visitas."
+    ],
+    [
+      "Les Ferreres: una salida fuera del centro",
+      "El [Acueducto de les Ferreres o Pont del Diable](/lugar/acueducto-ferreres-tarragona) está aproximadamente a cuatro kilómetros de la ciudad, junto al entorno de la N-240. Organiza la ida y la vuelta como un desplazamiento propio: no queda dentro del paseo por la Part Alta. El acceso es libre y gratuito. Lleva agua y calzado cómodo, respeta los caminos señalizados y consulta los avisos locales. Si solo dispones de un día, elige entre esta extensión y más tiempo en los recintos del centro. Consulta la agenda de esta página para completar la escapada."
+    ]
+  ],
+  "sources": [
+    [
+      "Museu d’Història: horarios",
+      "https://www.tarragona.cat/patrimoni/museu-historia/visites/horaris"
+    ],
+    [
+      "Entradas municipales",
+      "https://www.tarragona.cat/patrimoni/museu-historia/visites/preus-i-venda-dentrades"
+    ],
+    [
+      "Catedral: planifica la visita",
+      "https://catedraldetarragona.com/visita/"
+    ],
+    [
+      "Balcón del Mediterráneo",
+      "https://www.tarragonaturisme.cat/es/monumento/balcon-del-mediterraneo"
+    ],
+    [
+      "Acueducto de les Ferreres",
+      "https://www.tarragona.cat/patrimoni/museu-historia/monuments/laqueducte-del-francoli"
+    ]
+  ]
+},
   "cuenca": {
   "intro": "Cuenca en uno o dos días: recorre el casco histórico entre miradores, Casas Colgadas y la Catedral, y elige los museos según sus horarios. El Museo Paleontológico queda fuera de este paseo y merece un desplazamiento propio. Lleva calzado cómodo para las cuestas y reserva margen para disfrutar de las vistas sin encadenar visitas con prisas.",
   "sections": [
