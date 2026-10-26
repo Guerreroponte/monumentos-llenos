@@ -2,6 +2,49 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "girona": {
+  "intro": "Girona en uno o dos días: descubre el Barri Vell entre la Catedral, el Call y las murallas, y reserva tiempo para los pequeños interiores históricos. Puedes enlazar estas visitas a pie, pero encontrarás escaleras y desniveles. Organiza primero los recintos con horario y deja margen para pasear junto al Onyar.",
+  "sections": [
+    [
+      "Catedral y Sant Feliu con entrada conjunta",
+      "Empieza por la [Catedral de Girona](/lugar/catedral-de-girona), con su gran nave gótica, el claustro y el tesoro. La visita cultural tiene horarios estacionales y puede adaptarse a celebraciones religiosas; los domingos comienza más tarde. Continúa hacia la [Basílica de Sant Feliu](/lugar/basilica-sant-feliu-girona), reconocible por su campanario. Antes de comprar, consulta la entrada Girona Monumental, que reúne ambos templos, o Girona Episcopal si también quieres visitar el Museu d’Art. Comprueba qué incluye cada modalidad y evita comprar dos entradas por separado sin comparar."
+    ],
+    [
+      "El Call: calles para recorrer sin prisas",
+      "Dedica un tramo del paseo a [El Call, el barrio judío](/lugar/barrio-judio-el-call-girona), en el entorno de la calle de la Força. Sus callejones y escaleras invitan a recorrer el casco antiguo despacio. Pasear por las calles públicas es gratuito; el Museu d’Història dels Jueus es una visita independiente, con su propia entrada y horario. Respeta los accesos privados y no cuentes con entrar en todos los patios. Alterna las calles más estrechas con una pausa en las plazas del centro."
+    ],
+    [
+      "Baños Árabes y Sant Pere de Galligants",
+      "Acércate a los [Baños Árabes](/lugar/banos-arabes-girona), un edificio histórico que se visita como monumento: no es un balneario en funcionamiento. La entrada general es de 3 euros; los domingos y festivos el cierre es a las 14:00. Muy cerca está el [Monasterio de Sant Pere de Galligants](/lugar/monasterio-sant-pere-galligants-girona), sede del MAC Girona. El museo anuncia el cierre de su exposición permanente para 2025–2026. Consulta qué espacios del monasterio están abiertos, la tarifa y las actividades antes de organizar esta visita; el aviso no implica por sí solo el cierre de todo el conjunto."
+    ],
+    [
+      "Murallas y vistas sobre Girona",
+      "Reserva una franja para recorrer las [Murallas de Girona](/lugar/murallas-de-girona) y observar los tejados y campanarios desde el paseo elevado. Hay escaleras y tramos irregulares, por lo que conviene llevar calzado cómodo y adaptar el recorrido a la movilidad del grupo. Consulta los accesos y horarios municipales del día. Completa la escapada con un paseo junto al Onyar y revisa la agenda de esta página. Si solo tienes un día, prioriza los interiores que más te interesen para disfrutar del recorrido sin prisas."
+    ]
+  ],
+  "sources": [
+    [
+      "Catedral: visita cultural y entradas",
+      "https://catedraldegirona.cat/es/catedral-de-girona-visita-cultural/"
+    ],
+    [
+      "Baños Árabes: horarios y precios",
+      "https://www.banysarabs.cat/es/horarios-y-precios/"
+    ],
+    [
+      "Girona Turisme: El Call",
+      "https://www.girona.cat/turisme/esp/monuments_call.php"
+    ],
+    [
+      "Girona Turisme: murallas",
+      "https://www.girona.cat/turisme/esp/monuments_muralla.php"
+    ],
+    [
+      "MAC Girona: avisos y visita",
+      "https://www.macgirona.cat/"
+    ]
+  ]
+},
   "tarragona": {
   "intro": "Tarragona en uno o dos días: combina los restos de Tarraco con la Catedral, las calles de la Part Alta y un paseo junto al Mediterráneo. Organiza primero los recintos con entrada y deja el acueducto de les Ferreres como una salida aparte. Si viajas en lunes, consulta las aperturas antes de cerrar tu recorrido: varios monumentos municipales cierran habitualmente ese día.",
   "sections": [
