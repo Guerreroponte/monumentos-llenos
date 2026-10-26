@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "cuenca": {
+  "intro": "Cuenca en uno o dos días: recorre el casco histórico entre miradores, Casas Colgadas y la Catedral, y elige los museos según sus horarios. El Museo Paleontológico queda fuera de este paseo y merece un desplazamiento propio. Lleva calzado cómodo para las cuestas y reserva margen para disfrutar de las vistas sin encadenar visitas con prisas.",
+  "sections": [
+    [
+      "Plaza Mayor y Catedral",
+      "Empieza en la Plaza Mayor y visita la [Catedral de Cuenca](/lugar/catedral-de-cuenca) si te interesa conocer su interior gótico. Comprueba qué incluye cada entrada: el triforio y otros espacios tienen modalidades específicas. Consulta el horario del día, porque cambia por temporada y puede adaptarse a celebraciones religiosas. Antes de continuar, dedica un rato a observar la plaza y la fachada del Ayuntamiento."
+    ],
+    [
+      "Casas Colgadas, arte y puente de San Pablo",
+      "Acércate a las [Casas Colgadas](/lugar/casas-colgadas-cuenca) y cruza el [Puente de San Pablo](/lugar/puente-san-pablo-cuenca) para contemplar el conjunto sobre la hoz del Huécar. Ver el exterior es gratuito. Dentro de parte de las casas está el [Museo de Arte Abstracto Español](/lugar/museo-arte-abstracto-espanol-cuenca), también gratuito, con obras de la colección de la Fundación Juan March. Organiza esta parada según su apertura: cierra habitualmente los lunes y el domingo abre por la mañana."
+    ],
+    [
+      "Un paseo hasta Mangana",
+      "Continúa hacia la [Plaza y Torre de Mangana](/lugar/plaza-torre-mangana-cuenca), donde puedes disfrutar del reloj, los restos históricos y los miradores. La propuesta es recorrer la plaza y contemplar la torre desde fuera; no cuentes con subir a su interior sin una confirmación de apertura. Es una buena pausa entre visitas culturales. Ajusta el recorrido a tu ritmo y ten en cuenta los desniveles del casco antiguo."
+    ],
+    [
+      "Dinosaurios en el MUPA y tiempo para la agenda",
+      "Reserva otra franja para el [Museo Paleontológico de Castilla-La Mancha](/lugar/museo-paleontologico-cuenca), en la calle Río Gritos. Calcula la ida y la vuelta: no está junto a la Catedral. Cierra los lunes y los domingos abre solo por la mañana. La entrada general es de 5 euros, con gratuidades sujetas a condiciones; algunas actividades y exposiciones se pagan aparte. Si solo tienes un día, elige los interiores que más te interesen. Consulta la agenda de esta página para completar la escapada con un evento."
+    ]
+  ],
+  "sources": [
+    [
+      "Catedral: entradas y modalidades",
+      "https://www.catedralcuenca.es/es/visitas-turisticas/tarifas"
+    ],
+    [
+      "Casas Colgadas",
+      "https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/monumentos/cuenca/casas-colgadas-de-cuenca"
+    ],
+    [
+      "Puente de San Pablo",
+      "https://descubrecuenca.es/es/enclaves-y-poblaciones/la-capital/cuenca-puente-de-san-pablo-y-hoz-del-rio-huecar-112"
+    ],
+    [
+      "Museo de Arte Abstracto Español",
+      "https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/museos/cuenca/museo-de-arte-abstracto-espanol"
+    ],
+    [
+      "Torre de Mangana",
+      "https://www.turismocastillalamancha.es/es/cultura-y-patrimonio/monumentos/cuenca/torre-de-mangana"
+    ],
+    [
+      "MUPA: horarios y tarifas",
+      "https://mupaclm.es/horarios/"
+    ]
+  ]
+},
   "huesca": {
   "intro": "Huesca en un día: combina el casco histórico, una visita cultural y un descanso en el parque Miguel Servet. Elige los interiores según sus horarios y deja el CDAN como una extensión con desplazamiento propio. El Museo Pedagógico permanece cerrado por reformas según el aviso oficial consultado el 25 de octubre de 2026; no cuentes con visitar su interior hasta que anuncie la reapertura.",
   "sections": [
