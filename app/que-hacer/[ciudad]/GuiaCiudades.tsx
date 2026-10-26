@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "cadiz": {
+  "intro": "Cádiz en uno o dos días: combina el barrio del Pópulo y la Catedral con las vistas de Torre Tavira, los castillos de La Caleta y un paseo por el Parque Genovés. Reserva primero la sesión de la Cámara Oscura y organiza los interiores según sus horarios. El centro histórico se presta a recorrerlo a pie, dejando tiempo para descansar junto al mar.",
+  "sections": [
+    [
+      "Catedral y pasado romano en el Pópulo",
+      "Empieza en la plaza de la [Catedral de Cádiz](/lugar/catedral-de-cadiz) y recorre las calles del Pópulo. La entrada cultural general a la Catedral cuesta 12 euros; consulta las condiciones y los horarios propios de la Torre del Reloj y de la Casa de la Contaduría. Los domingos la visita turística al templo empieza a las 13:30. Muy cerca está el [Teatro Romano y su centro de interpretación](/lugar/teatro-romano-cadiz). Actualmente, las obras restringen el acceso al yacimiento, mientras el centro de interpretación permanece abierto en la calle Mesón, 11–13. Confirma la situación antes de ir; la entrada es libre y el aforo limitado."
+    ],
+    [
+      "Torre Tavira con reserva previa",
+      "Continúa hacia la [Torre Tavira](/lugar/torre-tavira-cadiz), cerca del Mercado Central y la plaza de las Flores. La visita combina salas, mirador y una sesión guiada de Cámara Oscura que muestra imágenes de la ciudad en tiempo real. La tarifa general es de 8 euros y la visita dura unos 45 minutos. Es imprescindible reservar con antelación: elige el horario y el idioma de la sesión antes de organizar el resto del día. Ten en cuenta que el acceso no está adaptado; consulta las condiciones si alguien del grupo tiene movilidad reducida."
+    ],
+    [
+      "La Caleta y sus dos castillos",
+      "Acércate a La Caleta y visita el [Castillo de Santa Catalina](/lugar/castillo-santa-catalina-cadiz), una fortificación que hoy acoge exposiciones y actividades culturales. La entrada habitual es libre, salvo actos anunciados con condiciones propias. El [Castillo de San Sebastián](/lugar/castillo-san-sebastian-cadiz) está en el otro extremo, al final del paseo Fernando Quiñones. Calcula tiempo para caminar hasta él y regresar. Su entrada es gratuita, pero los horarios y el acceso pueden cambiar por la meteorología. Consulta los avisos del día y respeta cualquier cierre del paseo."
+    ],
+    [
+      "Parque Genovés y una pausa junto al mar",
+      "Reserva otro tramo para el [Parque Genovés](/lugar/parque-genoves-cadiz), con sus paseos ajardinados, árboles recortados y el entorno del estanque y la cascada. Es una buena pausa entre visitas y permite continuar por el borde marítimo. Su horario cambia en verano y puede modificarse por el tiempo. Si dispones de dos días, reparte las visitas interiores y los paseos para recorrerlos con calma. Consulta la agenda de esta página para completar la escapada con conciertos, teatro u otros planes de Cádiz."
+    ]
+  ],
+  "sources": [
+    [
+      "Catedral: horarios y tarifas",
+      "https://catedraldecadiz.com/horarios-visita-turistica/"
+    ],
+    [
+      "Torre Tavira: reservas y tarifas",
+      "https://torretavira.com/horarios-tarifas-y-localizacion"
+    ],
+    [
+      "Teatro Romano: aviso de obras y visita",
+      "https://www.juntadeandalucia.es/aaiicc/enclaves/enclave-arqueologico-teatro-romano-de-cadiz"
+    ],
+    [
+      "Castillo de Santa Catalina",
+      "https://turismo.cadiz.es/es/rutas-y-visitas-en-cadiz/castillo-de-santa-catalina"
+    ],
+    [
+      "Castillo de San Sebastián",
+      "https://turismo.cadiz.es/es/rutas-y-visitas-en-cadiz/castillo-de-san-sebastian"
+    ],
+    [
+      "Parque Genovés",
+      "https://turismo.cadiz.es/es/rutas-y-visitas-en-cadiz/parque-genoves"
+    ]
+  ]
+},
   "girona": {
   "intro": "Girona en uno o dos días: descubre el Barri Vell entre la Catedral, el Call y las murallas, y reserva tiempo para los pequeños interiores históricos. Puedes enlazar estas visitas a pie, pero encontrarás escaleras y desniveles. Organiza primero los recintos con horario y deja margen para pasear junto al Onyar.",
   "sections": [
