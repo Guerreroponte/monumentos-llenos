@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "almeria": {
+  "intro": "Almería en uno o dos días: combina la Alcazaba y la Catedral con el Museo de la Guitarra y un paseo por el Cable Inglés. Deja la Casa del Cine para una franja con tiempo para desplazarte. Los Refugios de la Guerra Civil están cerrados temporalmente: su ficha sirve para conocer el lugar y consultar avisos, pero no los incluyas como visita interior hasta que se anuncie su reapertura.",
+  "sections": [
+    [
+      "La Alcazaba y el casco histórico",
+      "Empieza por la [Alcazaba de Almería](/lugar/alcazaba-de-almeria), situada sobre un cerro con vistas a la ciudad y al puerto. Recorre sus jardines y recintos con calzado cómodo y agua, especialmente cuando haga calor. La visita individual no necesita reserva; las visitas guiadas sí. La entrada es gratuita para ciudadanos de la Unión Europea acreditados y cuesta 1,50 euros para visitantes de otros países. El horario cambia por temporada y los lunes suele cerrar, con excepciones festivas. Baja después hacia las calles del centro para continuar el paseo."
+    ],
+    [
+      "Catedral y Museo de la Guitarra",
+      "Dedica otra franja a la [Catedral de Almería](/lugar/catedral-de-almeria), una catedral-fortaleza cuya entrada turística está en la calle Velázquez. La entrada general es de 8 euros; comprueba qué incluye cada modalidad y los horarios especiales por culto. Muy cerca está el [Museo de la Guitarra Antonio de Torres](/lugar/museo-guitarra-almeria), que anuncia entrada gratuita. Cierra los lunes y los domingos abre por la mañana. Es una combinación cómoda de arquitectura y música sin grandes desplazamientos entre ambas visitas."
+    ],
+    [
+      "Cable Inglés y aviso sobre los Refugios",
+      "Acércate al [Cable Inglés](/lugar/cable-ingles-almeria) para conocer el antiguo cargadero de mineral y disfrutar del mirador junto al mar. El recorrido elevado es gratuito, sujeto a horario y aforo; accede desde el entorno del Parque de la Estación. Los [Refugios de la Guerra Civil](/lugar/refugios-guerra-civil-almeria), en cambio, permanecen cerrados temporalmente. El Ayuntamiento ha anunciado nuevas obras de mejora y no hay una reapertura confirmada en las fuentes consultadas. No reserves tiempo para entrar ni te guíes por horarios antiguos: revisa el aviso oficial antes de organizar una visita futura."
+    ],
+    [
+      "Casa del Cine y un segundo día",
+      "La [Casa del Cine](/lugar/casa-del-cine-almeria) está en Camino Romero, fuera del recorrido inmediato por el casco histórico. Reserva tiempo para ir y volver, en lugar de tratarla como una parada contigua a la Catedral. La entrada general es de 3 euros y el museo recuerda los rodajes en Almería y la estancia de John Lennon. Cierra los lunes; consulta los horarios y la reserva de visitas guiadas. Si solo tienes un día, elige los interiores que más te interesen. Con dos días podrás repartirlos con calma y completar la estancia con los eventos de esta página."
+    ]
+  ],
+  "sources": [
+    [
+      "Alcazaba de Almería: información práctica",
+      "https://www.museosdeandalucia.es/web/conjuntomonumentallaalcazabaalmeria/informacion-general"
+    ],
+    [
+      "Catedral de Almería: información práctica",
+      "https://catedralalmeria.com/horarios-y-tarifas-de-la-visita/"
+    ],
+    [
+      "Refugios de la Guerra Civil de Almería: información práctica",
+      "https://almeriaciudad.es/actualidad/el-ayuntamiento-reactiva-las-obras-de-mejora-de-los-refugios-de-la-guerra-civil-mediante"
+    ],
+    [
+      "Cable Inglés de Almería: información práctica",
+      "https://www.turismodealmeria.org/lugar/el-cable-ingles/"
+    ],
+    [
+      "Museo de la Guitarra Antonio de Torres: información práctica",
+      "https://www.museosalmeria.com/museo/museo-de-la-guitarra-antonio/"
+    ],
+    [
+      "Casa del Cine de Almería: información práctica",
+      "https://www.museosalmeria.com/museo/la-casa-del-cine/"
+    ]
+  ]
+},
   "cadiz": {
   "intro": "Cádiz en uno o dos días: combina el barrio del Pópulo y la Catedral con las vistas de Torre Tavira, los castillos de La Caleta y un paseo por el Parque Genovés. Reserva primero la sesión de la Cámara Oscura y organiza los interiores según sus horarios. El centro histórico se presta a recorrerlo a pie, dejando tiempo para descansar junto al mar.",
   "sections": [
