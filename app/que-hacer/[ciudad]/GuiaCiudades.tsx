@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "lleida": {
+  "intro": "Lleida en uno o dos días: empieza por la Seu Vella, recorre el centro entre la Paeria y la Catedral Nueva y elige un museo según tus intereses. Reserva una franja aparte para Gardeny, situado en otra colina. Organiza las visitas con horario antes de completar el paseo y comprueba los cierres estacionales.",
+  "sections": [
+    [
+      "La Seu Vella y las vistas de la ciudad",
+      "Dedica la primera parte del día a la [Seu Vella](/lugar/seu-vella-lleida), la antigua catedral sobre el cerro. El claustro y las vistas merecen una visita sin prisas. Lleva calzado cómodo para los desniveles y consulta las condiciones del campanario antes de incluirlo. La entrada general anunciada es de 7 euros y los horarios varían por temporada. Comprueba la apertura si viajas en lunes."
+    ],
+    [
+      "Del Palacio de la Paeria a la Catedral Nueva",
+      "Baja al centro para enlazar el [Palacio de la Paeria](/lugar/palacio-paeria-lleida), sede municipal, con la [Catedral Nueva](/lugar/catedral-nueva-lleida). Ambas visitas tienen entrada gratuita. La disponibilidad de las salas del palacio depende de su uso y la catedral mantiene celebraciones religiosas. Aprovecha el recorrido por el eje comercial para hacer una pausa; la catedral del centro y la Seu Vella son dos edificios diferentes."
+    ],
+    [
+      "Dos museos para elegir",
+      "El [Museo de Lleida](/lugar/museo-de-lleida), en Sant Crist, 1, ofrece arqueología y arte para entender el territorio. El [MORERA](/lugar/museo-morera-lleida), en Rambla de Ferran, 13, se centra en arte moderno y contemporáneo. La entrada general anunciada es de 5 euros en cada museo. El MORERA ofrece acceso gratuito el primer martes del mes. Consulta la programación y los horarios de cada uno; si solo tienes un día, elige el que mejor encaje con tus intereses."
+    ],
+    [
+      "Gardeny y un segundo día",
+      "El [Castillo templario de Gardeny](/lugar/castillo-templario-gardeny) está en una colina distinta a la Seu Vella. Deja margen para desplazarte y conocer su pasado templario. La entrada general es de 3 euros y suele abrir de miércoles a domingo y festivos. Atención al calendario: Turismo de Lleida anuncia cierre del 14 de diciembre de 2026 al 12 de enero de 2027, con condiciones aparte para las visitas guiadas de fin de semana. Confirma la disponibilidad antes de ir. Con dos días puedes repartir las colinas y los museos y añadir algún evento de la agenda."
+    ]
+  ],
+  "sources": [
+    [
+      "Seu Vella de Lleida: información práctica",
+      "https://www.lleidaturisme.cat/ca/visitar/patrimoni/conjunt-monumental-de-la-seu-vella-i-castell-del-rei-suda"
+    ],
+    [
+      "Castillo templario de Gardeny: información práctica",
+      "https://www.lleidaturisme.cat/ca/visitar/patrimoni/castell-templer-de-gardeny"
+    ],
+    [
+      "Catedral Nueva de Lleida: información práctica",
+      "https://www.lleidaturisme.cat/ca/visitar/patrimoni/la-catedral-nova"
+    ],
+    [
+      "Palacio de la Paeria: información práctica",
+      "https://www.lleidaturisme.cat/ca/visitar/patrimoni/el-palau-de-la-paeria"
+    ],
+    [
+      "Museo de Lleida: información práctica",
+      "https://www.lleidaturisme.cat/ca/visitar/museus/museu-de-lleida"
+    ],
+    [
+      "MORERA. Museo de Arte Moderno y Contemporáneo de Lleida: información práctica",
+      "https://www.lleidaturisme.cat/ca/visitar/museus/museu-dart-jaume-morera"
+    ]
+  ]
+},
   "almeria": {
   "intro": "Almería en uno o dos días: combina la Alcazaba y la Catedral con el Museo de la Guitarra y un paseo por el Cable Inglés. Deja la Casa del Cine para una franja con tiempo para desplazarte. Los Refugios de la Guerra Civil están cerrados temporalmente: su ficha sirve para conocer el lugar y consultar avisos, pero no los incluyas como visita interior hasta que se anuncie su reapertura.",
   "sections": [
