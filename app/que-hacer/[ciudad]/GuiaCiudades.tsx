@@ -2,6 +2,57 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+  "guadalajara": {
+  "intro": "Guadalajara en uno o dos días: empieza por el Palacio del Infantado y el torreón de Álvar Fáñez, continúa por la Cotilla y el entorno de Santa María y reserva una franja para el panteón de la condesa de la Vega del Pozo. Para entrar en los monumentos municipales, organiza preferentemente la visita en viernes, fin de semana o festivo y confirma el calendario antes de salir.",
+  "sections": [
+    [
+      "El Infantado y el torreón de Álvar Fáñez",
+      "Comienza por el [Palacio del Infantado](/lugar/palacio-infantado-guadalajara), su fachada y el Patio de los Leones. El patio y el claustro superior son gratuitos; el Museo de Guadalajara anuncia entrada temporalmente gratuita, aunque conserva una tarifa ordinaria publicada de 3 euros. Consulta las condiciones vigentes y recuerda que cierra los lunes. Cerca está el [Torreón de Álvar Fáñez](/lugar/torreon-alvar-fanez-guadalajara), con una entrada publicada de 1 euro y apertura turística concentrada en viernes, fines de semana y festivos."
+    ],
+    [
+      "La Cotilla y la capilla de Luis de Lucena",
+      "El [Palacio de la Cotilla y su Salón Chino](/lugar/palacio-cotilla-guadalajara) y la [Capilla de Luis de Lucena](/lugar/capilla-luis-lucena-guadalajara) aportan dos interiores muy diferentes: decoración sobre papel de arroz y pinturas en las bóvedas de una capilla del siglo XVI. Cada entrada publicada cuesta 1 euro. Ambos anuncian visitas los viernes y sábados por la mañana y por la tarde, y los domingos y festivos por la mañana. El horario de tarde cambia con la temporada: reserva y confirma la apertura antes de organizar el recorrido."
+    ],
+    [
+      "Santa María y el paseo por el centro",
+      "La [Concatedral de Santa María](/lugar/concatedral-santa-maria-guadalajara) permite completar el paseo junto a la capilla de Lucena. La entrada es libre y la disponibilidad depende de las celebraciones religiosas. Deja margen para recorrer las calles del centro y descansar entre visitas. Si viajas de lunes a jueves, no cuentes con entrar en todos los monumentos municipales: combina los exteriores con los espacios cuya apertura hayas confirmado."
+    ],
+    [
+      "El panteón y un segundo día",
+      "Dedica otra franja al [Panteón de la condesa de la Vega del Pozo](/lugar/panteon-vega-pozo-guadalajara), también conocido como Panteón de la Duquesa de Sevillano, junto al entorno de San Roque. Su tarifa individual publicada es de 3 euros y los miércoles es gratuito. La reserva gratuita en línea no equivale a entrada gratuita el resto de días: el pago se realiza en el monumento. Consulta los horarios estacionales y las condiciones de acceso, que incluyen escaleras. Con dos días puedes repartir las visitas interiores y añadir un evento de la agenda."
+    ]
+  ],
+  "sources": [
+    [
+      "Palacio del Infantado: información práctica",
+      "https://turismo.guadalajara.es/es/organiza-tu-viaje/monumentos/palacio-del-infantado/"
+    ],
+    [
+      "Palacio de la Cotilla y Salón Chino: información práctica",
+      "https://turismo.guadalajara.es/es/organiza-tu-viaje/monumentos/palacio-de-la-cotilla-y-salon-chino/"
+    ],
+    [
+      "Capilla de Luis de Lucena: información práctica",
+      "https://turismo.guadalajara.es/es/organiza-tu-viaje/monumentos/capilla-de-luis-de-lucena/"
+    ],
+    [
+      "Concatedral de Santa María de Guadalajara: información práctica",
+      "https://turismo.guadalajara.es/es/organiza-tu-viaje/monumentos/concatedral-de-santa-maria/"
+    ],
+    [
+      "Torreón de Álvar Fáñez: información práctica",
+      "https://turismo.guadalajara.es/es/organiza-tu-viaje/monumentos/torreon-de-alvar-fanez/"
+    ],
+    [
+      "Panteón de la condesa de la Vega del Pozo: información práctica",
+      "https://turismo.guadalajara.es/es/organiza-tu-viaje/monumentos/panteon-de-la-condesa-de-la-vega-del-pozo/"
+    ],
+    [
+      "Museo de Guadalajara: horarios y tarifas",
+      "https://cultura.castillalamancha.es/index.php/museos/nuestros-museos/museo-de-guadalajara"
+    ]
+  ]
+},
   "lleida": {
   "intro": "Lleida en uno o dos días: empieza por la Seu Vella, recorre el centro entre la Paeria y la Catedral Nueva y elige un museo según tus intereses. Reserva una franja aparte para Gardeny, situado en otra colina. Organiza las visitas con horario antes de completar el paseo y comprueba los cierres estacionales.",
   "sections": [
