@@ -12,14 +12,20 @@ const cargarCiudades = unstable_cache(async () => {
       .order("id", { ascending: true }).range(offset, offset + tamano - 1);
     if (error) throw error;
     for (const lugar of data || []) {
-      const ciudad = claveCiudad(lugar.ciudad);
-      if (ciudad) ciudades.add(ciudad);
+      if (lugar.ciudad && claveCiudad(lugar.ciudad)) ciudades.add(lugar.ciudad);
     }
     if (!data || data.length < tamano) return [...ciudades];
   }
-}, ["ciudades-con-lugares-v1"], { revalidate: 60 });
+}, ["nombres-ciudades-con-lugares-v2"], { revalidate: 60 });
 
 export async function ciudadesConLugares(): Promise<string[]> {
-  try { return await cargarCiudades(); }
+  try { return [...new Set((await cargarCiudades()).map(claveCiudad))]; }
   catch { return []; } // Una alternativa opcional nunca debe impedir mostrar la agenda.
+}
+
+// Conserva los valores originales para filtrar en SQL sin perder tildes o alias.
+export async function nombresLugaresCiudad(ciudad: string): Promise<string[]> {
+  const clave = claveCiudad(ciudad);
+  if (!clave) return [];
+  return (await cargarCiudades()).filter(nombre => claveCiudad(nombre) === clave);
 }

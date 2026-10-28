@@ -35,19 +35,19 @@ function load(relative, db) {
 function database(tables, failingTable) {
   const reads = [];
   return { reads, from(table) {
-    let rows = [...(tables[table === 'resenas_publicas_ligeras' ? 'resenas' : table] || [])], single = false;
+    let rows = [...(tables[table === 'resenas_publicas_ligeras' ? 'resenas' : table] || [])], single = false, count = null, columns;
     const query = {
-      select() { return query; },
+      select(value) { columns = value; return query; },
       eq(key, value) { rows = rows.filter(row => row[key] === value); return query; },
       in(key, values) { rows = rows.filter(row => values.includes(row[key])); return query; },
       or() { rows = rows.filter(row => row.reportado !== true); return query; },
       not(key) { rows = rows.filter(row => row[key] != null); return query; },
       order() { return query; },
-      range(start, end) { rows = rows.slice(start, end + 1); reads.push({ table, start, end }); return query; },
+      range(start, end) { count = rows.length; rows = rows.slice(start, end + 1); reads.push({ table, start, end, columns, returned: rows.length }); return query; },
       limit(count) { rows = rows.slice(0, count); return query; },
       maybeSingle() { single = true; return query; },
       then(resolve, reject) {
-        return Promise.resolve({ data: single ? rows[0] || null : rows, error: table === failingTable ? new Error('offline') : null }).then(resolve, reject);
+        return Promise.resolve({ data: single ? rows[0] || null : rows, count, error: table === failingTable ? new Error('offline') : null }).then(resolve, reject);
       },
     };
     return query;
@@ -442,4 +442,37 @@ test('Las Médulas only appears as happening today on confirmed performance date
   assert.equal(eventoEnFecha('2026-09-26','2026-10-24','2026-10-15',calendar),false);
   assert.equal(eventoEnFecha('2026-09-26','2026-10-24','2026-10-16',calendar),true);
   assert.equal(eventoEnFecha('2026-09-26','2026-10-24','2026-10-25',calendar),false);
+});
+
+
+test("city places download only selected city, keep accents and total beyond eight", async () => {
+  const rows = [...Array.from({length:12},(_,i)=>({id:`a-${i}`,ciudad:i%2 ? "Ávila" : " AVILA ",reportado:false})),
+    ...Array.from({length:510},(_,i)=>({id:`m-${i}`,ciudad:"Madrid",reportado:false})),
+    {id:"hidden",ciudad:"Ávila",reportado:true}, {id:"null",ciudad:"Ávila",reportado:null},
+    {id:"near",ciudad:"Avilés",reportado:false}];
+  const db=database({Monumentos:rows});
+  const {cargarLugaresCiudad}=load("lib/lugares-ciudad-data.ts",db);
+  const result=await cargarLugaresCiudad("avila");
+  assert.equal(result.total,12);
+  assert.deepEqual(result.items.map(r=>r.id), rows.slice(0,8).map(r=>r.id));
+  const details=db.reads.filter(r=>r.columns!=="ciudad");
+  assert.equal(details.length,1);
+  assert.equal(details[0].returned,8);
+  assert.equal((await cargarLugaresCiudad("avila",true)).items.length,12);
+  assert.deepEqual(await cargarLugaresCiudad("sin-lugares"),{items:[],total:0});
+});
+
+test("city places retain aliases, paginate all and propagate query failures", async () => {
+  const rows=Array.from({length:1005},(_,i)=>({id:String(i),ciudad:i%2 ? "San Sebastián" : "Donostia-San Sebastián",reportado:false}));
+  rows.push({id:"other",ciudad:"San Sebastián de los Reyes",reportado:false});
+  const db=database({Monumentos:rows});
+  const {cargarLugaresCiudad}=load("lib/lugares-ciudad-data.ts",db);
+  const result=await cargarLugaresCiudad("donostia",true);
+  assert.equal(result.total,1005);
+  assert.equal(result.items.length,1005);
+  assert.equal(new Set(result.items.map(r=>r.id)).size,1005);
+  assert.ok(!result.items.some(r=>r.id==="other"));
+  assert.deepEqual(db.reads.filter(r=>r.columns!=="ciudad").map(r=>r.start),[0,1000]);
+  const failing=load("lib/lugares-ciudad-data.ts",database({},"Monumentos"));
+  await assert.rejects(failing.cargarLugaresCiudad("madrid"),/offline/);
 });

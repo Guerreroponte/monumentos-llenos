@@ -1,3 +1,4 @@
+import { cargarLugaresCiudad } from "@/lib/lugares-ciudad-data";
 import { nombreCiudad, claveCiudad } from "@/lib/ciudad-identidad";
 import GuiaCiudades, { tieneGuiaCiudad } from "./GuiaCiudades";
 import { compararAgenda, fechaAgenda, eventoVigente } from "@/lib/agenda-ui";
@@ -20,18 +21,6 @@ type Evento = {
   fecha_fin: string | null;
   imagen: string | null;
   subtipo: string | null;
-};
-
-type Lugar = {
-  id: string;
-  nombre: string | null;
-  slug: string | null;
-  ciudad: string | null;
-  imagen: string | null;
-  imagen_fullback: string | null;
-  descripcion: string | null;
-  rating: number | null;
-  rating_fuente?: string | null;
 };
 
 type Colaborador = {
@@ -147,58 +136,6 @@ async function cargarEventosCiudad(
   return { items: encontrados.sort((a, b) => compararAgenda({ inicio: a.fecha_inicio, fin: a.fecha_fin }, { inicio: b.fecha_inicio, fin: b.fecha_fin })).slice(0, 8), total: encontrados.length };
 }
 
-async function cargarLugaresCiudad(
-  ciudadNormalizada: string,
-  mostrarTodos = false
-): Promise<{ items: Lugar[]; total: number }> {
-  const encontrados: Lugar[] = [];
-  let desde = 0;
-
-  while (true) {
-    const hasta =
-      desde + TAMANO_PAGINA - 1;
-
-    const { data, error } = await supabase
-      .from("Monumentos")
-      .select(
-        "id,nombre,slug,ciudad,imagen,imagen_fullback,descripcion,rating,rating_fuente"
-      )
-      .eq("reportado", false)
-      .order("created_at", {
-        ascending: false,
-      })
-      .order("id", { ascending: true })
-      .range(desde, hasta);
-
-    if (error) {
-      console.error(
-        "Error cargando lugares de la ciudad:",
-        error
-      );
-      break;
-    }
-
-    const pagina = (data || []) as Lugar[];
-
-    encontrados.push(
-      ...pagina.filter(
-        (lugar) =>
-          lugar.ciudad &&
-          normalizarCiudad(lugar.ciudad) ===
-            ciudadNormalizada
-      )
-    );
-
-    if (pagina.length < TAMANO_PAGINA) {
-      break;
-    }
-
-    desde += TAMANO_PAGINA;
-  }
-
-  return { items: mostrarTodos ? encontrados : encontrados.slice(0, 8), total: encontrados.length };
-}
-
 async function cargarColaboradoresCiudad(
   ciudadNormalizada: string
 ): Promise<{ items: Colaborador[]; total: number }> {
@@ -266,11 +203,15 @@ export default async function CiudadPage({
     colaboradoresCiudad,
   ] = await Promise.all([
     cargarEventosCiudad(ciudadSlug),
-    cargarLugaresCiudad(ciudadSlug, mostrarTodosLugares),
+    cargarLugaresCiudad(ciudadSlug, mostrarTodosLugares).then((resultado) => ({ ...resultado, error: false })).catch((error) => {
+      console.error("Error cargando lugares de la ciudad:", error);
+      return { items: [], total: 0, error: true };
+    }),
     cargarColaboradoresCiudad(
       ciudadSlug
     ),
   ]);
+  const errorLugares = lugaresCiudad.error;
 
   const eventos = eventosCiudad.items;
   const lugares = lugaresCiudad.items;
@@ -526,13 +467,17 @@ export default async function CiudadPage({
               </h2>
             </div>
 
-            <Link
+            {!errorLugares && <Link
               href={`/que-hacer/${ciudadSlug}${mostrarTodosLugares ? "" : "?lugares=todos"}#lugares`}
               className="text-sm font-bold text-orange-600 hover:text-orange-700"
             >
               {mostrarTodosLugares ? "Ver selección de lugares →" : `Ver los ${lugaresCiudad.total} lugares →`}
-            </Link>
+            </Link>}
           </div>
+
+          {errorLugares && <p role="status" className="mt-6 text-slate-600">
+            No hemos podido cargar los lugares en este momento. <a className="font-semibold text-orange-600 underline" href={`/que-hacer/${ciudadSlug}${mostrarTodosLugares ? "?lugares=todos" : ""}#lugares`}>Volver a intentarlo</a>
+          </p>}
 
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {lugares.map(
