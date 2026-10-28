@@ -173,7 +173,7 @@ export default function QueHacerPage({ ciudadesDisponibles, errorCiudades = fals
             Ideas de rutas, visitas y consejos prácticos para combinar con tu próximo plan.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {["Guadalajara", "Lleida", "Almería", "Cádiz", "Girona", "Tarragona", "Cuenca", "Huesca", "Burgos", "Ávila", "Toledo", "Salamanca"].map((ciudad) => (
+            {["Huelva", "Guadalajara", "Lleida", "Almería", "Cádiz", "Girona", "Tarragona", "Cuenca", "Huesca", "Burgos", "Ávila", "Toledo", "Salamanca"].map((ciudad) => (
               <Link key={ciudad} href={`/que-hacer/${slugCiudad(ciudad)}#guia-local`}
                 className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm transition hover:border-orange-400 hover:shadow-md">
                 <h3 className="text-xl font-bold text-slate-900">{ciudad}</h3>

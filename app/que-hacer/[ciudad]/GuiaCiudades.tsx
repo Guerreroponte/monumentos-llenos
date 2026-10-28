@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"huelva": {
+  "intro": "Huelva en uno o dos días: combina las plazas del centro con el legado británico, el Museo de Huelva y un paseo junto al Odiel. Reserva la subida al santuario de la Cinta para otra franja o para el segundo día. Organiza primero los interiores con horario y deja margen para disfrutar del muelle al atardecer.",
+  "sections": [
+    [
+      "La Merced y San Pedro, antes de recorrer el centro",
+      "Empieza por la [Catedral de la Merced](/lugar/catedral-merced-huelva), cuya entrada es gratuita, y continúa hacia la [Parroquia Mayor de San Pedro](/lugar/iglesia-san-pedro-huelva). Para entrar en ambos templos por la mañana, de martes a viernes puedes aprovechar la coincidencia de horarios entre las 11:00 y las 12:00; confirma siempre las celebraciones previstas. Después baja hacia la Plaza de las Monjas y recorre las calles del centro con calma. Hay desniveles en el entorno de San Pedro."
+    ],
+    [
+      "Museo y Barrio Reina Victoria",
+      "El [Museo de Huelva](/lugar/museo-de-huelva), en Alameda Sundheim, permite conocer la arqueología y el arte del territorio con entrada gratuita. Cierra habitualmente los lunes y conviene comprobar su calendario, especialmente en verano y festivos. Continúa por el [Barrio Reina Victoria](/lugar/barrio-reina-victoria-huelva): es un conjunto residencial ligado a la compañía minera, con casas y jardines de inspiración británica. Pasea por las calles públicas respetando las viviendas y los espacios privados. Si viajas en lunes, da prioridad al paseo exterior."
+    ],
+    [
+      "El muelle y el atardecer junto al Odiel",
+      "Deja el [Muelle de la Compañía de Riotinto](/lugar/muelle-riotinto-huelva) para la última parte del día si encaja con la hora de puesta de sol. Su estructura permite apreciar el pasado industrial de la ciudad y contemplar el río Odiel. Puedes combinarlo con el Paseo de la Ría, sin necesidad de reservar una visita interior. Lleva agua y protección solar, y algo de abrigo para el viento junto al agua. Respeta la señalización y las restricciones puntuales que pudiera haber."
+    ],
+    [
+      "La Cinta y una segunda jornada",
+      "Dedica una franja independiente al [Santuario de Nuestra Señora de la Cinta](/lugar/santuario-cinta-huelva), en el Conquero. El patio y el entorno con vistas a las marismas completan la visita religiosa. Está fuera del recorrido compacto del centro y hay pendientes: organiza el desplazamiento según tu movilidad. Confirma los horarios de mañana y tarde y consulta por separado las condiciones del Tesoro de la Cinta. Con dos días puedes repartir museo, iglesias y santuario, y añadir una actividad de la agenda de Huelva."
+    ]
+  ],
+  "sources": [
+    [
+      "Muelle de la Compañía de Riotinto: información de visita",
+      "https://turismo.huelva.es/rutas-y-monumentos/ruta-legado-britanico/muelle-de-la-compania-de-rio-tinto/"
+    ],
+    [
+      "Barrio Reina Victoria (Barrio Obrero): información de visita",
+      "https://turismo.huelva.es/rutas-y-monumentos/ruta-legado-britanico/barrio-reina-victoria/"
+    ],
+    [
+      "Catedral de la Merced de Huelva: información de visita",
+      "https://turismo.huelva.es/rutas-y-monumentos/ruta-tradicion-original/santa-iglesia-catedral-de-la-merced-de-huelva/"
+    ],
+    [
+      "Santuario de Nuestra Señora de la Cinta: información de visita",
+      "https://turismo.huelva.es/rutas-y-monumentos/ruta-tradicion-original/santuario-diocesano-de-nuestra-senora-de-la-cinta/"
+    ],
+    [
+      "Parroquia Mayor de San Pedro de Huelva: información de visita",
+      "https://turismo.huelva.es/rutas-y-monumentos/ruta-tradicion-original/parroquia-mayor-de-san-pedro-de-huelva/"
+    ],
+    [
+      "Museo de Huelva: información de visita",
+      "https://www.museosdeandalucia.es/web/museodehuelva/informacion-general"
+    ]
+  ]
+},
   "guadalajara": {
   "intro": "Guadalajara en uno o dos días: empieza por el Palacio del Infantado y el torreón de Álvar Fáñez, continúa por la Cotilla y el entorno de Santa María y reserva una franja para el panteón de la condesa de la Vega del Pozo. Para entrar en los monumentos municipales, organiza preferentemente la visita en viernes, fin de semana o festivo y confirma el calendario antes de salir.",
   "sections": [
