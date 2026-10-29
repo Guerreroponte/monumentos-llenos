@@ -1,5 +1,6 @@
 "use client";
 
+import { intercalarCiudades } from "@/lib/lugares-diversidad";
 import { enlaceFichaLugar } from "@/lib/lugares-navigation";
 import { destinosUnicos } from "@/lib/home-seleccion";
 import FuenteLugar from "@/components/FuenteLugar";
@@ -464,7 +465,7 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
   }, [busquedaRestaurada]);
 
   const monumentosFiltrados = useMemo(() => {
-    return monumentos.filter((m) => {
+    const filtrados = monumentos.filter((m) => {
       const coincideNombre = normalizarTexto(m.nombre)
         .includes(normalizarTexto(busquedaNombre));
 
@@ -473,6 +474,7 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
 
       return coincideNombre && coincideCiudad;
     });
+    return busquedaCiudad.trim() || busquedaNombre.trim() ? filtrados : intercalarCiudades(filtrados);
   }, [monumentos, busquedaNombre, busquedaCiudad]);
 
   const totalComentarios = useMemo(() => {
