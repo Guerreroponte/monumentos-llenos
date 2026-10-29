@@ -195,11 +195,11 @@ test('comment counts include contributions beyond the API first page', async () 
   assert.equal(db.reads.filter(r => r.table === 'comentarios_eventos').length, 3);
 });
 
-test('agenda prioritizes current short plans, then long-running plans, with missing dates last', () => {
+test('agenda prioritizes today and future starts, then ongoing periods, with missing dates last', () => {
   const {compararAgenda, fechaAgenda, largaDuracion} = load('lib/agenda-ui.ts');
   const rows = [{id:'long',inicio:'2026-01-01',fin:'2026-12-31'},{id:'tomorrow',inicio:'2026-10-05'},{id:'today',inicio:'2026-10-04'},{id:'ongoing',inicio:'2026-10-02',fin:'2026-10-06'},{id:'unknown'}];
   rows.sort((a,b) => compararAgenda(a,b,'2026-10-04'));
-  assert.deepEqual(rows.map(r => r.id), ['ongoing','today','tomorrow','long','unknown']);
+  assert.deepEqual(rows.map(r => r.id), ['today','tomorrow','long','ongoing','unknown']);
   assert.equal(fechaAgenda('2026-07-07','2026-12-31','2026-10-04'), 'Hasta el 31 de diciembre de 2026');
   assert.equal(largaDuracion('2026-10-02','2026-10-06'), false);
 });

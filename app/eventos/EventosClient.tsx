@@ -405,7 +405,7 @@ export default function EventosPage({ initialData, initialFilters, ciudadesLugar
               : "Todos los eventos y planes"}
           </h2>
           <p className="mt-1 text-sm text-[#64748b]">
-            {fechaSeleccionada || periodo ? "Planes con sesión confirmada para las fechas elegidas." : "Ordenados por fecha; los planes de larga duración aparecen después."}
+            {fechaSeleccionada || periodo ? "Planes con sesión confirmada para las fechas elegidas." : "Primero los eventos que empiezan hoy y próximamente; después, los que ya están en curso."}
           </p>
         </div>
 
