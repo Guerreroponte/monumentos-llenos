@@ -11,7 +11,9 @@ export function compararAgenda(a: { inicio?: string | null; fin?: string | null 
   const grupo = (e: typeof a) => {
     if (!e.inicio) return 3;
     if ((e.fin || e.inicio) < hoy) return 2;
-    return largaDuracion(e.inicio, e.fin) ? 1 : 0;
+    // Un periodo ya iniciado no acredita una sesión hoy. Primero los inicios
+    // de hoy y próximos; después los eventos en curso, sea cual sea su duración.
+    return e.inicio < hoy ? 1 : 0;
   };
   return grupo(a) - grupo(b) || (a.inicio && b.inicio ? (a.inicio < hoy ? hoy : a.inicio).localeCompare(b.inicio < hoy ? hoy : b.inicio) : 0) || (a.inicio || '').localeCompare(b.inicio || '');
 }
