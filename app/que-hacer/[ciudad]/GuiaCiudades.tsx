@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"las-palmas-de-gran-canaria": {
+  "intro": "Las Palmas de Gran Canaria en uno o dos días: dedica una primera parte a Vegueta y Triana y reserva otra franja para Las Canteras. El casco histórico y el frente de playa están en zonas distintas; organiza los desplazamientos y elige los interiores según sus horarios, dejando margen para tu evento.",
+  "sections": [
+    [
+      "Vegueta: Santa Ana y la Catedral",
+      "Empieza en la [Plaza de Santa Ana](/lugar/plaza-santa-ana-las-palmas), observa los perros de bronce y sitúa la [Catedral de Santa Ana](/lugar/catedral-santa-ana-las-palmas) frente al conjunto de edificios de la plaza. Puedes disfrutar del exterior sin comprar una entrada. Si quieres entrar, distingue la visita cultural, el Museo Diocesano y la torre: consulta qué incluye cada modalidad. La información turística publica una apertura diferente los domingos, centrada en la torre. Respeta las celebraciones religiosas."
+    ],
+    [
+      "Dos museos para elegir con calma",
+      "La [Casa de Colón](/lugar/casa-colon-las-palmas), en Colón, 1, combina arquitectura histórica y contenidos sobre Canarias y América. [El Museo Canario](/lugar/museo-canario-las-palmas), en Doctor Verneau, 2, se centra en la población prehispánica y la arqueología. Puedes enlazar sus exteriores con Santa Ana o reservar tiempo para las salas. Para horarios y tarifas, prioriza la información de cada gestor. El Museo Canario avisa de que la adaptación para movilidad reducida depende de finalizar las obras de ampliación; contacta antes si necesitas apoyos."
+    ],
+    [
+      "Continúa por la calle Mayor de Triana",
+      "Desde Vegueta puedes prolongar el paseo hacia la [calle Mayor de Triana](/lugar/calle-triana-las-palmas). Recorre un tramo de esta vía peatonal y mira las fachadas modernistas, además de los escaparates. Si tienes tiempo, continúa hacia San Telmo; si después asistes a un espectáculo, termina donde mejor te venga para el trayecto al recinto. El paseo es gratuito; compras, consumiciones y entradas se pagan por separado."
+    ],
+    [
+      "Las Canteras merece su propio tramo del día",
+      "Dedica otra franja a la [playa de Las Canteras](/lugar/playa-las-canteras-las-palmas) y su paseo marítimo. Elige entre el entorno de La Puntilla, los tramos centrales o el sector del Auditorio Alfredo Kraus según tu tiempo. No la incluyas como una parada inmediata del paseo por Vegueta: calcula el desplazamiento en guagua, taxi u otro medio y comprueba también la vuelta. Para bañarte, atiende las banderas y las indicaciones del socorrismo; para pasear, lleva agua y protección solar."
+    ],
+    [
+      "Un paseo flexible antes del evento",
+      "Para una primera visita por el casco histórico, enlaza El Museo Canario → Santa Ana y Catedral → Casa de Colón → Triana. El orden es una propuesta para caminar y puedes modificarlo según la apertura de los museos. Las visitas interiores requieren tiempo adicional. Consulta en la agenda de esta página la dirección y la hora de tu evento, y prepara el último trayecto desde donde termines el paseo."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo de Las Palmas: Catedral y modalidades de visita",
+      "https://lpavisit.com/atractivo/catedral-de-santa-ana/"
+    ],
+    [
+      "Casa de Colón: información del Ayuntamiento",
+      "https://www.laspalmasgc.es/es/areas-tematicas/cultura/museos-salas-de-exposiciones-y-teatros/casa-de-colon/"
+    ],
+    [
+      "El Museo Canario: horarios, tarifas y accesibilidad",
+      "https://elmuseocanario.com/informacion-general/"
+    ],
+    [
+      "calle Triana en LPA Visit",
+      "https://lpavisit.com/atractivo/calle-triana/"
+    ],
+    [
+      "Las Canteras en Ciudad de Mar",
+      "https://lpamar.laspalmasgc.es/las-playas/las-canteras/"
+    ]
+  ]
+},
 "castellon-de-la-plana": {
   "intro": "Castellón de la Plana en uno o dos días: dedica la primera jornada al centro, con la Plaza Mayor, el mercado, el Parque Ribalta y el Museo de Bellas Artes. Reserva otra franja para el Grao y el Planetari, junto al mar. Organiza primero los interiores con horario y deja los paseos al aire libre entre las visitas.",
   "sections": [
