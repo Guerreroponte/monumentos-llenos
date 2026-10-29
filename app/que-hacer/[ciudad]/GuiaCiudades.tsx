@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"castellon-de-la-plana": {
+  "intro": "Castellón de la Plana en uno o dos días: dedica la primera jornada al centro, con la Plaza Mayor, el mercado, el Parque Ribalta y el Museo de Bellas Artes. Reserva otra franja para el Grao y el Planetari, junto al mar. Organiza primero los interiores con horario y deja los paseos al aire libre entre las visitas.",
+  "sections": [
+    [
+      "La Plaza Mayor y El Fadrí",
+      "Empieza por la [Concatedral de Santa María](/lugar/concatedral-santa-maria-castellon) y el exterior de [El Fadrí](/lugar/el-fadri-castellon). La torre está separada del templo y es una buena referencia para orientarte por el centro. Antes de subir, confirma la apertura con el MUCC en el 964 735 217: su ficha anuncia visitas de martes a sábado, pero Turismo mantiene un aviso de cierre temporal. La subida tiene unos 200 escalones y no dispone de ascensor. Para la concatedral, adapta la visita a las celebraciones religiosas."
+    ],
+    [
+      "Mercado Central y una pausa en Ribalta",
+      "Incluye el [Mercado Central](/lugar/mercado-central-castellon) por la mañana, de lunes a sábado, para ver los puestos en actividad antes de su cierre publicado a las 15:00. Después puedes continuar a pie hacia el [Parque Ribalta](/lugar/parque-ribalta-castellon), con arbolado y estanque. No hace falta convertir el paseo en una ruta rígida: deja margen para comer o descansar. Si llegas en domingo, sustituye el interior del mercado por el recorrido exterior del centro."
+    ],
+    [
+      "Una visita al Museo de Bellas Artes",
+      "El [Museo de Bellas Artes de Castellón](/lugar/museo-bellas-artes-castellon) es gratuito y permite conocer colecciones de arqueología, cerámica, etnología y arte. Abre de martes a sábado de 10:00 a 14:00 y de 16:00 a 20:00; los domingos, de 10:00 a 14:00. Elige las salas que más te interesen en vez de intentar verlo todo con prisa. Consulta el calendario de festivos y actividades. En lunes, organiza el día alrededor de los paseos exteriores y deja el museo para otra jornada."
+    ],
+    [
+      "El Grao, el Planetari y el paseo junto al mar",
+      "Dedica una franja independiente al [Planetari de Castelló](/lugar/planetari-castello), en el distrito marítimo del Grao: requiere desplazarse desde el centro. Las exposiciones son gratuitas y las proyecciones tienen tarifa general publicada de 4 euros, con reducida de 3 euros para quienes cumplan las condiciones. Reserva la sesión según su idioma y edad recomendada; no se permite entrar una vez iniciada. Cierra los lunes y las tardes de domingos y festivos. Completa el plan con un paseo junto al mar y consulta los horarios de temporada."
+    ]
+  ],
+  "sources": [
+    [
+      "El Fadrí: visita y accesibilidad del MUCC",
+      "https://mucc.castello.es/es/sedes/el-fadri/"
+    ],
+    [
+      "Turismo de Castellón: monumentos y avisos de apertura",
+      "https://castellonturismo.org/monumentos/"
+    ],
+    [
+      "Mercado Central: información de visita",
+      "https://mercatcentralcastello.es/"
+    ],
+    [
+      "Museo de Bellas Artes: horarios y entrada",
+      "https://mbacas.ivc.gva.es/es/el-museo/presentacion"
+    ],
+    [
+      "Planetari: horarios y tarifas",
+      "https://www.castello.es/va/planetari-informacio-general"
+    ],
+    [
+      "Planetari: programación de proyecciones",
+      "https://www.castello.es/es/proyecciones-astronomia"
+    ]
+  ]
+},
 "huelva": {
   "intro": "Huelva en uno o dos días: combina las plazas del centro con el legado británico, el Museo de Huelva y un paseo junto al Odiel. Reserva la subida al santuario de la Cinta para otra franja o para el segundo día. Organiza primero los interiores con horario y deja margen para disfrutar del muelle al atardecer.",
   "sections": [
