@@ -21,10 +21,10 @@ export default function MapaRutaPontevedra({ seleccionada, revision }: { selecci
       texto.textContent = `${i + 1}. ${parada.nombre}`;
       return L.marker(parada.coordenadas, { title: `${i + 1}. ${parada.nombre}`, alt: parada.nombre, icon: L.divIcon({ className: "", html: `<span style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;border:2px solid white;border-radius:50%;background:#ea580c;color:white;font-weight:700;box-shadow:0 2px 6px #0005">${i + 1}</span>`, iconSize: [32,32], iconAnchor: [16,16] }) }).addTo(instancia).bindPopup(texto);
     });
-    instancia.fitBounds(paradasPontevedra.map(p => p.coordenadas), { padding: [32,32] });
+    instancia.fitBounds(paradasPontevedra.map(p => p.coordenadas), { paddingTopLeft: [48,88], paddingBottomRight: [32,32] });
     const observador = new ResizeObserver(() => {
       instancia.invalidateSize();
-      instancia.fitBounds(paradasPontevedra.map(p => p.coordenadas), { padding: [32,32] });
+      instancia.fitBounds(paradasPontevedra.map(p => p.coordenadas), { paddingTopLeft: [48,88], paddingBottomRight: [32,32] });
     });
     observador.observe(contenedor.current);
     setMapa(instancia);
@@ -33,7 +33,7 @@ export default function MapaRutaPontevedra({ seleccionada, revision }: { selecci
   useEffect(() => {
     if (mapa && seleccionada === null) {
       mapa.closePopup();
-      mapa.fitBounds(paradasPontevedra.map(p => p.coordenadas), { padding: [32,32] });
+      mapa.fitBounds(paradasPontevedra.map(p => p.coordenadas), { paddingTopLeft: [48,88], paddingBottomRight: [32,32] });
     } else if (mapa && seleccionada !== null) {
       mapa.setView(paradasPontevedra[seleccionada].coordenadas, 17);
       marcadores.current[seleccionada]?.openPopup();
