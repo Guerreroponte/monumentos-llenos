@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"ciudad-real": {
+  "intro": "Ciudad Real en un día: empieza en la Puerta de Toledo, recorre el entorno del Prado y continúa hacia la Plaza Mayor y San Pedro. Puedes añadir una visita al Museo López-Villaseñor sin cambiar de zona. Organiza los interiores según su apertura y deja margen para llegar al recinto de tu evento.",
+  "sections": [
+    [
+      "De la Puerta de Toledo al centro",
+      "Comienza junto a la [Puerta de Toledo](/lugar/puerta-toledo-ciudad-real), testimonio del recinto amurallado medieval. Está junto a una ronda: utiliza los pasos señalizados y contempla sus arcos desde las zonas permitidas. Desde aquí puedes continuar a pie hacia el centro; no está en la misma plaza que el resto de las paradas."
+    ],
+    [
+      "Catedral y Museo López-Villaseñor",
+      "En el entorno del Prado encontrarás la [Catedral de Santa María del Prado](/lugar/catedral-prado-ciudad-real) y el [Museo Municipal López-Villaseñor](/lugar/museo-lopez-villasenor-ciudad-real), en Reyes, 11. El mapa agrupa esta zona en una parada para que elijas las visitas interiores. El museo tiene entrada gratuita y cierra los lunes; confirma los festivos y el horario específico de su ficha municipal. Para el templo, respeta las celebraciones religiosas."
+    ],
+    [
+      "Una pausa en la Plaza Mayor",
+      "Continúa hacia la [Plaza Mayor y el Ayuntamiento](/lugar/plaza-mayor-ciudad-real). Observa la singular fachada de Fernando de Higueras y aprovecha para descansar antes de seguir. El paseo exterior no implica acceso a las dependencias municipales. Las consumiciones y las compras se pagan aparte."
+    ],
+    [
+      "Termina junto a San Pedro",
+      "La [iglesia de San Pedro](/lugar/iglesia-san-pedro-ciudad-real) permite cerrar el paseo con sus portadas góticas. Si quieres conocer la capilla de los Coca, comprueba la apertura para entrar y deja tiempo para contemplarla. Los horarios publicados cambian según la temporada y el uso del templo; no organices una visita interior sin confirmarlos."
+    ],
+    [
+      "Cómo combinar patrimonio y agenda",
+      "Consulta los eventos de esta página y abre cada ficha para comprobar fecha, recinto y entradas. Alarcos y los espacios naturales de la provincia requieren otros desplazamientos y no están incluidos en este paseo urbano. Lleva agua y protección solar, adapta las pausas al calor y consulta los accesos si necesitas evitar escalones."
+    ]
+  ],
+  "sources": [
+    [
+      "Oficina de Turismo: Puerta de Toledo",
+      "https://turismo.ciudadreal.es/project/puerta-de-toledo/"
+    ],
+    [
+      "Oficina de Turismo: Catedral",
+      "https://turismo.ciudadreal.es/project/s-i-p-b-catedral-de-santa-maria-del-prado/"
+    ],
+    [
+      "Ayuntamiento: Museo López-Villaseñor",
+      "https://www.ciudadreal.es/servicios-municipales/cultura/museos/museo-lopez-villasenor.html"
+    ],
+    [
+      "Oficina de Turismo: Ayuntamiento",
+      "https://turismo.ciudadreal.es/project/ayuntamiento/"
+    ],
+    [
+      "Oficina de Turismo: San Pedro",
+      "https://turismo.ciudadreal.es/project/iglesia-de-san-pedro/"
+    ]
+  ]
+},
 "plasencia": {
   "intro": "Plasencia en un día: recorre el entorno de Mirabel y las Catedrales, haz una pausa en la Plaza Mayor y continúa hacia la muralla y el Acueducto de San Antón. Organiza los interiores según su apertura y calcula el regreso desde la última parada antes de añadir un evento a la jornada.",
   "sections": [
