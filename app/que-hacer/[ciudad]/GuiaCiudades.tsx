@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"jerez-de-la-frontera": {
+  "intro": "Jerez de la Frontera en un día: combina la Catedral, el entorno del Alcázar y las plazas del centro con un paseo por San Miguel. Elige qué interiores quieres visitar y adapta el orden a sus aperturas. Deja margen para una pausa y para llegar al recinto de tu evento.",
+  "sections": [
+    [
+      "La Catedral y el aviso de la torre",
+      "Empieza junto a la [Catedral de San Salvador](/lugar/catedral-san-salvador-jerez), en la plaza de la Encarnación. Puedes contemplar el exterior antes de decidir si entrar. La web del gestor anuncia suspendidas temporalmente las visitas a la torre; comprueba ese aviso antes de comprar una modalidad que la incluya. La visita cultural y el culto tienen condiciones distintas."
+    ],
+    [
+      "El Alcázar: organiza primero la visita interior",
+      "Continúa hacia la Alameda Vieja y el [Alcázar de Jerez](/lugar/alcazar-de-jerez). Si quieres recorrer la mezquita, los baños y los jardines, prioriza su apertura: la página municipal publica horario de mañana fuera del verano. La Cámara Oscura tiene modalidad propia. Consulta horarios y avisos del Ayuntamiento, porque algunas guías generales ofrecen información diferente."
+    ],
+    [
+      "San Miguel y una pausa en el Arenal",
+      "Acércate a la [iglesia de San Miguel](/lugar/iglesia-san-miguel-jerez) y observa su exterior desde la plaza. Si entras, reserva tiempo para el retablo y respeta las celebraciones religiosas. Después puedes parar en la [Plaza del Arenal](/lugar/plaza-arenal-jerez), enlazando el barrio con las calles del centro. El paseo exterior es libre; las entradas y consumiciones se pagan aparte."
+    ],
+    [
+      "La Asunción y el Cabildo Antiguo",
+      "Desde el Arenal, continúa por Consistorio hacia el [Cabildo Antiguo](/lugar/cabildo-antiguo-jerez), en la plaza de la Asunción. La propuesta es observar su fachada desde el espacio público. Puedes prolongar el paseo hacia la Yerba y Plateros antes de volver; no presupongas que todos los edificios de las plazas admiten visita interior."
+    ],
+    [
+      "Completa el día con la agenda",
+      "Consulta los eventos de esta página y abre la ficha para comprobar la dirección del recinto, la hora y las entradas. Las visitas a bodegas, los espectáculos y otros museos requieren su propia planificación: el mapa no los incluye automáticamente. Lleva agua, busca sombra cuando haga calor y consulta los accesos si necesitas evitar escalones."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo de Jerez: plazas del centro",
+      "https://www.turismojerez.com/plaza-en-plaza"
+    ],
+    [
+      "Alcázar: horarios municipales",
+      "https://www.jerez.es/webs-municipales/conjunto-monumental-del-alcazar/informacion/horarios"
+    ],
+    [
+      "Catedral: visita y avisos",
+      "https://catedraldejerez.es/visita/"
+    ],
+    [
+      "Iglesia de San Miguel",
+      "https://iglesiadesanmiguel.com/"
+    ],
+    [
+      "Cabildo Antiguo",
+      "https://www.turismojerez.com/detalle-fichas/cabildo-antiguo"
+    ]
+  ]
+},
 "las-palmas-de-gran-canaria": {
   "intro": "Las Palmas de Gran Canaria en uno o dos días: dedica una primera parte a Vegueta y Triana y reserva otra franja para Las Canteras. El casco histórico y el frente de playa están en zonas distintas; organiza los desplazamientos y elige los interiores según sus horarios, dejando margen para tu evento.",
   "sections": [
