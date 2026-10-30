@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"ponferrada": {
+  "intro": "Ponferrada en un día: combina el entorno del Castillo con la plaza de la Encina, la calle del Reloj y la plaza del Ayuntamiento. Puedes añadir el Museo del Bierzo en el mismo casco antiguo, reservando tiempo para sus salas. Elige los interiores según su calendario y deja margen para llegar al recinto de tu evento.",
+  "sections": [
+    [
+      "El Castillo merece su propio tiempo",
+      "Empieza junto al [Castillo de los Templarios](/lugar/castillo-templarios-ponferrada). Puedes contemplar el exterior o reservar una visita interior para recorrer sus espacios y exposiciones. El gestor publica cierre los lunes y estima unos 90 minutos para la visita; comprueba las excepciones del calendario y el último acceso. No sumes todos los interiores de la ciudad sin dejar margen entre ellos."
+    ],
+    [
+      "La Encina: distingue paseo y visita cultural",
+      "Continúa hacia la [Basílica de la Encina](/lugar/basilica-encina-ponferrada). El gestor del Tesoro ofrece modalidades que reúnen el templo, el museo de arte sacro y la torre. Su horario de invierno se concentra de jueves a domingo: comprueba el día y el último acceso antes de organizar una subida al mirador. El uso religioso y la visita cultural no tienen por qué compartir condiciones."
+    ],
+    [
+      "La calle del Reloj y el Museo del Bierzo",
+      "Recorre la calle hasta la [Torre del Reloj](/lugar/torre-reloj-ponferrada), sobre la puerta conservada de la antigua muralla. Junto a ella está el [Museo del Bierzo](/lugar/museo-bierzo-ponferrada), instalado en la Real Cárcel. El mapa los agrupa en una parada para que elijas si entrar al museo. La información municipal publica cierre los lunes y las tardes de domingo; consulta las excepciones festivas."
+    ],
+    [
+      "Una pausa en la plaza del Ayuntamiento",
+      "Termina en la [plaza del Ayuntamiento](/lugar/plaza-ayuntamiento-ponferrada) y observa las torres y la balconada de la Casa Consistorial. La propuesta es contemplar el exterior desde el espacio público; no presupone acceso a las dependencias municipales. Puedes descansar antes de volver hacia el Castillo o preparar el trayecto a tu evento."
+    ],
+    [
+      "Cómo completar el día",
+      "Consulta la agenda de esta página para comprobar fecha, recinto y entradas. El paseo no incluye Las Médulas, Peñalba de Santiago ni la Herrería de Compludo: requieren planificar otros desplazamientos. Lleva calzado cómodo para el casco antiguo y consulta los accesos si necesitas evitar escalones, especialmente en las torres y los recorridos elevados."
+    ]
+  ],
+  "sources": [
+    [
+      "Castillo: horarios y tarifas",
+      "https://castillodelostemplarios.com/consultas/horarios-y-tarifas/"
+    ],
+    [
+      "La Encina: visita cultural",
+      "https://laencinaponferrada.com/"
+    ],
+    [
+      "Ayuntamiento: Museo del Bierzo",
+      "https://www.ponferrada.org/turismo/es/museos/museo-bierzo"
+    ],
+    [
+      "Ayuntamiento: Torre del Reloj",
+      "https://www.ponferrada.org/turismo/es/monumentos/torre-reloj"
+    ],
+    [
+      "Ayuntamiento: Casa Consistorial",
+      "https://www.ponferrada.org/turismo/es/monumentos/casa-consistorial"
+    ]
+  ]
+},
 "ciudad-real": {
   "intro": "Ciudad Real en un día: empieza en la Puerta de Toledo, recorre el entorno del Prado y continúa hacia la Plaza Mayor y San Pedro. Puedes añadir una visita al Museo López-Villaseñor sin cambiar de zona. Organiza los interiores según su apertura y deja margen para llegar al recinto de tu evento.",
   "sections": [
