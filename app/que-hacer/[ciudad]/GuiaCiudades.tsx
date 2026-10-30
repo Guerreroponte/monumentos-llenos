@@ -2,6 +2,53 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"baeza": {
+  "intro": "Baeza en un día: enlaza las plazas del Pópulo y Santa María pasando por la Antigua Universidad, Jabalquinto y Santa Cruz. Escoge las visitas interiores según sus aperturas y deja margen para las pendientes, una pausa y el trayecto al recinto de tu evento.",
+  "sections": [
+    [
+      "Empieza en la plaza del Pópulo",
+      "La [plaza del Pópulo](/lugar/plaza-populo-baeza) reúne la Fuente de los Leones, la Casa del Pópulo y las antiguas puertas. Es un comienzo práctico: la Oficina de Turismo permite confirmar las aperturas antes de subir hacia las siguientes paradas. Contempla las fachadas desde el espacio público."
+    ],
+    [
+      "La Antigua Universidad y la huella de Machado",
+      "Acércate a la [Antigua Universidad](/lugar/antigua-universidad-baeza), donde se recuerda la etapa docente de Antonio Machado. Consulta la visita al Aula y al Paraninfo; no presupongas acceso a todas las dependencias educativas. La UNIA actual ocupa otros edificios, entre ellos Jabalquinto."
+    ],
+    [
+      "Dos fachadas frente a frente",
+      "El [Palacio de Jabalquinto](/lugar/palacio-jabalquinto-baeza) y la [iglesia de Santa Cruz](/lugar/iglesia-santa-cruz-baeza) permiten comparar el gótico isabelino y el románico desde una misma plaza. El palacio sigue siendo una sede universitaria: confirma disponibilidad y reserva para entrar. Para el templo, consulta la apertura y respeta el culto."
+    ],
+    [
+      "La plaza de Santa María y la Catedral",
+      "Termina junto a la [Catedral](/lugar/catedral-baeza). La plaza permite detenerse sin comprar entrada; el claustro y la torre forman parte de modalidades de visita. El gestor publica último acceso 45 minutos antes del cierre y cambios por necesidades litúrgicas. Comprueba qué incluye tu entrada y las condiciones de la torre."
+    ],
+    [
+      "Combina patrimonio y agenda sin prisas",
+      "Consulta los eventos de esta página para comprobar fecha, dirección y entradas. El mapa propone un paseo exterior: entrar en los monumentos añade tiempo. El empedrado y las pendientes aconsejan calzado cómodo y pausas. Úbeda y la Hacienda La Laguna requieren otros desplazamientos y quedan fuera de este recorrido."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo de Baeza: monumentos",
+      "https://turismo.baeza.net/baeza-monumentos/"
+    ],
+    [
+      "Antigua Universidad: visita",
+      "https://www.juntadeandalucia.es/cultura/agendaculturaldeandalucia/espacios/antigua-universidad-de-baeza"
+    ],
+    [
+      "UNIA: sede de Baeza",
+      "https://www.unia.es/la-unia/sedes/sede-de-baeza/sede-de-baeza"
+    ],
+    [
+      "Catedral: horarios y entradas",
+      "https://catedraldebaeza.es/visita-cultural/"
+    ],
+    [
+      "Turismo de Baeza: accesibilidad",
+      "https://turismo.baeza.net/baeza-accesible/"
+    ]
+  ]
+},
 "ponferrada": {
   "intro": "Ponferrada en un día: combina el entorno del Castillo con la plaza de la Encina, la calle del Reloj y la plaza del Ayuntamiento. Puedes añadir el Museo del Bierzo en el mismo casco antiguo, reservando tiempo para sus salas. Elige los interiores según su calendario y deja margen para llegar al recinto de tu evento.",
   "sections": [
