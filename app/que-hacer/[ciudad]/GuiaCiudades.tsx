@@ -2,6 +2,49 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"plasencia": {
+  "intro": "Plasencia en un día: recorre el entorno de Mirabel y las Catedrales, haz una pausa en la Plaza Mayor y continúa hacia la muralla y el Acueducto de San Antón. Organiza los interiores según su apertura y calcula el regreso desde la última parada antes de añadir un evento a la jornada.",
+  "sections": [
+    [
+      "Mirabel y el entorno de San Nicolás",
+      "Empieza junto al [Palacio del Marqués de Mirabel](/lugar/palacio-mirabel-plasencia), en el entorno de San Nicolás y San Vicente Ferrer. El paseo exterior permite acercarse al conjunto monumental sin reservar todas las visitas interiores. Para entrar al palacio, confirma la apertura: la tabla municipal indica que habitualmente se puede visitar, pero no ofrece un horario fijo."
+    ],
+    [
+      "Dos catedrales y un acceso que debes comprobar",
+      "Acércate a las [catedrales Vieja y Nueva](/lugar/catedrales-plasencia) y observa sus portadas antes de decidir si entrar. La información municipal anuncia cerrado temporalmente el patio del Enlosado, por lo que el mapa no utiliza ese paso. Consulta el calendario, el último acceso y los espacios incluidos en la visita cultural; el culto puede condicionar el recorrido."
+    ],
+    [
+      "Una pausa en la Plaza Mayor",
+      "La [Plaza Mayor](/lugar/plaza-mayor-plasencia) reúne el Ayuntamiento, los soportales y la actividad cotidiana del centro. Busca el Abuelo Mayorga junto al reloj y deja tiempo para descansar. El mercado tradicional de los martes puede cambiar el ambiente y la ocupación del espacio. Las consumiciones y compras se organizan aparte del paseo."
+    ],
+    [
+      "De la muralla a San Antón",
+      "Continúa hacia [Torre Lucía](/lugar/torre-lucia-plasencia). Puedes observarla desde fuera o consultar la visita al centro y a los recorridos habilitados por la muralla. Después prolonga el paseo hasta el [Acueducto de San Antón](/lugar/acueducto-san-anton-plasencia), en el entorno de la avenida de Salamanca. Este tramo sale del núcleo histórico: usa los cruces señalizados y deja margen para volver."
+    ],
+    [
+      "Cómo encajar un evento y otras visitas",
+      "Abre los eventos de esta página para comprobar fecha, dirección del recinto y entradas. El paseo no incluye el santuario de la Virgen del Puerto ni excursiones a los valles próximos: requieren organizar sus propios desplazamientos. Lleva calzado cómodo, agua y protección solar; si necesitas evitar escalones, consulta los accesos de cada edificio y las subidas a la muralla antes de salir."
+    ]
+  ],
+  "sources": [
+    [
+      "Destino Plasencia: imprescindibles",
+      "https://contenidos.plasencia.es/los-7-imprescindibles/"
+    ],
+    [
+      "Oficina Municipal de Turismo: horarios y avisos",
+      "https://www.plasencia.es/web/images/documentos/doc-turismo/Horario-actualizado.jpg"
+    ],
+    [
+      "Ayuntamiento: ciudad monumental",
+      "https://www.plasencia.es/web/modificar-articulos-de-turismo/332-plasencia-ciudad-monumental"
+    ],
+    [
+      "Destino Plasencia: organiza tu visita",
+      "https://contenidos.plasencia.es/plasencia-en-3-dias/"
+    ]
+  ]
+},
 "jerez-de-la-frontera": {
   "intro": "Jerez de la Frontera en un día: combina la Catedral, el entorno del Alcázar y las plazas del centro con un paseo por San Miguel. Elige qué interiores quieres visitar y adapta el orden a sus aperturas. Deja margen para una pausa y para llegar al recinto de tu evento.",
   "sections": [
