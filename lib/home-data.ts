@@ -6,6 +6,7 @@ import { publicImage } from "./public-images";
 import { supabase } from "./supabase";
 
 
+
 export const SALAS_DESTACADAS_COLABORADORAS = [
   "Café La Palma",
   "Loco Club",
@@ -52,7 +53,9 @@ export const SALAS_DESTACADAS_COLABORADORAS = [
   "El Gran Café",
   "Es Gremi Centre Musical",
   "Canarias en Vivo",
+  "Teatro Triana",
 ];
+
 
 
 export type MonumentoDB = {
