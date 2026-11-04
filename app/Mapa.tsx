@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { agruparPuntos } from "@/lib/lugares-ui";
+import { enlaceFichaLugar } from "@/lib/lugares-navigation";
 import Link from "next/link";
 import L from "leaflet";
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
@@ -41,7 +42,11 @@ const monumentoIcon = L.divIcon({
   popupAnchor: [0, -30],
 });
 
-function Puntos({ monumentos }: { monumentos: MonumentoMapa[] }) {
+function Puntos({ monumentos, nombreBuscado, ciudadSeleccionada }: {
+  monumentos: MonumentoMapa[];
+  nombreBuscado: string;
+  ciudadSeleccionada: string;
+}) {
   const map = useMap();
   const [zoom, setZoom] = useState(map.getZoom());
   useMapEvents({ zoomend: () => setZoom(map.getZoom()) });
@@ -59,7 +64,7 @@ function Puntos({ monumentos }: { monumentos: MonumentoMapa[] }) {
     return <Marker key={grupo.map(p => p.id).join("-")} position={[m.latitud, m.longitud]} icon={icon} title={grupo.length === 1 ? m.nombre : `${grupo.length} lugares cercanos`}>
       <Popup><div className="max-h-64 min-w-[180px] overflow-y-auto">
         {grupo.length > 1 && <button className="mb-3 font-bold" onClick={() => map.fitBounds(grupo.map(p => [p.latitud,p.longitud]), {padding:[35,35], maxZoom:18})}>Ampliar {grupo.length} lugares</button>}
-        {grupo.map(p => <div key={p.id} className="mb-3"><strong>{p.nombre}</strong><div>{p.ciudad}</div>{p.slug?.trim() && <Link href={`/lugar/${encodeURIComponent(p.slug.trim())}`} className="inline-block mt-2">Ver ficha →</Link>}</div>)}
+        {grupo.map(p => <div key={p.id} className="mb-3"><strong>{p.nombre}</strong><div>{p.ciudad}</div>{p.slug?.trim() && <Link href={enlaceFichaLugar(p.slug.trim(), nombreBuscado, ciudadSeleccionada, 1, "mapa")} className="inline-block mt-2">Ver ficha →</Link>}</div>)}
       </div></Popup>
     </Marker>;
   });
@@ -67,8 +72,12 @@ function Puntos({ monumentos }: { monumentos: MonumentoMapa[] }) {
 
 export default function Mapa({
   monumentos,
+  nombreBuscado,
+  ciudadSeleccionada,
 }: {
   monumentos: MonumentoMapa[];
+  nombreBuscado: string;
+  ciudadSeleccionada: string;
 }) {
   const monumentosConCoords = monumentos.filter(
     (m) => typeof m.latitud === "number" && Number.isFinite(m.latitud) && Math.abs(m.latitud) <= 90 && typeof m.longitud === "number" && Number.isFinite(m.longitud) && Math.abs(m.longitud) <= 180
@@ -114,7 +123,7 @@ export default function Mapa({
         >
           <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-          <Puntos monumentos={monumentosConCoords} />
+          <Puntos monumentos={monumentosConCoords} nombreBuscado={nombreBuscado} ciudadSeleccionada={ciudadSeleccionada} />
         </MapContainer>
       </div>
     </div>

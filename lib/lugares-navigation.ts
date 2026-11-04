@@ -1,4 +1,4 @@
-// Solo se aceptan destinos del listado local, nunca direcciones externas.
+// Solo se aceptan destinos locales del mapa o del listado de lugares.
 export function regresoLugares(valor?: string | string[]): string {
   if (typeof valor !== "string" || !/^\/(?:\?|#|$)/.test(valor)) return "/";
   try {
@@ -9,7 +9,7 @@ export function regresoLugares(valor?: string | string[]): string {
       const value = url.searchParams.get(key);
       if (value) params.set(key, value);
     }
-    const hash = /^#lugar-(?:lista|destacado|alternativa)-[a-zA-Z0-9-]+$/.test(url.hash) ? url.hash : "#lugares";
+    const hash = url.hash === "#mapa" || /^#lugar-(?:lista|destacado|alternativa)-[a-zA-Z0-9-]+$/.test(url.hash) ? url.hash : "#lugares";
     return `/${params.size ? `?${params}` : ""}${hash}`;
   } catch {
     return "/";
