@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -63,12 +63,21 @@ function limpiarCiudad(ciudad: string) { return ciudad.replace(/\s+/g, " ").trim
 
 export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, errorCiudades = false }: { ciudadesDisponibles: string[]; ciudadesConRuta: string[]; errorCiudades?: boolean }) {
   const router = useRouter();
+  const tituloGuias = useRef<HTMLHeadingElement>(null);
   const ciudadesRuta = new Set(ciudadesConRuta.map(slugCiudad));
-  const guias = [...guiasDestacadas, ...ciudadesConRuta.filter((ciudad) => !guiasDestacadas.includes(ciudad))];
+  const guias = [...guiasDestacadas, ...ciudadesConRuta.filter((ciudad) => !guiasDestacadas.includes(ciudad))]
+    .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+  const guiasConRuta = guias.filter((ciudad) => ciudadesRuta.has(slugCiudad(ciudad)));
 
   const [busqueda, setBusqueda] = useState("");
   const [soloRutas, setSoloRutas] = useState(false);
-  const guiasVisibles = soloRutas ? guias.filter((ciudad) => ciudadesRuta.has(slugCiudad(ciudad))) : guias;
+  const guiasVisibles = soloRutas ? guiasConRuta : guias;
+
+  function mostrarRutas() {
+    setSoloRutas(true);
+    tituloGuias.current?.focus({ preventScroll: true });
+    tituloGuias.current?.scrollIntoView({ block: "start" });
+  }
 
   const sugerencias = useMemo(() => {
     const textoBuscado = slugCiudad(busqueda);
@@ -217,10 +226,19 @@ export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, err
               </Link>
             ))}
           </div>
+          {guiasConRuta.length > 0 && (
+            <button
+              type="button"
+              onClick={mostrarRutas}
+              className="mt-6 min-h-11 rounded-full border border-orange-300 bg-white px-5 py-2 text-sm font-bold text-orange-800 hover:bg-orange-50 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700"
+            >
+              {guiasConRuta.length === 1 ? "Ver la ruta a pie" : `Ver las ${guiasConRuta.length} rutas a pie`} →
+            </button>
+          )}
         </section>
 
         <section className="mt-16" aria-labelledby="guias-destacadas">
-          <h2 id="guias-destacadas" className="text-3xl font-bold text-slate-900">
+          <h2 ref={tituloGuias} id="guias-destacadas" tabIndex={-1} className="scroll-mt-24 text-3xl font-bold text-slate-900">
             Todas las guías
           </h2>
           <p className="mt-3 text-slate-600">
