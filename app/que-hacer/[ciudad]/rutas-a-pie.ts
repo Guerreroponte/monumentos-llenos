@@ -1,3 +1,4 @@
+import RutaTrujillo from "./RutaTrujillo";
 import RutaSegovia from "./RutaSegovia";
 import RutaCordoba from "./RutaCordoba";
 import RutaPontevedra from "./RutaPontevedra";
@@ -18,6 +19,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["trujillo", { ciudad: "Trujillo", Componente: RutaTrujillo }],
   ["segovia", { ciudad: "Segovia", Componente: RutaSegovia }],
   ["cordoba", { ciudad: "Córdoba", Componente: RutaCordoba }],
   ["pontevedra", { ciudad: "Pontevedra", Componente: RutaPontevedra }],
