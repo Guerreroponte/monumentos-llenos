@@ -1,3 +1,4 @@
+import { resumenLugar } from "@/lib/descripcion-lugar";
 import { cargarLugaresCiudad } from "@/lib/lugares-ciudad-data";
 import { nombreCiudad, claveCiudad } from "@/lib/ciudad-identidad";
 import GuiaCiudades, { tieneGuiaCiudad } from "./GuiaCiudades";
@@ -528,10 +529,10 @@ export default async function CiudadPage({
                         "Lugar"}
                     </h3>
 
-                    {lugar.descripcion && (
+                    {resumenLugar(lugar.descripcion) && (
                       <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">
                         {
-                          lugar.descripcion
+                          resumenLugar(lugar.descripcion)
                         }
                       </p>
                     )}
@@ -701,6 +702,12 @@ export default async function CiudadPage({
             Qué hacer en{" "}
             {ciudadFormateada}
           </h2>
+
+          {lugares.length > 0 && (
+            <Link href={`/?${new URLSearchParams({ ciudad: ciudadFormateada })}#mapa`} className="mt-4 inline-flex font-semibold text-orange-700 underline underline-offset-4">
+              Ver lugares de {ciudadFormateada} en el mapa general →
+            </Link>
+          )}
 
           {ciudadSlug === "segovia" && <RutaSegovia />}
           {ciudadSlug === "cordoba" && <RutaCordoba />}
