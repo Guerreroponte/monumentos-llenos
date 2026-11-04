@@ -2,6 +2,45 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"alcoy": {
+  "intro": "El centro de Alcoy permite seguir las huellas de su pasado industrial entre edificios modernistas, calles comerciales y jardines. Este paseo enlaza cinco paradas desde Gonçal Barrachina hasta Joan Cantó.",
+  "sections": [
+    [
+      "Antiguo Parque de Bomberos",
+      "El antiguo Parque de Bomberos ocupa el número 8 de Gonçal Barrachina. El edificio modernista de Vicente Pascual Pastor muestra cómo se aplicó ese lenguaje a una instalación de servicio público. Detente ante el arco del acceso y fíjate en los remates de piedra de la fachada. Desde aquí puedes acercarte a la Plaça d’Espanya y seguir hacia Sant Nicolau. [Ver ficha](/lugar/antiguo-parque-bomberos-alcoy)."
+    ],
+    [
+      "Casa del Pavo",
+      "En Sant Nicolau, 15–17, la Casa del Pavo reúne balcones de forja, mosaicos y la figura que da nombre a la vivienda. Mira primero el conjunto desde la calle y acércate después a los portales para distinguir sus detalles. La visita interior es guiada y requiere reserva. Consulta las plazas y condiciones con la Tourist Info o el operador de la visita. [Ver ficha](/lugar/casa-del-pavo-alcoy)."
+    ],
+    [
+      "Círculo Industrial",
+      "A pocos pasos de la Casa del Pavo, el Círculo Industrial recuerda la vida asociativa de la ciudad industrial. En Sant Nicolau, 19, puedes observar el tratamiento ornamental de la fachada y compararlo con el de la casa vecina. Para ver los salones o el jardín, consulta al Círculo las condiciones de acceso y las visitas disponibles. [Ver ficha](/lugar/circulo-industrial-alcoy)."
+    ],
+    [
+      "Parque de la Glorieta",
+      "La Glorieta ofrece una pausa verde al final del tramo de Sant Nicolau. Recorre sus caminos para descubrir el templete y el palomar, o para descansar antes de seguir hacia Joan Cantó. Si vas a primera o última hora, consulta la apertura de las puertas. [Ver ficha](/lugar/parque-glorieta-alcoy)."
+    ],
+    [
+      "Casa de Escaló",
+      "La Casa de Escaló, en Joan Cantó, 2, acoge el Conservatorio Municipal de Música y Danza. Desde la calle puedes observar la composición de la fachada y sus detalles decorativos. Como el inmueble tiene actividad docente, consulta aparte si hay alguna jornada de visita o actividad abierta al público. [Ver ficha](/lugar/casa-escalo-alcoy)."
+    ]
+  ],
+  "sources": [
+    [
+      "Ayuntamiento de Alcoy · Ruta modernista",
+      "https://opendata.alcoi.org/data/dataset/ruta-modernista"
+    ],
+    [
+      "Turisme Comunitat Valenciana · Modernismo en Alcoy",
+      "https://www.comunitatvalenciana.com/es/mediterraneo-en-accion/modernismo-alcoy"
+    ],
+    [
+      "Ayuntamiento de Alcoy · Visitas a la Casa del Pavo",
+      "https://www.alcoi.org/es/portal/noticias2026/noticia_0398.html"
+    ]
+  ]
+},
 "aviles": {
   "intro": "Avilés se recorre bien a pie. Empieza entre los árboles de Ferrera, baja por Galiana y pasa por las dos plazas del centro antes de llegar al antiguo barrio marinero de Sabugo.",
   "sections": [

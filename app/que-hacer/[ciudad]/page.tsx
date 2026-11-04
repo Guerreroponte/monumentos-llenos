@@ -23,6 +23,7 @@ import RutaCiudadReal from "./RutaCiudadReal";
 import RutaPonferrada from "./RutaPonferrada";
 import RutaBaeza from "./RutaBaeza";
 import RutaAviles from "./RutaAviles";
+import RutaAlcoy from "./RutaAlcoy";
 import { supabase } from "@/lib/supabase";
 
 type Evento = {
@@ -710,6 +711,7 @@ export default async function CiudadPage({
           {ciudadSlug === "ponferrada" && <RutaPonferrada />}
           {ciudadSlug === "baeza" && <RutaBaeza />}
           {ciudadSlug === "aviles" && <RutaAviles />}
+          {ciudadSlug === "alcoy" && <RutaAlcoy />}
 
           {tieneGuiaCiudad(ciudadSlug) ? <GuiaCiudades ciudad={ciudadSlug} /> : ciudadSlug === "valencia" ? <GuiaValencia /> : ciudadSlug === "bilbao" || ciudadSlug === "malaga" ? <GuiaBilbaoMalaga ciudad={ciudadSlug} /> : ciudadSlug === "pamplona" || ciudadSlug === "zaragoza" ? <GuiaPamplonaZaragoza ciudad={ciudadSlug} /> : ciudadSlug === "sevilla" || ciudadSlug === "murcia" ? <GuiaSevillaMurcia ciudad={ciudadSlug} /> : ciudadSlug === "a-coruna" || ciudadSlug === "granada" ? <GuiaCorunaGranada ciudad={ciudadSlug} /> : ciudadSlug === "vigo" || ciudadSlug === "santander" ? <GuiaVigoSantander ciudad={ciudadSlug} /> : ciudadSlug === "pontevedra" ? <GuiaPontevedra /> : <>
           <p className="mt-5 text-base leading-8 text-slate-600">
