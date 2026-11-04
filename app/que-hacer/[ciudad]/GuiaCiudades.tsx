@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"olivenza": {
+  "intro": "Este paseo reúne dos iglesias, dos puertas de la muralla y el alcázar. Empieza en la Magdalena para descubrir el estilo manuelino y termina en la Puerta del Calvario, junto a las defensas abaluartadas.",
+  "sections": [
+    [
+      "Iglesia de Santa María Magdalena",
+      "Empieza en la plaza de la Magdalena. Si la iglesia está abierta, fíjate en las columnas retorcidas de la nave, un detalle del estilo manuelino. [Ver ficha](/lugar/iglesia-magdalena-olivenza)."
+    ],
+    [
+      "Puerta de Alconchel",
+      "Cruza el arco entre las dos torres redondas para entrar en el recinto medieval. [Ver ficha](/lugar/puerta-de-alconchel-olivenza)."
+    ],
+    [
+      "Iglesia de Santa María del Castillo",
+      "Entra en la plaza de Santa María. Si puedes visitar el templo, busca el retablo del Árbol de Jesé en la capilla del Evangelio. [Ver ficha](/lugar/santa-maria-del-castillo-olivenza)."
+    ],
+    [
+      "Alcázar y Torre del Homenaje",
+      "Acércate a la torre y reserva tiempo para el Museo Etnográfico González Santana, que ocupa parte del conjunto y la antigua Panadería del Rey. [Ver ficha](/lugar/alcazar-torre-del-homenaje-olivenza)."
+    ],
+    [
+      "Puerta del Calvario",
+      "Termina en el paseo de Pizarro. Mira los bloques de mármol de la puerta para reconocer cómo cambian las defensas respecto a la entrada medieval. [Ver ficha](/lugar/puerta-del-calvario-olivenza)."
+    ]
+  ],
+  "sources": [
+    [
+      "Turespaña · Olivenza",
+      "https://www.spain.info/es/destino/olivenza/"
+    ],
+    [
+      "Portal oficial de Turismo de Olivenza",
+      "https://turismodeolivenza.com/"
+    ]
+  ]
+},
 "trujillo": {
   "intro": "Empieza en la Plaza Mayor y sube por el casco histórico hasta el castillo. Puedes hacer el paseo por libre y reservar tiempo para entrar en Santa María la Mayor o recorrer la fortaleza.",
   "sections": [
