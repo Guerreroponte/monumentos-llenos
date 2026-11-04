@@ -1,5 +1,6 @@
 "use client";
 
+import { resumenLugar } from "@/lib/descripcion-lugar";
 import { intercalarCiudades } from "@/lib/lugares-diversidad";
 import { enlaceFichaLugar } from "@/lib/lugares-navigation";
 import { destinosUnicos } from "@/lib/home-seleccion";
@@ -312,7 +313,7 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
         unicas.set(clave, valor);
       }
     }
-    return [...unicas.values()];
+    return [...unicas.values()].sort((a, b) => a.localeCompare(b, "es"));
   }, [ciudadesDeLaAgenda, monumentos, eventosHoy, eventosProximosHero]);
   const sugerenciasCiudadHero = useMemo(
     () => filtrarCiudades(ciudadesDisponiblesHero, ciudadHero),
@@ -1303,6 +1304,77 @@ ${url}`;
           </div>
         </div>
 
+        {/* QUÉ HACER HOY */}
+        <section id="hoy-mismo" className="scroll-mt-28 mb-12 border-y border-orange-100 bg-white/70 py-12 md:py-16">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6">
+            <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🔥 Hoy mismo</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">Qué hacer hoy sin darle demasiadas vueltas</h2>
+                <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">Planes rápidos para entrar, comparar y decidir en pocos segundos.</p>
+              </div>
+              <Link href="/eventos" className="inline-flex w-fit items-center gap-2 rounded-full bg-slate-950 px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-slate-800">
+                Todos los eventos <span>→</span>
+              </Link>
+            </div>
+
+            {eventosHoy.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {eventosHoy.map((evento) => {
+                  const hrefEvento = evento.slug ? `/eventos/${evento.slug}` : "/eventos";
+                  const totalComentariosEvento = evento.comentarios_eventos?.length || 0;
+
+                  return (
+                    <Link
+                      key={evento.id}
+                      href={hrefEvento}
+                      className="group overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-sm transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100"
+                    >
+                      {evento.imagen ? (
+                        <div className="relative h-48 overflow-hidden bg-slate-100">
+                          <img loading="lazy" src={evento.imagen} alt={evento.nombre} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 to-transparent" />
+                          <span className="absolute left-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-xs font-black text-white shadow-sm">HOY</span>
+                        </div>
+                      ) : (
+                        <div className="flex h-40 items-end bg-gradient-to-br from-orange-300 via-amber-200 to-rose-200 p-5">
+                          <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-orange-700">🔥 HOY</span>
+                        </div>
+                      )}
+
+                      <div className="p-5">
+                        <div className="flex flex-wrap gap-2">
+                          {evento.tipo && <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-extrabold text-orange-700">{evento.tipo}</span>}
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-600">{getTextoComentariosEvento(totalComentariosEvento)}</span>
+                        </div>
+                        <h3 className="mt-4 line-clamp-2 text-xl font-black leading-tight text-slate-950">{evento.nombre}</h3>
+                        <p className="mt-2 text-sm font-bold text-slate-500">📍 {evento.ciudad}</p>
+                        <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">{evento.descripcion || "Plan publicado para hoy en la comunidad."}</p>
+                        <div className="mt-5 inline-flex items-center gap-2 text-sm font-black text-orange-600">Ver evento <span className="transition group-hover:translate-x-1">→</span></div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
+                <div className="rounded-[30px] border border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50 p-7">
+                  <p className="text-3xl">🗓️</p>
+                  <h3 className="mt-3 text-2xl font-black text-slate-950">No hay planes de hoy destacados en este bloque</h3>
+                  <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">La agenda completa tiene muchos más eventos próximos. Entra y filtra por ciudad o fecha.</p>
+                </div>
+                <Link href="/eventos" className="flex min-h-[190px] flex-col justify-between rounded-[30px] bg-slate-950 p-7 text-white transition hover:-translate-y-1">
+                  <span className="text-4xl">🎟️</span>
+                  <div>
+                    <p className="text-xl font-black">Abrir agenda completa</p>
+                    <p className="mt-2 text-sm text-slate-300">Conciertos, festivales, ferias y más →</p>
+                  </div>
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+
         {/* CONFIANZA RÁPIDA: SALAS COLABORADORAS */}
         <div className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
           <div className="overflow-hidden rounded-[30px] border border-orange-100 bg-white/90 shadow-sm shadow-orange-100/60">
@@ -1400,7 +1472,7 @@ ${url}`;
         </div>
       </section>
 
-      {/* FOTOS REALES: AHORA MUCHO MÁS ARRIBA */}
+      {/* FOTOS REALES */}
       <section id="asi-estan-los-planes" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
         <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-3xl">
@@ -1475,77 +1547,6 @@ ${url}`;
         </div>
       </section>
 
-      {/* QUÉ HACER HOY */}
-      <section id="hoy-mismo" className="border-y border-orange-100 bg-white/70 py-12 md:py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-3xl">
-              <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🔥 Hoy mismo</p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">Qué hacer hoy sin darle demasiadas vueltas</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600 sm:text-base">Planes rápidos para entrar, comparar y decidir en pocos segundos.</p>
-            </div>
-            <Link href="/eventos" className="inline-flex w-fit items-center gap-2 rounded-full bg-slate-950 px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-slate-800">
-              Todos los eventos <span>→</span>
-            </Link>
-          </div>
-
-          {eventosHoy.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {eventosHoy.map((evento) => {
-                const hrefEvento = evento.slug ? `/eventos/${evento.slug}` : "/eventos";
-                const totalComentariosEvento = evento.comentarios_eventos?.length || 0;
-
-                return (
-                  <Link
-                    key={evento.id}
-                    href={hrefEvento}
-                    className="group overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-sm transition hover:-translate-y-1 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-100"
-                  >
-                    {evento.imagen ? (
-                      <div className="relative h-48 overflow-hidden bg-slate-100">
-                        <img loading="lazy" src={evento.imagen} alt={evento.nombre} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 to-transparent" />
-                        <span className="absolute left-4 top-4 rounded-full bg-emerald-500 px-3 py-1 text-xs font-black text-white shadow-sm">HOY</span>
-                      </div>
-                    ) : (
-                      <div className="flex h-40 items-end bg-gradient-to-br from-orange-300 via-amber-200 to-rose-200 p-5">
-                        <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-black text-orange-700">🔥 HOY</span>
-                      </div>
-                    )}
-
-                    <div className="p-5">
-                      <div className="flex flex-wrap gap-2">
-                        {evento.tipo && <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-extrabold text-orange-700">{evento.tipo}</span>}
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-extrabold text-slate-600">{getTextoComentariosEvento(totalComentariosEvento)}</span>
-                      </div>
-                      <h3 className="mt-4 line-clamp-2 text-xl font-black leading-tight text-slate-950">{evento.nombre}</h3>
-                      <p className="mt-2 text-sm font-bold text-slate-500">📍 {evento.ciudad}</p>
-                      <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">{evento.descripcion || "Plan publicado para hoy en la comunidad."}</p>
-                      <div className="mt-5 inline-flex items-center gap-2 text-sm font-black text-orange-600">Ver evento <span className="transition group-hover:translate-x-1">→</span></div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
-              <div className="rounded-[30px] border border-orange-100 bg-gradient-to-br from-orange-50 to-amber-50 p-7">
-                <p className="text-3xl">🗓️</p>
-                <h3 className="mt-3 text-2xl font-black text-slate-950">No hay planes de hoy destacados en este bloque</h3>
-                <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600">La agenda completa tiene muchos más eventos próximos. Entra y filtra por ciudad o fecha.</p>
-              </div>
-              <Link href="/eventos" className="flex min-h-[190px] flex-col justify-between rounded-[30px] bg-slate-950 p-7 text-white transition hover:-translate-y-1">
-                <span className="text-4xl">🎟️</span>
-                <div>
-                  <p className="text-xl font-black">Abrir agenda completa</p>
-                  <p className="mt-2 text-sm text-slate-300">Conciertos, festivales, ferias y más →</p>
-                </div>
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
-
       <nav aria-label="Explorar la comunidad" className="mx-auto flex max-w-6xl flex-wrap gap-3 px-4 py-6 sm:px-6">
         <a href="#asi-estan-los-planes" className="rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-orange-50">📸 Fotos de la comunidad</a>
         <a href="#comentado" className="rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-orange-50">💬 Lugares más comentados</a>
@@ -1587,7 +1588,7 @@ ${url}`;
                       </div>
                       <h3 className="mt-4 text-xl font-black leading-tight">{lugar.nombre}</h3>
                       <p className="mt-2 text-sm font-bold text-slate-400">📍 {lugar.ciudad}</p>
-                      <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-300">{lugar.descripcion || "Lugar compartido por la comunidad con experiencias reales."}</p>
+                      <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-300">{resumenLugar(lugar.descripcion) || "Lugar compartido por la comunidad con experiencias reales."}</p>
                       <span className="mt-5 inline-flex text-sm font-black text-orange-300">Ver ficha <span className="ml-2 transition group-hover:translate-x-1">→</span></span>
                     </div>
                   </Link>
@@ -1773,7 +1774,7 @@ ${url}`;
                       <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">🌿 Alternativa</span>
                       <h3 className="mt-4 text-xl font-black text-slate-950">{lugar.nombre}</h3>
                       <p className="mt-2 text-sm font-bold text-slate-500">📍 {lugar.ciudad}</p>
-                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{lugar.descripcion || "Una alternativa compartida por la comunidad."}</p>
+                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{resumenLugar(lugar.descripcion) || "Una alternativa compartida por la comunidad."}</p>
                     </div>
                   </Link>
                 );
@@ -1926,7 +1927,7 @@ ${url}`;
                         </div>
 
                         <p className="mt-5 line-clamp-3 text-base leading-7 text-slate-600">
-                          {m.descripcion ||
+                          {resumenLugar(m.descripcion) ||
                             "Lugar añadido por la comunidad. Aquí irán creciendo sus comentarios, fotos y experiencias reales."}
                         </p>
 
@@ -2274,6 +2275,29 @@ ${url}`;
           <p className="mt-2 text-sm text-slate-600">
             Explora visualmente los sitios compartidos por la comunidad.
           </p>
+        </div>
+
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <label className="min-w-0 w-full sm:max-w-xs">
+            <span className="mb-1 block text-sm font-semibold text-slate-800">Ciudad en el mapa</span>
+            <select
+              value={busquedaCiudad}
+              onChange={(event) => seleccionarCiudadLugar(event.target.value)}
+              className="min-h-11 w-full rounded-xl border border-orange-200 bg-white px-3 text-slate-900"
+            >
+              <option value="">Todas las ciudades</option>
+              {busquedaCiudad && !ciudadesLugares.includes(busquedaCiudad) && <option value={busquedaCiudad}>{busquedaCiudad}</option>}
+              {ciudadesLugares.map((ciudad) => (
+                <option key={ciudad} value={ciudad}>{ciudad}</option>
+              ))}
+            </select>
+          </label>
+          {(busquedaNombre || busquedaCiudad) && (
+            <button type="button" onClick={() => { setBusquedaNombre(""); seleccionarCiudadLugar(""); }} className="min-h-11 rounded-xl border border-orange-200 bg-white px-4 text-sm font-semibold text-orange-800 hover:bg-orange-50">
+              Limpiar filtros
+            </button>
+          )}
+          {busquedaNombre && <p className="text-sm text-slate-600">Nombre: {busquedaNombre}</p>}
         </div>
 
         <div className="relative z-0 min-h-[650px]">

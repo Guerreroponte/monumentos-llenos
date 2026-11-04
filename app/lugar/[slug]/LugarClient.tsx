@@ -1,5 +1,6 @@
 "use client";
 
+import { separarDescripcionLugar } from "@/lib/descripcion-lugar";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import OpcionesTransporte from "@/components/OpcionesTransporte";
@@ -63,6 +64,7 @@ function limpiarNombreArchivo(nombre: string) {
 export default function LugarPage({ initialData, regreso = "/" }: { regreso?: string; initialData: { lugar: Lugar; resenas: Resena[]; fotos?: string[] } }) {
 
   const lugar = initialData.lugar;
+  const { resumen, creditos } = separarDescripcionLugar(lugar.descripcion);
   const ciudad = nombreCiudad(lugar?.ciudad);
   const ciudadSlug = claveCiudad(ciudad);
   const [resenas, setResenas] = useState<Resena[]>(initialData.resenas);
@@ -327,10 +329,25 @@ ${url}`;
                 Sobre este lugar
               </h2>
               <p className="mt-3 text-base leading-7 text-slate-700">
-                {lugar.descripcion ||
+                {resumen ||
                   "Este lugar todavía no tiene descripción disponible."}
               </p>
             </div>
+
+            {creditos.length > 0 && (
+              <section className="mt-5 rounded-2xl border border-orange-100 p-5 text-sm text-slate-700">
+                <h2 className="font-bold text-slate-900">Créditos y fuentes</h2>
+                {creditos.map((credito, indice) => (
+                  <p key={indice} className="mt-2 leading-6">
+                    {credito.split(/(https?:\/\/[^\s<>]+)/g).map((parte, posicion) => (
+                      posicion % 2 === 0 ? parte : (
+                        <a key={posicion} href={parte} target="_blank" rel="noopener noreferrer" className="font-semibold text-orange-700 underline">Consultar fuente ↗</a>
+                      )
+                    ))}
+                  </p>
+                ))}
+              </section>
+            )}
 
             {lugar.video_url?.trim() && (
               <div className="mt-6 overflow-hidden rounded-3xl border border-orange-100 bg-slate-950 shadow-sm">
