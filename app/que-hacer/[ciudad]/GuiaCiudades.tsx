@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"algeciras": {
+  "intro": "Este paseo por el centro de Algeciras enlaza el mercado de abastos, dos plazas del casco histórico, las murallas medievales y el parque María Cristina. Puedes recorrer los exteriores y elegir aparte las visitas interiores.",
+  "sections": [
+    [
+      "Mercado Ingeniero Torroja",
+      "La cubierta de hormigón del mercado es el detalle que distingue este edificio de abastos. Se alza sobre un espacio de venta que puedes recorrer si los puestos están abiertos. Dedica unos minutos al exterior para apreciar su forma y consulta los horarios si quieres hacer compras. [Ver ficha](/lugar/mercado-ingeniero-torroja-algeciras)."
+    ],
+    [
+      "Plaza Alta",
+      "La Plaza Alta reúne la fuente, los bancos de cerámica y dos referencias del centro histórico, la iglesia de la Palma y la capilla de Europa. Es un buen sitio para detenerse antes de seguir hacia San Isidro. Puedes recorrer la plaza libremente y consultar aparte la apertura de los templos. [Ver ficha](/lugar/plaza-alta-algeciras)."
+    ],
+    [
+      "Plaza de San Isidro",
+      "La plaza es una referencia para recorrer San Isidro y sus calles de casas bajas. Busca la capilla y detente a mirar las fachadas antes de continuar hacia la avenida Blas Infante. Hay cuestas en el entorno, así que conviene mirar el recorrido si necesitas evitar pendientes. [Ver ficha](/lugar/barrio-de-san-isidro-algeciras)."
+    ],
+    [
+      "Murallas medievales",
+      "El conjunto de la avenida Blas Infante permite situar la antigua ciudad medieval de Algeciras. Observa desde el entorno público el trazado de las defensas y consulta con Turismo si quieres acceder al recinto o al centro de interpretación. [Ver ficha](/lugar/complejo-arqueologico-de-las-murallas-medievales-algeciras)."
+    ],
+    [
+      "Parque María Cristina",
+      "El Parque María Cristina ofrece un descanso entre arbolado y senderos cerca de las murallas. Recorre su paseo central y busca un banco si quieres alargar la parada. Consulta la apertura de las puertas si vas a primera o última hora. [Ver ficha](/lugar/parque-maria-cristina-algeciras)."
+    ]
+  ],
+  "sources": [
+    [
+      "Ayuntamiento de Algeciras · Qué ver",
+      "https://www.algeciras.es/es/ciudad/interesante/"
+    ],
+    [
+      "Ayuntamiento de Algeciras · Ruta Paco de Lucía",
+      "https://www.algeciras.es/pacodelucia/"
+    ]
+  ]
+},
 "alcoy": {
   "intro": "El centro de Alcoy permite seguir las huellas de su pasado industrial entre edificios modernistas, calles comerciales y jardines. Este paseo enlaza cinco paradas desde Gonçal Barrachina hasta Joan Cantó.",
   "sections": [
