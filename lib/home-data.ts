@@ -7,6 +7,7 @@ import { supabase } from "./supabase";
 
 
 
+
 export const SALAS_DESTACADAS_COLABORADORAS = [
   "Café La Palma",
   "Loco Club",
@@ -54,7 +55,9 @@ export const SALAS_DESTACADAS_COLABORADORAS = [
   "Es Gremi Centre Musical",
   "Canarias en Vivo",
   "Teatro Triana",
+  "Teatro de las Esquinas",
 ];
+
 
 
 
