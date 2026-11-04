@@ -2,6 +2,45 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"aviles": {
+  "intro": "Avilés se recorre bien a pie. Empieza entre los árboles de Ferrera, baja por Galiana y pasa por las dos plazas del centro antes de llegar al antiguo barrio marinero de Sabugo.",
+  "sections": [
+    [
+      "Parque de Ferrera",
+      "[Ver ficha](/lugar/parque-ferrera-aviles). El antiguo jardín de los marqueses de Ferrera es hoy un parque público en el centro de Avilés. Sus senderos permiten combinar una vuelta junto al estanque con un descanso antes de entrar en el casco histórico. Tiene accesos desde varias calles. Para enlazar el paseo con los soportales, busca la salida de Galiana. Si vas a última hora, comprueba el horario de las puertas."
+    ],
+    [
+      "Calle Galiana",
+      "[Ver ficha](/lugar/calle-galiana-aviles). Los soportales de Galiana acompañan el paseo entre el Carbayedo y la calle San Francisco. Fíjate en el pavimento bajo los arcos, con una franja de losas para caminar y otra de cantos. Es una parada cómoda para hacer una pausa si llueve. Para continuar hacia el Ayuntamiento, baja por San Francisco hasta la plaza de España."
+    ],
+    [
+      "Plaza de España · El Parche",
+      "[Ver ficha](/lugar/plaza-espana-aviles). La plaza de España, conocida como El Parche, es un cruce peatonal en el que desembocan calles de distintas épocas. Desde el espacio público se ven el Ayuntamiento, el Palacio de Ferrera y el de Llano Ponte. Puedes tomarla como punto de encuentro antes de seguir por el casco antiguo o hacer una pausa en una terraza. El paseo por la plaza es libre."
+    ],
+    [
+      "Mercado de Abastos · Hermanos Orbón",
+      "[Ver ficha](/lugar/mercado-abastos-aviles). El mercado de Abastos ocupa el centro de la plaza de los Hermanos Orbón, rodeada de soportales. Merece la pena bordear la plaza para ver cómo se organiza el conjunto y acercarse a los puestos si están abiertos. Turismo de Avilés sitúa aquí el mercado tradicional de los lunes. Si vas por las compras, comprueba las aperturas, especialmente en festivos."
+    ],
+    [
+      "Plaza del Carbayo · Sabugo",
+      "[Ver ficha](/lugar/plaza-carbayo-aviles). La plaza del Carbayo conserva la iglesia vieja de Sabugo en el corazón del antiguo barrio marinero de Avilés. Acércate por las calles que llegan desde Abastos y date una vuelta alrededor del templo para observar su exterior. La plaza sirve de última parada del paseo y queda cerca de la estación. Si quieres visitar el interior de la iglesia, confirma su apertura."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo Avilés · Parques",
+      "https://turismoaviles.com/pasear/parques/"
+    ],
+    [
+      "Turismo Avilés · Calles",
+      "https://turismoaviles.com/pasear/calles/"
+    ],
+    [
+      "Turismo Avilés · Plazas",
+      "https://turismoaviles.com/pasear/plazas/"
+    ]
+  ]
+},
 "baeza": {
   "intro": "Baeza en un día: enlaza las plazas del Pópulo y Santa María pasando por la Antigua Universidad, Jabalquinto y Santa Cruz. Escoge las visitas interiores según sus aperturas y deja margen para las pendientes, una pausa y el trayecto al recinto de tu evento.",
   "sections": [
