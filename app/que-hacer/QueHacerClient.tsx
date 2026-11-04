@@ -6,6 +6,33 @@ import { useRouter } from "next/navigation";
 
 const guiasDestacadas = ["Castellón de la Plana", "Huelva", "Guadalajara", "Lleida", "Almería", "Cádiz", "Girona", "Tarragona", "Cuenca", "Huesca", "Burgos", "Ávila", "Toledo", "Salamanca"];
 
+const rutasDestacadas = [
+  {
+    "slug": "cardona",
+    "ciudad": "Cardona",
+    "titulo": "Del mercado medieval al castillo",
+    "alt": "Castell de Cardona",
+    "paradas": 5,
+    "imagen": "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/lugares/cardona-castell-20261104-3a2a7284-c08c-4125-92f0-69909013487d.jpg"
+  },
+  {
+    "slug": "cazorla",
+    "ciudad": "Cazorla",
+    "titulo": "De la Corredera al Castillo de la Yedra",
+    "alt": "Ruinas de Santa María en Cazorla",
+    "paradas": 4,
+    "imagen": "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/lugares/cazorla-ruinas-20261104-91ab3ad2-6047-4edd-8c7a-013e0c68b9bc.jpg"
+  },
+  {
+    "slug": "algeciras",
+    "ciudad": "Algeciras",
+    "titulo": "Del mercado al Parque María Cristina",
+    "alt": "Plaza Alta de Algeciras",
+    "paradas": 5,
+    "imagen": "https://kfphmjxhouyfjrdgjbyg.supabase.co/storage/v1/object/public/imagenes/lugares/algeciras-plaza-alta-20261104-0b455b7b-fbeb-46e5-b5a6-9774c31c5b24.jpg"
+  }
+];
+
 const ciudadesPopulares = [
   "Madrid",
   "Barcelona",
@@ -40,6 +67,8 @@ export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, err
   const guias = [...guiasDestacadas, ...ciudadesConRuta.filter((ciudad) => !guiasDestacadas.includes(ciudad))];
 
   const [busqueda, setBusqueda] = useState("");
+  const [soloRutas, setSoloRutas] = useState(false);
+  const guiasVisibles = soloRutas ? guias.filter((ciudad) => ciudadesRuta.has(slugCiudad(ciudad))) : guias;
 
   const sugerencias = useMemo(() => {
     const textoBuscado = slugCiudad(busqueda);
@@ -169,15 +198,43 @@ export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, err
           )}
         </div>
 
+        <section className="mt-12" aria-labelledby="rutas-destacadas">
+          <h2 id="rutas-destacadas" className="text-3xl font-bold text-slate-900">Rutas destacadas</h2>
+          <p className="mt-2 text-slate-600">Tres paseos para descubrir una ciudad a pie.</p>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {rutasDestacadas.map((ruta) => (
+              <Link
+                key={ruta.slug}
+                href={`/que-hacer/${ruta.slug}#guia-local`}
+                className="group flex min-w-0 flex-col overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm transition hover:border-orange-400 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700"
+              >
+                <img src={ruta.imagen} alt={ruta.alt} loading="lazy" className="aspect-[16/9] w-full bg-orange-100 object-cover" />
+                <div className="flex flex-1 flex-col p-5">
+                  <p className="text-sm font-semibold text-orange-800">{ruta.ciudad} · {ruta.paradas} paradas</p>
+                  <h3 className="mt-2 flex-1 text-xl font-bold text-slate-900">{ruta.titulo}</h3>
+                  <span className="mt-4 font-semibold text-orange-800 group-hover:underline">Ver ruta y mapa →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-16" aria-labelledby="guias-destacadas">
           <h2 id="guias-destacadas" className="text-3xl font-bold text-slate-900">
-            Guías para recorrer la ciudad
+            Todas las guías
           </h2>
           <p className="mt-3 text-slate-600">
             Ideas de rutas, visitas y consejos prácticos para combinar con tu próximo plan.
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {guias.map((ciudad) => (
+          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-orange-200 bg-white px-3 text-sm font-semibold text-slate-900">
+              <input type="checkbox" checked={soloRutas} onChange={(event) => setSoloRutas(event.target.checked)} className="size-4 accent-orange-700" />
+              Solo rutas a pie
+            </label>
+            <p className="text-sm text-slate-600" role="status">{guiasVisibles.length} guías</p>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {guiasVisibles.map((ciudad) => (
               <Link key={ciudad} href={`/que-hacer/${slugCiudad(ciudad)}#guia-local`}
                 className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm transition hover:border-orange-400 hover:shadow-md">
                 <h3 className="text-xl font-bold text-slate-900">{ciudad}</h3>
