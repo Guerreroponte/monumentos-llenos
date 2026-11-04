@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"cazorla": {
+  "intro": "Este paseo une el centro de Cazorla con el río y la fortaleza. La bóveda y las ruinas de Santa María forman un mismo conjunto a dos niveles. Puedes hacer el paseo exterior y encajar aparte la visita guiada y el museo del castillo.",
+  "sections": [
+    [
+      "Plaza de la Corredera",
+      "La plaza de la Corredera, conocida como plaza del Huevo por su forma, es un punto de encuentro en el casco urbano. Recorre su perímetro para ver el Ayuntamiento y la iglesia de San José. Desde aquí, las calles del casco antiguo bajan hacia Santa María. [Ver ficha](/lugar/plaza-corredera-cazorla)."
+    ],
+    [
+      "Ruinas de Santa María",
+      "La antigua iglesia de Santa María se levantó sobre el cauce cubierto del Cerezuelo. Desde la plaza se aprecia la relación entre las ruinas, las calles que rodean el templo y el río que pasa por debajo. Consulta en la Oficina de Turismo el acceso y las visitas. [Ver ficha](/lugar/ruinas-santa-maria-cazorla)."
+    ],
+    [
+      "Bóveda del Río Cerezuelo",
+      "La bóveda de piedra cubre el cauce y permitió construir la iglesia de Santa María por encima. La visita permite entender la obra desde el nivel del río. Consulta los pases y las condiciones de acceso con Turismo antes de bajar. [Ver ficha](/lugar/boveda-rio-cerezuelo-cazorla)."
+    ],
+    [
+      "Paseo Fluvial del Río Cerezuelo",
+      "El paseo fluvial recorre un tramo del Cerezuelo cerca del casco urbano y permite alternar las calles del centro con un recorrido junto al agua. El marcador sitúa el paseo urbano, que puedes enlazar desde Santa María. Para prolongar la caminata por el sendero circular, consulta el trazado y el estado de los pasos. [Ver ficha](/lugar/paseo-fluvial-rio-cerezuelo-cazorla)."
+    ],
+    [
+      "Castillo de la Yedra",
+      "La fortaleza se alza sobre el Cerezuelo, en la ladera del cerro de Salvatierra. La subida desde el casco histórico permite ver cómo el castillo domina el valle. Dentro se distinguen la sección histórica de la torre y la colección de artes y costumbres. Comprueba las condiciones de visita y el último acceso. [Ver ficha](/lugar/castillo-yedra-cazorla)."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo de Cazorla · Monumentos",
+      "https://cazorla.es/turismo/monumentos/"
+    ],
+    [
+      "Turismo de Cazorla · Rutas y miradores accesibles",
+      "https://cazorla.es/turismo/rutas-accesibles/"
+    ]
+  ]
+},
 "aracena": {
   "intro": "Empieza en la Gran Vía, baja a la Gruta de las Maravillas y sube hacia el castillo por la Plaza Alta. La hora de entrada a la gruta marca el ritmo del paseo. Consulta la entrada combinada si vas a visitar también el museo y el recinto fortificado.",
   "sections": [
