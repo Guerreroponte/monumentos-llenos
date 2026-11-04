@@ -2,6 +2,37 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"trujillo": {
+  "intro": "Empieza en la Plaza Mayor y sube por el casco histórico hasta el castillo. Puedes hacer el paseo por libre y reservar tiempo para entrar en Santa María la Mayor o recorrer la fortaleza.",
+  "sections": [
+    [
+      "Plaza Mayor de Trujillo",
+      "Empieza en la plaza porticada. Desde el centro se ven la iglesia de San Martín, la estatua ecuestre y las fachadas de los palacios. [Ver ficha](/lugar/plaza-mayor-trujillo)."
+    ],
+    [
+      "Palacio de la Conquista",
+      "Acércate al lado sur de la plaza y levanta la vista hacia el balcón de esquina y el escudo que lo remata. [Ver ficha](/lugar/palacio-de-la-conquista-trujillo)."
+    ],
+    [
+      "Iglesia de Santa María la Mayor",
+      "Sube al casco antiguo para visitar el templo. Si entras, dedica unos minutos al retablo y pregunta por el acceso a las torres. [Ver ficha](/lugar/santa-maria-la-mayor-trujillo)."
+    ],
+    [
+      "Castillo de Trujillo",
+      "Termina en la fortaleza del cerro. Desde arriba se distingue el trazado del casco antiguo y la llanura que rodea Trujillo. [Ver ficha](/lugar/castillo-trujillo)."
+    ]
+  ],
+  "sources": [
+    [
+      "Turespaña · Trujillo",
+      "https://www.spain.info/es/destino/trujillo/"
+    ],
+    [
+      "Oficina de Turismo · Horarios y tarifas",
+      "https://trujilloteespera.com/planificar/horarios-tarifas/"
+    ]
+  ]
+},
 "cardona": {
   "intro": "Cardona se recorre a pie entre soportales, plazas y calles que conservan el trazado medieval. Empieza junto al mercado y termina en la fortaleza. Si quieres visitar la colegiata de Sant Vicenç, organiza la subida alrededor del pase del castillo.",
   "sections": [
