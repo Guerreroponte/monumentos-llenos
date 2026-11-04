@@ -1,3 +1,4 @@
+import { rutasAPie } from "./rutas-a-pie";
 import { resumenLugar } from "@/lib/descripcion-lugar";
 import { cargarLugaresCiudad } from "@/lib/lugares-ciudad-data";
 import { nombreCiudad, claveCiudad } from "@/lib/ciudad-identidad";
@@ -11,24 +12,6 @@ import GuiaSevillaMurcia from "./GuiaSevillaMurcia";
 import GuiaCorunaGranada from "./GuiaCorunaGranada";
 import GuiaVigoSantander from "./GuiaVigoSantander";
 import GuiaPontevedra from "./GuiaPontevedra";
-import RutaSegovia from "./RutaSegovia";
-import RutaCordoba from "./RutaCordoba";
-import RutaPontevedra from "./RutaPontevedra";
-import RutaLasPalmas from "./RutaLasPalmas";
-import RutaSalamanca from "./RutaSalamanca";
-import RutaToledo from "./RutaToledo";
-import RutaBurgos from "./RutaBurgos";
-import RutaJerez from "./RutaJerez";
-import RutaPlasencia from "./RutaPlasencia";
-import RutaCiudadReal from "./RutaCiudadReal";
-import RutaPonferrada from "./RutaPonferrada";
-import RutaBaeza from "./RutaBaeza";
-import RutaAviles from "./RutaAviles";
-import RutaAlgeciras from "./RutaAlgeciras";
-import RutaAracena from "./RutaAracena";
-import RutaCazorla from "./RutaCazorla";
-import RutaCardona from "./RutaCardona";
-import RutaAlcoy from "./RutaAlcoy";
 import { supabase } from "@/lib/supabase";
 
 type Evento = {
@@ -248,6 +231,7 @@ export default async function CiudadPage({
         colaborador.ciudad
     )?.ciudad;
 
+  const RutaAPie = rutasAPie.get(ciudadSlug)?.Componente;
   const ciudadFormateada = nombreCiudad(ciudadReal || formatearCiudadDesdeSlug(ciudadSlug));
 
   return (
@@ -709,24 +693,7 @@ export default async function CiudadPage({
             </Link>
           )}
 
-          {ciudadSlug === "segovia" && <RutaSegovia />}
-          {ciudadSlug === "cordoba" && <RutaCordoba />}
-          {ciudadSlug === "pontevedra" && <RutaPontevedra />}
-          {ciudadSlug === "las-palmas-de-gran-canaria" && <RutaLasPalmas />}
-          {ciudadSlug === "salamanca" && <RutaSalamanca />}
-          {ciudadSlug === "toledo" && <RutaToledo />}
-          {ciudadSlug === "burgos" && <RutaBurgos />}
-          {ciudadSlug === "jerez-de-la-frontera" && <RutaJerez />}
-          {ciudadSlug === "plasencia" && <RutaPlasencia />}
-          {ciudadSlug === "ciudad-real" && <RutaCiudadReal />}
-          {ciudadSlug === "ponferrada" && <RutaPonferrada />}
-          {ciudadSlug === "baeza" && <RutaBaeza />}
-          {ciudadSlug === "aviles" && <RutaAviles />}
-          {ciudadSlug === "algeciras" && <RutaAlgeciras />}
-          {ciudadSlug === "aracena" && <RutaAracena />}
-          {ciudadSlug === "cazorla" && <RutaCazorla />}
-          {ciudadSlug === "cardona" && <RutaCardona />}
-          {ciudadSlug === "alcoy" && <RutaAlcoy />}
+          {RutaAPie && <RutaAPie />}
 
           {tieneGuiaCiudad(ciudadSlug) ? <GuiaCiudades ciudad={ciudadSlug} /> : ciudadSlug === "valencia" ? <GuiaValencia /> : ciudadSlug === "bilbao" || ciudadSlug === "malaga" ? <GuiaBilbaoMalaga ciudad={ciudadSlug} /> : ciudadSlug === "pamplona" || ciudadSlug === "zaragoza" ? <GuiaPamplonaZaragoza ciudad={ciudadSlug} /> : ciudadSlug === "sevilla" || ciudadSlug === "murcia" ? <GuiaSevillaMurcia ciudad={ciudadSlug} /> : ciudadSlug === "a-coruna" || ciudadSlug === "granada" ? <GuiaCorunaGranada ciudad={ciudadSlug} /> : ciudadSlug === "vigo" || ciudadSlug === "santander" ? <GuiaVigoSantander ciudad={ciudadSlug} /> : ciudadSlug === "pontevedra" ? <GuiaPontevedra /> : <>
           <p className="mt-5 text-base leading-8 text-slate-600">

@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+const guiasDestacadas = ["Castellón de la Plana", "Huelva", "Guadalajara", "Lleida", "Almería", "Cádiz", "Girona", "Tarragona", "Cuenca", "Huesca", "Burgos", "Ávila", "Toledo", "Salamanca"];
+
 const ciudadesPopulares = [
   "Madrid",
   "Barcelona",
@@ -32,8 +34,10 @@ function slugCiudad(ciudad: string) {
 
 function limpiarCiudad(ciudad: string) { return ciudad.replace(/\s+/g, " ").trim(); }
 
-export default function QueHacerPage({ ciudadesDisponibles, errorCiudades = false }: { ciudadesDisponibles: string[]; errorCiudades?: boolean }) {
+export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, errorCiudades = false }: { ciudadesDisponibles: string[]; ciudadesConRuta: string[]; errorCiudades?: boolean }) {
   const router = useRouter();
+  const ciudadesRuta = new Set(ciudadesConRuta.map(slugCiudad));
+  const guias = [...guiasDestacadas, ...ciudadesConRuta.filter((ciudad) => !guiasDestacadas.includes(ciudad))];
 
   const [busqueda, setBusqueda] = useState("");
 
@@ -173,10 +177,13 @@ export default function QueHacerPage({ ciudadesDisponibles, errorCiudades = fals
             Ideas de rutas, visitas y consejos prácticos para combinar con tu próximo plan.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {["Castellón de la Plana", "Huelva", "Guadalajara", "Lleida", "Almería", "Cádiz", "Girona", "Tarragona", "Cuenca", "Huesca", "Burgos", "Ávila", "Toledo", "Salamanca"].map((ciudad) => (
+            {guias.map((ciudad) => (
               <Link key={ciudad} href={`/que-hacer/${slugCiudad(ciudad)}#guia-local`}
                 className="rounded-2xl border border-orange-200 bg-white p-6 shadow-sm transition hover:border-orange-400 hover:shadow-md">
                 <h3 className="text-xl font-bold text-slate-900">{ciudad}</h3>
+                {ciudadesRuta.has(slugCiudad(ciudad)) && (
+                  <span className="mt-2 inline-block rounded-full bg-orange-100 px-2.5 py-1 text-xs font-semibold text-orange-900">Ruta a pie</span>
+                )}
                 <p className="mt-3 font-semibold text-orange-700">Ver guía y lugares →</p>
               </Link>
             ))}
