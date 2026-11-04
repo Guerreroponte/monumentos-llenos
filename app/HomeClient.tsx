@@ -421,6 +421,10 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
     }
     return [...unicas.values()];
   }, [monumentos]);
+  const ciudadesMapa = useMemo(
+    () => [...ciudadesLugares].sort((a, b) => a.localeCompare(b, "es")),
+    [ciudadesLugares]
+  );
   const sugerenciasLugares = useMemo(
     () => filtrarCiudades(ciudadesLugares, busquedaCiudad),
     [ciudadesLugares, busquedaCiudad]
@@ -2287,7 +2291,7 @@ ${url}`;
             >
               <option value="">Todas las ciudades</option>
               {busquedaCiudad && !ciudadesLugares.includes(busquedaCiudad) && <option value={busquedaCiudad}>{busquedaCiudad}</option>}
-              {ciudadesLugares.map((ciudad) => (
+              {ciudadesMapa.map((ciudad) => (
                 <option key={ciudad} value={ciudad}>{ciudad}</option>
               ))}
             </select>
