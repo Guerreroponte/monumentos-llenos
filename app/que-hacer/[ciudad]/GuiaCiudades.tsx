@@ -2,6 +2,45 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"aracena": {
+  "intro": "Empieza en la Gran Vía, baja a la Gruta de las Maravillas y sube hacia el castillo por la Plaza Alta. La hora de entrada a la gruta marca el ritmo del paseo. Consulta la entrada combinada si vas a visitar también el museo y el recinto fortificado.",
+  "sections": [
+    [
+      "Museo del Jamón",
+      "El museo de la Gran Vía explica el papel de la dehesa en la cría del cerdo ibérico y las distintas etapas de elaboración del jamón. Antes de entrar, compara la entrada individual con la combinada si tienes previsto visitar también la gruta y el castillo. [Ver ficha](/lugar/museo-del-jamon-aracena)."
+    ],
+    [
+      "Gruta de las Maravillas",
+      "La entrada turística está en la calle Pozo de la Nieve. La visita guiada recorre galerías con lagos y formaciones calcáreas. Reserva la sesión y organiza las demás paradas a su alrededor. Si necesitas evitar escaleras o tienes movilidad reducida, consulta las condiciones del recorrido antes de comprar. [Ver ficha](/lugar/gruta-de-las-maravillas-aracena)."
+    ],
+    [
+      "Plaza Alta",
+      "La antigua plaza de la Corredera ocupa un rellano en la subida al castillo. Haz una pausa para ver la fuente, el Cabildo Viejo y la parroquia de Nuestra Señora de la Asunción. La plaza se puede recorrer libremente y ayuda a orientarse antes del tramo de subida. [Ver ficha](/lugar/plaza-alta-aracena)."
+    ],
+    [
+      "Cabildo Viejo",
+      "El Cabildo Viejo recuerda el papel de la Plaza Alta como centro de gobierno de Aracena. El edificio alberga un centro de interpretación del parque natural. Puedes ver la fachada desde el exterior y consultar la apertura si quieres conocer la exposición. [Ver ficha](/lugar/cabildo-viejo-aracena)."
+    ],
+    [
+      "Castillo de Aracena",
+      "La fortaleza ocupa el cerro que domina Aracena. El recinto permite reconocer el trazado defensivo y ver el caserío desde arriba. Distingue la visita al recinto fortificado de la iglesia prioral cercana y comprueba el último acceso. La subida tiene pendiente. [Ver ficha](/lugar/castillo-aracena)."
+    ]
+  ],
+  "sources": [
+    [
+      "Ayuntamiento de Aracena · Gruta y recursos turísticos",
+      "https://www.aracena.es/es/municipio/gruta/"
+    ],
+    [
+      "Ayuntamiento de Aracena · Ruta por las plazas",
+      "https://www.aracena.es/es/municipio/puntos-de-interes/ruta-plazas.html"
+    ],
+    [
+      "Turismo de Aracena · Cabildo Viejo",
+      "https://descubrearacena.es/monumentos/cabildo-viejo/"
+    ]
+  ]
+},
 "algeciras": {
   "intro": "Este paseo por el centro de Algeciras enlaza el mercado de abastos, dos plazas del casco histórico, las murallas medievales y el parque María Cristina. Puedes recorrer los exteriores y elegir aparte las visitas interiores.",
   "sections": [
