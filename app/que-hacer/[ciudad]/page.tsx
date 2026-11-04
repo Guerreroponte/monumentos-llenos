@@ -25,6 +25,7 @@ import RutaBaeza from "./RutaBaeza";
 import RutaAviles from "./RutaAviles";
 import RutaAlgeciras from "./RutaAlgeciras";
 import RutaAracena from "./RutaAracena";
+import RutaCazorla from "./RutaCazorla";
 import RutaAlcoy from "./RutaAlcoy";
 import { supabase } from "@/lib/supabase";
 
@@ -715,6 +716,7 @@ export default async function CiudadPage({
           {ciudadSlug === "aviles" && <RutaAviles />}
           {ciudadSlug === "algeciras" && <RutaAlgeciras />}
           {ciudadSlug === "aracena" && <RutaAracena />}
+          {ciudadSlug === "cazorla" && <RutaCazorla />}
           {ciudadSlug === "alcoy" && <RutaAlcoy />}
 
           {tieneGuiaCiudad(ciudadSlug) ? <GuiaCiudades ciudad={ciudadSlug} /> : ciudadSlug === "valencia" ? <GuiaValencia /> : ciudadSlug === "bilbao" || ciudadSlug === "malaga" ? <GuiaBilbaoMalaga ciudad={ciudadSlug} /> : ciudadSlug === "pamplona" || ciudadSlug === "zaragoza" ? <GuiaPamplonaZaragoza ciudad={ciudadSlug} /> : ciudadSlug === "sevilla" || ciudadSlug === "murcia" ? <GuiaSevillaMurcia ciudad={ciudadSlug} /> : ciudadSlug === "a-coruna" || ciudadSlug === "granada" ? <GuiaCorunaGranada ciudad={ciudadSlug} /> : ciudadSlug === "vigo" || ciudadSlug === "santander" ? <GuiaVigoSantander ciudad={ciudadSlug} /> : ciudadSlug === "pontevedra" ? <GuiaPontevedra /> : <>
