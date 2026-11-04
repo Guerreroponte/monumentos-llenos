@@ -33,7 +33,7 @@ const guias = {
     ],
     [
       "Portal oficial de Turismo de Olivenza",
-      "https://olivenzateespera.com/planificar/horarios-tarifas/"
+      "https://turismodeolivenza.com/"
     ]
   ]
 },

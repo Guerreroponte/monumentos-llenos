@@ -8,7 +8,7 @@ export default function RutaOlivenza() {
       <p className="mt-3 leading-7 text-slate-600">Entra por la Puerta de Alconchel y recorre la ciudadela antes de seguir hacia el paseo de Pizarro.</p>
       <RutaOlivenzaInteractiva />
       <p className="mt-5 text-sm leading-6 text-slate-600">Puedes hacer el paseo por libre. Consulta los horarios si quieres entrar en las iglesias o visitar el museo.</p>
-      <a href="https://olivenzateespera.com/planificar/horarios-tarifas/" target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm font-semibold text-orange-700 underline">Consultar información turística ↗</a>
+      <a href="https://turismodeolivenza.com/" target="_blank" rel="noopener noreferrer" className="mt-2 inline-block text-sm font-semibold text-orange-700 underline">Consultar información turística ↗</a>
     </section>
   );
 }

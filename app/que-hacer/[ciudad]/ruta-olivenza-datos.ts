@@ -7,7 +7,7 @@ export const paradasOlivenza = [
       -7.10039
     ] as [number, number],
     "descripcion": "Empieza en la plaza de la Magdalena. Si la iglesia está abierta, fíjate en las columnas retorcidas de la nave, un detalle del estilo manuelino.",
-    "enlace": "https://olivenzateespera.com/planificar/horarios-tarifas/"
+    "enlace": "https://turismodeolivenza.com/"
   },
   {
     "nombre": "Puerta de Alconchel",
@@ -27,7 +27,7 @@ export const paradasOlivenza = [
       -7.0996
     ] as [number, number],
     "descripcion": "Entra en la plaza de Santa María. Si puedes visitar el templo, busca el retablo del Árbol de Jesé en la capilla del Evangelio.",
-    "enlace": "https://olivenzateespera.com/planificar/horarios-tarifas/"
+    "enlace": "https://turismodeolivenza.com/"
   },
   {
     "nombre": "Alcázar y Torre del Homenaje",
@@ -37,7 +37,7 @@ export const paradasOlivenza = [
       -7.09911
     ] as [number, number],
     "descripcion": "Acércate a la torre y reserva tiempo para el Museo Etnográfico González Santana, que ocupa parte del conjunto y la antigua Panadería del Rey.",
-    "enlace": "https://olivenzateespera.com/planificar/horarios-tarifas/"
+    "enlace": "https://turismodeolivenza.com/"
   },
   {
     "nombre": "Puerta del Calvario",
