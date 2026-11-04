@@ -1,3 +1,4 @@
+import RutaZafra from "./RutaZafra";
 import RutaOlivenza from "./RutaOlivenza";
 import RutaTrujillo from "./RutaTrujillo";
 import RutaSegovia from "./RutaSegovia";
@@ -20,6 +21,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["zafra", { ciudad: "Zafra", Componente: RutaZafra }],
   ["olivenza", { ciudad: "Olivenza", Componente: RutaOlivenza }],
   ["trujillo", { ciudad: "Trujillo", Componente: RutaTrujillo }],
   ["segovia", { ciudad: "Segovia", Componente: RutaSegovia }],

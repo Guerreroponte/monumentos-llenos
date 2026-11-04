@@ -2,6 +2,37 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"zafra": {
+  "intro": "Empieza en la Colegiata de la Candelaria, recorre las plazas porticadas del casco antiguo y termina ante el palacio que hoy alberga el Parador.",
+  "sections": [
+    [
+      "Colegiata de la Candelaria",
+      "Empieza en la colegiata. Si está abierta, fíjate en el retablo mayor y busca el retablo con pinturas de Zurbarán. [Ver ficha](/lugar/colegiata-candelaria-zafra)."
+    ],
+    [
+      "Plaza Grande de Zafra",
+      "Recorre los soportales de la plaza y busca el Arquillo del Pan, que comunica con la Plaza Chica. [Ver ficha](/lugar/plaza-grande-zafra)."
+    ],
+    [
+      "Plaza Chica de Zafra",
+      "Mira la columna junto al Arquillo del Pan. En ella se conserva la vara con la que medían los comerciantes. [Ver ficha](/lugar/plaza-chica-zafra)."
+    ],
+    [
+      "Palacio de los Duques de Feria",
+      "Termina ante el antiguo alcázar de los Duques de Feria, hoy Parador. Desde la plaza puedes ver la fachada y sus torres. [Ver ficha](/lugar/palacio-duques-de-feria-zafra)."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo de Zafra",
+      "https://turismo.zafra.es/"
+    ],
+    [
+      "Parador de Zafra",
+      "https://paradores.es/es/parador-de-zafra"
+    ]
+  ]
+},
 "olivenza": {
   "intro": "Este paseo reúne dos iglesias, dos puertas de la muralla y el alcázar. Empieza en la Magdalena para descubrir el estilo manuelino y termina en la Puerta del Calvario, junto a las defensas abaluartadas.",
   "sections": [
