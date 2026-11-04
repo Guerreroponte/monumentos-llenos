@@ -2,6 +2,45 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"cardona": {
+  "intro": "Cardona se recorre a pie entre soportales, plazas y calles que conservan el trazado medieval. Empieza junto al mercado y termina en la fortaleza. Si quieres visitar la colegiata de Sant Vicenç, organiza la subida alrededor del pase del castillo.",
+  "sections": [
+    [
+      "Plaça del Mercat",
+      "La plaza porticada del mercado conserva la huella del comercio medieval de Cardona. Recorre sus soportales y fíjate en los distintos perfiles de los arcos. El mercado semanal suele ocupar esta plaza y otras del centro los domingos por la mañana. [Ver ficha](/lugar/placa-mercat-cardona)."
+    ],
+    [
+      "Iglesia de Sant Miquel",
+      "Sant Miquel es la iglesia parroquial de la villa. Su nave gótica se alza junto a las antiguas plazas comerciales. Acércate desde la Plaça de la Fira y consulta con Turismo si quieres visitar el interior. [Ver ficha](/lugar/iglesia-sant-miquel-cardona)."
+    ],
+    [
+      "Capilla de Santa Eulàlia",
+      "La pequeña capilla gótica recuerda el antiguo hospital medieval de Cardona. Desde la plaza puedes observar su fachada y situar el pasadizo que comunicaba el hospital con la calle del Mercat. La propuesta es contemplar el conjunto desde el exterior. [Ver ficha](/lugar/capilla-santa-eulalia-cardona)."
+    ],
+    [
+      "Portal de Graells",
+      "El Portal de Graells se encuentra al final de la calle del mismo nombre. Era la entrada oriental de la villa amurallada y permite reconocer el paso de la calle medieval al exterior del recinto. Obsérvalo desde ambos lados antes de seguir hacia la subida al castillo. [Ver ficha](/lugar/portal-graells-cardona)."
+    ],
+    [
+      "Castell de Cardona",
+      "La fortaleza domina la villa desde lo alto del cerro. La visita guiada recorre partes del conjunto, entre ellas la colegiata románica de Sant Vicenç. La subida desde el casco histórico tiene pendiente y el acceso a la Torre de la Minyona se hace por escaleras. Consulta los pases y las condiciones antes de salir. [Ver ficha](/lugar/castell-cardona)."
+    ]
+  ],
+  "sources": [
+    [
+      "Ajuntament de Cardona · Centro histórico",
+      "https://www.cardona.cat/cardona/historia/centre-historic"
+    ],
+    [
+      "Cardona Turisme · Visita guiada al castillo",
+      "https://cardonaturisme.cat/es/activitats/visita-guiada-al-castillo-de-cardona/"
+    ],
+    [
+      "Ajuntament de Cardona · Mercado semanal",
+      "https://www.cardona.cat/cardona/el-municipi/mercat-setmanal"
+    ]
+  ]
+},
 "cazorla": {
   "intro": "Este paseo une el centro de Cazorla con el río y la fortaleza. La bóveda y las ruinas de Santa María forman un mismo conjunto a dos niveles. Puedes hacer el paseo exterior y encajar aparte la visita guiada y el museo del castillo.",
   "sections": [
