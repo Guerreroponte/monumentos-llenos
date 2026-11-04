@@ -19,3 +19,10 @@ test('los enlaces directos tienen regreso seguro y rechazan destinos ajenos', ()
   assert.equal(regresoLugares('/?ciudad=Vigo&ajeno=1#inexistente'), '/?ciudad=Vigo#lugares');
   assert.equal(regresoLugares('/#lugar-alternativa-123'), '/#lugar-alternativa-123');
 });
+
+test('la ficha regresa al mapa con los filtros que estaban activos', () => {
+  const link = new URL(enlaceFichaLugar('castillo', 'Castillo & museo', 'Ávila', 1, 'mapa'), 'https://example.com');
+  assert.equal(regresoLugares(link.searchParams.get('volver')), '/?lugar=Castillo+%26+museo&ciudad=%C3%81vila#mapa');
+  assert.equal(regresoLugares('/#mapa'), '/#mapa');
+  assert.equal(regresoLugares('//evil.test/#mapa'), '/');
+});

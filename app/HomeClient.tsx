@@ -62,6 +62,8 @@ function getFechaSubida(valor?: string | null) {
 const Mapa = dynamic(() => import("./Mapa"), {
   ssr: false,
 }) as React.ComponentType<{
+  nombreBuscado: string;
+  ciudadSeleccionada: string;
   monumentos: {
     id: string;
     nombre: string;
@@ -2306,6 +2308,8 @@ ${url}`;
 
         <div className="relative z-0 min-h-[650px]">
         <Mapa
+          nombreBuscado={busquedaNombre}
+          ciudadSeleccionada={busquedaCiudad}
           monumentos={monumentosFiltrados.map((m) => ({
             id: m.id,
             nombre: m.nombre,

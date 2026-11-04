@@ -67,6 +67,8 @@ export default function LugarPage({ initialData, regreso = "/" }: { regreso?: st
   const { resumen, creditos } = separarDescripcionLugar(lugar.descripcion);
   const ciudad = nombreCiudad(lugar?.ciudad);
   const ciudadSlug = claveCiudad(ciudad);
+  const vuelveAlMapa = regreso.endsWith("#mapa");
+  const ciudadDelMapa = vuelveAlMapa ? new URLSearchParams(regreso.slice(1, -5)).get("ciudad") : null;
   const [resenas, setResenas] = useState<Resena[]>(initialData.resenas);
 
   const [usuario, setUsuario] = useState("");
@@ -253,7 +255,7 @@ ${url}`;
           href={regreso}
           className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-orange-300 hover:text-orange-600"
         >
-          ← Volver a Lugares Llenos
+          ← {ciudadDelMapa ? `Volver al mapa de ${ciudadDelMapa}` : vuelveAlMapa ? "Volver al mapa" : "Volver a Lugares Llenos"}
         </a>
 
         <div className="overflow-hidden rounded-[28px] border border-orange-100 bg-white shadow-lg shadow-orange-100">
