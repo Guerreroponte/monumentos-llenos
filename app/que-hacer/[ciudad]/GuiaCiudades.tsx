@@ -2,6 +2,45 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"medina-del-campo": {
+  "intro": "Un paseo desde la Plaza Mayor hasta el Castillo de la Mota, con paradas en la colegiata, el Palacio Real Testamentario y las Reales Carnicerías. Organiza la salida alrededor de las visitas interiores que quieras reservar.",
+  "sections": [
+    [
+      "Plaza Mayor de la Hispanidad",
+      "Empieza en la plaza porticada. Busca las fachadas de la colegiata, el Ayuntamiento y el Palacio Real Testamentario para situar el centro histórico. [Ver ficha](/lugar/plaza-mayor-hispanidad-medina-del-campo)."
+    ],
+    [
+      "Colegiata de San Antolín",
+      "Acércate a la colegiata y observa la torre con su reloj. Si quieres subir a la torre o entrar en el templo, consulta antes los horarios y las condiciones de cada visita. [Ver ficha](/lugar/colegiata-san-antolin-medina-del-campo)."
+    ],
+    [
+      "Palacio Real Testamentario",
+      "La visita al centro de interpretación explica la relación de Isabel la Católica con Medina del Campo. El edificio actual es una recreación didáctica del antiguo palacio donde murió la reina. [Ver ficha](/lugar/palacio-real-testamentario-medina-del-campo)."
+    ],
+    [
+      "Reales Carnicerías",
+      "Sigue hacia el Zapardiel para ver el edificio renacentista de las Reales Carnicerías. Observa sus portadas de piedra y consulta los horarios del mercado si quieres entrar. [Ver ficha](/lugar/reales-carnicerias-medina-del-campo)."
+    ],
+    [
+      "Castillo de la Mota",
+      "Termina en el cerro del castillo. Recorre el exterior para apreciar el foso y los muros de ladrillo. Las visitas guiadas y el acceso a la torre tienen condiciones y reservas propias. [Ver ficha](/lugar/castillo-de-la-mota-medina-del-campo)."
+    ]
+  ],
+  "sources": [
+    [
+      "Turespaña · Medina del Campo",
+      "https://www.spain.info/es/destino/medina-del-campo/"
+    ],
+    [
+      "Castillo de la Mota · Visitas",
+      "https://www.castillodelamota.es/ven-a-visitarnos/descubre-el-castillo/"
+    ],
+    [
+      "Palacio Real Testamentario · Horarios",
+      "https://www.palaciorealtestamentario.es/horarios-y-tarifas/"
+    ]
+  ]
+},
 "zafra": {
   "intro": "Empieza en la Colegiata de la Candelaria, recorre las plazas porticadas del casco antiguo y termina ante el palacio que hoy alberga el Parador.",
   "sections": [
