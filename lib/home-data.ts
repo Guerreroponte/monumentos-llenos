@@ -56,6 +56,8 @@ export const SALAS_DESTACADAS_COLABORADORAS = [
   "Canarias en Vivo",
   "Teatro Triana",
   "Teatro de las Esquinas",
+  "Teatro OFF",
+  "Sala OFF Kids",
 ];
 
 
