@@ -1,5 +1,6 @@
 import { diaMadrid, fechaAgenda, filtroEventosVigentes } from "@/lib/agenda-ui";
 import { proximosPorColaborador, type EventoColaborador } from "@/lib/colaboradores-eventos";
+import DescripcionColaborador from "./DescripcionColaborador";
 import FiltrosColaboradores from "./FiltrosColaboradores";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -178,10 +179,10 @@ function ColaboradorCard({
           </div>
         </div>
 
-        <p className="mt-5 text-sm leading-6 text-slate-600">
-          {colaborador.descripcion ||
-            "Colaborador de la comunidad Lugares Llenos."}
-        </p>
+        <DescripcionColaborador
+          texto={colaborador.descripcion || "Colaborador de la comunidad Lugares Llenos."}
+          nombre={colaborador.nombre}
+        />
 
         {eventos.length > 0 && (
           <div className="mt-5 rounded-2xl border border-orange-100 bg-orange-50/60 p-4">
