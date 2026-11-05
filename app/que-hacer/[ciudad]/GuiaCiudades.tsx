@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"toro": {
+  "intro": "Desde el Arco del Reloj, sigue por la calle Mayor y la plaza hasta la colegiata. El paseo del Espolón conecta esta zona con el Alcázar y ofrece vistas de la vega del Duero. Reserva tiempo para la colegiata si quieres entrar.",
+  "sections": [
+    [
+      "Arco del Reloj",
+      "Empieza junto a la Torre del Reloj, levantada sobre la antigua puerta del Mercado. Cruza el arco y sigue por la calle Mayor hacia la plaza. [Ver ficha](/lugar/arco-del-reloj-toro)."
+    ],
+    [
+      "Plaza Mayor de Toro",
+      "Recorre los soportales de la plaza y observa las casas de entramado y la fachada del Ayuntamiento antes de continuar hacia la colegiata. [Ver ficha](/lugar/plaza-mayor-toro)."
+    ],
+    [
+      "Colegiata de Santa María la Mayor",
+      "Acércate a la colegiata románica y fíjate en su cimborrio. Si visitas el interior, reserva tiempo para el Pórtico de la Majestad y consulta las entradas en Toro Sacro. [Ver ficha](/lugar/colegiata-santa-maria-la-mayor-toro)."
+    ],
+    [
+      "Paseo del Espolón y mirador del Duero",
+      "Sal al paseo junto a la colegiata para contemplar la vega del Duero y su puente de piedra. Sigue por el paseo hacia el Alcázar, deteniéndote en los puntos de vista del recorrido. [Ver ficha](/lugar/paseo-espolon-mirador-duero-toro)."
+    ],
+    [
+      "Alcázar de Toro",
+      "Termina ante los muros y torreones del Alcázar. Consulta con Turismo la apertura del recinto y las exposiciones que puedan celebrarse durante tu visita. [Ver ficha](/lugar/alcazar-toro)."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo de Toro · Rutas de interés",
+      "https://www.turismotoro.com/toro/rutas-de-interes/"
+    ],
+    [
+      "Toro Sacro · Visita turística",
+      "https://torosacro.com/visita-turistica/"
+    ]
+  ]
+},
 "tordesillas": {
   "intro": "Un paseo por el casco histórico y la ribera del Duero. Empieza en la Plaza Mayor, pasa por las Casas del Tratado y el museo de San Antolín, y reserva tiempo para la visita al Real Monasterio de Santa Clara antes de bajar al puente.",
   "sections": [

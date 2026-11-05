@@ -1,3 +1,4 @@
+import RutaToro from "./RutaToro";
 import RutaTordesillas from "./RutaTordesillas";
 import RutaMedinaDelCampo from "./RutaMedinaDelCampo";
 import RutaZafra from "./RutaZafra";
@@ -23,6 +24,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["toro", { ciudad: "Toro", Componente: RutaToro }],
   ["tordesillas", { ciudad: "Tordesillas", Componente: RutaTordesillas }],
   ["medina-del-campo", { ciudad: "Medina del Campo", Componente: RutaMedinaDelCampo }],
   ["zafra", { ciudad: "Zafra", Componente: RutaZafra }],
