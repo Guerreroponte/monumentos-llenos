@@ -2,6 +2,45 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"tordesillas": {
+  "intro": "Un paseo por el casco histórico y la ribera del Duero. Empieza en la Plaza Mayor, pasa por las Casas del Tratado y el museo de San Antolín, y reserva tiempo para la visita al Real Monasterio de Santa Clara antes de bajar al puente.",
+  "sections": [
+    [
+      "Plaza Mayor de Tordesillas",
+      "Empieza bajo los soportales de la plaza y fíjate en las fachadas que rodean el Ayuntamiento. Desde aquí puedes bajar por la calle de San Antolín hacia el Duero. [Ver ficha](/lugar/plaza-mayor-tordesillas)."
+    ],
+    [
+      "Casas del Tratado",
+      "Acércate a las fachadas de las Casas del Tratado, vinculadas a las negociaciones del acuerdo de 1494. Consulta con la Oficina de Turismo qué exposiciones están abiertas durante tu visita. [Ver ficha](/lugar/casas-del-tratado-tordesillas)."
+    ],
+    [
+      "Iglesia-Museo de San Antolín",
+      "La antigua iglesia alberga un museo de arte sacro. Si está abierto, reserva tiempo para ver la capilla de los Alderete y consultar el acceso al mirador. [Ver ficha](/lugar/museo-san-antolin-tordesillas)."
+    ],
+    [
+      "Real Monasterio de Santa Clara",
+      "Continúa hacia el monasterio, instalado en un antiguo palacio real. La visita permite conocer espacios mudéjares y la iglesia. Comprueba las condiciones de entrada y los pases en Patrimonio Nacional. [Ver ficha](/lugar/monasterio-santa-clara-tordesillas)."
+    ],
+    [
+      "Puente medieval de Tordesillas",
+      "Baja hacia la ribera para contemplar el puente de piedra y la silueta de la villa sobre el Duero. Utiliza los pasos y las aceras del entorno para completar el paseo. [Ver ficha](/lugar/puente-medieval-tordesillas)."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo de Tordesillas",
+      "https://tordesillas.net/"
+    ],
+    [
+      "Casas del Tratado",
+      "https://tordesillas.net/casas-y-palacios/"
+    ],
+    [
+      "Patrimonio Nacional · Santa Clara",
+      "https://www.patrimonionacional.es/visita/real-monasterio-de-santa-clara-de-tordesillas"
+    ]
+  ]
+},
 "medina-del-campo": {
   "intro": "Un paseo desde la Plaza Mayor hasta el Castillo de la Mota, con paradas en la colegiata, el Palacio Real Testamentario y las Reales Carnicerías. Organiza la salida alrededor de las visitas interiores que quieras reservar.",
   "sections": [
