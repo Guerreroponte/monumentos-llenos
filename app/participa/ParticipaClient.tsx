@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import FormularioLugar from "@/components/FormularioLugar";
 import { supabase } from "@/lib/supabase";
 
 type CategoriaEvento = "grande" | "local";
@@ -595,26 +595,10 @@ export default function ParticipaPage({ fechaInicial }: { fechaInicial: string }
             </h2>
 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#64748b]">
-              Este formulario está optimizado para planes y eventos. Si quieres
-              añadir un lugar, abre el formulario de lugares para compartir tus fotos y recomendaciones.
+              Comparte sus fotos y lo que debería saber otra persona antes de visitarlo.
             </p>
+            <FormularioLugar />
 
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/#participa"
-                className="inline-flex rounded-full bg-[#f97316] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#ea580c]"
-              >
-                Abrir formulario de lugares
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => seleccionarTipo("plan_local")}
-                className="inline-flex rounded-full border border-[#e2e8f0] bg-white px-5 py-3 text-sm font-bold text-[#475569] transition hover:bg-[#f8fafc]"
-              >
-                Mejor subir un plan rápido
-              </button>
-            </div>
           </div>
         </section>
       )}
