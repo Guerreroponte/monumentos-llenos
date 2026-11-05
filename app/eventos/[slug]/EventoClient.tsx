@@ -498,8 +498,8 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
           </Link>
         </div>
 
-        <div className="overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm">
-          <a href={/^https?:\/\//i.test(evento.imagen || "") ? evento.imagen! : undefined} className="block" target="_blank" rel="noopener noreferrer" aria-label="Abrir imagen del evento a tamaño completo (se abre en otra pestaña)">
+        <div className="flex flex-col overflow-hidden rounded-3xl border border-[#e5e7eb] bg-white shadow-sm">
+          <a href={/^https?:\/\//i.test(evento.imagen || "") ? evento.imagen! : undefined} className="order-2 block md:order-none" target="_blank" rel="noopener noreferrer" aria-label="Abrir imagen del evento a tamaño completo (se abre en otra pestaña)">
           <img
             src={
               evento.imagen ||
@@ -512,7 +512,8 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
             {/^https?:\/\//i.test(evento.imagen || "") && <span className="block bg-slate-50 py-2 text-center text-sm font-semibold text-orange-700 underline">Ampliar imagen ↗</span>}
           </a>
 
-          <div className="p-6 md:p-8">
+          <div className="contents md:block md:p-8">
+          <div className="order-1 p-5 md:p-0">
             <div className="mb-3 flex flex-wrap gap-2">
               {evento.subtipo && (
                 <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
@@ -551,6 +552,43 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
               {evento.nombre || "Evento"}
             </h1>
 
+            <div className="mt-3 space-y-2 text-sm text-[#64748b]">
+              <p>
+                📍 {evento.ciudad || "Ciudad por confirmar"}
+                {evento.ubicacion_detalle
+                  ? ` · ${evento.ubicacion_detalle}`
+                  : ""}
+              </p>
+
+              <p>
+                📅 {textoFechaEvento(evento)}
+                {evento.hora_inicio
+                  ? ` · 🕒 ${formatearHora(evento.hora_inicio)}`
+                  : ""}
+                {evento.hora_fin
+                  ? ` - ${formatearHora(evento.hora_fin)}`
+                  : ""}
+              </p>
+              {evento.precio && <p className="font-semibold text-slate-800 md:hidden">💶 {evento.precio}</p>}
+              <div className="flex flex-wrap gap-2">
+              {comoLlegar && (
+                <a href={comoLlegar} target="_blank" rel="noopener noreferrer"
+                  aria-label="Cómo llegar en Google Maps (se abre en otra pestaña)"
+                  className="inline-flex min-h-11 items-center rounded-full border border-orange-200 bg-orange-50 px-4 py-2 font-semibold text-orange-700 transition hover:bg-orange-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
+                  Cómo llegar ↗
+                </a>
+              )}
+              {hoy && eventoVigente(evento.fecha_inicio, evento.fecha_fin, hoy) && (evento.fever_url_afiliado?.trim() || evento.enlace?.trim()) && (
+                <a href={evento.fever_url_afiliado?.trim() || evento.enlace!.trim()}
+                  target="_blank" rel="noopener noreferrer sponsored"
+                  className="inline-flex min-h-11 items-center justify-center rounded-full bg-orange-600 px-5 py-3 text-sm font-bold text-white hover:bg-orange-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 md:hidden">
+                  {evento.fever_url_afiliado?.trim() ? "Ver entradas" : etiquetaEnlace(evento.enlace!)} ↗
+                </a>
+              )}
+              </div>
+            </div>
+          </div>
+          <div className="order-3 p-5 md:p-0">
             {(colaborador || evento.creado_por?.trim()) && (
               <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-[#fed7aa] bg-[#fff7ed] px-4 py-3">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-[#fed7aa]">
@@ -585,32 +623,7 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
               </div>
             )}
 
-            <div className="mt-3 space-y-2 text-sm text-[#64748b]">
-              <p>
-                📍 {evento.ciudad || "Ciudad por confirmar"}
-                {evento.ubicacion_detalle
-                  ? ` · ${evento.ubicacion_detalle}`
-                  : ""}
-              </p>
-
-              <p>
-                📅 {textoFechaEvento(evento)}
-                {evento.hora_inicio
-                  ? ` · 🕒 ${formatearHora(evento.hora_inicio)}`
-                  : ""}
-                {evento.hora_fin
-                  ? ` - ${formatearHora(evento.hora_fin)}`
-                  : ""}
-              </p>
-              {comoLlegar && (
-                <a href={comoLlegar} target="_blank" rel="noopener noreferrer"
-                  aria-label="Cómo llegar en Google Maps (se abre en otra pestaña)"
-                  className="inline-flex min-h-11 items-center rounded-full border border-orange-200 bg-orange-50 px-4 py-2 font-semibold text-orange-700 transition hover:bg-orange-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
-                  Cómo llegar ↗
-                </a>
-              )}
-              <OpcionesTransporte comoLlegar={comoLlegar} nombreDestino={destinoTransporte} />
-            </div>
+            <OpcionesTransporte comoLlegar={comoLlegar} nombreDestino={destinoTransporte} />
 
             {ciudadSlug && (
               <nav aria-label={`Descubrir ${ciudad}`} className="mt-5 flex flex-wrap">
@@ -794,6 +807,7 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
                 {mensajeCompartir}
               </div>
             )}
+          </div>
           </div>
         </div>
 

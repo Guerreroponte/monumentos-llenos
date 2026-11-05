@@ -1,3 +1,4 @@
+import { contarCategoriasCiudad } from "@/lib/categorias-ciudad";
 import { rutasAPie } from "./rutas-a-pie";
 import { resumenLugar } from "@/lib/descripcion-lugar";
 import { cargarLugaresCiudad } from "@/lib/lugares-ciudad-data";
@@ -23,6 +24,7 @@ type Evento = {
   fecha_fin: string | null;
   imagen: string | null;
   subtipo: string | null;
+  tipo: string | null;
 };
 
 type Colaborador = {
@@ -85,7 +87,7 @@ function obtenerFechaHoyMadrid(): string {
 
 async function cargarEventosCiudad(
   ciudadNormalizada: string
-): Promise<{ items: Evento[]; total: number }> {
+): Promise<{ items: Evento[]; total: number; categorias: Record<string, number> | null }> {
   const encontrados: Evento[] = [];
   let desde = 0;
 
@@ -98,7 +100,7 @@ async function cargarEventosCiudad(
     const { data, error } = await supabase
       .from("eventos")
       .select(
-        "id,nombre,slug,ciudad,fecha_inicio,fecha_fin,imagen,subtipo"
+        "id,nombre,slug,ciudad,fecha_inicio,fecha_fin,imagen,subtipo,tipo"
       )
       .eq("validado", true)
       .eq("reportado", false)
@@ -113,7 +115,7 @@ async function cargarEventosCiudad(
         "Error cargando eventos de la ciudad:",
         error
       );
-      break;
+      return { items: [], total: 0, categorias: null };
     }
 
     const pagina = (data || []) as Evento[];
@@ -135,7 +137,7 @@ async function cargarEventosCiudad(
     desde += TAMANO_PAGINA;
   }
 
-  return { items: encontrados.sort((a, b) => compararAgenda({ inicio: a.fecha_inicio, fin: a.fecha_fin }, { inicio: b.fecha_inicio, fin: b.fecha_fin })).slice(0, 8), total: encontrados.length };
+  return { items: encontrados.sort((a, b) => compararAgenda({ inicio: a.fecha_inicio, fin: a.fecha_fin }, { inicio: b.fecha_inicio, fin: b.fecha_fin })).slice(0, 8), total: encontrados.length, categorias: contarCategoriasCiudad(encontrados, hoy) };
 }
 
 async function cargarColaboradoresCiudad(
@@ -318,25 +320,23 @@ export default async function CiudadPage({
           </h2>
 
           <div className="mt-5 flex flex-wrap gap-3">
-            {categorias.filter((categoria) => categoria.href !== "#colaboradores" || colaboradores.length > 0).map(
-              (categoria) => (
-                <a
-                  key={
-                    categoria.label
-                  }
-                  href={
-                    categoria.tipo
-                      ? `/eventos?ciudad=${encodeURIComponent(ciudadFormateada)}&tipo=${encodeURIComponent(categoria.tipo)}#seccion-todos`
-                      : categoria.href
-                  }
-                  className="rounded-full border border-orange-100 bg-[#fff7ed] px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-orange-50 hover:text-orange-600"
-                >
-                  {
-                    categoria.label
-                  }
+            {categorias.filter(categoria => categoria.href !== "#colaboradores" || colaboradores.length > 0).map(categoria => {
+              const cantidad = categoria.tipo ? eventosCiudad.categorias?.[categoria.tipo] :
+                categoria.href === "#lugares" ? (errorLugares ? undefined : lugaresCiudad.total) : colaboradoresCiudad.total;
+              const etiqueta = <>{categoria.label}{cantidad !== undefined && <span className="ml-1">· {cantidad}</span>}</>;
+              if (cantidad === 0) return (
+                <span key={categoria.label} className="inline-flex min-h-11 items-center rounded-full border border-slate-100 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-500">
+                  {etiqueta}
+                </span>
+              );
+              return (
+                <a key={categoria.label}
+                  href={categoria.tipo ? `/eventos?ciudad=${encodeURIComponent(ciudadFormateada)}&tipo=${encodeURIComponent(categoria.tipo)}#seccion-todos` : categoria.href}
+                  className="inline-flex min-h-11 items-center rounded-full border border-orange-100 bg-[#fff7ed] px-4 py-2 text-sm font-bold text-slate-700 transition hover:bg-orange-50 hover:text-orange-600">
+                  {etiqueta}
                 </a>
-              )
-            )}
+              );
+            })}
           </div>
         </section>
 

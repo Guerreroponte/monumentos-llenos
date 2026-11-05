@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import SelectorCiudad from "@/components/SelectorCiudad";
 import Link from "next/link";
 import { claveCiudad } from "@/lib/ciudad-identidad";
 import type { EventoUI } from "@/lib/eventos-data";
@@ -334,14 +335,8 @@ export default function EventosPage({ initialData, initialFilters, ciudadesLugar
       <section aria-label="Filtros de eventos" className="mx-auto max-w-7xl px-4 pb-7 md:px-6 lg:px-8">
         <div className="rounded-3xl border border-[#e5e7eb] bg-white p-4 shadow-sm md:p-5">
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-            <label className="flex min-w-0 flex-col gap-2 text-sm font-semibold text-[#334155]">
-              Ciudad
-              <select value={ciudadSeleccionada} onChange={(e) => setCiudadSeleccionada(e.target.value)} className="min-h-11 w-full rounded-xl border border-[#cbd5e1] bg-white px-3 py-2 font-normal">
-                <option value="">Todas las ciudades</option>
-                {ciudadSeleccionada && !ciudadesDisponibles.includes(ciudadSeleccionada) && <option value={ciudadSeleccionada}>{ciudadSeleccionada}</option>}
-                {ciudadesDisponibles.map((ciudad) => <option key={ciudad} value={ciudad}>{ciudad}</option>)}
-              </select>
-            </label>
+            <SelectorCiudad etiqueta="Ciudad" ciudades={ciudadesDisponibles}
+              valor={ciudadSeleccionada} onChange={setCiudadSeleccionada} />
             <label className="flex min-w-0 flex-col gap-2 text-sm font-semibold text-[#334155]">
               Elegir fecha
               <input type="date" min={diaMadrid()} value={fechaSeleccionada} onChange={(e) => elegirDia(e.target.value)} className="min-h-11 w-full min-w-0 rounded-xl border border-[#cbd5e1] bg-white px-3 py-2 font-normal" />
