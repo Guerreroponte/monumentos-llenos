@@ -1,3 +1,5 @@
+import { diaMadrid, fechaAgenda, filtroEventosVigentes } from "@/lib/agenda-ui";
+import { proximosPorColaborador, type EventoColaborador } from "@/lib/colaboradores-eventos";
 import FiltrosColaboradores from "./FiltrosColaboradores";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -81,14 +83,41 @@ function iconoPorCategoria(categoria: CategoriaColaborador | null) {
   }
 }
 
+async function getProximosEventos(ids: string[], hoy: string) {
+  if (!ids.length) return new Map<string, EventoColaborador[]>();
+  const eventos: EventoColaborador[] = [];
+  const lote = 500;
+  for (let desde = 0; ; desde += lote) {
+    const { data, error } = await supabase.from("eventos")
+      .select("id,colaborador_id,nombre,slug,fecha_inicio,fecha_fin,hora_inicio")
+      .in("colaborador_id", ids)
+      .eq("reportado", false)
+      .or(filtroEventosVigentes(hoy))
+      .order("fecha_inicio", { ascending: true })
+      .order("id", { ascending: true })
+      .range(desde, desde + lote - 1);
+    if (error) {
+      console.error("No se pudo cargar la programación de colaboradores", error.message);
+      return new Map<string, EventoColaborador[]>();
+    }
+    eventos.push(...(data || []));
+    if (!data || data.length < lote) break;
+  }
+  return proximosPorColaborador(eventos, hoy);
+}
+
 function ColaboradorCard({
   colaborador,
   fichaHref,
   eventosHref,
+  eventos,
+  hoy,
 }: {
   colaborador: Colaborador;
   fichaHref?: string;
   eventosHref?: string;
+  eventos: EventoColaborador[];
+  hoy: string;
 }) {
   const categoria = colaborador.categoria_colaborador || "sala";
   const logo = colaborador.logo_url || colaborador.logo;
@@ -153,6 +182,26 @@ function ColaboradorCard({
           {colaborador.descripcion ||
             "Colaborador de la comunidad Lugares Llenos."}
         </p>
+
+        {eventos.length > 0 && (
+          <div className="mt-5 rounded-2xl border border-orange-100 bg-orange-50/60 p-4">
+            <h3 className="text-sm font-bold text-orange-800">Próximos eventos</h3>
+            <ul className="mt-2 divide-y divide-orange-100">
+              {eventos.map(evento => (
+                <li key={evento.id}>
+                  <Link href={`/eventos/${evento.slug}`}
+                    className="block rounded-lg py-3 text-sm transition hover:text-orange-700 focus-visible:outline-2 focus-visible:outline-orange-600">
+                    <span className="block font-bold break-words">{evento.nombre} →</span>
+                    <span className="mt-1 block text-xs leading-5 text-slate-600">
+                      {fechaAgenda(evento.fecha_inicio, evento.fecha_fin, hoy)}
+                      {(!evento.fecha_fin || evento.fecha_fin === evento.fecha_inicio) && evento.hora_inicio && ` · ${evento.hora_inicio.slice(0, 5)}`}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="mt-6 flex flex-wrap gap-3">
           {fichaHref && (
@@ -244,6 +293,9 @@ export default async function ColaboradoresPage({
     normalizarTexto(colaborador.nombre).includes(normalizarTexto(nombreBuscado))
   );
 
+  const hoy = diaMadrid();
+  const eventosPorColaborador = await getProximosEventos(colaboradores.map(c => c.id), hoy);
+
   const colaboradoresMusicales = colaboradores.filter(
     (colaborador) =>
       !colaborador.categoria_colaborador ||
@@ -321,6 +373,8 @@ export default async function ColaboradoresPage({
                 <ColaboradorCard
                   key={colaborador.id}
                   colaborador={colaborador}
+                  eventos={eventosPorColaborador.get(colaborador.id) || []}
+                  hoy={hoy}
                   fichaHref={
                     colaborador.slug
                       ? `/colaboradores/${colaborador.slug}`
@@ -353,6 +407,8 @@ export default async function ColaboradoresPage({
                 <ColaboradorCard
                   key={colaborador.id}
                   colaborador={colaborador}
+                  eventos={eventosPorColaborador.get(colaborador.id) || []}
+                  hoy={hoy}
                   fichaHref={
                     colaborador.slug
                       ? `/colaboradores/${colaborador.slug}`
