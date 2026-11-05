@@ -278,6 +278,15 @@ export default async function ColaboradorPage({
                   {colaborador.tipo || "Colaborador de Lugares Llenos"}
                 </p>
 
+                {eventos.length > 0 && (
+                  <a
+                    href="#proximos-eventos"
+                    className="mt-5 inline-flex min-h-11 items-center justify-center rounded-full bg-orange-600 px-5 py-3 text-sm font-black text-white transition hover:bg-orange-700 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700"
+                  >
+                    Ver próximos eventos ↓
+                  </a>
+                )}
+
                 {colaborador.descripcion && (
                   <p className="mt-6 max-w-4xl text-base leading-8 text-slate-600 sm:text-lg">
                     {colaborador.descripcion}
@@ -307,21 +316,14 @@ export default async function ColaboradorPage({
                     </a>
                   )}
 
-                  {eventos.length > 0 && (
-                    <a
-                      href="#proximos-eventos"
-                      className="inline-flex rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-700 transition hover:border-orange-200 hover:text-orange-700"
-                    >
-                      Ver próximos eventos ↓
-                    </a>
-                  )}
+
                 </div>
               </div>
             </div>
           </div>
         </article>
 
-        <section id="proximos-eventos" className="mt-12">
+        <section id="proximos-eventos" className="mt-12 scroll-mt-28">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">
