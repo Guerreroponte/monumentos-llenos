@@ -1,3 +1,4 @@
+import FiltrosColaboradores from "./FiltrosColaboradores";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { seoListado } from "@/lib/listado-seo";
@@ -285,23 +286,14 @@ export default async function ColaboradoresPage({
           </p>
         </div>
 
-        <form action="/colaboradores" method="get" className="mt-8 flex flex-wrap items-end gap-4 rounded-3xl border border-orange-100 bg-white p-5">
-          <div className="min-w-0 w-full sm:w-auto sm:flex-1">
-            <label htmlFor="nombre-colaboradores" className="mb-2 block text-sm font-semibold">Buscar por nombre</label>
-            <input key={nombreBuscado} id="nombre-colaboradores" name="nombre" type="search" defaultValue={nombreBuscado} placeholder="Ej. La Palma, Loco Club…" className="min-h-11 w-full rounded-xl border border-orange-200 bg-white px-4 py-3" />
-          </div>
-          <div className="min-w-0 w-full sm:w-auto">
-            <label htmlFor="ciudad-colaboradores" className="mb-2 block text-sm font-semibold">Filtrar por ciudad</label>
-            <select key={ciudadVisible} id="ciudad-colaboradores" name="ciudad" defaultValue={ciudadVisible} className="min-h-11 w-full rounded-xl border border-orange-200 bg-white px-4 py-3">
-              <option value="">Todas las ciudades</option>
-              {ciudadSeleccionada && !ciudades.includes(ciudadVisible) && <option value={ciudadVisible}>{ciudadVisible}</option>}
-              {ciudades.map(ciudad => <option key={ciudad} value={ciudad}>{ciudad}</option>)}
-            </select>
-          </div>
-          <button type="submit" className="rounded-full bg-orange-500 px-5 py-3 font-bold text-white">Buscar colaboradores</button>
-          {(ciudadSeleccionada || nombreBuscado) && <Link href="/colaboradores" className="px-3 py-3 font-semibold text-orange-700">Limpiar filtros</Link>}
-          <p role="status" className="py-3 text-sm text-slate-600">{colaboradores.length} {colaboradores.length === 1 ? "colaborador" : "colaboradores"}{nombreBuscado && ` para «${nombreBuscado}»`}{ciudadSeleccionada && ` en ${ciudadVisible}`}</p>
-        </form>
+        <FiltrosColaboradores
+          key={JSON.stringify([nombreBuscado, ciudadVisible])}
+          opciones={todosColaboradores.map(({ id, nombre, ciudad }) => ({ id, nombre, ciudad }))}
+          ciudades={ciudades}
+          nombreInicial={nombreBuscado}
+          ciudadInicial={ciudadVisible}
+          total={colaboradores.length}
+        />
 
         {error && (
           <div className="mt-8 rounded-3xl border border-red-100 bg-red-50 p-5 text-sm font-semibold text-red-700">
