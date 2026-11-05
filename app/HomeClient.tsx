@@ -4,6 +4,7 @@ import { resumenLugar } from "@/lib/descripcion-lugar";
 import { intercalarCiudades } from "@/lib/lugares-diversidad";
 import { enlaceFichaLugar } from "@/lib/lugares-navigation";
 import { destinosUnicos } from "@/lib/home-seleccion";
+import SelectorCiudad from "@/components/SelectorCiudad";
 import FormularioLugar from "@/components/FormularioLugar";
 import FuenteLugar from "@/components/FuenteLugar";
 import { nombreCiudad } from "@/lib/ciudad-identidad";
@@ -2056,20 +2057,10 @@ ${url}`;
         </div>
 
         <div className="mb-4 flex flex-wrap items-end gap-3">
-          <label className="min-w-0 w-full sm:max-w-xs">
-            <span className="mb-1 block text-sm font-semibold text-slate-800">Ciudad en el mapa</span>
-            <select
-              value={busquedaCiudad}
-              onChange={(event) => seleccionarCiudadLugar(event.target.value)}
-              className="min-h-11 w-full rounded-xl border border-orange-200 bg-white px-3 text-slate-900"
-            >
-              <option value="">Todas las ciudades</option>
-              {busquedaCiudad && !ciudadesLugares.includes(busquedaCiudad) && <option value={busquedaCiudad}>{busquedaCiudad}</option>}
-              {ciudadesMapa.map((ciudad) => (
-                <option key={ciudad} value={ciudad}>{ciudad}</option>
-              ))}
-            </select>
-          </label>
+          <div className="min-w-0 w-full sm:max-w-xs">
+            <SelectorCiudad etiqueta="Ciudad en el mapa" ciudades={ciudadesMapa}
+              valor={busquedaCiudad} onChange={seleccionarCiudadLugar} />
+          </div>
           {(busquedaNombre || busquedaCiudad) && (
             <button type="button" onClick={() => { setBusquedaNombre(""); seleccionarCiudadLugar(""); }} className="min-h-11 rounded-xl border border-orange-200 bg-white px-4 text-sm font-semibold text-orange-800 hover:bg-orange-50">
               Limpiar filtros
