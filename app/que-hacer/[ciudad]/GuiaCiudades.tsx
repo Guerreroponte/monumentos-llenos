@@ -2,6 +2,49 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"astorga": {
+  "intro": "Del conjunto del Palacio de Gaudí y la catedral al pasado romano de la ciudad. Pasa por la muralla, contempla el Ayuntamiento en la Plaza Mayor y termina en el Museo Romano, donde puedes consultar la Ruta Romana guiada.",
+  "sections": [
+    [
+      "Palacio de Gaudí",
+      "Empieza ante el Palacio Episcopal de Gaudí y observa sus torres, arcos y volúmenes de piedra. Si quieres entrar en el Museo de los Caminos, consulta las modalidades de visita del palacio. [Ver ficha](/lugar/palacio-gaudi-astorga)."
+    ],
+    [
+      "Catedral de Santa María de Astorga",
+      "Continúa hacia la fachada de la catedral. La visita interior incluye el museo catedralicio; reserva tiempo para observar el retablo mayor y las distintas capillas. [Ver ficha](/lugar/catedral-santa-maria-astorga)."
+    ],
+    [
+      "Muralla de Astorga",
+      "Recorre el entorno de la muralla junto al palacio para reconocer sus lienzos y cubos. El recinto actual conserva la huella de las defensas de la ciudad romana, con reformas de otras épocas. [Ver ficha](/lugar/muralla-romana-astorga)."
+    ],
+    [
+      "Plaza Mayor y Ayuntamiento de Astorga",
+      "Acércate a la Plaza Mayor para contemplar la fachada barroca del Ayuntamiento. Mira el reloj y las figuras de los maragatos que lo acompañan. [Ver ficha](/lugar/plaza-mayor-ayuntamiento-astorga)."
+    ],
+    [
+      "Museo Romano de Astorga",
+      "El museo ocupa el entorno de la Ergástula, un pórtico abovedado del antiguo foro. Sus piezas ayudan a entender la vida de Asturica Augusta. Consulta por separado la reserva de la Ruta Romana si también quieres visitar los yacimientos. [Ver ficha](/lugar/museo-romano-astorga)."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo de Astorga",
+      "https://turismoastorga.es/"
+    ],
+    [
+      "Palacio de Gaudí",
+      "https://www.palaciodegaudi.es/visitas/informacion/"
+    ],
+    [
+      "Catedral de Astorga",
+      "https://catedralastorga.com/visita-turistica/"
+    ],
+    [
+      "Museo Romano",
+      "https://turismoastorga.es/museo-romano/"
+    ]
+  ]
+},
 "toro": {
   "intro": "Desde el Arco del Reloj, sigue por la calle Mayor y la plaza hasta la colegiata. El paseo del Espolón conecta esta zona con el Alcázar y ofrece vistas de la vega del Duero. Reserva tiempo para la colegiata si quieres entrar.",
   "sections": [
