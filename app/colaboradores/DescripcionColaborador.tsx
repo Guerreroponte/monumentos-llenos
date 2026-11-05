@@ -7,8 +7,7 @@ export default function DescripcionColaborador({ texto, nombre }: { texto: strin
 
   return (
     <div className="mt-5">
-      <p className={`hidden md:block ${estilo}`}>{texto}</p>
-      <details className="group md:hidden">
+      <details className="group">
         <summary
           aria-label={`Descripción de ${nombre}`}
           className="list-none cursor-pointer rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700 [&::-webkit-details-marker]:hidden"
