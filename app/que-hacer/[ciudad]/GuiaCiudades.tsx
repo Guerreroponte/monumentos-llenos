@@ -2,6 +2,45 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"jaca": {
+  "intro": "Descubre Jaca caminando desde la Ciudadela hasta el barrio de Santiago. La ruta enlaza la fortificación, la catedral románica y la Torre del Reloj, con cuatro fichas para preparar las visitas. Puedes hacer el paseo exterior y añadir los interiores según sus horarios. Consulta por separado las entradas de la Ciudadela y del Museo Diocesano.",
+  "sections": [
+    [
+      "Ciudadela de Jaca y Museo de Miniaturas Militares",
+      "Empieza junto a la Ciudadela, también llamada castillo de San Pedro. Su planta pentagonal, los baluartes y el foso permiten reconocer cómo se adaptó la defensa al uso de la artillería. La construcción comenzó en 1592. Si entras al recinto, reserva tiempo para el patio de armas y el Museo de Miniaturas Militares; consulta las modalidades de entrada y los horarios en la web de la Ciudadela. [Ver ficha](/lugar/ciudadela-jaca-museo-miniaturas)."
+    ],
+    [
+      "Catedral de San Pedro de Jaca",
+      "Continúa hacia la catedral de San Pedro, vinculada al nacimiento de Jaca como capital del reino y al paso de peregrinos por el Camino de Santiago. Observa sus portadas y la lonja de la fachada sur antes de entrar. El edificio conserva la estructura románica de tres naves, con reformas posteriores. Consulta los horarios de visita y distingue el acceso al templo de las visitas al Museo Diocesano. [Ver ficha](/lugar/catedral-san-pedro-jaca)."
+    ],
+    [
+      "Torre del Reloj de Jaca",
+      "Camina por el casco antiguo hasta esta torre gótica de piedra, conocida también como Torre de la Cárcel o del Merino. Sus distintos nombres recuerdan sus usos como residencia, prisión y soporte del reloj municipal. Contempla el volumen de la torre y sus ventanas desde la calle. La parada se plantea como visita exterior; no presupone acceso al interior. [Ver ficha](/lugar/torre-del-reloj-jaca)."
+    ],
+    [
+      "Iglesia de Santiago de Jaca",
+      "Termina en la iglesia de Santiago, en el barrio que atendía a los peregrinos medievales. El templo de origen románico fue transformado por los dominicos, que cambiaron su orientación. Si está abierto y no hay culto, el interior permite descubrir retablos, una pila bautismal de tradición hispanoárabe y un capitel románico. Comprueba las condiciones de visita y respeta el uso religioso del edificio. [Ver ficha](/lugar/iglesia-santiago-jaca)."
+    ]
+  ],
+  "sources": [
+    [
+      "Ciudadela de Jaca y Museo de Miniaturas Militares",
+      "https://www.jaca.es/turismo/monumentosymuseos/la-ciudadela-de-jaca.html"
+    ],
+    [
+      "Catedral de San Pedro de Jaca",
+      "https://www.diocesisdejaca.org/catedral/"
+    ],
+    [
+      "Torre del Reloj de Jaca",
+      "https://www.jaca.es/turismo/monumentosymuseos/torre-del-reloj.html"
+    ],
+    [
+      "Iglesia de Santiago de Jaca",
+      "https://www.jaca.es/turismo/monumentosymuseos/iglesia-de-santiago.html"
+    ]
+  ]
+},
 "aranda-de-duero": {
   "intro": "Un paseo por el casco histórico de Aranda de Duero, desde la Plaza Mayor hasta el río Bañuelos. Combina la portada de Santa María, dos museos vecinos y el puente de las Tenerías. Si quieres entrar a los museos, comprueba sus horarios; para completar el día con una bodega subterránea, consulta las visitas oficiales y reserva cuando corresponda.",
   "sections": [

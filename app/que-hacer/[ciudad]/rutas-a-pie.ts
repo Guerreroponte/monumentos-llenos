@@ -1,3 +1,4 @@
+import RutaJaca from "./RutaJaca";
 import RutaAranda from "./RutaAranda";
 import RutaAstorga from "./RutaAstorga";
 import RutaToro from "./RutaToro";
@@ -26,6 +27,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["jaca", { ciudad: "Jaca", Componente: RutaJaca }],
   ["aranda-de-duero", { ciudad: "Aranda de Duero", Componente: RutaAranda }],
   ["astorga", { ciudad: "Astorga", Componente: RutaAstorga }],
   ["toro", { ciudad: "Toro", Componente: RutaToro }],
