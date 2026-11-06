@@ -2,6 +2,49 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"aranda-de-duero": {
+  "intro": "Un paseo por el casco histórico de Aranda de Duero, desde la Plaza Mayor hasta el río Bañuelos. Combina la portada de Santa María, dos museos vecinos y el puente de las Tenerías. Si quieres entrar a los museos, comprueba sus horarios; para completar el día con una bodega subterránea, consulta las visitas oficiales y reserva cuando corresponda.",
+  "sections": [
+    [
+      "Plaza Mayor de Aranda de Duero",
+      "Empieza en la Plaza Mayor, espacio histórico de reunión y celebraciones de Aranda. Observa las fachadas que rodean la plaza antes de caminar hacia Santa María. Es una primera parada al aire libre para orientarte en el casco antiguo. [Ver ficha](/lugar/plaza-mayor-aranda-de-duero)."
+    ],
+    [
+      "Iglesia de Santa María la Real",
+      "Acércate a la portada sur de Santa María la Real: su decoración gótica se organiza como un retablo de piedra, con escenas religiosas y escudos. El templo actual se comenzó en la segunda mitad del siglo XV. Dedica tiempo a la fachada y consulta en Turismo los horarios para visitar el interior. [Ver ficha](/lugar/iglesia-santa-maria-la-real-aranda-de-duero)."
+    ],
+    [
+      "Museo Casa de las Bolas",
+      "En la plaza de San Juan, busca las bolas de piedra que decoran la cornisa de esta casa histórica. Dentro se expone la colección de pintura donada por Félix Cañada, con retratos, paisajes y bodegones de distintas épocas. Consulta la apertura antes de organizar la visita al museo. [Ver ficha](/lugar/museo-casa-de-las-bolas-aranda-de-duero)."
+    ],
+    [
+      "Iglesia de San Juan y Museo de Arte Sacro",
+      "Continúa junto a la iglesia de San Juan Bautista. Observa su portada de arcos apuntados y la torre, vinculada a la antigua defensa de la villa. El interior alberga el Museo de Arte Sacro, con pintura, escultura y orfebrería. La visita al museo requiere comprobar sus horarios y entradas. [Ver ficha](/lugar/iglesia-san-juan-museo-arte-sacro-aranda-de-duero)."
+    ],
+    [
+      "Puente medieval de las Tenerías",
+      "Termina junto al puente de las Tenerías, sobre el río Bañuelos. Su arco de piedra y su perfil alomado recuerdan el antiguo paso hacia la villa; el nombre procede de los talleres de curtidos de este barrio. Observa el puente desde la ribera y respeta las condiciones del paseo si el terreno está húmedo. [Ver ficha](/lugar/puente-medieval-tenerias-aranda-de-duero)."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo de Aranda de Duero",
+      "https://turismo.arandadeduero.es/que-ver/"
+    ],
+    [
+      "Museo de Arte Sacro",
+      "https://turismo.arandadeduero.es/puntos-de-interes/museo-de-arte-sacro-de-la-iglesia-de-san-juan/"
+    ],
+    [
+      "Casa de las Bolas",
+      "https://turismo.arandadeduero.es/puntos-de-interes/museo-de-pintura-casa-de-las-bolas-coleccion-de-arte-felix-canada/"
+    ],
+    [
+      "Patrimonio de Aranda de Duero",
+      "https://www.turismocastillayleon.com/en/heritage-culture/aranda-duero"
+    ]
+  ]
+},
 "astorga": {
   "intro": "Del conjunto del Palacio de Gaudí y la catedral al pasado romano de la ciudad. Pasa por la muralla, contempla el Ayuntamiento en la Plaza Mayor y termina en el Museo Romano, donde puedes consultar la Ruta Romana guiada.",
   "sections": [
