@@ -207,6 +207,18 @@ export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, err
           )}
         </div>
 
+        <section className="mt-12" aria-labelledby="guia-gastronomica">
+          <Link href="/que-hacer/turismo-gastronomico-espana" className="group grid overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm transition hover:border-orange-400 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700 sm:grid-cols-[1fr_1.4fr]">
+            <img src="/images/gastronomia/janubio.webp" alt="Recogida artesanal de sal en las Salinas de Janubio, Lanzarote" width={1600} height={1067} loading="lazy" className="aspect-[16/9] h-full w-full object-cover" />
+            <div className="p-6 sm:p-8">
+              <p className="text-xs font-bold uppercase tracking-widest text-orange-800">Nueva guía · Turismo gastronómico</p>
+              <h2 id="guia-gastronomica" className="mt-3 text-2xl font-extrabold text-slate-900 sm:text-3xl">España, a través de sus sabores</h2>
+              <p className="mt-3 leading-7 text-slate-600">Del mercado a la mesa, de las bodegas a las salinas: descubre el Biteseeing con nueve experiencias y consejos para organizar tu escapada.</p>
+              <span className="mt-5 inline-block font-bold text-orange-800 group-hover:underline">Explorar la guía gastronómica →</span>
+            </div>
+          </Link>
+        </section>
+
         <section className="mt-12" aria-labelledby="rutas-destacadas">
           <h2 id="rutas-destacadas" className="text-3xl font-bold text-slate-900">Rutas destacadas</h2>
           <p className="mt-2 text-slate-600">Tres paseos para descubrir una ciudad a pie.</p>

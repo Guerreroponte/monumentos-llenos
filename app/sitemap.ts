@@ -336,6 +336,10 @@ export default async function sitemap(): Promise<
       url: `${baseUrl}/que-hacer`,
     },
     {
+      url: `${baseUrl}/que-hacer/turismo-gastronomico-espana`,
+      lastModified: new Date("2026-11-11T12:00:00+01:00"),
+    },
+    {
       url: `${baseUrl}/colaboradores`,
     },
     {
