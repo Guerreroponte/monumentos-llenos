@@ -1,3 +1,4 @@
+import RutaBocairent from "./RutaBocairent";
 import RutaJaca from "./RutaJaca";
 import RutaAranda from "./RutaAranda";
 import RutaAstorga from "./RutaAstorga";
@@ -27,6 +28,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["bocairent", { ciudad: "Bocairent", Componente: RutaBocairent }],
   ["jaca", { ciudad: "Jaca", Componente: RutaJaca }],
   ["aranda-de-duero", { ciudad: "Aranda de Duero", Componente: RutaAranda }],
   ["astorga", { ciudad: "Astorga", Componente: RutaAstorga }],
