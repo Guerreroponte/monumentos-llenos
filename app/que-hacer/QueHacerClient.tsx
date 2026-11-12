@@ -207,6 +207,31 @@ export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, err
           )}
         </div>
 
+        <section className="mt-10" aria-labelledby="ciudades-populares">
+          <h2 id="ciudades-populares" className="text-3xl font-bold text-slate-900">
+            Ciudades populares
+          </h2>
+
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {ciudadesPopulares.map((ciudad) => (
+              <Link
+                key={ciudad}
+                href={`/que-hacer/${slugCiudad(ciudad)}`}
+                className="rounded-2xl border border-orange-200 bg-white p-4 sm:p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700"
+              >
+                <h3 className="text-lg font-bold text-slate-900">
+                  📍 {ciudad}
+                </h3>
+
+
+                <div className="mt-3 text-sm font-semibold text-orange-600">
+                  Ver planes →
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <section className="mt-12" aria-labelledby="guia-gastronomica">
           <Link href="/que-hacer/turismo-gastronomico-espana" className="group grid overflow-hidden rounded-3xl border border-orange-200 bg-white shadow-sm transition hover:border-orange-400 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700 sm:grid-cols-[1fr_1.4fr]">
             <img src="/images/gastronomia/janubio.webp" alt="Recogida artesanal de sal en las Salinas de Janubio, Lanzarote" width={1600} height={1067} loading="lazy" className="aspect-[16/9] h-full w-full object-cover" />
@@ -277,35 +302,7 @@ export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, err
           </div>
         </section>
 
-        <div className="mt-20">
-          <h2 className="text-3xl font-bold text-slate-900">
-            Ciudades populares
-          </h2>
 
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {ciudadesPopulares.map((ciudad) => (
-              <Link
-                key={ciudad}
-                href={`/que-hacer/${slugCiudad(ciudad)}`}
-                className="rounded-2xl border border-orange-100 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
-              >
-                <h3 className="text-xl font-bold text-slate-900">
-                  📍 {ciudad}
-                </h3>
-
-                <div className="mt-5 space-y-2 text-sm text-slate-600">
-                  <p>🎵 Eventos</p>
-                  <p>🏛️ Lugares</p>
-                  <p>🤝 Salas colaboradoras</p>
-                </div>
-
-                <div className="mt-6 font-semibold text-orange-600">
-                  Descubrir {ciudad} →
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
       </section>
     </main>
   );

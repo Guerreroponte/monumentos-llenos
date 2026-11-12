@@ -1,8 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+
+import { usePathname } from "next/navigation";
+
+function suscribirHash(callback: () => void) {
+  window.addEventListener("hashchange", callback);
+  window.addEventListener("popstate", callback);
+  return () => {
+    window.removeEventListener("hashchange", callback);
+    window.removeEventListener("popstate", callback);
+  };
+}
+const leerHash = () => window.location.hash;
+const hashServidor = () => "";
 
 export default function HeaderGlobal() {
+  const pathname = usePathname();
+  const hash = useSyncExternalStore(suscribirHash, leerHash, hashServidor);
+  const seccion = pathname === "/"
+    ? (["#mapa", "#lugares", "#buscador"].includes(hash) ? `/${hash}` : hash === "#participa" ? "/participa" : "/")
+    : pathname.startsWith("/lugar/") ? "/#lugares"
+    : ["/eventos", "/que-hacer", "/colaboradores", "/participa"].find(
+      (ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`)
+    );
+  const actual = (ruta: string) => seccion === ruta ? (ruta.includes("#") ? "location" as const : "page" as const) : undefined;
+  const estilo = (ruta: string, movil = false) => movil
+    ? `rounded-2xl px-4 py-3 text-base transition ${seccion === ruta ? "bg-[#fff7ed] font-bold text-orange-600" : "font-semibold text-[#334155] hover:bg-[#f8fafc]"}`
+    : `transition hover:text-orange-600${seccion === ruta ? " text-orange-600" : ""}`;
   const [menuMovilAbierto, setMenuMovilAbierto] = useState(false);
 
   useEffect(() => {
@@ -91,44 +116,44 @@ export default function HeaderGlobal() {
             </a>
 
             <nav className="hidden items-center gap-4 text-sm font-semibold text-[#475569] md:flex">
-              <a href="/" className="transition hover:text-orange-600">
+              <a href="/" className={estilo("/")} aria-current={actual("/")}>
                 Inicio
               </a>
 
-              <a href="/#mapa" className="transition hover:text-orange-600">
+              <a href="/#mapa" className={estilo("/#mapa")} aria-current={actual("/#mapa")}>
                 Mapa
               </a>
 
-              <a href="/#lugares" className="transition hover:text-orange-600">
+              <a href="/#lugares" className={estilo("/#lugares")} aria-current={actual("/#lugares")}>
                 Lugares
               </a>
 
               <a
                 href="/que-hacer"
-                className="transition hover:text-orange-600"
-              >
+                className={estilo("/que-hacer")}
+               aria-current={actual("/que-hacer")}>
                 Qué hacer
               </a>
 
-              <a href="/eventos" className="text-orange-600">
+              <a href="/eventos" className={estilo("/eventos")} aria-current={actual("/eventos")}>
                 Eventos
               </a>
 
               <a
                 href="/colaboradores"
-                className="transition hover:text-orange-600"
-              >
+                className={estilo("/colaboradores")}
+               aria-current={actual("/colaboradores")}>
                 Colaboradores
               </a>
 
-              <a href="/#buscador" className="transition hover:text-orange-600">
+              <a href="/#buscador" className={estilo("/#buscador")} aria-current={actual("/#buscador")}>
                 Buscar
               </a>
 
               <a
                 href="/participa"
-                className="rounded-full bg-orange-500 px-4 py-2 text-white transition hover:bg-orange-600"
-              >
+                className={`rounded-full bg-orange-500 px-4 py-2 text-white transition hover:bg-orange-600${seccion === "/participa" ? " ring-2 ring-orange-800 ring-offset-2" : ""}`}
+               aria-current={actual("/participa")}>
                 Participa
               </a>
             </nav>
@@ -166,56 +191,56 @@ export default function HeaderGlobal() {
                   <a
                     href="/"
                     onClick={cerrarMenuMovil}
-                    className="rounded-2xl px-4 py-3 text-base font-semibold text-[#334155] transition hover:bg-[#f8fafc]"
-                  >
+                    className={estilo("/", true)}
+                   aria-current={actual("/")}>
                     Inicio
                   </a>
 
                   <a
                     href="/#mapa"
                     onClick={cerrarMenuMovil}
-                    className="rounded-2xl px-4 py-3 text-base font-semibold text-[#334155] transition hover:bg-[#f8fafc]"
-                  >
+                    className={estilo("/#mapa", true)}
+                   aria-current={actual("/#mapa")}>
                     Mapa
                   </a>
 
                   <a
                     href="/#lugares"
                     onClick={cerrarMenuMovil}
-                    className="rounded-2xl px-4 py-3 text-base font-semibold text-[#334155] transition hover:bg-[#f8fafc]"
-                  >
+                    className={estilo("/#lugares", true)}
+                   aria-current={actual("/#lugares")}>
                     Lugares
                   </a>
 
                   <a
                     href="/que-hacer"
                     onClick={cerrarMenuMovil}
-                    className="rounded-2xl px-4 py-3 text-base font-semibold text-[#334155] transition hover:bg-[#f8fafc]"
-                  >
+                    className={estilo("/que-hacer", true)}
+                   aria-current={actual("/que-hacer")}>
                     Qué hacer
                   </a>
 
                   <a
                     href="/eventos"
                     onClick={cerrarMenuMovil}
-                    className="rounded-2xl bg-[#fff7ed] px-4 py-3 text-base font-bold text-orange-600"
-                  >
+                    className={estilo("/eventos", true)}
+                   aria-current={actual("/eventos")}>
                     Eventos
                   </a>
 
                   <a
                     href="/colaboradores"
                     onClick={cerrarMenuMovil}
-                    className="rounded-2xl px-4 py-3 text-base font-semibold text-[#334155] transition hover:bg-[#f8fafc]"
-                  >
+                    className={estilo("/colaboradores", true)}
+                   aria-current={actual("/colaboradores")}>
                     Colaboradores
                   </a>
 
                   <a
                     href="/#buscador"
                     onClick={cerrarMenuMovil}
-                    className="rounded-2xl px-4 py-3 text-base font-semibold text-[#334155] transition hover:bg-[#f8fafc]"
-                  >
+                    className={estilo("/#buscador", true)}
+                   aria-current={actual("/#buscador")}>
                     Buscar
                   </a>
 
@@ -223,8 +248,8 @@ export default function HeaderGlobal() {
                     <a
                       href="/participa"
                       onClick={cerrarMenuMovil}
-                      className="block rounded-full bg-orange-500 px-4 py-3 text-center text-base font-bold text-white transition hover:bg-orange-600"
-                    >
+                      className={`block rounded-full bg-orange-500 px-4 py-3 text-center text-base font-bold text-white transition hover:bg-orange-600${seccion === "/participa" ? " ring-2 ring-orange-800 ring-offset-2" : ""}`}
+                     aria-current={actual("/participa")}>
                       Participa
                     </a>
                   </div>
