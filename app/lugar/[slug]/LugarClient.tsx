@@ -1,7 +1,7 @@
 "use client";
 
-import { separarDescripcionLugar } from "@/lib/descripcion-lugar";
-import { useRef, useState } from "react";
+import { separarDescripcionLugar, separarEnlaceCredito } from "@/lib/descripcion-lugar";
+import { Fragment, useRef, useState } from "react";
 import Link from "next/link";
 import OpcionesTransporte from "@/components/OpcionesTransporte";
 import { claveCiudad, nombreCiudad } from "@/lib/ciudad-identidad";
@@ -64,7 +64,16 @@ function limpiarNombreArchivo(nombre: string) {
 export default function LugarPage({ initialData, regreso = "/" }: { regreso?: string; initialData: { lugar: Lugar; resenas: Resena[]; fotos?: string[] } }) {
 
   const lugar = initialData.lugar;
-  const { resumen, creditos } = separarDescripcionLugar(lugar.descripcion);
+  const { resumen: resumenOriginal, creditos } = separarDescripcionLugar(lugar.descripcion);
+  const esMoros = lugar.slug === "covetes-dels-moros-bocairent";
+  const esCava = lugar.slug === "cava-sant-blai-bocairent";
+  const resumen = esMoros
+    ? resumenOriginal.replace(/^Termina ante las cuevas-ventana/, "Las Covetes dels Moros son cuevas-ventana")
+    : esCava
+    ? resumenOriginal.replace(/^Continúa hasta la Cava de Sant Blai,/, "La Cava de Sant Blai se encuentra")
+    : resumenOriginal;
+  const fuenteOficial = esMoros ? "https://www.bocairent.org/tours/covetes-dels-moros/"
+    : esCava ? "https://www.bocairent.org/tours/las-cavas-o-neveros/" : null;
   const ciudad = nombreCiudad(lugar?.ciudad);
   const ciudadSlug = claveCiudad(ciudad);
   const vuelveAlMapa = regreso.endsWith("#mapa");
@@ -310,11 +319,11 @@ ${url}`;
               <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
                 {[
                   [lugar.rating_fuente === "Google Maps" ? "Valoración de Google Maps" : "Valoración", lugar.rating == null ? "Sin valoración" : `⭐ ${lugar.rating}`],
-                  ["Acceso o precio", lugar.precio || "No especificado"],
+                  ["Acceso o precio", lugar.precio?.trim() || "Precio por confirmar"],
                   ["Acepta mascotas", lugar.acepta_mascotas],
                   ["Parking cerca", lugar.parking_cerca],
                   ["Acceso en coche", lugar.acceso_coche],
-                ].map(([titulo, valor]) => <div key={String(titulo)}><dt className="text-slate-500">{titulo}</dt><dd className="mt-1 font-semibold">{typeof valor === "boolean" ? valor ? "Sí" : "No" : valor ?? "No especificado"}</dd></div>)}
+                ].filter(([, valor]) => valor != null).map(([titulo, valor]) => <div key={String(titulo)}><dt className="text-slate-500">{titulo}</dt><dd className="mt-1 font-semibold">{typeof valor === "boolean" ? valor ? "Sí" : "No" : valor ?? "No especificado"}</dd></div>)}
               </dl>
               {lugar.rating_fuente === "Google Maps" && lugar.rating_url && (
                 <p className="mt-4 text-xs text-slate-500">
@@ -323,6 +332,7 @@ ${url}`;
                 </p>
               )}
               <a href={enlaceComoLlegar(lugar)} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex rounded-full bg-orange-600 px-5 py-3 font-bold text-white">Cómo llegar ↗</a>
+              {fuenteOficial && <p className="mt-4"><a href={fuenteOficial} target="_blank" rel="noopener noreferrer" className="font-semibold text-orange-700 underline">Horarios, tarifas y entradas en Turismo Bocairent ↗</a></p>}
               <OpcionesTransporte comoLlegar={enlaceComoLlegar(lugar)} nombreDestino={[lugar.nombre, lugar.ciudad].filter(Boolean).join(", ")} />
             </section>
 
@@ -341,11 +351,11 @@ ${url}`;
                 <h2 className="font-bold text-slate-900">Créditos y fuentes</h2>
                 {creditos.map((credito, indice) => (
                   <p key={indice} className="mt-2 leading-6">
-                    {credito.split(/(https?:\/\/[^\s<>]+)/g).map((parte, posicion) => (
-                      posicion % 2 === 0 ? parte : (
-                        <a key={posicion} href={parte} target="_blank" rel="noopener noreferrer" className="font-semibold text-orange-700 underline">Consultar fuente ↗</a>
-                      )
-                    ))}
+                    {credito.split(/(https?:\/\/[^\s<>]+)/g).map((parte, posicion) => {
+                      if (posicion % 2 === 0) return parte;
+                      const { url, sufijo } = separarEnlaceCredito(parte);
+                      return <Fragment key={posicion}><a href={url} target="_blank" rel="noopener noreferrer" className="font-semibold text-orange-700 underline">Consultar fuente ↗</a>{sufijo}</Fragment>;
+                    })}
                   </p>
                 ))}
               </section>

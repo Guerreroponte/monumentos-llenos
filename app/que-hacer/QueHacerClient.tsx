@@ -129,7 +129,7 @@ export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, err
 
   return (
     <main className="min-h-screen bg-[#fff7ed]">
-      <section className="mx-auto max-w-6xl px-4 py-16">
+      <section className="mx-auto max-w-6xl px-4 py-8 sm:py-16">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-orange-600">
             Guía por ciudades
@@ -146,7 +146,7 @@ export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, err
 
           <form
             onSubmit={buscarCiudad}
-            className="relative mx-auto mt-10 max-w-2xl"
+            className="relative mx-auto mt-6 max-w-2xl sm:mt-10"
           >
             <div className="flex flex-col gap-3 rounded-[2rem] border border-orange-200 bg-white p-3 shadow-sm sm:flex-row">
               <input

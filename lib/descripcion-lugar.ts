@@ -13,3 +13,16 @@ export function separarDescripcionLugar(descripcion?: string | null) {
 export function resumenLugar(descripcion?: string | null) {
   return separarDescripcionLugar(descripcion).resumen;
 }
+
+// Keep balanced parentheses in URLs, but leave prose punctuation outside the link.
+export function separarEnlaceCredito(texto: string) {
+  let url = texto;
+  while (url) {
+    if (/[.,;:!?]$/.test(url)) { url = url.slice(0, -1); continue; }
+    if (url.endsWith(")") && (url.match(/\)/g)?.length ?? 0) > (url.match(/\(/g)?.length ?? 0)) {
+      url = url.slice(0, -1); continue;
+    }
+    break;
+  }
+  return { url, sufijo: texto.slice(url.length) };
+}

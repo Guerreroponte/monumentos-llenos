@@ -450,7 +450,7 @@ export default function ParticipaPage({ fechaInicial }: { fechaInicial: string }
   const tituloFormulario =
     categoriaEvento === "grande"
       ? "Añadir evento grande"
-      : "Sube un plan en 30 segundos";
+      : "Comparte un plan en pocos pasos";
 
   const descripcionFormulario =
     categoriaEvento === "grande"
@@ -465,7 +465,7 @@ export default function ParticipaPage({ fechaInicial }: { fechaInicial: string }
             Participa en la comunidad
           </span>
           <span className="rounded-full bg-[#fff0e6] px-3 py-1">
-            Tardas menos de 1 minuto
+            Solo unos campos básicos
           </span>
         </div>
 
@@ -488,7 +488,7 @@ export default function ParticipaPage({ fechaInicial }: { fechaInicial: string }
           </button>
 
           <p className="text-sm font-semibold text-[#64748b]">
-            👉 Ya hay gente subiendo planes hoy. Añade el tuyo.
+            👉 Tu recomendación puede ayudar a alguien a elegir su próximo plan.
           </p>
         </div>
 

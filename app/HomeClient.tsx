@@ -829,7 +829,7 @@ ${url}`;
               <span>💬 Opiniones útiles</span>
             </div>
 
-            <h1 className="mt-0 max-w-3xl text-4xl sm:mt-6 font-black leading-[1.04] tracking-[-0.04em] text-slate-950 sm:text-5xl md:text-6xl">
+            <h1 className="mt-0 max-w-3xl text-4xl sm:mt-6 font-black leading-[1.04] tracking-[-0.04em] text-slate-950 sm:text-5xl md:text-5xl">
               <span className="sm:hidden">Encuentra tu<br />
                 <span className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 bg-clip-text text-transparent">próximo plan.</span>
               </span>
@@ -1483,12 +1483,13 @@ ${url}`;
       {/* ÚLTIMAS EXPERIENCIAS */}
       {ultimosAportes.length > 0 && (
         <section id="ultimos-aportes" className="mx-auto max-w-6xl px-4 pb-12 sm:px-6 md:pb-16">
-          <div className="mb-6">
-            <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🗣️ La comunidad habla</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Últimas experiencias contadas</h2>
-            <p className="mt-2 text-sm text-slate-600">La fecha indica cuándo se compartió la experiencia; el ambiente puede haber cambiado.</p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <details className="group">
+          <summary className="cursor-pointer rounded-2xl border border-orange-100 bg-white p-5 focus-visible:outline-orange-600">
+            <span className="block text-sm font-black uppercase tracking-[0.22em] text-orange-500">🗣️ La comunidad habla</span>
+            <span className="mt-2 block text-xl font-black tracking-tight text-slate-950">Ver últimas experiencias contadas</span>
+            <span className="mt-2 block text-sm text-slate-600">La fecha indica cuándo se compartió la experiencia; el ambiente puede haber cambiado.</span>
+          </summary>
+          <div className="mt-4 grid gap-4 md:grid-cols-3">
             {ultimosAportes.map((aporte) => (
               <div key={aporte.id} className="rounded-[28px] border border-orange-100 bg-white p-5 shadow-sm">
                 <div className="flex items-center gap-3">
@@ -1509,6 +1510,7 @@ ${url}`;
               </div>
             ))}
           </div>
+          </details>
         </section>
       )}
 
