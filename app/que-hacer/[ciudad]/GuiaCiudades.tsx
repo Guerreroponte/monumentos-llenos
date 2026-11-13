@@ -2,6 +2,28 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"palma": {
+  "intro": "Para conocer Palma a pie, combina el gótico de la Lonja y la Catedral con la historia de la Almudaina y los Baños Árabes. La ruta reúne cuatro paradas del casco histórico. Decide primero qué interiores quieres visitar, comprueba sus horarios y deja tiempo para caminar entre ellos. Si después tienes un evento, revisa la dirección de su recinto: puede estar fuera de esta zona.",
+  "sections": [],
+  "sources": [
+    [
+      "La Lonja de Palma (Sa Llotja)",
+      "https://visitpalma.com/es/dir/la-lonja/"
+    ],
+    [
+      "Palacio Real de la Almudaina",
+      "https://www.patrimonionacional.es/visita/palacio-real-de-la-almudaina"
+    ],
+    [
+      "Catedral de Mallorca (La Seu)",
+      "https://catedraldemallorca.org/"
+    ],
+    [
+      "Baños Árabes de Palma",
+      "https://visitpalma.com/es/dir/banos-arabes/"
+    ]
+  ]
+},
 "bocairent": {
   "intro": "Bocairent combina un barrio medieval de calles escalonadas con cuevas excavadas en roca y un antiguo depósito de nieve. Esta propuesta enlaza cuatro paradas desde la plaza del Ayuntamiento hasta las Covetes dels Moros. Organiza las entradas por separado y lleva calzado adecuado para las cuestas. La visita interior a las Covetes exige gatear y tiene restricciones específicas; puedes limitar el paseo a los exteriores.",
   "sections": [],

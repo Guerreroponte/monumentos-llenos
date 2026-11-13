@@ -14,6 +14,9 @@ type MonumentoMapa = {
   nombre: string;
   ciudad: string;
   slug?: string | null;
+  rating?: number | null;
+  rating_fuente?: string | null;
+  rating_consultada_el?: string | null;
   latitud?: number | null;
   longitud?: number | null;
 };
@@ -64,7 +67,7 @@ function Puntos({ monumentos, nombreBuscado, ciudadSeleccionada }: {
     return <Marker key={grupo.map(p => p.id).join("-")} position={[m.latitud, m.longitud]} icon={icon} title={grupo.length === 1 ? m.nombre : `${grupo.length} lugares cercanos`}>
       <Popup><div className="max-h-64 min-w-[180px] overflow-y-auto">
         {grupo.length > 1 && <button className="mb-3 font-bold" onClick={() => map.fitBounds(grupo.map(p => [p.latitud,p.longitud]), {padding:[35,35], maxZoom:18})}>Ampliar {grupo.length} lugares</button>}
-        {grupo.map(p => <div key={p.id} className="mb-3"><strong>{p.nombre}</strong><div>{p.ciudad}</div>{p.slug?.trim() && <Link href={enlaceFichaLugar(p.slug.trim(), nombreBuscado, ciudadSeleccionada, 1, "mapa")} className="inline-block mt-2">Ver ficha →</Link>}</div>)}
+        {grupo.map(p => <div key={p.id} className="mb-3"><strong>{p.nombre}</strong><div>{p.ciudad}</div>{typeof p.rating === "number" && Number.isFinite(p.rating) && <div className="mt-1 text-sm">⭐ {p.rating}{p.rating_fuente === "Google Maps" ? " · Google Maps" : ""}{p.rating_fuente === "Google Maps" && p.rating_consultada_el && <div className="text-xs text-slate-500">Consultada el {p.rating_consultada_el.split("-").reverse().join("/")}</div>}</div>}{p.slug?.trim() && <Link href={enlaceFichaLugar(p.slug.trim(), nombreBuscado, ciudadSeleccionada, 1, "mapa")} className="inline-block mt-2">Ver ficha →</Link>}</div>)}
       </div></Popup>
     </Marker>;
   });

@@ -72,6 +72,7 @@ export type MonumentoDB = {
   comunidad_autonoma?: string | null;
   rating?: number | null;
   rating_fuente?: string | null;
+  rating_consultada_el?: string | null;
   precio?: string | null;
   imagen?: string | null;
   descripcion?: string | null;
@@ -113,6 +114,7 @@ export type MonumentoUI = {
   comunidad_autonoma?: string | null;
   rating: number | null;
   rating_fuente?: string | null;
+  rating_consultada_el?: string | null;
   precio: string;
   imagen?: string | null;
   descripcion?: string | null;
@@ -300,6 +302,7 @@ export async function cargarDatos(client: SupabaseClient = supabase) {
       comunidad_autonoma: m.comunidad_autonoma || null,
       rating: typeof m.rating === "number" ? m.rating : null,
       rating_fuente: m.rating_fuente || null,
+      rating_consultada_el: m.rating_consultada_el || null,
       precio: m.precio || "No especificado",
       imagen: publicImage("lugares", m.id, m.imagen),
       descripcion: m.descripcion || null,

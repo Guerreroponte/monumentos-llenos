@@ -2082,6 +2082,9 @@ ${url}`;
             slug: m.slug,
             latitud: m.latitud,
             longitud: m.longitud,
+            rating: m.rating,
+            rating_fuente: m.rating_fuente,
+            rating_consultada_el: m.rating_consultada_el,
           }))}
         />
         </div>
