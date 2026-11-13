@@ -205,6 +205,9 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
   const inputVideoRef = useRef<HTMLInputElement | null>(null);
 
   const evento = initialData.evento;
+  const tipo = evento.tipo?.trim();
+  const subtipo = evento.subtipo?.trim();
+  const mostrarTipo = tipo && tipo.toLocaleLowerCase("es") !== subtipo?.toLocaleLowerCase("es");
   const ciudad = nombreCiudad(evento.ciudad);
   const ciudadSlug = claveCiudad(ciudad);
   const comoLlegar = enlaceComoLlegarEvento(evento);
@@ -515,15 +518,15 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
           <div className="contents md:block md:p-8">
           <div className="order-1 p-5 md:p-0">
             <div className="mb-3 flex flex-wrap gap-2">
-              {evento.subtipo && (
+              {subtipo && (
                 <span className="rounded-full bg-[#fff7ed] px-3 py-1 text-xs font-bold text-[#ea580c]">
-                  {evento.subtipo}
+                  {subtipo}
                 </span>
               )}
 
-              {evento.tipo && (
+              {mostrarTipo && (
                 <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-bold text-[#475569]">
-                  {evento.tipo}
+                  {tipo}
                 </span>
               )}
 
@@ -569,20 +572,20 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
                   ? ` - ${formatearHora(evento.hora_fin)}`
                   : ""}
               </p>
-              {evento.precio && <p className="font-semibold text-slate-800 md:hidden">💶 {evento.precio}</p>}
+              {evento.precio && <p className="font-semibold text-slate-800">💶 {evento.precio}</p>}
               <div className="flex flex-wrap gap-2">
+              {hoy && eventoVigente(evento.fecha_inicio, evento.fecha_fin, hoy) && (evento.fever_url_afiliado?.trim() || evento.enlace?.trim()) && (
+                <a href={evento.fever_url_afiliado?.trim() || evento.enlace!.trim()}
+                  target="_blank" rel="noopener noreferrer sponsored"
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-orange-600 px-5 py-3 text-sm font-bold text-white hover:bg-orange-700 sm:w-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
+                  {evento.fever_url_afiliado?.trim() ? "Ver entradas" : etiquetaEnlace(evento.enlace!)} ↗
+                </a>
+              )}
               {comoLlegar && (
                 <a href={comoLlegar} target="_blank" rel="noopener noreferrer"
                   aria-label="Cómo llegar en Google Maps (se abre en otra pestaña)"
                   className="inline-flex min-h-11 items-center rounded-full border border-orange-200 bg-orange-50 px-4 py-2 font-semibold text-orange-700 transition hover:bg-orange-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600">
                   Cómo llegar ↗
-                </a>
-              )}
-              {hoy && eventoVigente(evento.fecha_inicio, evento.fecha_fin, hoy) && (evento.fever_url_afiliado?.trim() || evento.enlace?.trim()) && (
-                <a href={evento.fever_url_afiliado?.trim() || evento.enlace!.trim()}
-                  target="_blank" rel="noopener noreferrer sponsored"
-                  className="inline-flex min-h-11 items-center justify-center rounded-full bg-orange-600 px-5 py-3 text-sm font-bold text-white hover:bg-orange-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-600 md:hidden">
-                  {evento.fever_url_afiliado?.trim() ? "Ver entradas" : etiquetaEnlace(evento.enlace!)} ↗
                 </a>
               )}
               </div>
@@ -667,12 +670,6 @@ export default function EventoPage({ initialData, regreso = "/eventos" }: { init
             )}
 
             <div className="mt-5 flex flex-wrap gap-2">
-              {evento.precio && (
-                <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
-                  {evento.precio}
-                </span>
-              )}
-
               {evento.ambiente && (
                 <span className="rounded-full bg-[#f8fafc] px-3 py-1 text-xs font-semibold text-[#475569]">
                   {evento.ambiente}
