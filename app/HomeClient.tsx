@@ -7,7 +7,7 @@ import { destinosUnicos } from "@/lib/home-seleccion";
 import SelectorCiudad from "@/components/SelectorCiudad";
 import FormularioLugar from "@/components/FormularioLugar";
 import FuenteLugar from "@/components/FuenteLugar";
-import { nombreCiudad } from "@/lib/ciudad-identidad";
+import { nombreCiudad, claveCiudad } from "@/lib/ciudad-identidad";
 import { alternativasPorCiudad, leerBusquedaLugares, paginasVisibles } from "@/lib/lugares-ui";
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
@@ -427,8 +427,8 @@ export default function Home({ initialData }: { initialData: HomeInitialData }) 
       const coincideNombre = normalizarTexto(m.nombre)
         .includes(normalizarTexto(busquedaNombre));
 
-      const coincideCiudad = normalizarTexto(m.ciudad)
-        .includes(normalizarTexto(nombreCiudad(busquedaCiudad)));
+      const coincideCiudad = !busquedaCiudad.trim() ||
+        claveCiudad(m.ciudad) === claveCiudad(busquedaCiudad);
 
       return coincideNombre && coincideCiudad;
     });
