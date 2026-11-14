@@ -2,6 +2,24 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"barakaldo": {
+  "intro": "Barakaldo se puede descubrir combinando el patrimonio de Munoa, la vegetación del Jardín Botánico Ramón Rubial y la programación del Teatro Barakaldo. Esta propuesta enlaza tres puntos separados por calles urbanas: deja margen para los desplazamientos y adapta el paseo a tu tiempo. Comprueba primero la apertura de los jardines y reserva aparte cualquier visita guiada o espectáculo. Si vienes por un evento, revisa su recinto: no todos se celebran en el teatro.",
+  "sections": [],
+  "sources": [
+    [
+      "Palacio Munoa",
+      "https://visitbarakaldo.eus/finca-munoa/"
+    ],
+    [
+      "Jardín Botánico Ramón Rubial",
+      "https://visitbarakaldo.eus/jardin-botanico/"
+    ],
+    [
+      "Teatro Barakaldo Antzokia",
+      "https://www.teatrobarakaldo.com/"
+    ]
+  ]
+},
 "palma": {
   "intro": "Para conocer Palma a pie, combina el gótico de la Lonja y la Catedral con la historia de la Almudaina y los Baños Árabes. La ruta reúne cuatro paradas del casco histórico. Decide primero qué interiores quieres visitar, comprueba sus horarios y deja tiempo para caminar entre ellos. Si después tienes un evento, revisa la dirección de su recinto: puede estar fuera de esta zona.",
   "sections": [],

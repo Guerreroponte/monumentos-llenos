@@ -1,3 +1,4 @@
+import RutaBarakaldo from "./RutaBarakaldo";
 import RutaPalma from "./RutaPalma";
 import RutaBocairent from "./RutaBocairent";
 import RutaJaca from "./RutaJaca";
@@ -29,6 +30,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["barakaldo", { ciudad: "Barakaldo", Componente: RutaBarakaldo }],
   ["palma", { ciudad: "Palma", Componente: RutaPalma }],
   ["bocairent", { ciudad: "Bocairent", Componente: RutaBocairent }],
   ["jaca", { ciudad: "Jaca", Componente: RutaJaca }],
