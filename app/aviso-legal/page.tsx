@@ -68,10 +68,12 @@ export default function AvisoLegalPage() {
               5. Enlaces externos
             </h2>
             <p className="mt-2">
-              La web puede incluir enlaces a páginas externas, como webs
-              oficiales de salas, eventos, plataformas de entradas o servicios de
-              terceros. Lugares Llenos no se responsabiliza del contenido,
-              disponibilidad o funcionamiento de dichas páginas externas.
+              La web puede incluir enlaces a webs oficiales, plataformas de entradas
+              y servicios de terceros, incluidos enlaces de afiliación por los que
+              podemos recibir una comisión. Las compras y reservas se realizan con
+              el proveedor correspondiente y se rigen por sus condiciones.
+              Lugares Llenos no controla esos servicios externos, sin perjuicio de
+              las responsabilidades que legalmente le correspondan.
             </p>
           </section>
 
@@ -88,8 +90,39 @@ export default function AvisoLegalPage() {
           </section>
 
           <section>
+            <h2 className="text-xl font-bold text-slate-900">7. Selección y actualización de la información</h2>
+            <p className="mt-2">
+              Seleccionamos los eventos de la agenda editorial a partir de agendas
+              oficiales de ayuntamientos, salas, recintos, organizadores y
+              plataformas de entradas. También recibimos programación de
+              colaboradores y aportaciones de la comunidad. Procuramos contrastar
+              la información y corregir los errores que detectamos, pero los
+              horarios, precios, disponibilidad y demás condiciones pueden cambiar.
+              Antes de comprar o desplazarte, confirma los datos en la fuente oficial.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-bold text-slate-900">8. Eventos, entradas y servicios de terceros</h2>
+            <p className="mt-2">
+              Publicar un evento no implica que Lugares Llenos lo organice ni que
+              venda sus entradas. No gestionamos los cobros, la emisión de entradas,
+              las devoluciones ni las condiciones de acceso de los servicios
+              contratados en webs externas. Las consultas y reclamaciones sobre
+              compras, cambios, cancelaciones o incidencias deben dirigirse al
+              vendedor o al organizador, según corresponda.
+            </p>
+            <p className="mt-2">
+              Lugares Llenos no asume responsabilidad por la organización o ejecución
+              de eventos ajenos, ni por las ventas y servicios prestados por terceros,
+              sin perjuicio de las responsabilidades que legalmente le correspondan
+              y de los derechos de las personas consumidoras.
+            </p>
+          </section>
+
+          <section>
             <h2 className="text-xl font-bold text-slate-900">
-              7. Contacto
+              9. Contacto
             </h2>
             <p className="mt-2">
               Para cualquier cuestión relacionada con este Aviso Legal, puedes
@@ -98,7 +131,7 @@ export default function AvisoLegalPage() {
           </section>
 
           <p className="pt-4 text-sm text-slate-500">
-            Última actualización: junio de 2026.
+            Última actualización: 19 de noviembre de 2026.
           </p>
         </div>
       </section>

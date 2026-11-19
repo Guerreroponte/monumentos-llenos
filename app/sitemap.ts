@@ -346,6 +346,10 @@ export default async function sitemap(): Promise<
       url: `${baseUrl}/participa`,
     },
 
+    {
+      url: `${baseUrl}/sobre-nosotros`,
+    },
+
     ...ciudadesUrls,
     ...colaboradoresUrls,
     ...eventosUrls,

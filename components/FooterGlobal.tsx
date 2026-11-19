@@ -36,6 +36,11 @@ export default function FooterGlobal() {
 
             <ul className="mt-4 space-y-3 text-base font-semibold text-slate-600">
               <li>
+                <Link href="/sobre-nosotros" className="transition hover:text-orange-600">
+                  Sobre Lugares Llenos
+                </Link>
+              </li>
+              <li>
                 <Link
                   href="/aviso-legal"
                   className="transition hover:text-orange-600"
