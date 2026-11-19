@@ -58,6 +58,7 @@ export const SALAS_DESTACADAS_COLABORADORAS = [
   "Teatro de las Esquinas",
   "Teatro OFF",
   "Sala OFF Kids",
+  "Teatro Zorrilla",
 ];
 
 
