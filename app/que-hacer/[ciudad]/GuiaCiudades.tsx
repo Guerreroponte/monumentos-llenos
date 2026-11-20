@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"elche": {
+  "intro": "Elche permite combinar el paisaje del Palmeral con el patrimonio del centro histórico. Esta guía propone comenzar en el Parque Municipal y continuar por el Palacio de Altamira y la Basílica de Santa María. El paseo exterior y las visitas al museo o al campanario son planes distintos: elige los interiores que te interesen y consulta sus condiciones antes de salir.",
+  "sections": [
+    [
+      "Palmeras junto al centro",
+      "El [Parque Municipal](/lugar/parque-municipal-elche) reúne antiguos huertos convertidos en jardín público. Recorre sus caminos y observa las palmeras, fuentes y el entorno del Molí del Real. Consulta el horario estacional; el paseo puede adaptarse al tiempo que tengas."
+    ],
+    [
+      "Del alcázar a la basílica",
+      "El [Palacio de Altamira](/lugar/palacio-altamira-elche) forma parte del MAHE y permite acercarse al pasado defensivo de la ciudad. Continúa hacia la [Basílica de Santa María](/lugar/basilica-santa-maria-elche), ligada al Misteri d’Elx. La visita al templo no incluye una representación ni el acceso a la torre."
+    ],
+    [
+      "Organiza las visitas",
+      "Reserva tiempo adicional si vas a entrar al museo o subir al campanario. Confirma horarios, tarifas y accesos con cada gestor. El itinerario no presupone accesibilidad completa; utiliza las entradas habilitadas y sigue los avisos de obras o restricciones."
+    ],
+    [
+      "Combina el paseo con un evento",
+      "Consulta la agenda de Elche y verifica la dirección del recinto: no todos los espectáculos se celebran junto al casco histórico. Deja margen para el desplazamiento y comprueba la hora de apertura de puertas. Las valoraciones de Google de estas fichas se consultaron el 19 de noviembre de 2026 y pueden variar."
+    ]
+  ],
+  "sources": [
+    [
+      "Parque Municipal de Elche",
+      "https://www.visitelche.com/va/patrimonios-de-la-humanidad/palmeral-de-elche/parque-municipal/"
+    ],
+    [
+      "Palacio de Altamira",
+      "https://www.elche.es/museos/mahe/palacio-de-altamira/"
+    ],
+    [
+      "Basílica de Santa María de Elche",
+      "https://basilicasantamariaelche.es/conoce-la-basilica/"
+    ]
+  ]
+},
 "barakaldo": {
   "intro": "Barakaldo se puede descubrir combinando el patrimonio de Munoa, la vegetación del Jardín Botánico Ramón Rubial y la programación del Teatro Barakaldo. Esta propuesta enlaza tres puntos separados por calles urbanas: deja margen para los desplazamientos y adapta el paseo a tu tiempo. Comprueba primero la apertura de los jardines y reserva aparte cualquier visita guiada o espectáculo. Si vienes por un evento, revisa su recinto: no todos se celebran en el teatro.",
   "sections": [],

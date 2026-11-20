@@ -1,3 +1,4 @@
+import RutaElche from "./RutaElche";
 import RutaBarakaldo from "./RutaBarakaldo";
 import RutaPalma from "./RutaPalma";
 import RutaBocairent from "./RutaBocairent";
@@ -30,6 +31,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["elche", { ciudad: "Elche", Componente: RutaElche }],
   ["barakaldo", { ciudad: "Barakaldo", Componente: RutaBarakaldo }],
   ["palma", { ciudad: "Palma", Componente: RutaPalma }],
   ["bocairent", { ciudad: "Bocairent", Componente: RutaBocairent }],
