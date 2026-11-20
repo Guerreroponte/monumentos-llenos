@@ -46,7 +46,7 @@ export default function GuiaGastronomica() {
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-orange-800">España · Viajar a través de los sabores</p>
           <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">{titulo}</h1>
           <p className="mt-6 max-w-3xl text-xl leading-8 text-slate-600">Una barra, un mercado, una bodega o un ingrediente pueden ser el principio de un viaje. {experiencias.length} propuestas para conocer España con curiosidad y sentarse a la mesa con algo más que hambre.</p>
-          <p className="mt-6 text-sm text-slate-600">Por <span className="font-semibold">Equipo de Lugares Llenos</span> · Actualizado el <time dateTime={FECHA_ACTUALIZACION}>20 de noviembre de 2026</time> · Córdoba incorporada en esta actualización</p>
+          <p className="mt-6 text-sm text-slate-600">Por <span className="font-semibold">Equipo de Lugares Llenos</span> · Actualizado el <time dateTime={FECHA_ACTUALIZACION}>20 de noviembre de 2026</time> · Córdoba y Granada incorporadas en esta actualización</p>
         </header>
 
         <figure className="mt-8">
@@ -100,6 +100,21 @@ export default function GuiaGastronomica() {
                 <p className="mt-5 text-base leading-7 text-slate-700">{e.descripcion}</p>
                 <p className="mt-4 text-base leading-7 text-slate-700"><strong className="text-slate-900">Para aprovecharlo:</strong> {e.consejo}</p>
                 <p className="mt-4 rounded-xl bg-orange-50 p-4 text-sm leading-6 text-slate-700"><strong>Antes de reservar:</strong> {e.detalle}</p>
+                {e.id === "granada" && <div className="mt-6 space-y-5 border-t border-orange-100 pt-6">
+                  <div>
+                    <h4 className="text-lg font-bold">Qué probar por tu cuenta en Granada</h4>
+                    <p className="mt-2 leading-7 text-slate-700">Busca en las cartas remojón granadino, con bacalao y naranja, habas con jamón o tortilla del Sacromonte. Para un final dulce, los piononos de Santa Fe son una especialidad de la provincia. Son ideas para comer por libre, no platos garantizados en la ruta de tapas. Pregunta por ingredientes y disponibilidad en cada local.</p>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold">Zonas para tapear y cómo funciona la tapa</h4>
+                    <p className="mt-2 leading-7 text-slate-700">El entorno de la Catedral y la plaza de la Romanilla permite hacer una pausa durante el paseo por el centro. También puedes acercarte a la calle Navas o a las plazas del Campillo y Mariana Pineda. Es frecuente que la bebida incluya una tapa, pero cada bar decide cuáles ofrece, si se pueden elegir y qué consumiciones la incluyen. Consulta antes de pedir; una ración o una tapa extra pueden cobrarse aparte.</p>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold">Cómo combinar tapeo y paseo monumental</h4>
+                    <p className="mt-2 leading-7 text-slate-700">Utiliza nuestra <Link href="/que-hacer/granada#guia-local" className={enlace}>guía de Granada</Link> para organizar el centro y el Albaicín. Si tienes entradas para la Alhambra, respeta primero sus horarios y deja margen para los desplazamientos. Otra opción es pasear por el Albaicín y bajar después al centro para comer: cuenta con las pendientes y evita encajar la ruta gastronómica justo al terminar otra visita. Son propuestas por libre, no el itinerario del tour.</p>
+                  </div>
+                  <p className="text-sm leading-6 text-slate-600">Fuentes consultadas el 20/11/2026: <a href="https://turismo.granada.org/es/que-hacer/tapas-granada" className={enlace} target="_blank" rel="noopener noreferrer">rutas de tapas del Ayuntamiento de Granada</a>, <a href="https://turismo.granada.org/es/turismo-gastronomico" className={enlace} target="_blank" rel="noopener noreferrer">gastronomía local</a> y <a href="https://foodlovertour.com/granada-tapas-crawl-tour/" className={enlace} target="_blank" rel="noopener noreferrer">ficha oficial de Food Lover Tour</a>, contrastada con la actividad enlazada en GetYourGuide.</p>
+                </div>}
                 {e.id === "cordoba" && <div className="mt-6 space-y-5 border-t border-orange-100 pt-6">
                   <div>
                     <h4 className="text-lg font-bold">Qué probar por tu cuenta en Córdoba</h4>
@@ -116,6 +131,7 @@ export default function GuiaGastronomica() {
                   {e.guia && <Link href={`/que-hacer/${e.guia}`} className={`${enlace} text-sm`}>{e.id === "rioja" ? "Completa tu estancia en Bilbao" : `Qué hacer en ${e.ciudad}`} →</Link>}
                 </div>
                 <p className="mt-3 text-xs text-slate-500">GetYourGuide · Enlace afiliado · Precio y condiciones en la ficha de reserva</p>
+                {e.id === "granada" && <p className="mt-2 text-sm leading-6 text-slate-600">Si GetYourGuide abre una lista de resultados, selecciona «Granada: ruta de tapas - todo incluido», de Food Lover Tour Andalucia.</p>}
                 {e.id === "cordoba" && <p className="mt-2 text-sm leading-6 text-slate-600">Si GetYourGuide abre una lista de resultados, selecciona «Córdoba: tarde de cata de vino local», de Ontdek Córdoba.</p>}
               </section>
             ))}
@@ -173,11 +189,11 @@ export default function GuiaGastronomica() {
         <section className="mt-12 rounded-3xl bg-white p-6 sm:p-8" aria-labelledby="seguir-explorando">
           <h2 id="seguir-explorando" className="text-2xl font-bold">Sigue explorando España</h2>
           <p className="mt-3 leading-7 text-slate-600">Completa la mesa con paseos, lugares y propuestas culturales de nuestras guías.</p>
-          <div className="mt-5 flex flex-wrap gap-3">{[["cordoba", "Córdoba"], ["madrid", "Madrid"], ["bilbao", "Bilbao"], ["valencia", "Valencia"], ["barcelona", "Barcelona"], ["sevilla", "Sevilla"], ["jerez-de-la-frontera", "Jerez"], ["aranda-de-duero", "Aranda de Duero"]].map(([slug, ciudad]) => <Link key={slug} href={`/que-hacer/${slug}`} className="rounded-full border border-orange-200 px-4 py-3 text-sm font-bold text-orange-800 hover:bg-orange-50">{ciudad} →</Link>)}</div>
+          <div className="mt-5 flex flex-wrap gap-3">{[["granada", "Granada"], ["cordoba", "Córdoba"], ["madrid", "Madrid"], ["bilbao", "Bilbao"], ["valencia", "Valencia"], ["barcelona", "Barcelona"], ["sevilla", "Sevilla"], ["jerez-de-la-frontera", "Jerez"], ["aranda-de-duero", "Aranda de Duero"]].map(([slug, ciudad]) => <Link key={slug} href={`/que-hacer/${slug}`} className="rounded-full border border-orange-200 px-4 py-3 text-sm font-bold text-orange-800 hover:bg-orange-50">{ciudad} →</Link>)}</div>
           <Link href="/que-hacer" className={`mt-6 inline-block ${enlace}`}>Ver todas las guías de Qué hacer →</Link>
         </section>
         <footer className="mt-10 border-t border-orange-200 pt-6 text-sm leading-6 text-slate-600">
-          <p><strong>Fuentes y revisión editorial.</strong> Investigación Biteseeing de GetYourGuide, publicada el 4 de noviembre de 2026, y fichas de las nueve actividades originales, consultadas el 11 de noviembre de 2026. La experiencia de Córdoba se incorporó y contrastó con GetYourGuide, Ontdek Córdoba y Turismo de Córdoba el 20 de noviembre de 2026; esta ampliación no supone una nueva revisión de las otras nueve actividades. Los consejos para organizar el viaje son propuestas editoriales de Lugares Llenos. No se garantizan plazas, precios ni inclusiones fuera de la modalidad confirmada por el proveedor.</p>
+          <p><strong>Fuentes y revisión editorial.</strong> Investigación Biteseeing de GetYourGuide, publicada el 4 de noviembre de 2026, y fichas de las nueve actividades originales, consultadas el 11 de noviembre de 2026. La experiencia de Córdoba se incorporó y contrastó con GetYourGuide, Ontdek Córdoba y Turismo de Córdoba el 20 de noviembre de 2026; Granada se añadió ese mismo día, contrastando GetYourGuide, Food Lover Tour y el Ayuntamiento de Granada. Estas ampliaciones no suponen una nueva revisión de las nueve actividades originales. Los consejos para organizar el viaje son propuestas editoriales de Lugares Llenos. No se garantizan plazas, precios ni inclusiones fuera de la modalidad confirmada por el proveedor.</p>
           <p className="mt-3">Fotografías procedentes del <a href="https://drive.google.com/drive/folders/1mDhCVwJZc0W1L_r_3OZ-c0ifF8MS-B5n" className={enlace} target="_blank" rel="noopener noreferrer">material de prensa Biteseeing</a>, facilitado para cubrir esta historia. Vainilla: Angelo Dal Bo. Se han adaptado tamaño y encuadre para la web.</p>
           <p className="mt-4 font-semibold">Equipo de Lugares Llenos</p>
         </footer>

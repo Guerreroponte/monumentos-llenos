@@ -15,6 +15,15 @@ export function enlaceAfiliado(url: string) {
 
 export const experiencias = [
   {
+    id: "granada", ciudad: "Granada", tipo: "Ruta de tapas", duracion: "3 horas", idioma: "Inglés",
+    titulo: "Granada: descubrir la ciudad de barra en barra",
+    url: "https://www.getyourguide.com/es-es/granada-l207/granada-ruta-de-tapas-t179663/",
+    descripcion: "Food Lover Tour Andalucia propone un paseo por cuatro establecimientos con unas diez tapas y cuatro bebidas. El guía presenta las costumbres del tapeo mientras el grupo comparte mesa y cambia de ambiente. Es un plan de tarde-noche pensado como cena; los locales y platos pueden variar.",
+    consejo: "Deja margen entre las visitas monumentales y el encuentro. El recorrido se imparte en inglés: otros idiomas requieren confirmación previa. Si prefieres no beber alcohol, consulta las alternativas y su coste antes de reservar; el organizador señala que los refrescos y otros pedidos adicionales se pagan aparte.",
+    detalle: "Encuentro frente al Centro Federico García Lorca, en la plaza de la Romanilla. La actividad no se anuncia como apta para personas vegetarianas o veganas; comunica cualquier restricción alimentaria y consulta las condiciones con el proveedor. Comprueba accesibilidad, horario, precio y disponibilidad para tu sesión. Las consumiciones adicionales no están incluidas.",
+    guia: "granada",
+  },
+  {
     id: "cordoba", ciudad: "Córdoba", tipo: "Vinos locales y tapas", duracion: "1 hora", idioma: "Español, inglés y neerlandés; según sesión",
     titulo: "Córdoba: vinos de Montilla-Moriles y tapas para completar el paseo",
     url: "https://www.getyourguide.com/cordoba-l1689/cordoba-tarde-de-cata-de-vino-local-t206187/",
