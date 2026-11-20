@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"ubeda": {
+  "intro": "Úbeda invita a recorrer a pie sus plazas y calles históricas. Esta propuesta une tres templos y dos plazas: comienza en San Pablo, continúa hasta la Capilla del Salvador y termina en Santa María de los Reales Alcázares. Puedes disfrutar del paseo exterior o añadir visitas interiores según sus horarios y tus intereses.",
+  "sections": [
+    [
+      "Comienza en la plaza Primero de Mayo",
+      "La [Iglesia de San Pablo](/lugar/iglesia-san-pablo-ubeda) abre el recorrido. Observa su portada y el ambiente de la plaza antes de continuar hacia el conjunto de Vázquez de Molina."
+    ],
+    [
+      "El conjunto de Vázquez de Molina",
+      "La [Capilla del Salvador](/lugar/sacra-capilla-salvador-ubeda) y [Santa María de los Reales Alcázares](/lugar/basilica-santa-maria-reales-alcazares-ubeda) permiten conocer dos caras del patrimonio de Úbeda. Dedica tiempo a contemplar los edificios y las perspectivas de la plaza."
+    ],
+    [
+      "Prepara las visitas",
+      "Las entradas a los monumentos se gestionan aparte del paseo. Confirma horarios, tarifas y accesos antes de salir. Ten en cuenta el empedrado, los desniveles y las celebraciones religiosas. Las valoraciones de Google se consultaron el 20 de noviembre de 2026 y pueden cambiar."
+    ],
+    [
+      "Completa el plan",
+      "Si vas a un evento, revisa la dirección y deja margen para llegar al recinto. La agenda de esta página reúne los próximos planes publicados; no todos se celebran junto al recorrido."
+    ]
+  ],
+  "sources": [
+    [
+      "Iglesia de San Pablo",
+      "https://www.turismodeubeda.com/poi/iglesia-de-san-pablo/"
+    ],
+    [
+      "Sacra Capilla del Salvador",
+      "https://www.turismodeubeda.com/poi/sacra-capilla-del-salvador/"
+    ],
+    [
+      "Basílica de Santa María de los Reales Alcázares",
+      "https://www.turismodeubeda.com/poi/basilica-de-santa-maria-de-los-reales-alcazares/"
+    ]
+  ]
+},
 "elche": {
   "intro": "Elche permite combinar el paisaje del Palmeral con el patrimonio del centro histórico. Esta guía propone comenzar en el Parque Municipal y continuar por el Palacio de Altamira y la Basílica de Santa María. El paseo exterior y las visitas al museo o al campanario son planes distintos: elige los interiores que te interesen y consulta sus condiciones antes de salir.",
   "sections": [

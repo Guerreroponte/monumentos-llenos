@@ -1,3 +1,4 @@
+import RutaUbeda from "./RutaUbeda";
 import RutaElche from "./RutaElche";
 import RutaBarakaldo from "./RutaBarakaldo";
 import RutaPalma from "./RutaPalma";
@@ -31,6 +32,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["ubeda", { ciudad: "Úbeda", Componente: RutaUbeda }],
   ["elche", { ciudad: "Elche", Componente: RutaElche }],
   ["barakaldo", { ciudad: "Barakaldo", Componente: RutaBarakaldo }],
   ["palma", { ciudad: "Palma", Componente: RutaPalma }],
