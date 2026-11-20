@@ -238,7 +238,7 @@ export default function QueHacerPage({ ciudadesDisponibles, ciudadesConRuta, err
             <div className="p-6 sm:p-8">
               <p className="text-xs font-bold uppercase tracking-widest text-orange-800">Nueva guía · Turismo gastronómico</p>
               <h2 id="guia-gastronomica" className="mt-3 text-2xl font-extrabold text-slate-900 sm:text-3xl">España, a través de sus sabores</h2>
-              <p className="mt-3 leading-7 text-slate-600">Del mercado a la mesa, de las bodegas a las salinas: descubre el Biteseeing con nueve experiencias y consejos para organizar tu escapada.</p>
+              <p className="mt-3 leading-7 text-slate-600">Del mercado a la mesa, de las bodegas a las salinas: descubre experiencias gastronómicas y consejos para organizar tu escapada.</p>
               <span className="mt-5 inline-block font-bold text-orange-800 group-hover:underline">Explorar la guía gastronómica →</span>
             </div>
           </Link>

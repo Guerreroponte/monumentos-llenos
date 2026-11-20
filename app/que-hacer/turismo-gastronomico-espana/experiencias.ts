@@ -3,6 +3,7 @@
 export const PARTNER_ID = "3B0Y74E";
 export const RUTA_GUIA = "/que-hacer/turismo-gastronomico-espana";
 export const FECHA_REVISION = "2026-11-11";
+export const FECHA_ACTUALIZACION = "2026-11-20";
 export const FUENTE_BITeseeing = "https://www.getyourguide.press/blog/biteseeing";
 
 export function enlaceAfiliado(url: string) {
@@ -13,6 +14,15 @@ export function enlaceAfiliado(url: string) {
 }
 
 export const experiencias = [
+  {
+    id: "cordoba", ciudad: "Córdoba", tipo: "Vinos locales y tapas", duracion: "1 hora", idioma: "Español, inglés y neerlandés; según sesión",
+    titulo: "Córdoba: vinos de Montilla-Moriles y tapas para completar el paseo",
+    url: "https://www.getyourguide.com/cordoba-l1689/cordoba-tarde-de-cata-de-vino-local-t206187/",
+    descripcion: "Ontdek Córdoba organiza una cata en una vinoteca de la ciudad para conocer cuatro vinos de Montilla-Moriles, acompañados de tapas y agua. Las explicaciones ayudan a distinguir estilos como fino, oloroso y Pedro Ximénez. Es una actividad en un local, no una ruta por varias tabernas ni una visita a las bodegas de la provincia.",
+    consejo: "Combina el paseo monumental con una pausa para comer y deja margen para llegar a la cata. Las tapas acompañan al vino; no presupongas que sustituyen una comida ni que incluyen los platos típicos que recomendamos más abajo. Organiza la vuelta sin conducir si vas a beber.",
+    detalle: "Punto de encuentro publicado: calle Moriscos, 10. Solo para mayores de 18 años, con un máximo anunciado de diez participantes. GetYourGuide ofrece varios idiomas según sesión; elige el de tu reserva. Anuncia acceso en silla de ruedas y opciones vegetarianas con aviso previo: confirma tus necesidades. No incluye traslados al hotel. Precio y disponibilidad se consultan para la fecha elegida.",
+    guia: "cordoba",
+  },
   {
     id: "madrid", ciudad: "Madrid", tipo: "Tapas y tabernas", duracion: "3 horas", idioma: "Español e inglés",
     titulo: "Madrid: una ruta de tapas para entender la vida de las tabernas",

@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { experiencias, enlaceAfiliado, FECHA_REVISION, FUENTE_BITeseeing, RUTA_GUIA } from "./experiencias";
+import { experiencias, enlaceAfiliado, FECHA_REVISION, FECHA_ACTUALIZACION, FUENTE_BITeseeing, RUTA_GUIA } from "./experiencias";
 
 const base = "https://www.monumentosllenos.com";
 const titulo = "Turismo gastronómico en España: experiencias, rutas y sabores que descubrir";
-const descripcion = "Descubre el Biteseeing en España: 9 experiencias de tapas, mercados, paella, bodegas, vainilla y salinas, con consejos prácticos y enlaces de reserva.";
+const descripcion = `Descubre el turismo gastronómico en España: ${experiencias.length} experiencias de tapas, mercados, paella, bodegas, vainilla y salinas, con consejos prácticos y enlaces de reserva.`;
 const portada = `${base}/images/gastronomia/portada.jpg`;
 export const metadata: Metadata = {
-  title: { absolute: "Turismo gastronómico en España: 9 experiencias | Lugares Llenos" },
+  title: { absolute: `Turismo gastronómico en España: ${experiencias.length} experiencias | Lugares Llenos` },
   description: descripcion,
   alternates: { canonical: `${base}${RUTA_GUIA}` },
   authors: [{ name: "Equipo de Lugares Llenos" }],
-  openGraph: { title: titulo, description: descripcion, url: `${base}${RUTA_GUIA}`, siteName: "Lugares Llenos", locale: "es_ES", type: "article", publishedTime: `${FECHA_REVISION}T12:00:00+01:00`, modifiedTime: `${FECHA_REVISION}T12:00:00+01:00`, images: [{ url: portada, width: 1200, height: 630, alt: "Trabajo artesanal en las Salinas de Janubio, Lanzarote" }] },
+  openGraph: { title: titulo, description: descripcion, url: `${base}${RUTA_GUIA}`, siteName: "Lugares Llenos", locale: "es_ES", type: "article", publishedTime: `${FECHA_REVISION}T12:00:00+01:00`, modifiedTime: `${FECHA_ACTUALIZACION}T12:00:00+01:00`, images: [{ url: portada, width: 1200, height: 630, alt: "Trabajo artesanal en las Salinas de Janubio, Lanzarote" }] },
   twitter: { card: "summary_large_image", title: titulo, description: descripcion, images: [portada] },
 };
 
@@ -26,7 +26,7 @@ const preguntas = [
 
 const datosEstructurados = {
   "@context": "https://schema.org", "@graph": [
-    { "@type": "Article", "@id": `${base}${RUTA_GUIA}#articulo`, headline: titulo, description: descripcion, inLanguage: "es-ES", image: [portada], datePublished: `${FECHA_REVISION}T12:00:00+01:00`, dateModified: `${FECHA_REVISION}T12:00:00+01:00`, mainEntityOfPage: `${base}${RUTA_GUIA}`, author: { "@type": "Organization", name: "Equipo de Lugares Llenos" }, publisher: { "@type": "Organization", name: "Lugares Llenos", url: base } },
+    { "@type": "Article", "@id": `${base}${RUTA_GUIA}#articulo`, headline: titulo, description: descripcion, inLanguage: "es-ES", image: [portada], datePublished: `${FECHA_REVISION}T12:00:00+01:00`, dateModified: `${FECHA_ACTUALIZACION}T12:00:00+01:00`, mainEntityOfPage: `${base}${RUTA_GUIA}`, author: { "@type": "Organization", name: "Equipo de Lugares Llenos" }, publisher: { "@type": "Organization", name: "Lugares Llenos", url: base } },
     { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Inicio", item: base }, { "@type": "ListItem", position: 2, name: "Qué hacer", item: `${base}/que-hacer` }, { "@type": "ListItem", position: 3, name: "Turismo gastronómico en España", item: `${base}${RUTA_GUIA}` }] },
   ],
 };
@@ -45,8 +45,8 @@ export default function GuiaGastronomica() {
         <header className="mt-10 max-w-4xl">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-orange-800">España · Viajar a través de los sabores</p>
           <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">{titulo}</h1>
-          <p className="mt-6 max-w-3xl text-xl leading-8 text-slate-600">Una barra, un mercado, una bodega o un ingrediente pueden ser el principio de un viaje. Nueve propuestas para conocer España con curiosidad y sentarse a la mesa con algo más que hambre.</p>
-          <p className="mt-6 text-sm text-slate-600">Por <span className="font-semibold">Equipo de Lugares Llenos</span> · Revisado el <time dateTime={FECHA_REVISION}>11 de noviembre de 2026</time></p>
+          <p className="mt-6 max-w-3xl text-xl leading-8 text-slate-600">Una barra, un mercado, una bodega o un ingrediente pueden ser el principio de un viaje. {experiencias.length} propuestas para conocer España con curiosidad y sentarse a la mesa con algo más que hambre.</p>
+          <p className="mt-6 text-sm text-slate-600">Por <span className="font-semibold">Equipo de Lugares Llenos</span> · Actualizado el <time dateTime={FECHA_ACTUALIZACION}>20 de noviembre de 2026</time> · Córdoba incorporada en esta actualización</p>
         </header>
 
         <figure className="mt-8">
@@ -63,7 +63,7 @@ export default function GuiaGastronomica() {
         <nav aria-label="Índice de la guía" className="mt-10 rounded-3xl border border-orange-200 bg-white p-6">
           <h2 className="text-lg font-bold">En esta guía</h2>
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-            {[["biteseeing", "Qué es el Biteseeing"], ["comparar", "Elegir una experiencia"], ["experiencias", "9 experiencias en España"], ["escapadas", "Cómo organizar tu escapada"], ["reservar", "Qué revisar antes de reservar"], ["preguntas", "Preguntas frecuentes"]].map(([id, texto]) => <a key={id} href={`#${id}`} className={enlace}>{texto} ↓</a>)}
+            {[["biteseeing", "Qué es el Biteseeing"], ["comparar", "Elegir una experiencia"], ["experiencias", `${experiencias.length} experiencias en España`], ["escapadas", "Cómo organizar tu escapada"], ["reservar", "Qué revisar antes de reservar"], ["preguntas", "Preguntas frecuentes"]].map(([id, texto]) => <a key={id} href={`#${id}`} className={enlace}>{texto} ↓</a>)}
           </div>
         </nav>
 
@@ -80,7 +80,7 @@ export default function GuiaGastronomica() {
           <p className={`${parrafo} max-w-3xl`}>Empieza por el tiempo del que dispones y por lo que quieres hacer. Una ruta de tapas sirve para recorrer una ciudad en compañía; un taller requiere ganas de participar; una bodega permite concentrarse en un producto. Las duraciones son orientativas y corresponden a las fichas revisadas.</p>
           <div className="mt-6 overflow-x-auto rounded-2xl border border-orange-200 bg-white">
             <table className="w-full min-w-[570px] text-left text-sm">
-              <caption className="sr-only">Comparativa de las nueve experiencias gastronómicas seleccionadas</caption>
+              <caption className="sr-only">Comparativa de las {experiencias.length} experiencias gastronómicas seleccionadas</caption>
               <thead className="bg-orange-100 text-slate-900"><tr>{["Destino", "Plan", "Tiempo", "Idioma anunciado"].map(t => <th key={t} scope="col" className="px-4 py-4 font-bold">{t}</th>)}</tr></thead>
               <tbody>{experiencias.map(e => <tr key={e.id} className="border-t border-orange-100"><th scope="row" className="px-4 py-4"><a className={enlace} href={`#${e.id}`}>{e.ciudad}</a></th><td className="px-4 py-4">{e.tipo}</td><td className="whitespace-nowrap px-4 py-4">{e.duracion}</td><td className="px-4 py-4">{e.idioma}</td></tr>)}</tbody>
             </table>
@@ -89,7 +89,7 @@ export default function GuiaGastronomica() {
         </section>
 
         <section id="experiencias" className="mt-14 scroll-mt-28">
-          <h2 className={h2}>9 experiencias de turismo gastronómico en España</h2>
+          <h2 className={h2}>{experiencias.length} experiencias de turismo gastronómico en España</h2>
           <p className={`${parrafo} max-w-3xl`}>Esta selección combina ciudades peninsulares y dos propuestas canarias centradas en el origen de los ingredientes. No pretende ordenar «las mejores» experiencias de España: reúne maneras distintas de explorar su gastronomía. Las fichas estaban publicadas al revisarlas; las plazas para una fecha concreta se consultan en el calendario de reserva.</p>
           <div className="mt-8 space-y-6">
             {experiencias.map((e, i) => (
@@ -100,11 +100,23 @@ export default function GuiaGastronomica() {
                 <p className="mt-5 text-base leading-7 text-slate-700">{e.descripcion}</p>
                 <p className="mt-4 text-base leading-7 text-slate-700"><strong className="text-slate-900">Para aprovecharlo:</strong> {e.consejo}</p>
                 <p className="mt-4 rounded-xl bg-orange-50 p-4 text-sm leading-6 text-slate-700"><strong>Antes de reservar:</strong> {e.detalle}</p>
+                {e.id === "cordoba" && <div className="mt-6 space-y-5 border-t border-orange-100 pt-6">
+                  <div>
+                    <h4 className="text-lg font-bold">Qué probar por tu cuenta en Córdoba</h4>
+                    <p className="mt-2 leading-7 text-slate-700">El salmorejo, una crema fría de tomate, pan, aceite y ajo, es una buena puerta de entrada a la cocina local. También puedes buscar flamenquín, rabo de toro o berenjenas con miel. Para terminar, el pastel cordobés combina hojaldre y cabello de ángel. Son propuestas para elegir en las cartas de las tabernas, no un menú incluido en esta cata. Consulta ingredientes y adaptaciones con cada establecimiento.</p>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold">Cómo combinar gastronomía y paseo monumental</h4>
+                    <p className="mt-2 leading-7 text-slate-700">Organiza primero las visitas con hora reservada y utiliza nuestra <Link href="/que-hacer/cordoba#guia-local" className={enlace}>guía y ruta a pie de Córdoba</Link> para enlazar el patrimonio. Reserva un hueco para comer por tu cuenta y calcula después el desplazamiento hasta la calle Moriscos: la cata no comienza junto a cada parada del paseo. Si prefieres un plan sin alcohol, puedes seguir las recomendaciones de platos y prescindir de la actividad vinícola.</p>
+                  </div>
+                  <p className="text-sm leading-6 text-slate-600">Fuentes consultadas el 20/11/2026: <a href="https://www.turismodecordoba.org/la-gastronomia-cordobesa/" className={enlace} target="_blank" rel="noopener noreferrer">Turismo de Córdoba</a> y <a href="https://ontdekcordoba.com/en/tours-cordoba/wine-tasting-cordoba" className={enlace} target="_blank" rel="noopener noreferrer">ficha oficial de Ontdek Córdoba</a>, contrastadas con la actividad enlazada en GetYourGuide. La web del organizador en inglés describe sesiones en inglés; confirma el idioma concreto al reservar en la plataforma.</p>
+                </div>}
                 <div className="mt-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <a href={enlaceAfiliado(e.url)} target="_blank" rel="sponsored nofollow noopener noreferrer" aria-label={`Ver disponibilidad y reservar: ${e.titulo} (GetYourGuide, enlace afiliado, nueva pestaña)`} className="inline-flex min-h-12 items-center justify-center rounded-full bg-orange-700 px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-orange-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-800">Ver disponibilidad y reservar ↗</a>
                   {e.guia && <Link href={`/que-hacer/${e.guia}`} className={`${enlace} text-sm`}>{e.id === "rioja" ? "Completa tu estancia en Bilbao" : `Qué hacer en ${e.ciudad}`} →</Link>}
                 </div>
                 <p className="mt-3 text-xs text-slate-500">GetYourGuide · Enlace afiliado · Precio y condiciones en la ficha de reserva</p>
+                {e.id === "cordoba" && <p className="mt-2 text-sm leading-6 text-slate-600">Si GetYourGuide abre una lista de resultados, selecciona «Córdoba: tarde de cata de vino local», de Ontdek Córdoba.</p>}
               </section>
             ))}
           </div>
@@ -161,11 +173,11 @@ export default function GuiaGastronomica() {
         <section className="mt-12 rounded-3xl bg-white p-6 sm:p-8" aria-labelledby="seguir-explorando">
           <h2 id="seguir-explorando" className="text-2xl font-bold">Sigue explorando España</h2>
           <p className="mt-3 leading-7 text-slate-600">Completa la mesa con paseos, lugares y propuestas culturales de nuestras guías.</p>
-          <div className="mt-5 flex flex-wrap gap-3">{[["madrid", "Madrid"], ["bilbao", "Bilbao"], ["valencia", "Valencia"], ["barcelona", "Barcelona"], ["sevilla", "Sevilla"], ["jerez-de-la-frontera", "Jerez"], ["aranda-de-duero", "Aranda de Duero"]].map(([slug, ciudad]) => <Link key={slug} href={`/que-hacer/${slug}`} className="rounded-full border border-orange-200 px-4 py-3 text-sm font-bold text-orange-800 hover:bg-orange-50">{ciudad} →</Link>)}</div>
+          <div className="mt-5 flex flex-wrap gap-3">{[["cordoba", "Córdoba"], ["madrid", "Madrid"], ["bilbao", "Bilbao"], ["valencia", "Valencia"], ["barcelona", "Barcelona"], ["sevilla", "Sevilla"], ["jerez-de-la-frontera", "Jerez"], ["aranda-de-duero", "Aranda de Duero"]].map(([slug, ciudad]) => <Link key={slug} href={`/que-hacer/${slug}`} className="rounded-full border border-orange-200 px-4 py-3 text-sm font-bold text-orange-800 hover:bg-orange-50">{ciudad} →</Link>)}</div>
           <Link href="/que-hacer" className={`mt-6 inline-block ${enlace}`}>Ver todas las guías de Qué hacer →</Link>
         </section>
         <footer className="mt-10 border-t border-orange-200 pt-6 text-sm leading-6 text-slate-600">
-          <p><strong>Fuentes y revisión editorial.</strong> Investigación Biteseeing de GetYourGuide, publicada el 4 de noviembre de 2026, y fichas de las nueve actividades enlazadas, consultadas el 11 de noviembre de 2026. Los consejos para organizar el viaje son propuestas editoriales de Lugares Llenos. No se garantizan plazas, precios ni inclusiones fuera de la modalidad confirmada por el proveedor.</p>
+          <p><strong>Fuentes y revisión editorial.</strong> Investigación Biteseeing de GetYourGuide, publicada el 4 de noviembre de 2026, y fichas de las nueve actividades originales, consultadas el 11 de noviembre de 2026. La experiencia de Córdoba se incorporó y contrastó con GetYourGuide, Ontdek Córdoba y Turismo de Córdoba el 20 de noviembre de 2026; esta ampliación no supone una nueva revisión de las otras nueve actividades. Los consejos para organizar el viaje son propuestas editoriales de Lugares Llenos. No se garantizan plazas, precios ni inclusiones fuera de la modalidad confirmada por el proveedor.</p>
           <p className="mt-3">Fotografías procedentes del <a href="https://drive.google.com/drive/folders/1mDhCVwJZc0W1L_r_3OZ-c0ifF8MS-B5n" className={enlace} target="_blank" rel="noopener noreferrer">material de prensa Biteseeing</a>, facilitado para cubrir esta historia. Vainilla: Angelo Dal Bo. Se han adaptado tamaño y encuadre para la web.</p>
           <p className="mt-4 font-semibold">Equipo de Lugares Llenos</p>
         </footer>
