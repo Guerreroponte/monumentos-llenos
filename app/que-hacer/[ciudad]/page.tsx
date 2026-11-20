@@ -1,5 +1,6 @@
 import { contarCategoriasCiudad } from "@/lib/categorias-ciudad";
 import { rutasAPie } from "./rutas-a-pie";
+import { experiencias, RUTA_GUIA } from "../turismo-gastronomico-espana/experiencias";
 import { resumenLugar } from "@/lib/descripcion-lugar";
 import { cargarLugaresCiudad } from "@/lib/lugares-ciudad-data";
 import { nombreCiudad, claveCiudad } from "@/lib/ciudad-identidad";
@@ -234,6 +235,9 @@ export default async function CiudadPage({
     )?.ciudad;
 
   const RutaAPie = rutasAPie.get(ciudadSlug)?.Componente;
+  const experienciaGastronomica = experiencias.find(
+    experiencia => experiencia.guia === ciudadSlug && claveCiudad(experiencia.ciudad) === ciudadSlug
+  );
   const ciudadFormateada = nombreCiudad(ciudadReal || formatearCiudadDesdeSlug(ciudadSlug));
 
   return (
@@ -311,6 +315,9 @@ export default async function CiudadPage({
           <a href="#guia-local" className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
             📖 Guía local
           </a>
+          {experienciaGastronomica && <a href="#gastronomia" className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            🍴 Gastronomía
+          </a>}
         </div>
 
         <section className="mt-12 rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
@@ -675,6 +682,15 @@ export default async function CiudadPage({
               }
             )}
           </div>
+        </section>}
+
+        {experienciaGastronomica && <section id="gastronomia" aria-labelledby="gastronomia-titulo" className="scroll-mt-32 mt-20 rounded-3xl border border-orange-200 bg-white p-6 shadow-sm sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-700">Gastronomía · {experienciaGastronomica.tipo}</p>
+          <h2 id="gastronomia-titulo" className="mt-3 text-3xl font-bold text-slate-900">Saborea {ciudadFormateada}</h2>
+          <p className="mt-4 text-lg font-semibold text-slate-800">{experienciaGastronomica.titulo}</p>
+          <p className="mt-3 max-w-3xl leading-7 text-slate-600">Completa tu visita con una experiencia gastronómica. En nuestra guía encontrarás qué propone esta actividad, consejos para organizarla y las condiciones que conviene revisar antes de reservar.</p>
+          <Link href={`${RUTA_GUIA}#${experienciaGastronomica.id}`} className="mt-6 inline-flex min-h-12 items-center rounded-full bg-orange-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-orange-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange-700">Ver experiencia gastronómica →</Link>
+          <p className="mt-3 text-xs leading-5 text-slate-500">La guía incluye enlaces de afiliación. Las reservas se realizan en la plataforma del proveedor.</p>
         </section>}
 
         <section id="guia-local" className="scroll-mt-32 mt-20 rounded-3xl border border-orange-100 bg-white p-8 shadow-sm">
