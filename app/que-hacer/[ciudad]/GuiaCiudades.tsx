@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"donostia-san-sebastian": {
+  "intro": "Donostia-San Sebastián permite enlazar el centro y la Parte Vieja en un mismo paseo. Esta guía conecta tres templos y termina cerca de las calles de pintxos. Puedes recorrer los exteriores sin reservar una visita guiada; las entradas y horarios de cada interior se consultan por separado.",
+  "sections": [
+    [
+      "Comienza en el Buen Pastor",
+      "La [Catedral del Buen Pastor](/lugar/catedral-buen-pastor-san-sebastian) es el punto de partida. Observa el edificio y su entorno antes de continuar hacia el Boulevard. Comprueba los avisos de obras y los accesos vigentes."
+    ],
+    [
+      "Entra en la Parte Vieja",
+      "Desde la calle Mayor llega a [Santa María del Coro](/lugar/basilica-santa-maria-coro-san-sebastian). Continúa hacia la [Iglesia de San Vicente](/lugar/iglesia-san-vicente-san-sebastian), situada en el mismo barrio. El paseo exterior no incluye entradas ni garantiza que los templos estén abiertos."
+    ],
+    [
+      "Una pausa de pintxos",
+      "Al terminar, consulta nuestra [gastronomía de San Sebastián](/que-hacer/turismo-gastronomico-espana#donostia-san-sebastian). Puedes elegir bares por libre o reservar la experiencia descrita; el tour gastronómico y esta ruta monumental son planes independientes."
+    ],
+    [
+      "Prepara el recorrido",
+      "Lleva calzado cómodo y protección para la lluvia. Deja margen si tienes entradas o un evento con hora fija. Las valoraciones de Google se consultaron el 21 de noviembre de 2026 y pueden cambiar. Consulta las fichas oficiales para confirmar accesibilidad y visitas."
+    ]
+  ],
+  "sources": [
+    [
+      "Catedral del Buen Pastor",
+      "https://accessibility.sansebastianturismoa.eus/es/que-hacer/lugares-de-interes/catedral-del-buen-pastor/"
+    ],
+    [
+      "Basílica de Santa María del Coro",
+      "https://accessibility.sansebastianturismoa.eus/es/que-hacer/lugares-de-interes/basilica-de-santa-maria-del-coro/"
+    ],
+    [
+      "Iglesia de San Vicente",
+      "https://accessibility.sansebastianturismoa.eus/es/que-hacer/lugares-de-interes/iglesia-de-san-vicente/"
+    ]
+  ]
+},
 "ubeda": {
   "intro": "Úbeda invita a recorrer a pie sus plazas y calles históricas. Esta propuesta une tres templos y dos plazas: comienza en San Pablo, continúa hasta la Capilla del Salvador y termina en Santa María de los Reales Alcázares. Puedes disfrutar del paseo exterior o añadir visitas interiores según sus horarios y tus intereses.",
   "sections": [

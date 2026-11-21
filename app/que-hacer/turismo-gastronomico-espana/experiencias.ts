@@ -14,6 +14,19 @@ export function enlaceAfiliado(url: string) {
 }
 
 export const experiencias = [
+{
+  "id": "donostia-san-sebastian",
+  "ciudad": "Donostia-San Sebastián",
+  "tipo": "Pintxos y vinos",
+  "duracion": "3 horas",
+  "idioma": "Inglés",
+  "titulo": "San Sebastián: pintxos y vinos por la Parte Vieja",
+  "url": "https://www.getyourguide.com/san-sebastian-l94/san-sebastian-ultimate-pintxos-wine-evening-tour-t278717/",
+  "descripcion": "Devour Tours propone conocer la Parte Vieja a través de sus bares. La actividad anuncia ocho pintxos y cuatro bebidas, con comida suficiente para una comida completa. Combina degustaciones y explicaciones sobre la cultura gastronómica local; los platos y paradas dependen de la sesión.",
+  "consejo": "Reserva tiempo para disfrutar del recorrido sin enlazarlo con otra visita de horario ajustado. Se imparte en inglés. Consulta las alternativas sin alcohol y comunica las necesidades alimentarias antes de reservar.",
+  "detalle": "La ficha permite solicitar algunas adaptaciones, pero no garantiza una alternativa en cada parada y no recomienda la actividad para veganos. No se anuncia como apta para sillas de ruedas, carritos o personas con dificultades de movilidad. Confirma el punto de encuentro, horario y condiciones en tu bono. Precio y disponibilidad se consultan para la fecha elegida.",
+  "guia": "donostia-san-sebastian"
+},
   {
     id: "malaga", ciudad: "Málaga", tipo: "Tapas y vinos", duracion: "3–3,5 horas", idioma: "Inglés",
     titulo: "Málaga: tapas y vinos para conocer el centro histórico",
