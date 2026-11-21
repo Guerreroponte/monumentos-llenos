@@ -3,7 +3,7 @@
 export const PARTNER_ID = "3B0Y74E";
 export const RUTA_GUIA = "/que-hacer/turismo-gastronomico-espana";
 export const FECHA_REVISION = "2026-11-11";
-export const FECHA_ACTUALIZACION = "2026-11-20";
+export const FECHA_ACTUALIZACION = "2026-11-21";
 export const FUENTE_BITeseeing = "https://www.getyourguide.press/blog/biteseeing";
 
 export function enlaceAfiliado(url: string) {
@@ -14,6 +14,15 @@ export function enlaceAfiliado(url: string) {
 }
 
 export const experiencias = [
+  {
+    id: "malaga", ciudad: "Málaga", tipo: "Tapas y vinos", duracion: "3–3,5 horas", idioma: "Inglés",
+    titulo: "Málaga: tapas y vinos para conocer el centro histórico",
+    url: "https://www.getyourguide.com/malaga-l402/malaga-the-genuine-wine-tapas-tour-t63764/",
+    descripcion: "Spain Food Sherpas propone un recorrido por tabernas y establecimientos del centro. La ficha de GetYourGuide anuncia cuatro paradas, ocho degustaciones y cuatro vinos, con alternativas de cerveza o refrescos. Los platos y locales pueden cambiar. El mercado de Atarazanas y los espetos que recomendamos por libre más abajo no se presentan como inclusiones de esta actividad.",
+    consejo: "Reserva una franja amplia para pasear y comer: GetYourGuide indica tres horas y media, mientras que el organizador anuncia tres horas. Confirma la duración de tu sesión. El guía se anuncia en inglés. Deja las visitas con entrada horaria para otro tramo del día.",
+    detalle: "El encuentro habitual es en Marqués de Larios, 18. Ambas fuentes anuncian un traslado a la oficina de turismo de Plaza de la Marina, 11, durante las luces de Navidad, pero difieren en fechas y horarios: confirma el lugar en el bono y con el organizador. Este ofrece adaptaciones vegetarianas con aviso previo; no considera la ruta apta para veganos ni la recomienda para personas celíacas. Consulta accesibilidad y necesidades alimentarias antes de reservar.",
+    guia: "malaga",
+  },
   {
     id: "granada", ciudad: "Granada", tipo: "Ruta de tapas", duracion: "3 horas", idioma: "Inglés",
     titulo: "Granada: descubrir la ciudad de barra en barra",

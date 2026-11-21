@@ -46,7 +46,7 @@ export default function GuiaGastronomica() {
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-orange-800">España · Viajar a través de los sabores</p>
           <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">{titulo}</h1>
           <p className="mt-6 max-w-3xl text-xl leading-8 text-slate-600">Una barra, un mercado, una bodega o un ingrediente pueden ser el principio de un viaje. {experiencias.length} propuestas para conocer España con curiosidad y sentarse a la mesa con algo más que hambre.</p>
-          <p className="mt-6 text-sm text-slate-600">Por <span className="font-semibold">Equipo de Lugares Llenos</span> · Actualizado el <time dateTime={FECHA_ACTUALIZACION}>20 de noviembre de 2026</time> · Córdoba y Granada incorporadas en esta actualización</p>
+          <p className="mt-6 text-sm text-slate-600">Por <span className="font-semibold">Equipo de Lugares Llenos</span> · Actualizado el <time dateTime={FECHA_ACTUALIZACION}>21 de noviembre de 2026</time> · Málaga incorporada en esta actualización</p>
         </header>
 
         <figure className="mt-8">
@@ -100,6 +100,21 @@ export default function GuiaGastronomica() {
                 <p className="mt-5 text-base leading-7 text-slate-700">{e.descripcion}</p>
                 <p className="mt-4 text-base leading-7 text-slate-700"><strong className="text-slate-900">Para aprovecharlo:</strong> {e.consejo}</p>
                 <p className="mt-4 rounded-xl bg-orange-50 p-4 text-sm leading-6 text-slate-700"><strong>Antes de reservar:</strong> {e.detalle}</p>
+                {e.id === "malaga" && <div className="mt-6 space-y-5 border-t border-orange-100 pt-6">
+                  <div>
+                    <h4 className="text-lg font-bold">Qué probar por tu cuenta en Málaga</h4>
+                    <p className="mt-2 leading-7 text-slate-700">Los espetos de sardinas y el pescaíto frito son dos propuestas para acercarte a la cocina marinera. También puedes buscar ajoblanco, una sopa fría de almendras, o albóndigas en salsa de almendras. Consulta la carta y los ingredientes de cada establecimiento: estas recomendaciones no son un menú garantizado del tour.</p>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold">Atarazanas y una pausa para comer por libre</h4>
+                    <p className="mt-2 leading-7 text-slate-700">El Mercado de Atarazanas, en la calle Atarazanas, 10, combina puestos de productos frescos y bares. La web de Mercados de Málaga publica apertura de lunes a sábado de 8 a 15 horas; comprueba festivos y el horario de cada puesto antes de ir. Acércate por la mañana, deja paso a quienes hacen la compra y pregunta antes de fotografiar. Esta visita se organiza por tu cuenta y no forma parte de la ruta de vinos enlazada.</p>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold">Cómo combinar gastronomía y paseo monumental</h4>
+                    <p className="mt-2 leading-7 text-slate-700">Consulta nuestra <Link href="/que-hacer/malaga#guia-local" className={enlace}>guía de Málaga</Link> para enlazar el centro, la Catedral y el entorno del Teatro Romano y la Alcazaba. Puedes dedicar la mañana al mercado y al paseo, o reservar la ruta gastronómica para otro momento. Si prefieres comer junto al mar, calcula el desplazamiento de ida y vuelta antes de encajar una visita con hora fija. Son ideas de organización propias, no un paquete de entradas y comida.</p>
+                  </div>
+                  <p className="text-sm leading-6 text-slate-600">Fuentes consultadas el 21/11/2026: <a href="https://www.spain.info/export/sites/segtur/.content/Folletos/folletos/Malaga_ES.pdf" className={enlace} target="_blank" rel="noopener noreferrer">guía de Málaga de Turespaña</a>, <a href="https://mercados.malagacomercio.es/mercados/mercado-de-atarazanas/" className={enlace} target="_blank" rel="noopener noreferrer">Mercados de Málaga</a> y <a href="https://www.spainfoodsherpas.com/malaga-evening-tapas-tour/" className={enlace} target="_blank" rel="noopener noreferrer">ficha oficial de Spain Food Sherpas</a>, contrastada con GetYourGuide. Se indican las diferencias detectadas para confirmar las condiciones de la sesión concreta.</p>
+                </div>}
                 {e.id === "granada" && <div className="mt-6 space-y-5 border-t border-orange-100 pt-6">
                   <div>
                     <h4 className="text-lg font-bold">Qué probar por tu cuenta en Granada</h4>
@@ -131,6 +146,7 @@ export default function GuiaGastronomica() {
                   {e.guia && <Link href={`/que-hacer/${e.guia}`} className={`${enlace} text-sm`}>{e.id === "rioja" ? "Completa tu estancia en Bilbao" : `Qué hacer en ${e.ciudad}`} →</Link>}
                 </div>
                 <p className="mt-3 text-xs text-slate-500">GetYourGuide · Enlace afiliado · Precio y condiciones en la ficha de reserva</p>
+                {e.id === "malaga" && <p className="mt-2 text-sm leading-6 text-slate-600">Si GetYourGuide abre una lista de resultados, selecciona «Málaga: tour de vino y tapas», de Spain Food Sherpas.</p>}
                 {e.id === "granada" && <p className="mt-2 text-sm leading-6 text-slate-600">Si GetYourGuide abre una lista de resultados, selecciona «Granada: ruta de tapas - todo incluido», de Food Lover Tour Andalucia.</p>}
                 {e.id === "cordoba" && <p className="mt-2 text-sm leading-6 text-slate-600">Si GetYourGuide abre una lista de resultados, selecciona «Córdoba: tarde de cata de vino local», de Ontdek Córdoba.</p>}
               </section>
@@ -189,11 +205,11 @@ export default function GuiaGastronomica() {
         <section className="mt-12 rounded-3xl bg-white p-6 sm:p-8" aria-labelledby="seguir-explorando">
           <h2 id="seguir-explorando" className="text-2xl font-bold">Sigue explorando España</h2>
           <p className="mt-3 leading-7 text-slate-600">Completa la mesa con paseos, lugares y propuestas culturales de nuestras guías.</p>
-          <div className="mt-5 flex flex-wrap gap-3">{[["granada", "Granada"], ["cordoba", "Córdoba"], ["madrid", "Madrid"], ["bilbao", "Bilbao"], ["valencia", "Valencia"], ["barcelona", "Barcelona"], ["sevilla", "Sevilla"], ["jerez-de-la-frontera", "Jerez"], ["aranda-de-duero", "Aranda de Duero"]].map(([slug, ciudad]) => <Link key={slug} href={`/que-hacer/${slug}`} className="rounded-full border border-orange-200 px-4 py-3 text-sm font-bold text-orange-800 hover:bg-orange-50">{ciudad} →</Link>)}</div>
+          <div className="mt-5 flex flex-wrap gap-3">{[["malaga", "Málaga"], ["granada", "Granada"], ["cordoba", "Córdoba"], ["madrid", "Madrid"], ["bilbao", "Bilbao"], ["valencia", "Valencia"], ["barcelona", "Barcelona"], ["sevilla", "Sevilla"], ["jerez-de-la-frontera", "Jerez"], ["aranda-de-duero", "Aranda de Duero"]].map(([slug, ciudad]) => <Link key={slug} href={`/que-hacer/${slug}`} className="rounded-full border border-orange-200 px-4 py-3 text-sm font-bold text-orange-800 hover:bg-orange-50">{ciudad} →</Link>)}</div>
           <Link href="/que-hacer" className={`mt-6 inline-block ${enlace}`}>Ver todas las guías de Qué hacer →</Link>
         </section>
         <footer className="mt-10 border-t border-orange-200 pt-6 text-sm leading-6 text-slate-600">
-          <p><strong>Fuentes y revisión editorial.</strong> Investigación Biteseeing de GetYourGuide, publicada el 4 de noviembre de 2026, y fichas de las nueve actividades originales, consultadas el 11 de noviembre de 2026. La experiencia de Córdoba se incorporó y contrastó con GetYourGuide, Ontdek Córdoba y Turismo de Córdoba el 20 de noviembre de 2026; Granada se añadió ese mismo día, contrastando GetYourGuide, Food Lover Tour y el Ayuntamiento de Granada. Estas ampliaciones no suponen una nueva revisión de las nueve actividades originales. Los consejos para organizar el viaje son propuestas editoriales de Lugares Llenos. No se garantizan plazas, precios ni inclusiones fuera de la modalidad confirmada por el proveedor.</p>
+          <p><strong>Fuentes y revisión editorial.</strong> Investigación Biteseeing de GetYourGuide, publicada el 4 de noviembre de 2026, y fichas de las nueve actividades originales, consultadas el 11 de noviembre de 2026. La experiencia de Córdoba se incorporó y contrastó con GetYourGuide, Ontdek Córdoba y Turismo de Córdoba el 20 de noviembre de 2026; Granada se añadió ese mismo día, contrastando GetYourGuide, Food Lover Tour y el Ayuntamiento de Granada. Málaga se incorporó el 21 de noviembre de 2026 con fuentes de Turespaña, Mercados de Málaga, Spain Food Sherpas y GetYourGuide. Estas ampliaciones no suponen una nueva revisión de las nueve actividades originales. Los consejos para organizar el viaje son propuestas editoriales de Lugares Llenos. No se garantizan plazas, precios ni inclusiones fuera de la modalidad confirmada por el proveedor.</p>
           <p className="mt-3">Fotografías procedentes del <a href="https://drive.google.com/drive/folders/1mDhCVwJZc0W1L_r_3OZ-c0ifF8MS-B5n" className={enlace} target="_blank" rel="noopener noreferrer">material de prensa Biteseeing</a>, facilitado para cubrir esta historia. Vainilla: Angelo Dal Bo. Se han adaptado tamaño y encuadre para la web.</p>
           <p className="mt-4 font-semibold">Equipo de Lugares Llenos</p>
         </footer>
