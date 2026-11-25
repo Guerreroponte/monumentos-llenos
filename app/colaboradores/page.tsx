@@ -342,8 +342,6 @@ export default async function ColaboradoresPage({
           </p>
         </div>
 
-        <div className="mt-12"><EntidadesColaboradoras entidades={entidades} /></div>
-
         <div className="mt-12"><h2 className="text-2xl font-extrabold">Salas, medios y proyectos</h2><p className="mt-2 text-sm text-slate-600">Filtra los colaboradores de programación por nombre o ciudad.</p></div>
         <FiltrosColaboradores
           key={JSON.stringify([nombreBuscado, ciudadVisible])}
@@ -433,6 +431,8 @@ export default async function ColaboradoresPage({
             {(nombreBuscado || ciudadSeleccionada) && <Link href="/colaboradores" className="mt-3 block font-semibold text-orange-700 underline">Ver todos los colaboradores →</Link>}
           </div>
         )}
+
+        <div className="mt-16"><EntidadesColaboradoras entidades={entidades} /></div>
 
         <div className="mt-16 rounded-3xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 p-6 shadow-lg shadow-orange-100">
           <div className="flex items-center gap-2">
