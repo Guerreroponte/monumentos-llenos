@@ -228,7 +228,7 @@ function LugarGaleriaRotativa({
   );
 }
 
-export default function Home({ initialData }: { initialData: HomeInitialData }) {
+export default function Home({ initialData, entidades }: { initialData: HomeInitialData; entidades: React.ReactNode }) {
   const router = useRouter();
   const [ciudadHero, setCiudadHero] = useState("");
   const [errorCiudadHero, setErrorCiudadHero] = useState("");
@@ -1569,9 +1569,11 @@ ${url}`;
         <div className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6">
           <div>
             <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🤝 Ecosistema Lugares Llenos</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Espacios y marcas que ya están dentro</h2>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Espacios, entidades y marcas que ya están dentro</h2>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">Programación directa de salas, colaboraciones y partners para completar la experiencia.</p>
           </div>
+
+          {entidades}
 
           {marcasColaboradoras.length > 0 && (
             <div>

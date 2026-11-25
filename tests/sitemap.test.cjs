@@ -30,7 +30,7 @@ function cargar(fail, paginate=false) {
   }};
   const output=ts.transpileModule(fs.readFileSync(require.resolve('../app/sitemap.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
   const exports={};
-  vm.runInNewContext(output,{exports,require(name){return name.endsWith('/supabase')?{supabase:client}:name.endsWith('/agenda-ui')?agenda:ciudades},console:{error(){}},Intl,Date});
+  vm.runInNewContext(output,{exports,require(name){return name.endsWith('/entidades-data')?{getEntidades:async()=>{if(fail==='entidades') throw new Error('entidades unavailable');return [{slug:'hispania-nostra',created_at:'2026-11-25T12:00:00Z'}]}}:name.endsWith('/supabase')?{supabase:client}:name.endsWith('/agenda-ui')?agenda:ciudades},console:{error(){}},Intl,Date});
   return {run:exports.default,calls};
 }
 test('sitemap includes ongoing and future events and canonical city aliases, excluding ended or invalid periods',async()=>{
@@ -47,4 +47,11 @@ test('each failed data source rejects the complete sitemap, including a failure 
   for(const source of ['eventos:slug, created_at, fecha_inicio, fecha_fin','Monumentos:slug, created_at','colaboradores:slug, created_at','eventos:ciudad, fecha_inicio, fecha_fin','Monumentos:ciudad']) {
     for(const paginate of [false,true]) await assert.rejects(cargar(source,paginate).run(),/sitemap completo/);
   }
+});
+
+test('sitemap includes independent entities and propagates their errors', async()=>{
+ const urls=(await cargar().run()).map(x=>x.url);
+ assert(urls.includes('https://www.monumentosllenos.com/entidades/hispania-nostra'));
+ assert(!urls.includes('https://www.monumentosllenos.com/colaboradores/hispania-nostra'));
+ await assert.rejects(cargar('entidades').run(), /entidades unavailable/);
 });

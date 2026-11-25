@@ -1,3 +1,4 @@
+import { getEntidades } from "@/lib/entidades-data";
 import type { MetadataRoute } from "next";
 import { supabase } from "@/lib/supabase";
 import { claveCiudad } from "@/lib/ciudad-identidad";
@@ -277,11 +278,13 @@ export default async function sitemap(): Promise<
     lugares,
     ciudades,
     colaboradores,
+    entidades,
   ] = await Promise.all([
     obtenerEventos(),
     obtenerTodos("Monumentos"),
     obtenerCiudadesQueHacer(),
     obtenerColaboradores(),
+    getEntidades(),
   ]);
 
   const eventosUrls: MetadataRoute.Sitemap =
@@ -352,6 +355,7 @@ export default async function sitemap(): Promise<
 
     ...ciudadesUrls,
     ...colaboradoresUrls,
+    ...entidades.map(entidad => ({ url: `${baseUrl}/entidades/${entidad.slug}`, lastModified: new Date(entidad.created_at) })),
     ...eventosUrls,
     ...lugaresUrls,
   ];

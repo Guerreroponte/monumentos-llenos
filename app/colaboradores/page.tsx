@@ -1,3 +1,5 @@
+import { getEntidades } from "@/lib/entidades-data";
+import EntidadesColaboradoras from "@/components/EntidadesColaboradoras";
 import { diaMadrid, fechaAgenda, filtroEventosVigentes } from "@/lib/agenda-ui";
 import { proximosPorColaborador, type EventoColaborador } from "@/lib/colaboradores-eventos";
 import DescripcionColaborador from "./DescripcionColaborador";
@@ -43,7 +45,7 @@ export const dynamic = "force-dynamic";
 export function generateMetadata(): Metadata {
   const seo = seoListado("/colaboradores");
   return {
-    title: "Salas y colaboradores",
+    title: "Salas, entidades y colaboradores",
     alternates: { canonical: seo.canonical },
     robots: { index: seo.index, follow: true },
   };
@@ -255,6 +257,7 @@ export default async function ColaboradoresPage({
 }: {
   searchParams: Promise<{ ciudad?: string | string[]; nombre?: string | string[] }>;
 }) {
+  const entidades = await getEntidades();
   const params = await searchParams;
   const ciudadSeleccionada = (typeof params.ciudad === "string" ? params.ciudad : "").trim();
   const nombreBuscado = (typeof params.nombre === "string" ? params.nombre : "").trim();
@@ -329,16 +332,19 @@ export default async function ColaboradoresPage({
           </p>
 
           <h1 className="mt-3 text-4xl font-extrabold leading-tight text-slate-900 md:text-6xl">
-            {ciudadSeleccionada ? `Colaboradores en ${ciudadVisible}` : `${todosColaboradores.length} colaboradores que ayudan a mover planes reales`}
+            {ciudadSeleccionada ? `Colaboradores en ${ciudadVisible}` : `${todosColaboradores.length + entidades.length} colaboradores que ayudan a mover planes reales`}
           </h1>
 
           <p className="mt-6 text-lg leading-8 text-slate-600">
-            Salas, medios, proyectos, promotoras y espacios que comparten
+            Salas, entidades, instituciones, medios, proyectos, promotoras y espacios que comparten
             programación, recomendaciones, sorteos o eventos destacados para que
             más personas descubran música y planes con ambiente.
           </p>
         </div>
 
+        <div className="mt-12"><EntidadesColaboradoras entidades={entidades} /></div>
+
+        <div className="mt-12"><h2 className="text-2xl font-extrabold">Salas, medios y proyectos</h2><p className="mt-2 text-sm text-slate-600">Filtra los colaboradores de programación por nombre o ciudad.</p></div>
         <FiltrosColaboradores
           key={JSON.stringify([nombreBuscado, ciudadVisible])}
           opciones={todosColaboradores.map(({ id, nombre, ciudad }) => ({ id, nombre, ciudad }))}

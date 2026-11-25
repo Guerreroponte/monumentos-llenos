@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { getEntidades } from "@/lib/entidades-data";
+import EntidadesColaboradoras from "@/components/EntidadesColaboradoras";
 import HomeClient from "./HomeClient";
 import { getHomeInitialData } from "@/lib/initial-data";
 
@@ -19,5 +21,6 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  return <HomeClient initialData={await getHomeInitialData()} />;
+  const [initialData, entidades] = await Promise.all([getHomeInitialData(), getEntidades()]);
+  return <HomeClient initialData={initialData} entidades={<EntidadesColaboradoras entidades={entidades} />} />;
 }

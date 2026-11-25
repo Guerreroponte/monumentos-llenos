@@ -476,3 +476,17 @@ test("city places retain aliases, paginate all and propagate query failures", as
   const failing=load("lib/lugares-ciudad-data.ts",database({},"Monumentos"));
   await assert.rejects(failing.cargarLugaresCiudad("madrid"),/offline/);
 });
+
+test('entities paginate active records and never resolve hidden or missing profiles', async () => {
+  const rows = Array.from({length: 1002}, (_, i) => ({id: String(i), slug: `entidad-${i}`, activa: true}));
+  rows.push({id:'hidden',slug:'oculta',activa:false});
+  const db = database({entidades_colaboradoras:rows});
+  const {getEntidades,getEntidad} = load('lib/entidades-data.ts',db);
+  assert.equal((await getEntidades()).length,1002);
+  assert.equal((await getEntidad('entidad-0')).slug,'entidad-0');
+  assert.equal(await getEntidad('oculta'),null);
+  assert.equal(await getEntidad('inexistente'),null);
+  const failed = load('lib/entidades-data.ts',database({},'entidades_colaboradoras'));
+  await assert.rejects(failed.getEntidades(),/No se pudieron cargar/);
+  await assert.rejects(failed.getEntidad('x'),/No se pudo cargar/);
+});
