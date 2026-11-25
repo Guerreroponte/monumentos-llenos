@@ -256,19 +256,21 @@ export async function cargarDatos(client: SupabaseClient = supabase) {
 
     const ids = monumentosBase.map((m) => m.id).filter(Boolean);
 
-    let resenasData: ResenaDB[] = [];
-    let lugaresFotosData: LugarFotoDB[] = [];
+    const resenasData: ResenaDB[] = [];
+    const lugaresFotosData: LugarFotoDB[] = [];
 
-    if (ids.length > 0) {
+    // Keep PostgREST URLs below the header limit used by the production runtime.
+    for (let desde = 0; desde < ids.length; desde += 100) {
+      const loteIds = ids.slice(desde, desde + 100);
       const [resenas, fotos] = await Promise.all([
-        cargarResenasPublicas(client, ids),
+        cargarResenasPublicas(client, loteIds),
         client.from("lugares_fotos").select("id, lugar_id, imagen, orden, created_at")
-          .in("lugar_id", ids).order("orden", { ascending: true }),
+          .in("lugar_id", loteIds).order("orden", { ascending: true }),
       ]);
       if (resenas.error) throw resenas.error;
       if (fotos.error) throw fotos.error;
-      resenasData = ((resenas.data || []) as ResenaDB[]).filter(r => r.reportado !== true);
-      lugaresFotosData = (fotos.data || []) as LugarFotoDB[];
+      resenasData.push(...((resenas.data || []) as ResenaDB[]).filter(r => r.reportado !== true));
+      lugaresFotosData.push(...((fotos.data || []) as LugarFotoDB[]));
     }
 
     const resenasPorMonumento = new Map<string, ResenaDB[]>();

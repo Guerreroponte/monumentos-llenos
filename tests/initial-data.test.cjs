@@ -39,7 +39,7 @@ function database(tables, failingTable) {
     const query = {
       select(value) { columns = value; return query; },
       eq(key, value) { rows = rows.filter(row => row[key] === value); return query; },
-      in(key, values) { rows = rows.filter(row => values.includes(row[key])); return query; },
+      in(key, values) { if (values.length > 100) throw new Error("oversized filter"); rows = rows.filter(row => values.includes(row[key])); return query; },
       or() { rows = rows.filter(row => row.reportado !== true); return query; },
       not(key) { rows = rows.filter(row => row[key] != null); return query; },
       order() { return query; },
@@ -489,4 +489,13 @@ test('entities paginate active records and never resolve hidden or missing profi
   const failed = load('lib/entidades-data.ts',database({},'entidades_colaboradoras'));
   await assert.rejects(failed.getEntidades(),/No se pudieron cargar/);
   await assert.rejects(failed.getEntidad('x'),/No se pudo cargar/);
+});
+
+
+test('home loads 398 places with bounded photo and review filters without losing relationships', async () => {
+  const places = Array.from({length:398},(_,i)=>({id:`place-${i}`,nombre:`Lugar ${i}`,reportado:false}));
+  const db = database({Monumentos:places,resenas:places.map(p=>({id:`r-${p.id}`,monumento_id:p.id,comentario:'Reseña',reportado:false})),lugares_fotos:places.map(p=>({id:`f-${p.id}`,lugar_id:p.id,imagen:'https://example.com/photo.jpg',orden:1}))});
+  const result = await load('lib/home-data.ts',db).cargarDatos(db);
+  assert.equal(result.length,398);
+  for (const place of result) { assert.equal(place.resenas.length,1); assert.equal(place.resenas[0].monumento_id,place.id); assert.equal(place.fotosLugar.length,1); }
 });
