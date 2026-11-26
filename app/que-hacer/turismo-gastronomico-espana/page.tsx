@@ -1,13 +1,14 @@
+import GastronomiaLorca from "./GastronomiaLorca";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { experiencias, enlaceAfiliado, FECHA_REVISION, FECHA_ACTUALIZACION, FUENTE_BITeseeing, RUTA_GUIA } from "./experiencias";
 
 const base = "https://www.monumentosllenos.com";
 const titulo = "Turismo gastronómico en España: experiencias, rutas y sabores que descubrir";
-const descripcion = `Descubre el turismo gastronómico en España: ${experiencias.length} experiencias de tapas, mercados, paella, bodegas, vainilla y salinas, con consejos prácticos y enlaces de reserva.`;
+const descripcion = `Descubre el turismo gastronómico en España: ${experiencias.length} experiencias de tapas, mercados, paella, bodegas, vainilla y salinas, y una propuesta por libre en Lorca, con consejos prácticos y enlaces de reserva.`;
 const portada = `${base}/images/gastronomia/portada.jpg`;
 export const metadata: Metadata = {
-  title: { absolute: `Turismo gastronómico en España: ${experiencias.length} experiencias | Lugares Llenos` },
+  title: { absolute: `Turismo gastronómico en España: ${experiencias.length + 1} propuestas | Lugares Llenos` },
   description: descripcion,
   alternates: { canonical: `${base}${RUTA_GUIA}` },
   authors: [{ name: "Equipo de Lugares Llenos" }],
@@ -45,8 +46,8 @@ export default function GuiaGastronomica() {
         <header className="mt-10 max-w-4xl">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-orange-800">España · Viajar a través de los sabores</p>
           <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">{titulo}</h1>
-          <p className="mt-6 max-w-3xl text-xl leading-8 text-slate-600">Una barra, un mercado, una bodega o un ingrediente pueden ser el principio de un viaje. {experiencias.length} propuestas para conocer España con curiosidad y sentarse a la mesa con algo más que hambre.</p>
-          <p className="mt-6 text-sm text-slate-600">Por <span className="font-semibold">Equipo de Lugares Llenos</span> · Actualizado el <time dateTime={FECHA_ACTUALIZACION}>21 de noviembre de 2026</time> · Málaga y San Sebastián incorporadas en esta actualización</p>
+          <p className="mt-6 max-w-3xl text-xl leading-8 text-slate-600">Una barra, un mercado, una bodega o un ingrediente pueden ser el principio de un viaje. {experiencias.length} experiencias y una propuesta por libre en Lorca para conocer España con curiosidad y sentarse a la mesa con algo más que hambre.</p>
+          <p className="mt-6 text-sm text-slate-600">Por <span className="font-semibold">Equipo de Lugares Llenos</span> · Actualizado el <time dateTime={FECHA_ACTUALIZACION}>26 de noviembre de 2026</time> · Lorca incorporada como propuesta gastronómica por libre</p>
         </header>
 
         <figure className="mt-8">
@@ -63,7 +64,7 @@ export default function GuiaGastronomica() {
         <nav aria-label="Índice de la guía" className="mt-10 rounded-3xl border border-orange-200 bg-white p-6">
           <h2 className="text-lg font-bold">En esta guía</h2>
           <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-            {[["biteseeing", "Qué es el Biteseeing"], ["comparar", "Elegir una experiencia"], ["experiencias", `${experiencias.length} experiencias en España`], ["escapadas", "Cómo organizar tu escapada"], ["reservar", "Qué revisar antes de reservar"], ["preguntas", "Preguntas frecuentes"]].map(([id, texto]) => <a key={id} href={`#${id}`} className={enlace}>{texto} ↓</a>)}
+            {[["biteseeing", "Qué es el Biteseeing"], ["comparar", "Elegir una experiencia"], ["experiencias", `${experiencias.length} experiencias en España`], ["lorca", "Lorca: gastronomía por libre"], ["escapadas", "Cómo organizar tu escapada"], ["reservar", "Qué revisar antes de reservar"], ["preguntas", "Preguntas frecuentes"]].map(([id, texto]) => <a key={id} href={`#${id}`} className={enlace}>{texto} ↓</a>)}
           </div>
         </nav>
 
@@ -173,6 +174,8 @@ export default function GuiaGastronomica() {
           </figure>
         </div>
 
+        <GastronomiaLorca />
+
         <section id="escapadas" className="mt-14 scroll-mt-28 max-w-3xl">
           <h2 className={h2}>Cómo organizar una escapada gastronómica sin llenarla de reservas</h2>
           <p className={parrafo}>Elige una actividad principal al día y construye el resto alrededor. Si has reservado una comida larga, deja la tarde para pasear; si la experiencia empieza temprano en un mercado, duerme cerca o calcula el traslado con margen. El objetivo es volver con una historia que recuerdes, no encadenar degustaciones hasta dejar de distinguirlas.</p>
@@ -215,7 +218,7 @@ export default function GuiaGastronomica() {
           <Link href="/que-hacer" className={`mt-6 inline-block ${enlace}`}>Ver todas las guías de Qué hacer →</Link>
         </section>
         <footer className="mt-10 border-t border-orange-200 pt-6 text-sm leading-6 text-slate-600">
-          <p><strong>Fuentes y revisión editorial.</strong> Investigación Biteseeing de GetYourGuide, publicada el 4 de noviembre de 2026, y fichas de las nueve actividades originales, consultadas el 11 de noviembre de 2026. La experiencia de Córdoba se incorporó y contrastó con GetYourGuide, Ontdek Córdoba y Turismo de Córdoba el 20 de noviembre de 2026; Granada se añadió ese mismo día, contrastando GetYourGuide, Food Lover Tour y el Ayuntamiento de Granada. Málaga se incorporó el 21 de noviembre de 2026 con fuentes de Turespaña, Mercados de Málaga, Spain Food Sherpas y GetYourGuide. San Sebastián se añadió ese mismo día con fuentes de turismo oficiales, Devour Tours y GetYourGuide. Estas ampliaciones no suponen una nueva revisión de las nueve actividades originales. Los consejos para organizar el viaje son propuestas editoriales de Lugares Llenos. No se garantizan plazas, precios ni inclusiones fuera de la modalidad confirmada por el proveedor.</p>
+          <p><strong>Fuentes y revisión editorial.</strong> Investigación Biteseeing de GetYourGuide, publicada el 4 de noviembre de 2026, y fichas de las nueve actividades originales, consultadas el 11 de noviembre de 2026. La experiencia de Córdoba se incorporó y contrastó con GetYourGuide, Ontdek Córdoba y Turismo de Córdoba el 20 de noviembre de 2026; Granada se añadió ese mismo día, contrastando GetYourGuide, Food Lover Tour y el Ayuntamiento de Granada. Málaga se incorporó el 21 de noviembre de 2026 con fuentes de Turespaña, Mercados de Málaga, Spain Food Sherpas y GetYourGuide. San Sebastián se añadió ese mismo día con fuentes de turismo oficiales, Devour Tours y GetYourGuide. Lorca se añadió como propuesta por libre el 26 de noviembre de 2026, con fuentes de Turismo de Lorca. Estas ampliaciones no suponen una nueva revisión de las nueve actividades originales. Los consejos para organizar el viaje son propuestas editoriales de Lugares Llenos. No se garantizan plazas, precios ni inclusiones fuera de la modalidad confirmada por el proveedor.</p>
           <p className="mt-3">Fotografías procedentes del <a href="https://drive.google.com/drive/folders/1mDhCVwJZc0W1L_r_3OZ-c0ifF8MS-B5n" className={enlace} target="_blank" rel="noopener noreferrer">material de prensa Biteseeing</a>, facilitado para cubrir esta historia. Vainilla: Angelo Dal Bo. Se han adaptado tamaño y encuadre para la web.</p>
           <p className="mt-4 font-semibold">Equipo de Lugares Llenos</p>
         </footer>

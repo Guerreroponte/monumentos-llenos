@@ -1,3 +1,4 @@
+import RutaLorca from "./RutaLorca";
 import RutaDonostia from "./RutaDonostia";
 import RutaUbeda from "./RutaUbeda";
 import RutaElche from "./RutaElche";
@@ -33,6 +34,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["lorca", { ciudad: "Lorca", Componente: RutaLorca }],
   ["donostia-san-sebastian", { ciudad: "Donostia-San Sebastián", Componente: RutaDonostia }],
   ["ubeda", { ciudad: "Úbeda", Componente: RutaUbeda }],
   ["elche", { ciudad: "Elche", Componente: RutaElche }],

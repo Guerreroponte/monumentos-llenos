@@ -2,6 +2,45 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"lorca": {
+  "intro": "Lorca reúne palacios, plazas y vestigios de su muralla en un casco histórico que se puede descubrir por etapas. Esta guía conecta tres lugares del centro y propone una pausa gastronómica. Elige primero qué interiores quieres visitar y deja tiempo para disfrutar del paseo; si vienes por un evento, comprueba la dirección de su recinto antes de organizar los desplazamientos.",
+  "sections": [
+    [
+      "Qué ver en el centro de Lorca",
+      "Empieza en el [Palacio de Guevara](/lugar/palacio-guevara-lorca), en Lope Gisbert. Continúa hacia la Plaza de España para contemplar [San Patricio](/lugar/colegiata-san-patricio-lorca) y el entorno del Ayuntamiento. El tramo final llega al [Porche de San Antonio](/lugar/porche-san-antonio-lorca), donde el paseo cambia del barroco al paisaje de la muralla medieval."
+    ],
+    [
+      "Organiza un día a tu medida",
+      "Puedes dedicar la mañana a este recorrido y reservar otro tramo del día para los museos de bordados o el castillo. Son visitas adicionales, con sus propias entradas y horarios. El itinerario municipal Lorca Monumental permite ampliar el paseo por Santo Domingo, los museos y el Teatro Guerra; consulta la oferta oficial antes de reservar."
+    ],
+    [
+      "Dónde encajar la pausa gastronómica",
+      "Consulta el apartado de gastronomía de esta página para conocer especialidades locales y preparar una comida por libre. Pregunta por los platos disponibles ese día y deja margen si después tienes una entrada con hora fija."
+    ],
+    [
+      "Consejos para el paseo",
+      "Lleva calzado cómodo, agua y protección solar según el tiempo. El casco histórico presenta desniveles y algunos accesos tienen escaleras; no presupongas que todos los interiores son accesibles. Comprueba horarios y tarifas en las fuentes oficiales. La ruta exterior, los museos y los eventos se organizan por separado."
+    ]
+  ],
+  "sources": [
+    [
+      "Lorca Monumental · Turismo municipal",
+      "https://lorcaturismo.es/infomones/lorca-monumental.asp?lang=es"
+    ],
+    [
+      "Palacio de Guevara",
+      "https://www.turismoregiondemurcia.es/es/monumento/palacio-de-guevara-333/"
+    ],
+    [
+      "Antigua Colegiata de San Patricio",
+      "https://www.turismoregiondemurcia.es/es/monumento/colegiata-de-san-patricio-331/"
+    ],
+    [
+      "Porche de San Antonio",
+      "https://www.turismoregiondemurcia.es/es/monumento/porche-de-san-antonio-281/"
+    ]
+  ]
+},
 "donostia-san-sebastian": {
   "intro": "Donostia-San Sebastián permite enlazar el centro y la Parte Vieja en un mismo paseo. Esta guía conecta tres templos y termina cerca de las calles de pintxos. Puedes recorrer los exteriores sin reservar una visita guiada; las entradas y horarios de cada interior se consultan por separado.",
   "sections": [

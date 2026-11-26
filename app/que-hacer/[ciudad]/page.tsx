@@ -1,3 +1,4 @@
+import GastronomiaLorca from "../turismo-gastronomico-espana/GastronomiaLorca";
 import { contarCategoriasCiudad } from "@/lib/categorias-ciudad";
 import { rutasAPie } from "./rutas-a-pie";
 import { experiencias, RUTA_GUIA } from "../turismo-gastronomico-espana/experiencias";
@@ -315,7 +316,7 @@ export default async function CiudadPage({
           <a href="#guia-local" className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
             📖 Guía local
           </a>
-          {experienciaGastronomica && <a href="#gastronomia" className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+          {(experienciaGastronomica || ciudadSlug === "lorca") && <a href="#gastronomia" className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
             🍴 Gastronomía
           </a>}
         </div>
@@ -683,6 +684,8 @@ export default async function CiudadPage({
             )}
           </div>
         </section>}
+
+        {ciudadSlug === "lorca" && <GastronomiaLorca ciudad />}
 
         {experienciaGastronomica && <section id="gastronomia" aria-labelledby="gastronomia-titulo" className="scroll-mt-32 mt-20 rounded-3xl border border-orange-200 bg-white p-6 shadow-sm sm:p-8">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-700">Gastronomía · {experienciaGastronomica.tipo}</p>

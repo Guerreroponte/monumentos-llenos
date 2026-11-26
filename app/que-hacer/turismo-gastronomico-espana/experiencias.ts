@@ -3,7 +3,7 @@
 export const PARTNER_ID = "3B0Y74E";
 export const RUTA_GUIA = "/que-hacer/turismo-gastronomico-espana";
 export const FECHA_REVISION = "2026-11-11";
-export const FECHA_ACTUALIZACION = "2026-11-21";
+export const FECHA_ACTUALIZACION = "2026-11-26";
 export const FUENTE_BITeseeing = "https://www.getyourguide.press/blog/biteseeing";
 
 export function enlaceAfiliado(url: string) {
