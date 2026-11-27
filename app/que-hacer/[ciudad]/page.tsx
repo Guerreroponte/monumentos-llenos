@@ -240,6 +240,15 @@ export default async function CiudadPage({
     experiencia => experiencia.guia === ciudadSlug && claveCiudad(experiencia.ciudad) === ciudadSlug
   );
   const ciudadFormateada = nombreCiudad(ciudadReal || formatearCiudadDesdeSlug(ciudadSlug));
+  const categoriasDisponibles = categorias
+    .filter(categoria => categoria.href !== "#colaboradores" || colaboradores.length > 0)
+    .map(categoria => ({
+      ...categoria,
+      cantidad: categoria.tipo ? eventosCiudad.categorias?.[categoria.tipo] :
+        categoria.href === "#lugares" ? (errorLugares ? undefined : lugaresCiudad.total) : colaboradoresCiudad.total,
+    }))
+    .filter(categoria => categoria.cantidad !== 0);
+
 
   return (
     <main className="bg-[#fff7ed] min-h-screen">
@@ -293,19 +302,19 @@ export default async function CiudadPage({
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <a
+          {eventosCiudad.total > 0 && <a
             href="#eventos"
             className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             🎵 {eventosCiudad.total} {eventosCiudad.total === 1 ? "próximo evento" : "próximos eventos"}
-          </a>
+          </a>}
 
-          <a
+          {lugaresCiudad.total > 0 && <a
             href="#lugares"
             className="rounded-full border border-orange-100 bg-white px-5 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
             🏛️ {lugaresCiudad.total} {lugaresCiudad.total === 1 ? "lugar" : "lugares"}
-          </a>
+          </a>}
 
           {colaboradores.length > 0 && <a
             href="#colaboradores"
@@ -321,22 +330,16 @@ export default async function CiudadPage({
           </a>}
         </div>
 
-        <section className="mt-12 rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
+        {categoriasDisponibles.length > 0 && <section className="mt-12 rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
           <h2 className="text-2xl font-bold text-slate-900">
             ¿Qué buscas hoy en{" "}
             {ciudadFormateada}?
           </h2>
 
           <div className="mt-5 flex flex-wrap gap-3">
-            {categorias.filter(categoria => categoria.href !== "#colaboradores" || colaboradores.length > 0).map(categoria => {
-              const cantidad = categoria.tipo ? eventosCiudad.categorias?.[categoria.tipo] :
-                categoria.href === "#lugares" ? (errorLugares ? undefined : lugaresCiudad.total) : colaboradoresCiudad.total;
+            {categoriasDisponibles.map(categoria => {
+              const { cantidad } = categoria;
               const etiqueta = <>{categoria.label}{cantidad !== undefined && <span className="ml-1">· {cantidad}</span>}</>;
-              if (cantidad === 0) return (
-                <span key={categoria.label} className="inline-flex min-h-11 items-center rounded-full border border-slate-100 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-500">
-                  {etiqueta}
-                </span>
-              );
               return (
                 <a key={categoria.label}
                   href={categoria.tipo ? `/eventos?ciudad=${encodeURIComponent(ciudadFormateada)}&tipo=${encodeURIComponent(categoria.tipo)}#seccion-todos` : categoria.href}
@@ -346,7 +349,7 @@ export default async function CiudadPage({
               );
             })}
           </div>
-        </section>
+        </section>}
 
         <section className="mt-10 rounded-3xl border border-orange-100 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
