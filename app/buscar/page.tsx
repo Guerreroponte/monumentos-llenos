@@ -1,3 +1,4 @@
+import ExplorarBusqueda from "./ExplorarBusqueda";
 import type { Metadata } from "next";
 import Link from "next/link";
 import BusquedaGlobalForm from "@/components/BusquedaGlobalForm";
@@ -41,13 +42,13 @@ export default async function BuscarPage({ searchParams }: { searchParams: Promi
   const vacio = (grupo: string, error: boolean) => <p className="mt-4 text-slate-600">{error ? `No hemos podido cargar ${grupo}. Vuelve a intentarlo en unos minutos.` : `No encontramos ${grupo} para esta búsqueda.`}</p>;
   return <main className="min-h-screen bg-[#fff7ed] text-slate-900 px-4 py-10 sm:py-14">
     <div className="mx-auto max-w-5xl">
+      <div className={!q ? "relative rounded-[2rem] border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-amber-100/60 p-6 shadow-sm sm:p-9" : ""}>
+      {!q && <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-orange-700">Tu próxima escapada empieza aquí</p>}
       <h1 className="text-3xl font-extrabold text-slate-900 sm:text-4xl">Busca tu próximo plan</h1>
       <p className="mb-6 mt-3 text-slate-600">Eventos, lugares y ciudades en una sola búsqueda. Puedes escribir con o sin tildes.</p>
       <BusquedaGlobalForm key={q} consulta={q} />
-      {!datos ? <div className="mt-8 rounded-3xl bg-white p-6">
-        <p>{q ? "Escribe al menos dos letras o números para buscar." : "Busca una ciudad, un artista, un monumento o un tipo de evento."}</p>
-        <div className="mt-4 flex flex-wrap gap-4">{["Madrid", "Lorca", "Jazz"].map(e => <Link key={e} className={estiloLink} href={`/buscar?q=${encodeURIComponent(e)}`}>{e}</Link>)}</div>
-      </div> : <>
+      </div>
+      {!datos ? (q ? <p className="mt-8 rounded-3xl bg-white p-6">Escribe al menos dos letras o números para buscar.</p> : <ExplorarBusqueda />) : <>
         <h2 className="mt-8 text-xl font-bold text-slate-900">Resultados para «{q}»</h2>
         <nav aria-label="Tipos de resultados" className="my-5 flex flex-wrap gap-3">
           {[["ciudades", "Ciudades", ciudades.total, datos.ciudades.status], ["eventos", "Eventos", eventos.total, datos.eventos.status], ["lugares", "Lugares", lugares.total, datos.lugares.status]].map(([id, label, total, status]) => <a key={id} href={`#${id}`} className="rounded-full border border-orange-200 bg-white px-4 py-2 font-semibold text-slate-700">{label}{status === "fulfilled" ? ` · ${total}` : " · No disponible"}</a>)}
