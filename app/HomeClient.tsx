@@ -1,5 +1,6 @@
 "use client";
 
+import BusquedaGlobalForm from "@/components/BusquedaGlobalForm";
 import { resumenLugar } from "@/lib/descripcion-lugar";
 import { intercalarCiudades } from "@/lib/lugares-diversidad";
 import { enlaceFichaLugar } from "@/lib/lugares-navigation";
@@ -1380,12 +1381,17 @@ ${url}`;
 
       {/* BUSCADOR */}
       <section id="buscador" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 md:py-16">
+        <div className="mb-8 rounded-3xl border border-orange-100 bg-white p-6 sm:p-8">
+          <h2 className="mb-3 text-3xl font-black text-slate-950">Buscar eventos, lugares y ciudades</h2>
+          <p className="mb-5 text-slate-600">Encuentra tu próximo plan en una sola búsqueda, con los resultados separados por tipo.</p>
+          <BusquedaGlobalForm id="busqueda-global-inicio" />
+        </div>
         <div className="relative overflow-hidden rounded-[34px] border border-orange-100 bg-gradient-to-br from-white via-orange-50 to-amber-50 p-6 shadow-xl shadow-orange-100/60 sm:p-8">
           <div className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-orange-300/20 blur-3xl" />
           <div className="relative grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-500">🔎 Encuentra tu siguiente sitio</p>
-              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Buscar lugares y ciudades</h2>
+              <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Filtrar lugares de la comunidad</h2>
               <p className="mt-3 text-sm leading-6 text-slate-600">Filtra la comunidad por nombre o ciudad y salta directamente a lo que te interesa.</p>
             </div>
 

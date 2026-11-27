@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
       { source: "/lugar/cerro-del-tio-pio-madrid-mirador-con-vistas-reales-cuando-ir-y-evitar-gente-madrid", destination: "/lugar/cerro-del-tio-pio-madrid-vallecas", permanent: true },
       // Las consultas (incluida ciudad) se conservan en el destino.
       { source: "/lugar", destination: "/#lugares", permanent: true },
-      { source: "/buscar", destination: "/#buscador", permanent: true },
     ];
   },
 };

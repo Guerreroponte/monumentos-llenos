@@ -21,7 +21,7 @@ export default function HeaderGlobal() {
   const seccion = pathname === "/"
     ? (["#mapa", "#lugares", "#buscador"].includes(hash) ? `/${hash}` : hash === "#participa" ? "/participa" : "/")
     : pathname.startsWith("/lugar/") ? "/#lugares"
-    : ["/eventos", "/que-hacer", "/colaboradores", "/participa"].find(
+    : ["/eventos", "/que-hacer", "/colaboradores", "/participa", "/buscar"].find(
       (ruta) => pathname === ruta || pathname.startsWith(`${ruta}/`)
     );
   const actual = (ruta: string) => seccion === ruta ? (ruta.includes("#") ? "location" as const : "page" as const) : undefined;
@@ -146,7 +146,7 @@ export default function HeaderGlobal() {
                 Colaboradores
               </a>
 
-              <a href="/#buscador" className={estilo("/#buscador")} aria-current={actual("/#buscador")}>
+              <a href="/buscar" className={estilo("/buscar")} aria-current={actual("/buscar")}>
                 Buscar
               </a>
 
@@ -237,10 +237,10 @@ export default function HeaderGlobal() {
                   </a>
 
                   <a
-                    href="/#buscador"
+                    href="/buscar"
                     onClick={cerrarMenuMovil}
-                    className={estilo("/#buscador", true)}
-                   aria-current={actual("/#buscador")}>
+                    className={estilo("/buscar", true)}
+                   aria-current={actual("/buscar")}>
                     Buscar
                   </a>
 
