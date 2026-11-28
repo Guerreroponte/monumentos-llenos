@@ -1,0 +1,47 @@
+[
+  {
+    "nombre": "Castillo de San Marcos",
+    "slug": "castillo-san-marcos-el-puerto-de-santa-maria",
+    "ciudad": "El Puerto de Santa María",
+    "provincia": "Cádiz",
+    "comunidad_autonoma": "Andalucía",
+    "latitud": 36.596465,
+    "longitud": -6.226669,
+    "fuente": "https://www.turismoelpuerto.com/monumentos-castillo-de-san-marcos",
+    "precio": "Consultar condiciones y tarifas de visita en la web oficial",
+    "imagen": "https://www.monumentosllenos.com/images/lugares/el-puerto-de-santa-maria/castillo-san-marcos.jpg",
+    "descripcion": "El Castillo de San Marcos permite reconocer distintas etapas de la historia de El Puerto de Santa María: conserva restos de la antigua mezquita dentro de un edificio transformado en iglesia fortificada. Desde la plaza se distinguen sus torres y almenas. Para conocer el interior, consulta las modalidades del gestor: la visita al monumento y las opciones que añaden bodega o cata tienen condiciones diferentes. Antes de comprar, revisa el idioma, el horario y qué incluye tu entrada. Puedes continuar el paseo por el centro hacia la Plaza de España.\n\nFotografía: Turismo de El Puerto de Santa María. Procedencia: https://www.turismoelpuerto.com/monumentos-castillo-de-san-marcos",
+    "reportado": false,
+    "es_seed": false
+  },
+  {
+    "nombre": "Iglesia Mayor Prioral",
+    "slug": "iglesia-mayor-prioral-el-puerto-de-santa-maria",
+    "ciudad": "El Puerto de Santa María",
+    "provincia": "Cádiz",
+    "comunidad_autonoma": "Andalucía",
+    "latitud": 36.59987,
+    "longitud": -6.22883,
+    "fuente": "https://www.turismoelpuerto.com/monumentos-basilica-menor-nuestra-senora-de-los-milagros",
+    "precio": "Consultar condiciones y tarifas de visita en la web oficial",
+    "imagen": "https://www.monumentosllenos.com/images/lugares/el-puerto-de-santa-maria/iglesia-mayor-prioral.jpg",
+    "descripcion": "La Iglesia Mayor Prioral, también llamada Basílica Menor de Nuestra Señora de los Milagros, se encuentra en la Plaza de España. Su construcción está documentada desde 1486, aunque las reconstrucciones explican la mezcla de estilos que muestra hoy. En el exterior, fíjate en la Puerta del Perdón y en la decoración de la Puerta del Sol. Si accedes al templo, dedica tiempo a sus naves y capillas. La visita cultural debe adaptarse al culto; confirma las condiciones de acceso y los posibles donativos con el templo o Turismo municipal.\n\nFotografía: Turismo de El Puerto de Santa María. Procedencia: https://www.turismoelpuerto.com/monumentos-basilica-menor-nuestra-senora-de-los-milagros",
+    "reportado": false,
+    "es_seed": false
+  },
+  {
+    "nombre": "Casa de los Leones",
+    "slug": "casa-leones-el-puerto-de-santa-maria",
+    "ciudad": "El Puerto de Santa María",
+    "provincia": "Cádiz",
+    "comunidad_autonoma": "Andalucía",
+    "latitud": 36.6001,
+    "longitud": -6.22689,
+    "fuente": "https://www.turismoelpuerto.com/monumentos-casa-de-los-leones",
+    "precio": "Consultar condiciones y tarifas de visita en la web oficial",
+    "imagen": "https://www.monumentosllenos.com/images/lugares/el-puerto-de-santa-maria/casa-leones.jpg",
+    "descripcion": "La Casa de los Leones, en La Placilla, es una casa barroca de 1780 ligada al comerciante Jacinto Díez de Celis. Su fachada combina relieves de leones, una hornacina y un balcón de formas onduladas. La ubicación junto al entorno comercial permite enlazar patrimonio y vida cotidiana en un mismo paseo. El inmueble tiene uso hotelero: contempla el exterior desde la plaza y consulta las condiciones vigentes para acceder al patio; las habitaciones y otras dependencias no forman parte de una visita libre. Es una buena última parada antes de buscar dónde comer en el centro.\n\nFotografía: Turismo de El Puerto de Santa María. Procedencia: https://www.turismoelpuerto.com/monumentos-casa-de-los-leones",
+    "reportado": false,
+    "es_seed": false
+  }
+]

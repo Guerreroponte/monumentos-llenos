@@ -1,3 +1,4 @@
+import RutaPuerto from "./RutaPuerto";
 import RutaLorca from "./RutaLorca";
 import RutaDonostia from "./RutaDonostia";
 import RutaUbeda from "./RutaUbeda";
@@ -34,6 +35,7 @@ import RutaCardona from "./RutaCardona";
 import RutaAlcoy from "./RutaAlcoy";
 
 export const rutasAPie = new Map([
+  ["el-puerto-de-santa-maria", { ciudad: "El Puerto de Santa María", Componente: RutaPuerto }],
   ["lorca", { ciudad: "Lorca", Componente: RutaLorca }],
   ["donostia-san-sebastian", { ciudad: "Donostia-San Sebastián", Componente: RutaDonostia }],
   ["ubeda", { ciudad: "Úbeda", Componente: RutaUbeda }],

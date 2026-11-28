@@ -2,6 +2,41 @@ import Link from "next/link";
 import { Fragment } from "react";
 
 const guias = {
+"el-puerto-de-santa-maria": {
+  "intro": "El Puerto de Santa María permite combinar patrimonio, vida comercial y gastronomía en el centro histórico. Esta propuesta enlaza tres edificios y deja espacio para una comida o una visita a una bodega. Si vienes por un evento, localiza primero su recinto: no toda la programación se celebra en el casco histórico.",
+  "sections": [
+    [
+      "Tres paradas para conocer el centro",
+      "Empieza en el [Castillo de San Marcos](/lugar/castillo-san-marcos-el-puerto-de-santa-maria) y continúa hacia la Plaza de España para ver la [Iglesia Mayor Prioral](/lugar/iglesia-mayor-prioral-el-puerto-de-santa-maria). Termina en la [Casa de los Leones](/lugar/casa-leones-el-puerto-de-santa-maria), en La Placilla. El mapa de esta página permite localizar cada parada y abrir el recorrido a pie."
+    ],
+    [
+      "Una mañana de patrimonio, sin prisas",
+      "Elige los interiores que te interesan antes de salir. El castillo ofrece distintas modalidades y la Prioral mantiene su actividad religiosa. La Casa de los Leones es también un alojamiento: consulta el acceso al patio y respeta las zonas privadas. No necesitas reservar los tres interiores para disfrutar del paseo exterior."
+    ],
+    [
+      "Dónde encajar la gastronomía",
+      "Después del paseo, consulta el apartado de gastronomía para organizar una comida por libre. Puedes buscar un cocedero de marisco, elegir tapas o reservar una visita a bodega. Comprueba la dirección de cada establecimiento y qué incluye la actividad: comer y recorrer los monumentos son planes independientes."
+    ],
+    [
+      "Si después tienes un evento",
+      "Consulta en la ficha de tu evento la ubicación exacta y la hora de entrada. Deja margen para el desplazamiento desde el centro y organiza el regreso. Para ampliar la visita, el directorio municipal reúne monumentos, museos y bodegas con sus contactos; confirma horarios y disponibilidad antes de ir."
+    ]
+  ],
+  "sources": [
+    [
+      "Turismo municipal · monumentos",
+      "https://www.turismoelpuerto.com/descubrelo/historia-y-monumentos/monumentos"
+    ],
+    [
+      "Horarios y contactos oficiales",
+      "https://www.turismoelpuerto.com/horario-de-visitas"
+    ],
+    [
+      "Gastronomía y vinos",
+      "https://www.turismoelpuerto.com/descubrelo/gastronomia-y-vinos/"
+    ]
+  ]
+},
 "lorca": {
   "intro": "Lorca reúne palacios, plazas y vestigios de su muralla en un casco histórico que se puede descubrir por etapas. Esta guía conecta tres lugares del centro y propone una pausa gastronómica. Elige primero qué interiores quieres visitar y deja tiempo para disfrutar del paseo; si vienes por un evento, comprueba la dirección de su recinto antes de organizar los desplazamientos.",
   "sections": [
